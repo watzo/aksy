@@ -85,12 +85,19 @@ class File(object):
     def has_children(self):
         return False
 
+    def copy(self, dest_path):
+        """Copies a file
+        """
+        item = self.load()
+        # new_parent = Folder(dest_path)
+        # add item to dest_path
+    
     def load(self):
         """Load the file into memory 
         """
         self.get_parent().set_current()
         self.disktools.load_file(self.get_name())
-
+        # XXX: self.path should reflect memory location
         if self.type == self.MULTI:
             return Multi(self.module, self.path)
         if self.type == self.PROGRAM:
@@ -139,6 +146,12 @@ class File(object):
 File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"), "transfer": Action(File.transfer, "Transfer"),}
 
 class InMemoryFile(File):
+    def get_handle(self):
+        """Returns the handle
+        XXX: Should be set on init
+        """
+        return self.module.get_handle_by_name(self.get_name())
+
     def set_current(self):
         self.module.set_current_by_name(self.get_name())
 
@@ -147,6 +160,9 @@ class InMemoryFile(File):
         self.module.get_no_items()
         self.set_current()
         self.module.delete_current()
+
+    def save(self, overwrite, dependents=False):
+        self.disktools.save_file(self.get_handle(), self.type, overwrite, dependents) 
 
     def tranfer(self, dest_path):
         pass
@@ -195,6 +211,12 @@ class Folder(File):
         for item in self.path:
             self.disktools.set_curr_folder(item)
         print "Current folder after set_current: %s" % self.disktools.get_curr_path()
+
+    def copy(self, dest_path, recursive=True):
+        """Copies a folder, default is including all its children
+        """
+        # copy the folder
+        # copy the children to the new path
 
     def rename(self, new_name):
         self.get_parent().set_current()
@@ -316,3 +338,19 @@ class Storage:
 
     def set_children(self, item_list):
         self._children = item_list
+
+class Memory(Storage):
+    def __init__(self, z48, name):
+        Storage.__init__(self, name)
+        self.z48 = z48
+
+    def get_children(self):
+        if len(self._children) > 0:
+            return self._children
+        else:
+            programs = [Program(name) for name in self.z48.program_main.get_names()]
+            multi = [Multi(name) for name in self.z48.multi_main.get_names()]
+            sample = [Sample(name) for name in self.z48.sample_main.get_names()]
+            self._children.extend(programs)
+            self._children.extend(multi)
+            self._children.extend(sample)

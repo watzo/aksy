@@ -126,6 +126,7 @@ class AksyFSTree(wxTreeListCtrl):
         print "EndDrag %s, Mod: %s" % (repr(item), repr(evt.GetKeyCode()))
         if not isinstance(item, wrappers.Folder):
             return
+        # do copy operation
         self.AppendAksyItem(dest, self.draggedItem)
 
     def AppendAksyItem(self, parent, item):
@@ -224,7 +225,7 @@ class TestPanel(wxPanel):
         EVT_MENU(parent, wxID_PASTE, self.OnPaste)   
 
         disks = wrappers.Storage("disk")
-        mem = wrappers.Storage("memory")
+        mem = wrappers.Memory(self.z, "memory")
 
         storage = [disks, mem]
 
@@ -251,9 +252,6 @@ class TestPanel(wxPanel):
                 for folder in folders:
                     self.tree.AppendAksyItem(disks_id, folder)
 
-                # programs = self.z.program_main.get__names()
-                # multis = self.z.multi_main.get_names()
-                # samples = self.z.sample_main.get_names()
             except Exception, e:
                 parent.reportException(e)
                 return
