@@ -9,14 +9,13 @@ from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wx
 from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME
 
 import wrappers
-import aksysdisktools, program_main, multi_main, sample_main
 import aksy
 import os.path, traceback, sys
 
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = True
+USE_MOCK_OBJECTS = False
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -41,7 +40,7 @@ class Frame(wxFrame):
         self.SetMenuBar(menuBar) 
         self.SetSize((800, 600))
         self.Show(True)
-        EVT_MENU(self, ID_EXIT, self.OnExitMenu)   
+        EVT_MENU(self, ID_EXIT, self.OnExit)
         EVT_MENU(self, ID_ABOUT, self.OnAbout) 
 
         EVT_CLOSE(self, self.OnExit)
@@ -61,13 +60,22 @@ class Frame(wxFrame):
         d= wxMessageDialog(self, " Aksy, controlling your Z48 sampler\n", "About Aksy", wxOK)
         d.ShowModal() 
         d.Destroy() 
+
     def OnExitMenu(self,e):
-        self.Close(True) 
+        try:
+            self.z.close()
+        except Exception, e:
+            pass
+        self.Close(True)
+
     def OnExit(self,e):
-        self.z.close()
+        try:
+            self.z.close()
+        except Exception, e:
+            pass
+
         self.Destroy() 
 
-          
     def reportException(self, exception):
         traceback.print_exc()
         d= wxMessageDialog( self, "%s\n" % exception[0], "An error occurred", wxOK)
@@ -143,6 +151,11 @@ class AksyFSTree(wxTreeListCtrl):
 
         self.SetPyData(child, item)
         self.AddItemIndex(item.path, child)
+
+        if not isinstance(item, wrappers.Storage):
+            self.SetItemText(child, str(item.get_size()), 1)
+            self.SetItemText(child, str(item.get_used_by()), 2)
+            self.SetItemText(child, str(item.get_modified()), 3)
 
         if isinstance(item, wrappers.File):
             if item.type == wrappers.File.MULTI:
@@ -232,13 +245,13 @@ class TestPanel(wxPanel):
         disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disks)
         mem_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), mem)
 
-        program_module = self.z.program_module
-        sample_module = self.z.sample_module
-        multi_module = self.z.multi_module
-        wrappers.File.init_modules(
-            {wrappers.File.MULTI: multi_module,
-             wrappers.File.PROGRAM: program_module,
-             wrappers.File.SAMPLE: sample_module, })
+        programtools = self.z.programtools
+        sampletools = self.z.sampletools
+        multitools = self.z.multitools
+        wrappers.File.init_tools(
+            {wrappers.File.MULTI: multitools,
+             wrappers.File.PROGRAM: programtools,
+             wrappers.File.SAMPLE: sampletools, })
 
         # Move this stuff somewhere else...
         if not USE_MOCK_OBJECTS:
@@ -491,4 +504,3 @@ if __name__ == '__main__':
     frame = Frame(None, "Aksy")
     win = TestPanel(frame)
     app.MainLoop()
-
