@@ -1,19 +1,20 @@
-import re
+"""aksy model
+
+Offers a higher level API, wrapping the lower level API using sysex types and values.
+"""
+import re, os.path
 
 RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
 
-modules = {} 
-def init_tools(tools):
-    modules.update(tools)
+handlers = {} 
 
-"""
-try:
-    modules
-except NameError:
-    raise Exception("Model not initialized properly")
-"""
+def register_handlers(tools):
+    """Initialize the handlers, keyed on class
+    definitions.
+    """
+    handlers.update(tools)
 
 class Disk(object):
     def __init__(self, (handle, disktype, fstype, disk_id, writable, name)):
@@ -31,21 +32,21 @@ class Action:
     """Wraps an action for a file, adapting an interface action to
     a function call
     """ 
-    def __init__(self, function, display_name, external_id=None):
-        self.execute = function 
+    def __init__(self, function_name, display_name, id=None):
+        self.function_name = function_name
         self.display_name = display_name
         # The function to be executed before the function
         self.prolog = None
         # The function to be executed after the function
         self.epilog = None
-        self.id = None
+        self.id = id
 
 class File(object):
-    FOLDER = 1
-    MULTI = 2
-    PROGRAM = 3
-    SAMPLE = 4
-    SONG = 5
+    FOLDER = 0
+    MULTI = 1
+    PROGRAM = 2
+    SAMPLE = 3
+    SONG = 4
 
     def __init__(self, path):
         """Initializes a file object - A multi, program or sample before it
@@ -68,6 +69,11 @@ class File(object):
 
     def get_name(self):
         return self.path[-1]
+
+    def get_handle(self):
+        """Returns a unique handle for the file
+        """
+        return self.path
 
     def get_size(self):
         return 'Unknown' 
@@ -96,20 +102,21 @@ class File(object):
         """Load the file into memory 
         """
         self.get_parent().set_current()
-        modules['disktools'].load_file(self.get_name())
+        handlers[Disk].load_file(self.get_name())
         # XXX: self.path should reflect memory location
         if self.type == self.MULTI:
-            return Multi(self.path)
+            return Multi(self.get_name())
         if self.type == self.PROGRAM:
-            return Program(self.path)
+            return Program(self.get_name())
         if self.type == self.SAMPLE:
-            return Sample(self.path)
+            return Sample(self.get_name())
 
     def transfer(self, path):
         """Transfer the file to host 
         """
         print "Transfer of file %s to %s" % (self.get_name(), repr(path))
-        modules['disktools'].get(self.get_name(), path)
+        # XXX: remove the reference to the sampler
+        handlers[Disk].z48.get(self.get_name(), path)
 
     def get_children(self):
         """
@@ -122,28 +129,19 @@ class File(object):
     def delete(self):
         """
         """
-        modules['disktools'].delete_file(self.path)
+        handlers[Disk].delete_file(self.path)
 
     def rename(self, new_name):
         """
         """
         self.get_parent().set_current()
-        modules['disktools'].rename_file(new_name)
+        handlers[Disk].rename_file(new_name)
         self.path = self.path[:-1] + (new_name,)
 
     def get_actions(self):
-        """Returns the actions defined by this file type
-        """
         return File.actions
 
-    def get_list_repr(self):
-        """Returns a representation of the file for display
-        in a list
-        """
-        raise NotImplementedError
-
-#TODO: how to do this within the class definition... consider static method
-File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"), "transfer": Action(File.transfer, "Transfer"),}
+File.actions = [Action("load", "Load"), Action("delete", "Delete"), Action("transfer", "Transfer"),]
 
 class Folder(File):
     def __init__(self, path):
@@ -162,26 +160,26 @@ class Folder(File):
             return self.children
 
         self.children = [Folder(self.path + (subfolder,))
-            for subfolder in modules['disktools'].get_subfolder_names()]
+            for subfolder in handlers[Disk].get_subfolder_names()]
 
         files = [ File(self.path + (name,)) for name in 
-            modules['disktools'].get_filenames() ]
+            handlers[Disk].get_filenames() ]
 
         self.children.extend(files)
         return self.children
 
     def has_children(self):
-        return (len(self.children) > 0 or modules['disktools'].get_no_files() > 0 or
-            modules['disktools'].get_no_subfolders() > 0)
+        return (len(self.children) > 0 or handlers[Disk].get_no_files() > 0 or
+            handlers[Disk].get_no_subfolders() > 0)
         
     def get_name(self):
         return self.path[-1]
 
     def set_current(self):
-        print "Current folder before set_current: %s" % modules['disktools'].get_curr_path()
+        print "Current folder before set_current: %s" % handlers[Disk].get_curr_path()
         for item in self.path:
-            modules['disktools'].set_curr_folder(item)
-        print "Current folder after set_current: %s" % modules['disktools'].get_curr_path()
+            handlers[Disk].set_curr_folder(item)
+        print "Current folder after set_current: %s" % handlers[Disk].get_curr_path()
 
     def copy(self, dest_path, recursive=True):
         """Copies a folder, default is including all its children
@@ -191,21 +189,22 @@ class Folder(File):
 
     def rename(self, new_name):
         self.get_parent().set_current()
-        modules['disktools'].rename_subfolder(self.get_name(), new_name)
+        handlers[Disk].rename_subfolder(self.get_name(), new_name)
         self.path = self.path[:-1] + (new_name,)
 
     def load(self):
         """
         """
         self.get_parent().set_current()
-        modules['disktools'].load_folder(self.get_name())
-        return self
+        handlers[Disk].load_folder(self.get_name())
+        print "Loading folder children %s" % repr (self.get_children())
+        return [item for item in self.get_children()]
 
     def delete(self):
         """
         """
         self.get_parent().set_current()
-        modules['disktools'].delete_subfolder(self.get_name())
+        handlers[Disk].delete_subfolder(self.get_name())
         # could be optimized by using dicts instead of lists
         for item in self.get_parent().get_children():
             if item.get_name() == self.get_name():
@@ -216,21 +215,36 @@ class Folder(File):
         """
         """
         self.get_parent().set_current()
-        modules['disktools'].create_subfolder(name)
-        self.children.append(Folder(self.path + (name,)))
+        handlers[Disk].create_subfolder(name)
+        folder = Folder(self.path + (name,))
+        self.children.append(folder)
+        return folder
+
+    def add_child(self, item):
+        """Adds a child item to this folder
+        Returns the added item
+        """
+        self.set_current()
+        handlers[Disk].save(item.get_handle(), item.type, True, False)
+        item = File(self.path + (name,))
+        self.children.append(item)
+        return item
 
     def transfer(self, path):
         """Transfer the folder to host 
         """
-        print "Transfer of folder not supported yet"
-
-Folder.actions = {}
-Folder.actions.update(File.actions)
-Folder.actions.update({"transfer": Action(Folder.transfer, "Transfer"),})
+        self.get_parent().set_current()
+        path = os.path.join(path, self.get_name())
+        print "Transfer to dir: %s" % repr(path)
+        if not os.path.exists(path):
+            os.makedirs(path)
+            for item in self.get_children():
+                print "Transfer to dir: %s" % repr(path)
+                item.transfer(os.path.join(path, item.get_name()))
 
 class InMemoryFile(File):
-    def __init__(self, path, handle=None):
-        File.__init__(self, path) 
+    def __init__(self, name, handle=None):
+        self.name = name
         self.handle = handle
 
     def get_size(self):
@@ -239,32 +253,32 @@ class InMemoryFile(File):
     def get_used_by(self):
         return None
 
+    def get_name(self):
+        return self.name
+    
     def get_handle(self):
         """Returns the handle
         XXX: Should be set on init
         """
-        return modules[self.type].get_handle_by_name(self.get_name())
+        return handlers[self.__class__].get_handle_by_name(self.get_name())
 
     def set_current(self):
-        modules[self.type].set_current_by_name(self.get_name())
+        handlers[self.__class__].set_current_by_name(self.get_name())
 
     def delete(self):
-        print "InMemoryFile.delete() %s" % repr(modules[self.type])
-        modules[self.type].get_no_items()
+        print "InMemoryFile.delete() %s" % repr(self.get_name())
+        handlers[self.__class__].get_no_items()
         self.set_current()
-        modules[self.type].delete_current()
+        handlers[self.__class__].delete_current()
 
     def save(self, overwrite, dependents=False):
-        modules['disktools'].save_file(self.get_handle(), self.type, overwrite, dependents) 
+        handlers[Disk].save_file(self.get_handle(), self.type, overwrite, dependents) 
 
     def tranfer(self, dest_path):
         pass
 
     def rename(self, new_name):
         pass
-
-InMemoryFile.actions = {"delete": Action(InMemoryFile.delete, "Delete"),
-"transfer":Action(InMemoryFile.transfer, "Transfer"),}
 
 class Multi(InMemoryFile):
     def get_used_by(self):
@@ -274,21 +288,6 @@ class Multi(InMemoryFile):
         """Returns the programs used by this multi
         """
 
-    def get_actions(self):
-        """Returns the actions defined by this file type
-        """
-        return ("delete", "rename", "transfer")
-
-    def get_list_repr(self):
-        """Returns a representation of the file for display
-        in a list
-        """
-
-#TODO: possible inheritance issues, any subclass implementation
-#will not be used
-Multi.actions = {}
-Multi.actions.update(InMemoryFile.actions)
-
 class Program(InMemoryFile):
     def get_used_by(self):
         """Returns the multi(s) using this program
@@ -297,14 +296,6 @@ class Program(InMemoryFile):
     def get_children(self):
         """Returns the samples used by this program
         """
-
-    def get_list_repr(self):
-        """Returns a representation of the file for display
-        in a list
-        """
-
-Program.actions = {}
-Program.actions.update(InMemoryFile.actions)
 
 class Sample(InMemoryFile):
     def get_used_by(self):
@@ -316,14 +307,6 @@ class Sample(InMemoryFile):
         """Returns the samples used by this program
         """
         return None
-
-    def get_list_repr(self):
-        """Returns a representation of the file for display
-        in a list
-        """
-
-Sample.actions = {}
-Sample.actions.update(InMemoryFile.actions)
 
 class Storage:
     def __init__(self, name):
@@ -339,24 +322,30 @@ class Storage:
     def get_name(self):
         return self.name
 
+    def get_handle(self):
+        return self.name
+
     def get_children(self):
         return self._children    
 
     def set_children(self, item_list):
         self._children = item_list
 
+    def get_actions(self):
+        # maybe implement an info action?
+        return ()
+
 class Memory(Storage):
-    def __init__(self, z48, name):
+    def __init__(self, name):
         Storage.__init__(self, name)
-        self.z48 = z48
 
     def get_children(self):
         if len(self._children) > 0:
             return self._children
         else:
-            programs = [Program(name) for name in modules['programtools'].get_names()]
-            multi = [Multi(name) for name in modules['multitools'].get_names()]
-            sample = [Sample(name) for name in modules['sampletools'].get_names()]
+            programs = [Program(name) for name in handlers[Program].get_names()]
+            multi = [Multi(name) for name in handlers[Multi].get_names()]
+            sample = [Sample(name) for name in handlers[Sampler].get_names()]
             self._children.extend(programs)
             self._children.extend(multi)
             self._children.extend(sample)

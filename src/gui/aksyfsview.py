@@ -4,13 +4,13 @@ from wxPython.wx import wxPySimpleApp, wxFrame, wxPanel, wxID_ANY, wxDEFAULT_FRA
 from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY, wxID_PASTE, wxNewId, wxID_OK, wxPyDataObjectSimple, wxTextDataObject, wxFileDropTarget
 from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT, EVT_TREE_ITEM_EXPANDING, EVT_TREE_ITEM_ACTIVATED
-from wxPython.wx import EVT_TREE_SEL_CHANGED, EVT_TREE_KEY_DOWN, WXK_DELETE, EVT_TREE_BEGIN_DRAG, EVT_TREE_END_DRAG
+from wxPython.wx import EVT_TREE_SEL_CHANGED, EVT_KEY_UP, EVT_TREE_KEY_DOWN, WXK_DELETE, EVT_TREE_BEGIN_DRAG, EVT_TREE_END_DRAG, WXK_F2, wxYES_NO, wxID_YES
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
-from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME
+from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME,wxDialog,wxDataObject
 
 import model
 import aksy
-import os.path, traceback, sys
+import os.path, traceback, sys, copy
 
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
@@ -26,16 +26,13 @@ class Frame(wxFrame):
         filemenu.AppendSeparator()
         filemenu.Append(ID_EXIT,"E&xit\tCtrl+Q"," Terminate the program")
 
-        editmenu = wxMenu()
-        editmenu.Append(wxID_CUT, "Cut\tCtrl+x", "Cut") 
-        editmenu.Append(wxID_COPY, "Copy\tCtrl+C", "Copy") 
-        editmenu.Append(wxID_PASTE, "Paste\tCtrl+V", "Paste") 
+        self.action_menu = ActionMenu(self, wxSIMPLE_BORDER)
         helpmenu = wxMenu()
         helpmenu.Append(ID_ABOUT, "&About"," Information about this program")
 
         menuBar = wxMenuBar()
         menuBar.Append(filemenu,"&File") 
-        menuBar.Append(editmenu,"&Edit") 
+        menuBar.Append(self.action_menu,"&Actions") 
         menuBar.Append(helpmenu,"&Help") 
         self.SetMenuBar(menuBar) 
         self.SetSize((800, 600))
@@ -75,6 +72,9 @@ class Frame(wxFrame):
             pass
 
         self.Destroy() 
+
+    def set_edit_menu(self, menu):
+        self.GetMenuBar().Replace(1, menu, "Actions")
 
     def reportException(self, exception):
         traceback.print_exc()
@@ -119,14 +119,16 @@ class AksyFSTree(wxTreeListCtrl):
         EVT_TREE_ITEM_ACTIVATED(self, id, self.OnItemActivate)
         EVT_TREE_BEGIN_DRAG(self, id, self.OnItemBeginDrag)
         EVT_TREE_END_DRAG(self, id, self.OnItemEndDrag)
-        #EVT_TREE_SEL_CHANGED(self, id, self.OnSelChanged)
-        #EVT_TREE_KEY_DOWN(self, id, self.OnKeyDown)
+        EVT_TREE_SEL_CHANGED(self, id, self.OnSelChanged)
+        EVT_TREE_KEY_DOWN(self, id, self.OnKeyDown)
 
     def OnItemBeginDrag(self, evt):
         id = evt.GetItem()
-        self.draggedItem = self.GetPyData(id)
-        print "BeginDrag ", self.draggedItem.get_name()
-        evt.Allow()
+        item = self.GetPyData(id)
+        if isinstance(item, model.File):
+            self.draggedItem = item
+            print "BeginDrag ", self.draggedItem.get_name()
+            evt.Allow()
 
     def OnItemEndDrag(self, evt):
         dest = evt.GetItem()
@@ -150,7 +152,7 @@ class AksyFSTree(wxTreeListCtrl):
             self.SetItemHasChildren(child)
 
         self.SetPyData(child, item)
-        self.AddItemIndex(item.path, child)
+        self.AddItemIndex(item.get_handle(), child)
 
         if not isinstance(item, model.Storage):
             self.SetItemText(child, str(item.get_size()), 1)
@@ -176,29 +178,41 @@ class AksyFSTree(wxTreeListCtrl):
 
         return child
 
-    def AddItemIndex(self, path, wx_id):
-        self._index[path] = wx_id
+    def AddItemIndex(self, handle, wx_id):
+        self._index[handle] = wx_id
 
     def GetItemByName(self, name):
         return self._index[name]
 
     def OnSelChanged(self, evt):
-        print "OnSelChanged: %s" % repr(evt.GetItem())
+        id = evt.GetItem()
+        item = self.GetPyData(id)
+        self.GetParent().GetParent().action_menu.set_actions(item.get_actions())
 
     def OnKeyDown(self, evt):
-        id = self.GetSelection()
-        item = self.GetPyData(id)
-        print  repr(item)
-        if evt.GetKeyCode() == WXK_DELETE:
-            print "OnKeyDown delete: %s" % item.get_name()
-            self.Delete(id)
+        if evt.GetKeyCode() == WXK_F2 and self.GetParent().is_rename_ok():
+            id = self.GetSelection()
+            item = self.GetPyData(id)
+            self.EditLabel(id)
+            return
+        elif evt.GetKeyCode() == WXK_DELETE:
+            id = self.GetSelection()
+            item = self.GetPyData(id)
+            if not evt.GetKeyEvent().ShiftDown():
+                dialog = wxMessageDialog(self, "Are you sure to delete %s" %item.get_name(),"Delete", wxYES_NO)
+                if dialog.ShowModal() == wxID_YES:
+                    if hasattr(item, "delete"):
+                        item.delete()
+                        self.Delete(id)
+                dialog.Destroy()
+                return
         else:
+            # event skip should be the only statement
             evt.Skip()
 
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
-        print "OnItemExpanding: %s" % item.get_name()
 
         for item in item.get_children():
             if item.path not in self._index:
@@ -208,7 +222,6 @@ class AksyFSTree(wxTreeListCtrl):
         # TODO: hookup the edit views here
         id = evt.GetItem()
         item = self.GetPyData(id)
-        print "Item activated for item %s" % item.get_name()
 
 class TestPanel(wxPanel):
     def __init__(self, parent):
@@ -224,21 +237,24 @@ class TestPanel(wxPanel):
 
         self.tree = AksyFSTree(self, 5001, style=wxTR_EDIT_LABELS|wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE|wxTR_MULTIPLE)
         self.actions = {}
-        self.register_menu_actions(model.Folder.actions)
         self.register_menu_actions(model.File.actions)
-        self.register_menu_actions(model.Program.actions)
-        self.register_menu_actions(model.Multi.actions)
-        self.register_menu_actions(model.InMemoryFile.actions)
+
+        for action in ( model.Action('cut','Cut\tCtrl+X', wxID_CUT),
+                        model.Action('copy','Copy\tCtrl+C', wxID_COPY),
+                        model.Action('save','Paste\tCtrl+V', wxID_PASTE)):
+            model.File.actions.append(action)
+            self.register_menu_action(action)
+
+        EVT_MENU(parent, wxID_CUT, self.OnCut)   
+        EVT_MENU(parent, wxID_COPY, self.OnCopy)   
+        EVT_MENU(parent, wxID_PASTE, self.OnPaste)   
 
         EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
         EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
-        EVT_MENU(parent, wxID_COPY, self.OnCopy)   
-        EVT_MENU(parent, wxID_CUT, self.OnCut)   
-        EVT_MENU(parent, wxID_PASTE, self.OnPaste)   
 
-        disks = model.Storage("disk")
-        mem = model.Memory(self.z, "memory")
+        disks = self.z.disks
+        mem = self.z.memory
 
         storage = [disks, mem]
 
@@ -324,43 +340,51 @@ class TestPanel(wxPanel):
     def OnPaste(self, evt):
         parent_id = self.tree.GetSelection()
         if wxTheClipboard.Open():
-            data = wxTextDataObject()
+            data = wxDataObject()
+            if wxTheClipboard.GetData(data):
+                print "Clipboard data ", repr(data)
             if wxTheClipboard.GetData(data):
                 print "Clipboard data ", repr(data.GetText())
                 #item = self.tree.GetPyData(data.getId())
                 print "OnPaste ", repr(item.get_name())
                 #self.tree.AppendAksyItem(id, data.getId())
             # or a cut/copied node
+            wxTheClipboard.Close()
             # if cut -> paste the node to the new location
             # and remove the old node
             # otherwise create the new node
 
- 
-
     def register_menu_actions(self, actions):
 
         # hook into actions
-        if actions.has_key('transfer') and actions == model.Folder.actions:
-            actions['transfer'].prolog = self.select_directory
+        for action in actions:
+            if action.function_name == 'transfer':
+                action.display_name +=  '\tCtrl+T'
+                action.prolog = self.select_directory
+                file_transfer_action = copy.copy(action)
+                file_transfer_action.prolog = self.select_file
+                self.register_menu_action(file_transfer_action)
+            elif action.function_name == 'load':
+                action.display_name +=  '\tCtrl+L'
+                action.epilog = self.add_to_memory_branch
 
-        if actions.has_key('transfer') and actions == model.File.actions:
-            actions['transfer'].prolog = self.select_file
+            if action.function_name == 'delete':
+                action.display_name +=  '\tCtrl+D'
+                inmem_file_delete = copy.copy(action)
+                inmem_file_delete.epilog = self.remove_from_memory_branch
+                self.register_menu_action(inmem_file_delete)
 
-        if actions.has_key('load'):
-            actions['load'].epilog = self.add_to_memory_branch
+            self.register_menu_action(action)
 
-        if actions.has_key('delete') and actions == model.InMemoryFile.actions:
-            actions['delete'].epilog = self.remove_from_memory_branch
-
-        action = model.Action('copy','Copy\tCtrl+C')
-        actions['copy'] = action
-
-        for key in actions.keys():
+    def register_menu_action(self, action):
+        if action.id is None:
             id = wxNewId()
-            actions[key].id = id
-            self.actions[id] = actions[key]
-            print key 
-            EVT_MENU(self, id, self.ExecuteAction)
+            action.id = id
+        else:
+            id = action.id
+        self.actions[id] = action
+        EVT_MENU(self, id, self.ExecuteAction)
+        EVT_MENU(self.GetParent(), id, self.ExecuteAction)   
 
     def RenameAction(self, evt):
         new_name = evt.GetLabel()
@@ -373,10 +397,16 @@ class TestPanel(wxPanel):
         item.rename(new_name)
 
     def CheckRenameAction(self, evt):
+        """Handles begin label edit
+        """
+        if not self.is_rename_ok():
+            evt.Veto()
+
+    def is_rename_ok(self):
         id = self.tree.GetSelection()
         item = self.tree.GetPyData(id)
-        if not hasattr(item, 'rename'):
-            evt.Veto()
+        if hasattr(item, 'rename'):
+            return True
 
     def ExecuteAction(self, evt):
         action = self.actions[evt.GetId()]
@@ -395,9 +425,11 @@ class TestPanel(wxPanel):
             return
 
         if len(args) == 0:
-            result = action.execute(item)
+            result = getattr(item, action.function_name)()
+        elif len(args) == 1:
+            result = getattr(item, action.function_name)(args[0])
         else:
-            result = action.execute(item, args)
+            result = getattr(item, action.function_name)(args)
 
         if action.epilog is not None:
             if result is None:
@@ -443,16 +475,20 @@ class TestPanel(wxPanel):
         aksy_object = self.tree.GetPyData(item)
         if aksy_object is None or aksy_object.actions is None:
             return
-        filemenu = FileMenu(self, wxSIMPLE_BORDER)
-        filemenu.set_actions(aksy_object.actions.values())
+        action_menu = self.GetParent().action_menu
 
-        self.PopupMenu(filemenu, e.GetPosition())
+        self.PopupMenu(action_menu, e.GetPosition())
 
     def add_to_memory_branch(self, item, result):
         """Updates the memory branch when an item has been loaded
         """
         memory_folder = self.tree.GetItemByName('memory')
-        self.tree.AppendAksyItem(memory_folder, result)
+        if not isinstance(result, list):
+            self.tree.AppendAksyItem(memory_folder, result)
+        else:
+            for item in result:
+                self.tree.AppendAksyItem(memory_folder, item)
+
         self.tree.Expand(memory_folder)
 
     def remove_from_memory_branch(self, item):
@@ -462,11 +498,13 @@ class TestPanel(wxPanel):
     def OnSize(self, e):
         self.tree.SetSize(self.GetSize())
 
-class FileMenu(wxMenu):
+class ActionMenu(wxMenu):
     def __init__(self, parent, style):
          wxMenu.__init__(self)
 
     def set_actions(self, actions):
+        for item in self.GetMenuItems():
+            self.Remove(item.GetId())
         for index, action in enumerate(actions):
             self.Append(action.id, action.display_name, action.display_name)
          
