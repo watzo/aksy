@@ -1,0 +1,55 @@
+\x07	system_get_param	System Parameters
+\x01	Get Sampler Name
+STRING
+\x02	Get SCSI self ID
+BYTE
+\x03	Get Master Tune
+SWORD
+\x04	Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
+BYTE
+\x05	Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)	BYTE
+BYTE
+\x06	Get Qlink Local Control <Reply> = (0=OFF, 1=ON)
+BYTE
+\x07	Get Create Default Items at Startup <Reply> = (0=OFF, 1=ON)
+BYTE
+\x08	Get MIDI file save format
+BYTE
+\x09	Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
+BYTE
+\x0A	Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
+BYTE
+\x10	Get Front panel lock-out state
+BYTE
+\x11	Get Display Contrast
+BYTE
+\x12	Get Note Display <Reply> = (0=NUMBER, 1=NAME)
+BYTE
+\x13	Get Date Display Format  <Reply> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
+BYTE
+\x14	Get Time Display Format <Reply> = (0=12HOUR, 1=24HOUR)
+BYTE
+\x18	Get Waveform View Scale <Reply> = (0=LINEAR, 1=LOG)
+BYTE
+\x19	Get Waveform View Type <Reply> = (0=RECTIFIED, 1=BIPOLAR)
+BYTE
+\x1A	Get Waveform View Fill <Reply> = (0=OFF, 1=ON)
+BYTE
+\x1B	Get Item Sort Mode <Reply> = (0=ALPHABETIC, 1=MEMORY)
+BYTE
+\x20	Get Year
+BYTE
+\x21	Get Month
+BYTE
+\x22	Get Day
+BYTE
+\x23	Get Day of Week (0=SUN)
+BYTE
+\x24	Get Hours
+BYTE
+\x25	Get Minutes
+BYTE
+\x26	Get Seconds
+BYTE
+\x30	Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
+BYTE
