@@ -1,7 +1,7 @@
 from aksyxusb import Z48Sampler
 from sysex import Request, Reply 
 import sysex
-import aksysdisktools, program_main, multi_main, sample_main, model
+import disktools, program_main, multi_main, sample_main, model
 import struct
 import sys,time
 
@@ -38,7 +38,7 @@ class Z48(Z48Sampler):
     def __init__(self, debug=0):
         self.debug = debug
         Z48Sampler.__init__(self)
-        self.disktools = aksysdisktools.DiskTools(self)
+        self.disktools = disktools.Disktools(self)
         self.programtools = program_main.ProgramMain(self)
         self.sampletools = sample_main.SampleMain(self)
         self.multitools = multi_main.MultiMain(self)
