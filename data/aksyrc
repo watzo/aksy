@@ -1,0 +1,17 @@
+### Aksy environment parameters ###
+
+# sample directories, first is default
+sampledirs = ('/home/walco/sounds/',)
+
+### AKP creation parameters ###
+
+# regular expression template to extract parameters from sample name
+# *) samplename-A4(L).wav: 
+# "(?P<sample_name>.*)-(?P<midi_note>[A-Ga-g][1-6])\((?P<channel>[lLmMrR)\).wav"
+# *) samplename_60.wav: 
+# "(?P<sample_name>.*)_(?P<midi_note>[0-1]?[0-9]{2})\((?P<channel>)\).wav"
+sample_name_template = "(?P<sample_name>[a-zA-Z0-9]+)-(?P<midi_note>[A-Ga-g][1-6]).wav"
+
+# set to true to enable setting of the midi note in the wave file
+# if it was successfully parsed from the sample name 
+use_filename_to_set_midi_note = True
