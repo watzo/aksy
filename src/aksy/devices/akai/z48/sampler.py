@@ -1,6 +1,6 @@
 from aksyxusb import Z48Sampler
-import sysex
-from sysex import Request, Reply
+from aksy.devices.akai import sysex
+from aksy.devices.akai.sysex import Request, Reply
 import disktools, programtools, multitools, sampletools, systemtools, recordingtools
 from aksy import model
 import struct
@@ -84,10 +84,27 @@ class Sampler(Z48Sampler):
         """
         Z48Sampler.close_usb(self)
 
-    def get(self, filename, destpath):
+    def get(self, filename, destpath, source=MEMORY):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
-        Z48Sampler._get(self, sysex.STRING.encode(filename), destpath)
+        if source == self.DISK:
+            Z48Sampler._get(self, sysex.STRING.encode(filename), destpath)
+        if source == self.MEMORY:
+            print filename[:-4]
+            if filename.lower().endswith('akp'):
+                handle = self.programtools.get_handle_by_name(filename[:-4])
+            elif filename.lower().endswith('wav'):
+                handle = self.sampletools.get_handle_by_name(filename[:-4])
+            elif filename.lower().endswith('akm'):
+                handle = self.multitools.get_handle_by_name(filename[:-4])
+            elif filename.lower().endswith('mid'):
+                handle = self.songtools.get_handle_by_name(filename[:-4])
+            else:
+                raise Exception("%s has an unknown extension.", filename)
+                
+            Z48Sampler._get(self, sysex.DWORD.encode(handle), destpath)
+        else:
+            raise Exception("Unknown source: %s", source)
 
     def put(self, path, remote_name, destination=MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
