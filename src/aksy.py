@@ -91,21 +91,30 @@ class Z48(Z48Sampler):
 
 class MockZ48(Z48):
     MEMORY = 1
+    def __init__(self, debug=0):
+        Z48.__init__(self)
+        self.debug = debug
+
     def init(self):
-        print "Init sampler"
+        if self.debug > 0:
+            print "Init sampler"
 
     def get(self, filename, destpath):
-        print "Transferring file %s to host" % filename
+        if self.debug > 0:
+            print "Transferring file %s to host" % filename
 
     def put(self, path, remote_name, destination=MEMORY):
-        print "Transferring file %s to sampler" % path
+        if self.debug > 0:
+            print "Transferring file %s to sampler" % path
         
     def execute(self, command, args, z48id=None, userref=None):
-        print "Executing command: %s " % command.name
-        return ''
+        if self.debug > 0:
+            print "Executing command: %s " % command.name
+        return None
 
     def close(self):
-        print "Close sampler"
+        if self.debug > 0:
+            print "Close sampler"
 
 if __name__ == "__main__":
     import doctest, sys
