@@ -39,10 +39,10 @@ class File(object):
     PROGRAM = 2
     SAMPLE = 3
 
-    def init_modules(modules):
+    def init_tools(modules):
         File.modules = modules
 
-    init_modules = staticmethod(init_modules)
+    init_tools = staticmethod(init_tools)
 
     def __init__(self, disktools, path):
         """Initializes a file object - A multi, program or sample before it
@@ -108,7 +108,7 @@ class File(object):
     def transfer(self, path):
         """Transfer the file to host 
         """
-        print "Transfer of file %s to %s" % (self._get_name(), repr(path))
+        print "Transfer of file %s to %s" % (self.get_name(), repr(path))
         self.disktools.z48.get(self.get_name(), path)
 
     def get_children(self):
@@ -144,34 +144,6 @@ class File(object):
 
 #TODO: how to do this within the class definition... consider static method
 File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"), "transfer": Action(File.transfer, "Transfer"),}
-
-class InMemoryFile(File):
-    def get_handle(self):
-        """Returns the handle
-        XXX: Should be set on init
-        """
-        return self.module.get_handle_by_name(self.get_name())
-
-    def set_current(self):
-        self.module.set_current_by_name(self.get_name())
-
-    def delete(self):
-        print "InMemoryFile.delete() %s" % repr(self.module)
-        self.module.get_no_items()
-        self.set_current()
-        self.module.delete_current()
-
-    def save(self, overwrite, dependents=False):
-        self.disktools.save_file(self.get_handle(), self.type, overwrite, dependents) 
-
-    def tranfer(self, dest_path):
-        pass
-
-    def rename(self, new_name):
-        pass
-
-InMemoryFile.actions = {"delete": Action(InMemoryFile.delete, "Delete"),
-"transfer":Action(InMemoryFile.transfer, "Transfer"),}
 
 class Folder(File):
     def __init__(self, disktools, path):
@@ -257,11 +229,41 @@ Folder.actions = {}
 Folder.actions.update(File.actions)
 Folder.actions.update({"transfer": Action(Folder.transfer, "Transfer"),})
 
+class InMemoryFile(File):
+    def get_size(self):
+        return 'Unknown'
+
+    def get_used_by(self):
+        return None
+
+    def get_handle(self):
+        """Returns the handle
+        XXX: Should be set on init
+        """
+        return self.module.get_handle_by_name(self.get_name())
+
+    def set_current(self):
+        self.module.set_current_by_name(self.get_name())
+
+    def delete(self):
+        print "InMemoryFile.delete() %s" % repr(self.module)
+        self.module.get_no_items()
+        self.set_current()
+        self.module.delete_current()
+
+    def save(self, overwrite, dependents=False):
+        self.disktools.save_file(self.get_handle(), self.type, overwrite, dependents) 
+
+    def tranfer(self, dest_path):
+        pass
+
+    def rename(self, new_name):
+        pass
+
+InMemoryFile.actions = {"delete": Action(InMemoryFile.delete, "Delete"),
+"transfer":Action(InMemoryFile.transfer, "Transfer"),}
+
 class Multi(InMemoryFile):
-    def __init__(self, multi_main, name=None):
-        """
-        """
-        
     def get_used_by(self):
         return None
 
@@ -305,6 +307,7 @@ class Sample(InMemoryFile):
     def get_used_by(self):
         """Returns the pogram(s) using this file
         """
+        return None
 
     def get_children(self):
         """Returns the samples used by this program
@@ -348,9 +351,9 @@ class Memory(Storage):
         if len(self._children) > 0:
             return self._children
         else:
-            programs = [Program(name) for name in self.z48.program_main.get_names()]
-            multi = [Multi(name) for name in self.z48.multi_main.get_names()]
-            sample = [Sample(name) for name in self.z48.sample_main.get_names()]
+            programs = [Program(self.z48.programtools, name) for name in self.z48.programtools.get_names()]
+            multi = [Multi(self.z48.multitools, name) for name in self.z48.multitools.get_names()]
+            sample = [Sample(self.z48.sampletools.name) for name in self.z48.sampletools.get_names()]
             self._children.extend(programs)
             self._children.extend(multi)
             self._children.extend(sample)
