@@ -5,6 +5,7 @@ from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY, wxNewId, wxID_OK
 from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
+from wxPython.wx import wxFileDialog 
 
 import wrappers
 import aksysdisktools, program_main, multi_main, sample_main
@@ -293,16 +294,18 @@ class TestPanel(wxPanel):
         return retval
         
     def select_file(self, item):
-        file_dialog = wxFileDialog(self, "Choose a destination for %s" %item.name, 
+        # TODO: cache this dialog as it is heavy...
+        filedialog = wxFileDialog(self, "Choose a destination for %s" %item.name, 
             style=wxDD_DEFAULT_STYLE)
-        file_dialog.SetPath(self.lastdir)
-        if file_dialog.ShowModal() == wxID_OK:
-            self.lastdir = (file_dialog.GetPath(),)
+        filedialog.SetPath(self.lastdir)
+        filedialog.SetFilename(item.name)
+        if filedialog.ShowModal() == wxID_OK:
+            path = filedialog.GetFilename() 
         else:
-            file = None
+            path = None
 
         filedialog.Destroy()
-        return file
+        return (path)
         
     def contextMenu(self, e):
         # TODO: multi-select

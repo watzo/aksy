@@ -93,6 +93,7 @@ class File(object):
     def transfer(self, path):
         """Transfer the file to host 
         """
+        print "Transfer of file %s" %repr(path)
 
     def get_children(self):
         """
@@ -121,8 +122,8 @@ class File(object):
         """
         raise NotImplementedError
 
-#TODO: how to do this within the class definition...
-File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"),}
+#TODO: how to do this within the class definition... consider static method
+File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"), "transfer": Action(File.transfer, "Transfer"),}
 
 class InMemoryFile(File):
     def set_current(self):
@@ -134,10 +135,14 @@ class InMemoryFile(File):
         self.set_current()
         self.module.delete_current()
 
+    def tranfer(self, dest_path):
+        pass
+
     def rename(self, new_name):
         pass
 
-InMemoryFile.actions = {"delete": Action(InMemoryFile.delete, "Delete"),}
+InMemoryFile.actions = {"delete": Action(InMemoryFile.delete, "Delete"),
+"transfer":Action(InMemoryFile.transfer, "Transfer"),}
 
 class Folder(File):
     def __init__(self, disktools, path):
