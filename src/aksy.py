@@ -12,14 +12,10 @@ class Z48(Z48Sampler):
     You can use it like this:
     >>> z = Z48()
     >>> z.init()
-    >>> time.sleep(1) 
-    >>> #z.get_no_disks()
-    1
-
-    >>> z.get_disklist() 
+    >>> z.disktools.get_disklist() 
     (512, 1, 2, 0, 1, 'Z48 & MPC4K')
 
-    >>> z.select_disk(1024) 
+    >>> z.select_disk(256) 
     >>> z.set_curr_folder('') 
     >>> # z.create_subfolder('AUTOLOAD') 
     >>> z.set_curr_folder('AUTOLOAD') 
@@ -46,11 +42,14 @@ class Z48(Z48Sampler):
         self.programtools = program_main.ProgramMain(self)
         self.sampletools = sample_main.SampleMain(self)
         self.multitools = multi_main.MultiMain(self)
-        model.init_tools({'disktools': self.disktools,
-                        model.File.FOLDER: self.disktools,
-                        model.File.PROGRAM: self.programtools,
-                        model.File.SAMPLE: self.sampletools,
-                        model.File.MULTI: self.multitools})
+        model.register_handlers({model.Disk: self.disktools,
+                        model.File: self.disktools,
+                        model.Program: self.programtools,
+                        model.Sample: self.sampletools,
+                        model.Multi: self.multitools})
+
+        self.disks = model.Storage('disk')
+        self.memory = model.Memory('memory')
 
     def init(self):
         """Initializes the connection with the sampler
