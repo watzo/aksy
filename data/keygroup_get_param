@@ -1,0 +1,81 @@
+\x13	keygroup_get_parameter	Keygroup Get Parameter
+\x01	get_group_id	Get Group ID
+BYTE
+\x02	get_keygroup_edit_mode	Get Keygroup Edit Mode <Reply1> = (0=SINGLE, 1=ALL, 2=ADD) 
+BYTE
+\x04	get_low_note	Get Low Note
+BYTE
+\x05	get_high_note	Get High Note
+BYTE
+\x06	get_mute_group	Get Mute Group <Reply1> = (0=OFF, 1­64=value)
+BYTE
+\x07 	get_FX_override	Get FX override <Reply1> = (0=OFF, 1=A, 2=B, 3=C, 4=D, 5=AB, 6=CD, 7=MULTI)
+BYTE
+\x08	get_FX_send_level	Get FX Send Level <Reply1> = level in 10×dB (-600­+60)
+SWORD
+\x09	get_zone_crossfade	Get Zone Crossfade <Reply1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)
+BYTE
+\x0A	get_crossfade_type	Get Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
+BYTE
+\x0E	get_polyphoy	Get Polyphony
+BYTE
+\x0F	get_zone_crossfade_ctrl_no	Get Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)
+BYTE
+\x10	get_keygroup_pitch	Get Keygroup Pitch/Amp (RT)	SBYTE(0 ­ ±3600)	Get Cents Tune.
+SBYTE
+\x11 	get_keygroup_level	Get Keygroup Level (RT) <Reply> = value in 10×dB
+SWORD
+\x18	get_play_trigger	Get Play Trigger <Reply> = (0=NOTE ON, 1=NOTE OFF)
+BYTE
+\x19	get_player_trigger_velocity	Get Play Trigger Velocity (0­129)	<Reply> = (0=ON VEL, 1=OFF VEL, 2­129=0­127)
+WORD
+\x1A 	get_play_toggle_note	Get Play Toggle Note <Reply> = (0=OFF, 1=ON)
+BYTE
+\x20	get_filter	Get Filter <Data1> = Filter block (0=N
+BYTE
+\x21	get_filter_cutoff	Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100) BYTE
+BYTE
+\x22	get_filter_resonance	Get Filter Resonance (0-3) (0-60)	BYTE
+BYTE
+\x23	get_filter_attenuation	Get Filter Attenuation (one setting for all filters) <Reply> = (0, 1, 2, 3, 4, 5 = 0dB, 6dB, 12dB, 18dB, 24dB, 30dB)
+BYTE
+\x30	get_envelope_rate	Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0­100) Get Envelope Rate 1 (for AMP = Attack)	BYTE
+BYTE
+\x31	get_envelope_level1	Get Envelope Level 1 (FILTER and AUX only)
+BYTE
+\x32	get_envelope_rate2	Get Envelope Rate 2 (for AMP = Decay)
+BYTE
+\x33	get_envelope_level2	Get Envelope Level 2 (for AMP = Sustain)	BYTE
+BYTE
+\x34	get_envelope_rate3	Get Envelope Rate 3 (for AMP = Release)	BYTE
+BYTE
+\x35	get_envelope_level3	Get Envelope Level 3 (FILTER and AUX only)	BYTE
+BYTE
+\x36	get_envelope_rate4	Get Envelope Rate 4 (FILTER and AUX only)	BYTE
+BYTE
+\x37	get_envelope_level4	Get Envelope Level 4 (FILTER and AUX only)	BYTE
+BYTE
+\x42	get_envelope_reference	Get Envelope Reference (FILTER and AUX only)	BYTE
+BYTE
+\x43 	get_attack_hold	Get Attack Hold <Reply> = (0=OFF, 1=ON) (AMP only)
+BYTE
+\x50	get_LFO_rate	Get LFO Rate (0=LFO1, 1=LFO2)	BYTE
+BYTE
+\x51 	get_LFO_delay	Get LFO Delay (0=LFO1, 1=LFO2)	BYTE
+BYTE
+\x52 	get_LFO_depth	Get LFO Depth (0=LFO1, 1=LFO2)	BYTE(0­8)	BYTE
+BYTE
+\x53	get_LFO_waveform	Get LFO Waveform <Reply> = waveform	(0=LFO1, 1=LFO2)	BYTE
+BYTE
+\x54 	get_LFO_phase	Get LFO Phase(0=LFO1, 1=LFO2)	BYTE
+WORD
+\x55	get_LFO_shift	Get LFO Shift(0=LFO1, 1=LFO2)	BYTE
+SBYTE
+\x56	get_LFO_midi_sync	Get LFO MIDI Sync (0=LFO1, 1=LFO2) <Reply> = (0=OFF, 1=ON)	BYTE
+BYTE
+\x57	get_midi_clock_sync_div	Get MIDI Clock Sync Division <Reply> = value, where 0=8 cy/bt, 1=6cy/bt, 2=4cy/bt, 3=3cy/bt, 4=2cy/bt, 5=1cy/bt 6=2 bt/cy, 7=3bt/cy, ..., 68=64bt/cy	BYTE
+BYTE
+\x58 	get_LFO_retrigger	Get LFO Re-trigger <Data1>0: LFO1 1: LF02 <Reply> = (0=OFF, 1=ON)	BYTE
+BYTE
+\x59	get_LFO_sync	Get LFO sync (i.e., all voices in program locked to same LFO)	BYTE
+BYTE

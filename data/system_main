@@ -1,0 +1,32 @@
+\x04	system_main	System Main
+\x00	get_os_software_version	Get Operating System Software Version 
+2BYTES
+\x01	get_os_subversion	Get the Sub-Version of the Operating System 
+BYTE
+\x04	get_sampler_model	Get Sampler Model 
+BYTE
+\x08	get_supported_filetypes	Get List of supported filetypes 
+STRING
+\x10	get_perc_free_wave_mem	Get the percentage free Wave memory 
+BYTE
+\x11	get_perc_free_cpu_mem	Get the percentage free CPU memory
+BYTE
+\x12	get_wave_mem_size	Get the total number of kilobytes of Wave memory
+DWORD
+\x13	get_free_wave_mem_size	Get the number of kilobytes of free Wave memory
+DWORD
+\x18	clear_sampler_mem	Clear Sampler Memory (delete all items from memory)
+
+\x19	purge_unused	Purge Unused Items <Data1> = (0=SAMPLE, 1=PROGRAM)	BYTE
+
+\x1A	tag_unused	Tag Unused Items <Data1> = (0=SAMPLE, 1=PROGRAM)	BYTE
+
+\x20	compact_wave_mem	Start Compact Wave Memory
+
+\x21	cancel_compact_wave_mem	Cancel Compact Wave Memory
+
+\x22 	get_compact_wave_mem_progress	Get Compact Wave Memory Progress (%)
+BYTE
+\x30 	get_async_operation_state	Get State of Asynchronous Operation ERROR 'operation is pending' or DONE
+
+\x31 	cancel_curr_async_operation	Cancel Current Asynchronous Operation

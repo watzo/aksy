@@ -85,6 +85,8 @@ while line:
             % (indent_block, section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
 
         register_commands.writelines("%s%s.commands[('%s', '%s')] = comm\n" % (indent_block, z48_instance_name, section_id, id))
+    except IndexError, e:
+        print "Parse error at line: %s, reason %s " % (line, e.args)
     except ValueError, e:
         print "Parse error at line: %s, reason %s " % (line, e.args)
 
