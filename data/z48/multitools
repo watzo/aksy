@@ -6,9 +6,9 @@ DWORD
 \x18	\x02\x01	get_names	Get names items: <Data1>; 1=list of names; 
 STRING
 \x18	\x02\x02	get_handles_names	Get handles names: <Data1>; 2=list of handle+name
-DWORD	STRING
+HANDLENAMEARRAY
 \x18	\x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
-DWORD	STRING
+HANDLENAMEARRAY
 \x18	\x03	set_current_by_handle	Select by handle	DWORD
 
 \x18	\x04	set_current_by_name	Select by name	STRING

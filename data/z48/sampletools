@@ -6,9 +6,9 @@ BYTE
 \x1C	\x02\x01	get_names	Get sample names
 
 \x1C	\x02\x02	get_handles_names	Get list of sample handles and names
-
+HANDLENAMEARRAY
 \x1C	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
-
+HANDLENAMEARRAY
 \x1C	\x03	set_current_by_handle	Select current item by handle	DWORD
 
 \x1C	\x04	set_current_by_name	Select current item by name	STRING

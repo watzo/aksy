@@ -24,7 +24,7 @@ def classname_helper(section_name):
 
 # could use ljust etc...
 indent_block = "     "
-sysex_module_name = 'aksy.sysex'
+sysex_module_name = 'aksy.devices.z48.sysex'
 sampler_name = 'z48'
 
 generate_methods = None

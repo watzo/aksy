@@ -6,7 +6,7 @@ BYTE
 \x28	\x02\x01	get_names	Get sample names
 
 \x28	\x02\x02	get_handles_names	Get list of sample handles and names
-
+HANDLENAMEARRAY
 \x28	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
 
 \x28	\x03	set_current_by_handle	Select current item by handle	DWORD
