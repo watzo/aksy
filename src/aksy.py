@@ -5,6 +5,7 @@ import aksysdisktools, program_main
 import struct
 import sys,time
 
+
 class Z48(Z48Sampler):
     """Models a Z4 or Z8 sampler.
 
@@ -15,19 +16,22 @@ class Z48(Z48Sampler):
     >>> #z.get_no_disks()
     1
 
-    >>> #z.get_disklist() 
+    >>> z.get_disklist() 
     (512, 1, 2, 0, 1, 'Z48 & MPC4K')
 
-    >>> z.select_disk(512) 
+    >>> z.select_disk(1024) 
     >>> z.set_curr_folder('') 
+    >>> # z.create_subfolder('AUTOLOAD') 
     >>> z.set_curr_folder('AUTOLOAD') 
 
     >>> # z.get('Ride 1.wav', '/home/walco/dev/aksy' ) 
-    >>> z.put('/home/walco/dev/aksy/Ride 1.wav', 'Ride 1 copy.wav')
+    >>> # z.put('/home/walco/dev/aksy/Ride 1.wav', 'Ride 1 copy.wav')
 
     # the number can differ of course...
     >>> # z.get_no_subfolders() 
     21
+    >>> # z.get_filenames() 
+
     >>> z.get_subfolder_names() 
     ()
     >>> z.close_usb()
@@ -37,26 +41,24 @@ class Z48(Z48Sampler):
 
     def __init__(self):
         Z48Sampler.__init__(self)
-        Z48.__dict__.update(aksysdisktools.__dict__)
-        Z48.__dict__.update(program_main.__dict__)
-        self.commands = {}
-        self.register_program_main() # not sure if needed
+        self.disktools = aksysdisktools.DiskTools(self)
+        self.program_main = program_main.ProgramMain(self)
 
     def init(self):
         """Initializes the connection with the sampler
         """
         Z48Sampler.init_usb(self)
 
-        # disable sync
-        msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
-        result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
-                                                                                                                                                           
         # disable checksums (not enabled per default)
         # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
         # result_bytes = self._execute('\x10' + struct.pack('B', len(msg) + '\x00' + msg)
 
         # disable confirmation messages
-        msg = "\xf0\x47\x5f\x00\x00\x01\x00\xf7";
+        # msg = "\xf0\x47\x5f\x00\x00\x01\x00\xf7";
+        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
+                                                                                                                                                           
+        # disable sync
+        msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
         result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
                                                                                                                                                            
     def close(self):
