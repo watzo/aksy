@@ -8,7 +8,7 @@ setup(name = "aksy usb extension",
       author_email = "walco@n--tree.net",
 	  ext_modules=[
             Extension("aksyxusb",
-                sources = [ "src/aksyxusb.c" ],
+                sources = [ "src/aksyx/aksyxusb.c" ],
                 libraries = [ "usb" ],
             ),
         ])
