@@ -4,7 +4,7 @@ from wxPython.wx import wxPySimpleApp, wxFrame, wxPanel, wxID_ANY, wxDEFAULT_FRA
 from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY, wxNewId, wxID_OK
 from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT, EVT_TREE_ITEM_EXPANDING, EVT_TREE_ITEM_ACTIVATED
-from wxPython.wx import EVT_TREE_SEL_CHANGED
+from wxPython.wx import EVT_TREE_SEL_CHANGED, EVT_TREE_KEY_DOWN, WXK_DELETE
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
 from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME
 
@@ -101,6 +101,7 @@ class AksyFSTree(wxTreeListCtrl):
         EVT_TREE_ITEM_EXPANDING(self, id, self.OnItemExpanding)
         EVT_TREE_ITEM_ACTIVATED(self, id, self.OnItemActivate)
         EVT_TREE_SEL_CHANGED(self, id, self.OnSelChanged)
+        EVT_TREE_KEY_DOWN(self, id, self.OnKeyDown)
 
     def AppendAksyItem(self, parent, item, depth=1):
 
@@ -148,6 +149,14 @@ class AksyFSTree(wxTreeListCtrl):
 
     def OnSelChanged(self, evt):
         print "OnSelChanged: %s" % repr(evt.GetItem())
+
+    def OnKeyDown(self, evt):
+        id = self.GetSelection()
+        item = self.GetPyData(id)
+        print  repr(item)
+        if evt.GetKeyCode() == WXK_DELETE:
+            print "OnKeyDown delete: %s" % item.name
+            self.Delete(id)
 
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
