@@ -238,11 +238,19 @@ REPLY_ID_ERROR = '\x45'
 
 
 class SysexType(object):
-    def __init__(self, size, signed=False, id=None):
+    def __init__(self, size, signed=False, id=None, min_val=None, max_val=None):
         self.id = id
         self.size = size
-        self.max_val = signed and pow(2, 7*size-1) - 1 or pow(2, 7*size) - 1
-        self.min_val = signed and self.max_val*-1 or 0
+
+        if max_val is None:
+            self.max_val = signed and pow(2, 7*size-1) - 1 or pow(2, 7*size) - 1
+        else:
+            self.max_val = max_val
+
+        if min_val is None:
+            self.min_val = signed and self.max_val*-1 or 0
+        else:
+            self.min_val = min_val
         
     def set_min_val(self, value):
         self.min_val = value
@@ -512,10 +520,11 @@ class StringType(object):
 
     def validate_encode(self, value):
         if not type(value) == type('') and value != '':
-            raise ValueError("Value %s should be a (non unicode) string." % (value))
+            raise ValueError("Value %s should be a (non unicode) string." % repr(value))
 
     def encode(self, value):
         r"""
+        Todo: send the raw bytes + terminator if validate_encode fails
         >>> s = StringType()
         >>> s.encode('test sdf')
         'test sdf\x00'
@@ -523,7 +532,19 @@ class StringType(object):
         self.validate_encode(value)
         return struct.pack(str(len(value)+1) + 's', value) 
 
+    def decode(self, string):
+        r"""
+        >>> s = StringType()
+        >>> s.decode('test sdf\x00')
+        'test sdf'
+        """
+        index = string.find(STRING_TERMINATOR)
+        if index == -1: raise ValueError
+        return struct.unpack( str(index) + 's', string[:index])[0]
+
     def decode_strings(self, string):    
+        """XXX: move this method to a string array class
+        """
         result = []
         index = 0
         offset = 0
@@ -546,6 +567,40 @@ class PadType(SysexType):
     def decode(self, value):
         return None
 
+class HandleNameType(object):
+    """Experimental mixed data type, 
+    wrapping handle(DoubleWord) and name (StringType)
+    """
+    def encode(self, value):
+        raise NotImplementedError
+
+    def decode(self, string):
+        return  (DoubleWord.decode(string[:4]),
+                StringType.decode(string[4:]),)
+
+class SoundLevelType(SignedWordType):
+    r"""Represents soundlevels in dB
+    >>> sl = SoundLevelType()
+    >>> sl.decode(sl.encode(-34.0))
+    -34.0
+    """
+    def __init__(self):
+        SignedWordType.__init__(self)
+        self.set_min_val(-600)
+        self.set_max_val(60)
+
+    def encode(self, value):
+        return super(SoundLevelType, self).encode(int(value*10))
+
+    def decode(self, string):
+        """XXX: reconsider conversion here
+        """
+        return super(SoundLevelType, self).decode(string)/10.0
+
+class PanningType(ByteType):
+    """Represents panning levels in -50->L, 50->R 
+    """
+
 # Sysex type ids
 BYTE        = ByteType()
 SBYTE       = SignedByteType()
@@ -553,19 +608,18 @@ WORD        = WordType()
 SWORD       = SignedWordType()
 DWORD       = DoubleWordType()
 SDWORD      = SignedDoubleWordType()
-QWORD       = QWordType() # '\x07' # 2 x 4 BYTES
-SQWORD      = SignedQWordType() # '\x08'
+QWORD       = QWordType()
+SQWORD      = SignedQWordType() 
 STRING      = StringType()
 TWO_BYTES   = SysexType(2, False, '\x0a')
 THREE_BYTES = SysexType(3, False, '\x0b')
-CUSTOM      = '\x20'
 
 # aksy type extensions
 PAD         = PadType()
 BOOL        = BoolType()
 CENTS       = '\x23' # SWORD(+- 3600)
-PAN         = '\x24' # BYTE(0, 100) -> translated to -50-50 
-LEVEL       = '\x25' # SWORD(-600,+60) 10xdB
+PAN         = PanningType()
+LEVEL       = SoundLevelType() 
 
 def parse_byte_string(data, type, offset=0):
     r""" Parses a byte string
@@ -579,14 +633,12 @@ def parse_byte_string(data, type, offset=0):
     >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR + '\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 0)
     (('TEST', 'TEST'), 10)
 
-    No type info in the data: 
     >>> parse_byte_string('\x0f', BYTE)
     (15, 1)
 
     >>> parse_byte_string('\x01\x0f', SBYTE)
     (-15, 2)
 
-    XXX: this is probably not correct
     >>> parse_byte_string('\x00\x03', WORD)
     (384, 2)
 
@@ -612,6 +664,7 @@ def parse_byte_string(data, type, offset=0):
         result = type.decode(data[offset:offset+type.size])
         len_parsed_data += type.size
     else:
+        # TODO: use a factory which returns instances with a size set ?
         result = type.decode_strings(data[offset:])
         if len(result) == 0:
             result = None
