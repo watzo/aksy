@@ -1,9 +1,9 @@
 """aksy model
 
-Offers a high level API, should eventually be abstracting the sampler jargon of
-different samplers, but at the moment it is using Akai conventions
+Offers a high level API, should eventually be abstracting the midi jargon of
+different devices, but at the moment it is using Akai conventions
 """
-import re, os.path
+import re, os.path, sys
 
 RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
@@ -56,6 +56,7 @@ class File(object):
 
         assert isinstance(path, tuple) 
 
+        print >> sys.stderr, repr(path)
         self.path = path
 
         if RE_MULTI.search(self.get_name()) is not None:
@@ -66,6 +67,7 @@ class File(object):
             self.type = self.SAMPLE
         else:
             #raise NotImplementedError("No support for file type: ", self.get_name()) 
+            print >> sys.stderr, "Warning: No support for file type: ", self.get_name() 
             self.type = self.SAMPLE
 
     def get_name(self):
@@ -111,6 +113,9 @@ class File(object):
         if self.type == self.PROGRAM:
             return Program(self.get_name())
         if self.type == self.SAMPLE:
+            return Sample(self.get_name())
+        else:
+            sys.stderr.writelines("Not a supported type %i\n" %self.type) 
             return Sample(self.get_name())
 
     def transfer(self, path):
@@ -302,8 +307,9 @@ class InMemoryFile(File):
         pass
 
     def rename(self, new_name):
-        pass
-
+        self.set_current()
+        handlers[self.__class__].rename(new_name)
+            
 class Multi(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
@@ -334,6 +340,8 @@ class Sample(InMemoryFile):
         InMemoryFile.__init__(self, name)
         self.type = File.SAMPLE
 
+    def get_size(self):
+        self.handlers[Sample].get_sample_length()
     def get_used_by(self):
         """Returns the pogram(s) using this file
         """
@@ -388,17 +396,19 @@ class Memory(Storage):
         return item
 
     def has_children(self):
-        return (
-            handlers[Program].get_no_items() > 0 or
-            handlers[Sample].get_no_items() > 0 or
-            handlers[Multi].get_no_items() > 0)
+        if len(self._children) > 0:
+            return True
+        else:
+            return (
+                handlers[Program].get_no_items() > 0 or
+                handlers[Sample].get_no_items() > 0 or
+                handlers[Multi].get_no_items() > 0)
 
     def get_children(self):
         if len(self._children) > 0:
             return self._children
         else:
             pnames = handlers[Program].get_names()
-            print repr(pnames)
             if not isinstance(pnames, tuple):
                 pnames = (pnames,)
             programs = [Program(name) for name in pnames ]
@@ -410,7 +420,6 @@ class Memory(Storage):
             if not isinstance(snames, tuple):
                 snames = (snames,)
 
-            print repr(snames)
             samples = [Sample(name) for name in snames ]
             self._children.extend(programs)
             self._children.extend(multis)
