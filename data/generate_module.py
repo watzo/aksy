@@ -67,12 +67,12 @@ while line:
             "%scomm =  %s.get(('%s','%s'))\n" \
             % (indent_block, z48_instance_name, section_id, id))
 
-        file_out.writelines( "%sreturn %s.execute(comm)\n\n" % (indent_block, z48_instance_name)) 
+        file_out.writelines( "%sreturn %s.execute(comm, %s)\n\n" % (indent_block, z48_instance_name, '('+ ', '.join(comm_args) + ')'))
 
         # put the command in a dict with tuple key (section_id, id) 
         register_commands.writelines( 
-            "%scomm =  %s.get(('%s','%s'), sysex.Command('%s','%s', '%s', (%s,%s), %s, %s))\n" \
-            % (indent_block, z48_instance_name, section_id, id, section_id, id, name, data1, data2, '('+ ', '.join(comm_args) + ')', '(' + ', '.join(reply_spec) + ')'))
+            "%scomm =  %s.get(('%s','%s'), sysex.Command('%s','%s', '%s', (%s,%s), %s))\n" \
+            % (indent_block, z48_instance_name, section_id, id, section_id, id, name, data1, data2, '(' + ', '.join(reply_spec) + ')'))
 
         register_commands.writelines("%s%s.commands[('%s', '%s')] = comm\n" % (indent_block, z48_instance_name, section_id, id))
     except ValueError, e:
