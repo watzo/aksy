@@ -34,23 +34,23 @@ class Request:
 
     Select disk:
     >>> arg = 256 
-    >>> command = Command('\x20\x02', 'select_disk', (WORD,), ()) 
+    >>> command = Command('\x5f', '\x20\x02', 'select_disk', (WORD,), ()) 
     >>> Request(command, (arg,))
     ['f0', '47', '5f', '00', '20', '02', '00', '02', 'f7']
 
     Select root folder:
     >>> folder = ''
-    >>> command = Command('\x20\x13', 'set_curr_folder', (STRING,), ()) 
+    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ()) 
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
 
     Select autoload folder:
     >>> folder = 'autoload'
-    >>> command = Command('\x20\x13', 'set_curr_folder', (STRING,), ()) 
+    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ()) 
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '61', '75', '74', '6f', '6c', '6f', '61', '64', '00', 'f7']
 
-    >>> command = Command('\x07\x01', 'get_sampler_name', (),(STRING,))
+    >>> command = Command('\x5f', '\x07\x01', 'get_sampler_name', (),(STRING,))
     >>> Request(command, ())
     ['f0', '47', '5f', '00', '07', '01', 'f7']
 
