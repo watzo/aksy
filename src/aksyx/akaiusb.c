@@ -98,6 +98,7 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     char* name, char* handle)
 {
+    printf("GETHANDLE\n");
     unsigned char section;
     unsigned char *extension, *sysex, *data;
     int retval;
@@ -110,6 +111,7 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
 
     extension = (unsigned char*) calloc(3, sizeof(unsigned char));
     strncpy(extension, name + name_length-3, 3);
+    printf("extension, %s\n", extension);
     if (strcasecmp(extension, "akm"))
     {
         section = '\x18';
@@ -133,23 +135,31 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     /* request: \x10\x08\x00\xf0\x47 <device> <section, command, name, \xf7 */
-    sysex = (unsigned char*) calloc(name_length+1, sizeof(unsigned char));
-    memcpy(sysex, "\x10\x08\x00\xf0\x47", 5 * sizeof(unsigned char));
+    sysex = (unsigned char*) calloc(name_length+11, sizeof(unsigned char));
+    int sysex_length = name_length+11;
+    memcpy(sysex, "\x10", 5 * sizeof(unsigned char));
+    memcpy(sysex+1, &sysex_length, 1 * sizeof(unsigned char));
+    memcpy(sysex+2, "\x00\xf0\x47", 5 * sizeof(unsigned char));
     memcpy(sysex+5, &akai_dev->id, 1 * sizeof(unsigned char));
-    memcpy(sysex+6, &section, 1 * sizeof(unsigned char));
-    memcpy(sysex+7, "\x08", 1 * sizeof(unsigned char));
-    memcpy(sysex+8, name, name_length * sizeof(unsigned char));
-    memcpy(sysex+name_length, "\x00\xf7", 2 * sizeof(unsigned char));
+    memcpy(sysex+6, "\x00", 1 * sizeof(unsigned char));
+    memcpy(sysex+7, &section, 1 * sizeof(unsigned char));
+    memcpy(sysex+8, "\x08", 1 * sizeof(unsigned char));
+    memcpy(sysex+9, name, name_length * sizeof(unsigned char));
+    memcpy(sysex+9 + name_length, "\x00\xf7", 2 * sizeof(unsigned char));
+		int i = 0;
+		for (; i < name_length+11 ; i++)
+			printf("%02x ", sysex[i]);
+		printf("\n");
     /* success reply: \xf0\x47 <device> <section, command, <reply_ok> <4 byte handle>, \xf7 */
     /* error reply: \xf0\x47 <device> <section, command, <reply_error>, \xf7 */
-    if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, name_length + 10, USB_TIMEOUT))
+    if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, name_length + 11, USB_TIMEOUT))
     {
         retval = AKAI_TRANSMISSION_ERROR;
     }
     else
     {
         data = (unsigned char*) calloc(10, sizeof(unsigned char));
-        if (!usb_bulk_read(akai_dev->dev, EP_IN, data, 11, USB_TIMEOUT))
+        if (usb_bulk_read(akai_dev->dev, EP_IN, data, 11, USB_TIMEOUT) < 0)
         {
             retval = AKAI_TRANSMISSION_ERROR;
         }
@@ -157,10 +167,12 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
         {
             if (data[5] == SYSEX_ERROR)
             {
+                printf("ERROR\n");
                 retval = AKAI_SYSEX_ERROR;
             }
             else if (data[5] == SYSEX_REPLY)
             {
+                printf("SUCCESS\n");
                 memcpy(handle, data+6, 4*sizeof(unsigned char));
                 retval = AKAI_SUCCESS;
             }
