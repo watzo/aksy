@@ -1,6 +1,6 @@
 from aksyxusb import Z48Sampler
-from aksy.sysex import Request, Reply 
-from aksy.devices.z48 import disktools, program_main, multi_main, sample_main, model
+from aksy.sysex import Request, Reply, CommandSpec
+from aksy.devices.z48 import disktools, programtools, multitools, sampletools, model
 import struct
 import sys,time
 
@@ -37,9 +37,10 @@ class Sampler(Z48Sampler):
         self.debug = debug
         sys.stderr.writelines("Sampler: %s\n" %repr(self))
         self.disktools = disktools.Disktools(self)
-        self.programtools = program_main.ProgramMain(self)
-        self.sampletools = sample_main.SampleMain(self)
-        self.multitools = multi_main.MultiMain(self)
+        self.programtools = program.Programtools(self)
+        self.sampletools = sampletools.Sampletools(self)
+        self.multitools = multitools.Multitools(self)
+        self.command_spec = CommandSpec('\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
         model.register_handlers({model.Disk: self.disktools,
                         model.File: self.disktools,
                         model.Program: self.programtools,
@@ -66,7 +67,15 @@ class Sampler(Z48Sampler):
         # disable sync
         msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
         result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
-                                                                                                                                                           
+        # not fool proof for multiple disks
+        disk = model.Disk(self.sampler.disktools.get_disklist())
+        self.sampler.disktools.select_disk(disk.handle)
+        rootfolder = model.Folder(("",))
+        folders = rootfolder.get_children()
+        disks.set_children(folders)
+        for folder in folders:
+            self.tree.AppendAksyItem(disks_id, folder)
+
     def close(self):
         """Closes the connection with the sampler
         """
@@ -83,7 +92,8 @@ class Sampler(Z48Sampler):
         """
         Z48Sampler._put(self, path, sysex.STRING.encode(remote_name), destination)
 
-    def execute(self, command, args, z48id=None, userref=None):
+    def execute(self, command, command_spec, args, z48id=None, userref=None):
+        # fix these args, should be keyword args
         request = Request(command, args, z48id, userref)
         if self.debug:
             sys.stderr.writelines("Request: %s\n" % repr(request))
