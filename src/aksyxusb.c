@@ -114,6 +114,19 @@ z48_reply_ok(unsigned char* buffer)
 	return 1;
 }
 
+#ifdef _POSIX_SOURCE
+void
+print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred)
+{
+	float elapsed, kbps;
+	gettimeofday(&t2, NULL); // timeval, timezone struct
+	// get elapsed time in seconds. 
+	elapsed = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)/1000000.0f;
+	kbps = bytes_transferred/(1024*elapsed);
+	printf("Transfered %i bytes in elapsed %6f (%6f kB/s)\n", bytes_transferred, elapsed, kbps); 
+}
+#endif
+
 /* Gets a file from the sampler. Any existing file with the same name will be overwritten */
 static PyObject*
 Z48Sampler_get(PyObject* self, PyObject* args)
@@ -126,7 +139,6 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 
 #ifdef _POSIX_SOURCE
 	struct timeval t1, t2;
-	float elapsed, kbps;
 #endif
 
 	if(!PyArg_ParseTuple(args, "Os#s#", &self_arg, &src, &src_len, &dest, &dest_len))
@@ -205,11 +217,7 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 		else
 		{
 #ifdef _POSIX_SOURCE
-			gettimeofday(&t2, NULL); // timeval, timezone struct
-			// get elapsed time in seconds. 
-			elapsed = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)/1000000.0f;
-			kbps = bytes_transferred/(1024*elapsed);
-			printf("Transfered %i bytes in elapsed %6f (%6f kB/s)\n", bytes_transferred, elapsed, kbps); 
+			print_transfer_stats(t1, t2, bytes_transferred);
 #endif
 			Py_INCREF(Py_None);
 			return Py_None;
@@ -223,10 +231,14 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 {
 	PyObject *self_arg;
 	unsigned char *src, *dest, *buf, *command, *reply_buf;
-	int src_len, dest_len, filesize, rc, blocksize = 4096 * 4, bytes_sent = 0;
+	char destination = 0x0;
+	int src_len, dest_len, filesize, rc, blocksize = 4096 * 4, bytes_transferred = 0, bytes_read = 0;
 	FILE* fp;
-
-	if(!PyArg_ParseTuple(args, "Os#s#", &self_arg, &src, &src_len, &dest, &dest_len))
+			
+#ifdef _POSIX_SOURCE
+	struct timeval t1, t2;
+#endif
+	if(!PyArg_ParseTuple(args, "Os#s#b", &self_arg, &src, &src_len, &dest, &dest_len, &destination))
 	{
 		return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
 	}
@@ -249,47 +261,70 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 
 		fp = fopen(src, "r");
 
+		printf("File name to upload %s, Size of file: %i bytes\n", dest, filesize);
 		/* create 'put' command: 0x41, byte size and the name of the file to transfer */
-		command = (unsigned char*) PyMem_Malloc((src_len+5) * sizeof(unsigned char));
-		command[0] = Z48_PUT;
+		command = (unsigned char*) PyMem_Malloc((dest_len+5) * sizeof(unsigned char));
+		command[0] = (destination)?Z48_DISK_PUT:Z48_MEMORY_PUT;
 		command[1] = filesize >> 24;
 		command[2] = filesize >> 16;
 		command[3] = filesize >> 8;
 		command[4] = filesize;
 
-		memcpy(command+1, src, src_len * sizeof(unsigned char));
+		memcpy(command+5, dest, dest_len * sizeof(unsigned char));
 
-		rc = usb_bulk_write(akai_z48, EP_OUT, command, src_len+5, 1000); 
+		rc = usb_bulk_write(akai_z48, EP_OUT, command, dest_len+5, 1000); 
 
-		if (rc < 0)
-		{
-			printf("Command not sent\n");
-		}
+		reply_buf = (unsigned char*) PyMem_Malloc(64 * sizeof(unsigned char));
 
-		reply_buf = (unsigned char*) PyMem_Malloc(8 * sizeof(unsigned char));
+#ifdef _POSIX_SOURCE
+	   	gettimeofday(&t1, NULL); // timeval, timezone struct
+#endif
 
 		do 
 		{
-			printf("AT start transfer\n");
-			rc = usb_bulk_read(akai_z48, EP_IN, reply_buf, 8, 1000); 
+			rc = usb_bulk_read(akai_z48, EP_IN, reply_buf, 64, 1000); 
 
-			if (rc == 8)
+			if (rc == 4 && z48_reply_ok(reply_buf))	
 			{
-				printf("Got reply\n");
-
-				blocksize= GET_BLOCK_SIZE(reply_buf);	
+				continue;
 			}
-			rc = fread(buf, sizeof(unsigned char), blocksize, fp);
+			else if (rc == 8)
+			{
+	
+#ifdef _DEBUG
+				int i = 0;
+				for (; i < rc; i++)
+					printf("%02x ", reply_buf[i]);
+				printf("\n");
+#endif
+				blocksize = GET_BLOCK_SIZE(reply_buf);	
+				if (GET_BYTES_TRANSFERRED(reply_buf) == filesize) 
+				{
+					continue;
+				}
+			}
+			else if (rc == 5)
+			{
+				break; // finished TODO: check contents of buffer...
+			}
 
-			printf("do transfer\n");
-			rc = usb_bulk_write(akai_z48, EP_OUT, buf, rc, 1000); 
-			bytes_sent+= rc;
+			/* check is probably not necessary */
+			if (! feof(fp))
+			{
+				bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
+
+				usb_bulk_write(akai_z48, EP_OUT, buf, bytes_read, 1000); 
+				bytes_transferred += bytes_read;
+
+			}
 
 			/* continue */
-			printf("continue\n");
-			rc = usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, 1000); 
-		} while(!feof(fp) && rc > 0);
+			usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, 1000); 
+		} while(rc > 0);
 
+#ifdef _POSIX_SOURCE
+		print_transfer_stats(t1, t2, bytes_transferred);
+#endif
 		fclose(fp);
 
 		PyMem_Free(reply_buf);
