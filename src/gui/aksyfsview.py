@@ -8,14 +8,14 @@ from wxPython.wx import EVT_TREE_SEL_CHANGED, EVT_TREE_KEY_DOWN, WXK_DELETE, EVT
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
 from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME
 
-import wrappers
+import model
 import aksy
 import os.path, traceback, sys
 
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = False
+USE_MOCK_OBJECTS = True
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -132,7 +132,7 @@ class AksyFSTree(wxTreeListCtrl):
         dest = evt.GetItem()
         item = self.GetPyData(dest)
         print "EndDrag %s, Mod: %s" % (repr(item), repr(evt.GetKeyCode()))
-        if not isinstance(item, wrappers.Folder):
+        if not isinstance(item, model.Folder):
             return
         # do copy operation
         self.AppendAksyItem(dest, self.draggedItem)
@@ -152,19 +152,19 @@ class AksyFSTree(wxTreeListCtrl):
         self.SetPyData(child, item)
         self.AddItemIndex(item.path, child)
 
-        if not isinstance(item, wrappers.Storage):
+        if not isinstance(item, model.Storage):
             self.SetItemText(child, str(item.get_size()), 1)
             self.SetItemText(child, str(item.get_used_by()), 2)
             self.SetItemText(child, str(item.get_modified()), 3)
 
-        if isinstance(item, wrappers.File):
-            if item.type == wrappers.File.MULTI:
+        if isinstance(item, model.File):
+            if item.type == model.File.MULTI:
                 self.SetItemImage(child, self.multi_icon, which = wxTreeItemIcon_Normal)
-            elif item.type == wrappers.File.PROGRAM:
+            elif item.type == model.File.PROGRAM:
                 self.SetItemImage(child, self.program_icon, which = wxTreeItemIcon_Normal)
-            elif item.type == wrappers.File.SAMPLE:
+            elif item.type == model.File.SAMPLE:
                 self.SetItemImage(child, self.sample_icon, which = wxTreeItemIcon_Normal)
-            elif item.type == wrappers.File.FOLDER:
+            elif item.type == model.File.FOLDER:
                 self.SetItemImage(child, self.fldridx, which = wxTreeItemIcon_Normal)
                 self.SetItemImage(child, self.fldropenidx, which = wxTreeItemIcon_Expanded)
             else:
@@ -224,11 +224,11 @@ class TestPanel(wxPanel):
 
         self.tree = AksyFSTree(self, 5001, style=wxTR_EDIT_LABELS|wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE|wxTR_MULTIPLE)
         self.actions = {}
-        self.register_menu_actions(wrappers.Folder.actions)
-        self.register_menu_actions(wrappers.File.actions)
-        self.register_menu_actions(wrappers.Program.actions)
-        self.register_menu_actions(wrappers.Multi.actions)
-        self.register_menu_actions(wrappers.InMemoryFile.actions)
+        self.register_menu_actions(model.Folder.actions)
+        self.register_menu_actions(model.File.actions)
+        self.register_menu_actions(model.Program.actions)
+        self.register_menu_actions(model.Multi.actions)
+        self.register_menu_actions(model.InMemoryFile.actions)
 
         EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
@@ -237,8 +237,8 @@ class TestPanel(wxPanel):
         EVT_MENU(parent, wxID_CUT, self.OnCut)   
         EVT_MENU(parent, wxID_PASTE, self.OnPaste)   
 
-        disks = wrappers.Storage("disk")
-        mem = wrappers.Memory(self.z, "memory")
+        disks = model.Storage("disk")
+        mem = model.Memory(self.z, "memory")
 
         storage = [disks, mem]
 
@@ -248,18 +248,14 @@ class TestPanel(wxPanel):
         programtools = self.z.programtools
         sampletools = self.z.sampletools
         multitools = self.z.multitools
-        wrappers.File.init_tools(
-            {wrappers.File.MULTI: multitools,
-             wrappers.File.PROGRAM: programtools,
-             wrappers.File.SAMPLE: sampletools, })
 
         # Move this stuff somewhere else...
         if not USE_MOCK_OBJECTS:
             try:  
                 # not fool proof for multiple disks   
-                disk = wrappers.Disk(self.z.disktools.get_disklist())
+                disk = model.Disk(self.z.disktools.get_disklist())
                 self.z.disktools.select_disk(disk.handle)
-                rootfolder = wrappers.Folder(self.z.disktools, ("",))
+                rootfolder = model.Folder(("",))
                 folders = rootfolder.get_children()
                 disks.set_children(folders)
                 for folder in folders:
@@ -273,19 +269,19 @@ class TestPanel(wxPanel):
             # Setup some items
             disktools = self.z.disktools
 
-            rootfolder = wrappers.Folder(disktools, ("",))
-            rootfolder.children.append(wrappers.Folder(disktools,('', 'Autoload',)))
-            rootfolder.children.append(wrappers.Folder(disktools,('', 'Songs',)))
-            mellotron_folder = wrappers.Folder(disktools,('', 'Mellotron',))
-            choir_folder = wrappers.Folder(disktools,('', 'Choir',))
+            rootfolder = model.Folder(("",))
+            rootfolder.children.append(model.Folder(('', 'Autoload',)))
+            rootfolder.children.append(model.Folder(('', 'Songs',)))
+            mellotron_folder = model.Folder(('', 'Mellotron',))
+            choir_folder = model.Folder(('', 'Choir',))
             choir_folder.children.extend(
-                (wrappers.File(disktools, ('', 'Mellotron', 'Choir', 'Choir.AKP',)),
-                wrappers.File(disktools, ('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
+                (model.File(('', 'Mellotron', 'Choir', 'Choir.AKP',)),
+                model.File(('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
 
             mellotron_folder.children.extend(
                 (choir_folder,
-                wrappers.File(disktools, ('', 'Mellotron', 'Sample.AKP',)),
-                wrappers.File(disktools, ('', 'Mellotron', 'Sample.wav',)),))
+                model.File(('', 'Mellotron', 'Sample.AKP',)),
+                model.File(('', 'Mellotron', 'Sample.wav',)),))
             rootfolder.children.append(mellotron_folder)
             disks.set_children(rootfolder.get_children())
 
@@ -344,19 +340,19 @@ class TestPanel(wxPanel):
     def register_menu_actions(self, actions):
 
         # hook into actions
-        if actions.has_key('transfer') and actions == wrappers.Folder.actions:
+        if actions.has_key('transfer') and actions == model.Folder.actions:
             actions['transfer'].prolog = self.select_directory
 
-        if actions.has_key('transfer') and actions == wrappers.File.actions:
+        if actions.has_key('transfer') and actions == model.File.actions:
             actions['transfer'].prolog = self.select_file
 
         if actions.has_key('load'):
             actions['load'].epilog = self.add_to_memory_branch
 
-        if actions.has_key('delete') and actions == wrappers.InMemoryFile.actions:
+        if actions.has_key('delete') and actions == model.InMemoryFile.actions:
             actions['delete'].epilog = self.remove_from_memory_branch
 
-        action = wrappers.Action('copy','Copy\tCtrl+C')
+        action = model.Action('copy','Copy\tCtrl+C')
         actions['copy'] = action
 
         for key in actions.keys():

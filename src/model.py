@@ -4,10 +4,17 @@ RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
 
-    # TODO: move these objects to their respective 
-    # modules once the generated classes become
-    # stable; the passing in of section refs can
-    # then be removed.
+modules = {} 
+def init_tools(tools):
+    modules.update(tools)
+
+"""
+try:
+    modules
+except NameError:
+    raise Exception("Model not initialized properly")
+"""
+
 class Disk(object):
     def __init__(self, (handle, disktype, fstype, disk_id, writable, name)):
         self.handle = handle
@@ -34,24 +41,19 @@ class Action:
         self.id = None
 
 class File(object):
-    FOLDER = 0
-    MULTI = 1
-    PROGRAM = 2
-    SAMPLE = 3
+    FOLDER = 1
+    MULTI = 2
+    PROGRAM = 3
+    SAMPLE = 4
+    SONG = 5
 
-    def init_tools(modules):
-        File.modules = modules
-
-    init_tools = staticmethod(init_tools)
-
-    def __init__(self, disktools, path):
+    def __init__(self, path):
         """Initializes a file object - A multi, program or sample before it
         is loaded into memory
         """
 
         assert isinstance(path, tuple) 
 
-        self.disktools = disktools
         self.path = path
 
         if RE_MULTI.search(self.get_name()) is not None:
@@ -63,8 +65,6 @@ class File(object):
         else:
             #raise NotImplementedError("No support for file type: ", self.get_name()) 
             self.type = self.SAMPLE
-
-        self.module = self.modules[self.type]
 
     def get_name(self):
         return self.path[-1]
@@ -96,20 +96,20 @@ class File(object):
         """Load the file into memory 
         """
         self.get_parent().set_current()
-        self.disktools.load_file(self.get_name())
+        modules['disktools'].load_file(self.get_name())
         # XXX: self.path should reflect memory location
         if self.type == self.MULTI:
-            return Multi(self.module, self.path)
+            return Multi(self.path)
         if self.type == self.PROGRAM:
-            return Program(self.module, self.path)
+            return Program(self.path)
         if self.type == self.SAMPLE:
-            return Sample(self.module, self.path)
+            return Sample(self.path)
 
     def transfer(self, path):
         """Transfer the file to host 
         """
         print "Transfer of file %s to %s" % (self.get_name(), repr(path))
-        self.disktools.z48.get(self.get_name(), path)
+        modules['disktools'].get(self.get_name(), path)
 
     def get_children(self):
         """
@@ -117,18 +117,18 @@ class File(object):
         raise NotImplementedError
 
     def get_parent(self):
-        return Folder(self.disktools, self.path[:-1])
+        return Folder(self.path[:-1])
 
     def delete(self):
         """
         """
-        self.disktools.delete_file(self.path)
+        modules['disktools'].delete_file(self.path)
 
     def rename(self, new_name):
         """
         """
         self.get_parent().set_current()
-        self.disktools.rename_file(new_name)
+        modules['disktools'].rename_file(new_name)
         self.path = self.path[:-1] + (new_name,)
 
     def get_actions(self):
@@ -146,10 +146,9 @@ class File(object):
 File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"), "transfer": Action(File.transfer, "Transfer"),}
 
 class Folder(File):
-    def __init__(self, disktools, path):
+    def __init__(self, path):
         """ TODO: find a nice solution for the primitive folder selection
         """
-        self.disktools = disktools
         self.path = path
         self.type = File.FOLDER
         self.children = []
@@ -162,27 +161,27 @@ class Folder(File):
         if len(self.children) > 0:
             return self.children
 
-        self.children = [Folder(self.disktools, self.path + (subfolder,))
-            for subfolder in self.disktools.get_subfolder_names()]
+        self.children = [Folder(self.path + (subfolder,))
+            for subfolder in modules['disktools'].get_subfolder_names()]
 
-        files = [ File(self.disktools, self.path + (name,)) for name in 
-            self.disktools.get_filenames() ]
+        files = [ File(self.path + (name,)) for name in 
+            modules['disktools'].get_filenames() ]
 
         self.children.extend(files)
         return self.children
 
     def has_children(self):
-        return (len(self.children) > 0 or self.disktools.get_no_files() > 0 or
-            self.disktools.get_no_subfolders() > 0)
+        return (len(self.children) > 0 or modules['disktools'].get_no_files() > 0 or
+            modules['disktools'].get_no_subfolders() > 0)
         
     def get_name(self):
         return self.path[-1]
 
     def set_current(self):
-        print "Current folder before set_current: %s" % self.disktools.get_curr_path()
+        print "Current folder before set_current: %s" % modules['disktools'].get_curr_path()
         for item in self.path:
-            self.disktools.set_curr_folder(item)
-        print "Current folder after set_current: %s" % self.disktools.get_curr_path()
+            modules['disktools'].set_curr_folder(item)
+        print "Current folder after set_current: %s" % modules['disktools'].get_curr_path()
 
     def copy(self, dest_path, recursive=True):
         """Copies a folder, default is including all its children
@@ -192,21 +191,21 @@ class Folder(File):
 
     def rename(self, new_name):
         self.get_parent().set_current()
-        self.disktools.rename_subfolder(self.get_name(), new_name)
+        modules['disktools'].rename_subfolder(self.get_name(), new_name)
         self.path = self.path[:-1] + (new_name,)
 
     def load(self):
         """
         """
         self.get_parent().set_current()
-        self.disktools.load_folder(self.get_name())
+        modules['disktools'].load_folder(self.get_name())
         return self
 
     def delete(self):
         """
         """
         self.get_parent().set_current()
-        self.disktools.delete_subfolder(self.get_name())
+        modules['disktools'].delete_subfolder(self.get_name())
         # could be optimized by using dicts instead of lists
         for item in self.get_parent().get_children():
             if item.get_name() == self.get_name():
@@ -217,8 +216,8 @@ class Folder(File):
         """
         """
         self.get_parent().set_current()
-        self.disktools.create_subfolder(name)
-        self.children.append(Folder(self.disktools, self.path + (name,)))
+        modules['disktools'].create_subfolder(name)
+        self.children.append(Folder(self.path + (name,)))
 
     def transfer(self, path):
         """Transfer the folder to host 
@@ -230,6 +229,10 @@ Folder.actions.update(File.actions)
 Folder.actions.update({"transfer": Action(Folder.transfer, "Transfer"),})
 
 class InMemoryFile(File):
+    def __init__(self, path, handle=None):
+        File.__init__(self, path) 
+        self.handle = handle
+
     def get_size(self):
         return 'Unknown'
 
@@ -240,19 +243,19 @@ class InMemoryFile(File):
         """Returns the handle
         XXX: Should be set on init
         """
-        return self.module.get_handle_by_name(self.get_name())
+        return modules[self.type].get_handle_by_name(self.get_name())
 
     def set_current(self):
-        self.module.set_current_by_name(self.get_name())
+        modules[self.type].set_current_by_name(self.get_name())
 
     def delete(self):
-        print "InMemoryFile.delete() %s" % repr(self.module)
-        self.module.get_no_items()
+        print "InMemoryFile.delete() %s" % repr(modules[self.type])
+        modules[self.type].get_no_items()
         self.set_current()
-        self.module.delete_current()
+        modules[self.type].delete_current()
 
     def save(self, overwrite, dependents=False):
-        self.disktools.save_file(self.get_handle(), self.type, overwrite, dependents) 
+        modules['disktools'].save_file(self.get_handle(), self.type, overwrite, dependents) 
 
     def tranfer(self, dest_path):
         pass
@@ -351,9 +354,9 @@ class Memory(Storage):
         if len(self._children) > 0:
             return self._children
         else:
-            programs = [Program(self.z48.programtools, name) for name in self.z48.programtools.get_names()]
-            multi = [Multi(self.z48.multitools, name) for name in self.z48.multitools.get_names()]
-            sample = [Sample(self.z48.sampletools.name) for name in self.z48.sampletools.get_names()]
+            programs = [Program(name) for name in modules['programtools'].get_names()]
+            multi = [Multi(name) for name in modules['multitools'].get_names()]
+            sample = [Sample(name) for name in modules['sampletools'].get_names()]
             self._children.extend(programs)
             self._children.extend(multi)
             self._children.extend(sample)
