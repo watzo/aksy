@@ -100,6 +100,128 @@ class Systemtools:
           self.commands['\x07\x26'] = comm
           comm = aksy.sysex.Command('\x07\x30', 'get_system_clock', (), (aksy.sysex.BYTE,))
           self.commands['\x07\x30'] = comm
+          comm = aksy.sysex.Command('\x07\x31', 'get_dig_sync', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x31'] = comm
+          comm = aksy.sysex.Command('\x07\x32', 'get_dig_format', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x32'] = comm
+          comm = aksy.sysex.Command('\x07\x33', 'get_adat_main_out', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x33'] = comm
+          comm = aksy.sysex.Command('\x07\x40', 'get_play_mode', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x40'] = comm
+          comm = aksy.sysex.Command('\x07\x41', 'get_prog_monitor_mode', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x41'] = comm
+          comm = aksy.sysex.Command('\x07\x42', 'get_sample_monitor_mode', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x42'] = comm
+          comm = aksy.sysex.Command('\x07\x48', 'get_play_key_note', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x48'] = comm
+          comm = aksy.sysex.Command('\x07\x49', 'get_play_key_velocity', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x49'] = comm
+          comm = aksy.sysex.Command('\x07\x4a', 'get_play_key_midi_channel', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x4a'] = comm
+          comm = aksy.sysex.Command('\x07\x4b', 'get_play_key_echo', (), (aksy.sysex.BOOL,))
+          self.commands['\x07\x4b'] = comm
+          comm = aksy.sysex.Command('\x07\x4c', 'get_prog_change_enable', (), (aksy.sysex.BOOL,))
+          self.commands['\x07\x4c'] = comm
+          comm = aksy.sysex.Command('\x07\x4d', 'get_autoload_enable', (), (aksy.sysex.BOOL,))
+          self.commands['\x07\x4d'] = comm
+          comm = aksy.sysex.Command('\x07\x50', 'get_global_pad_mode', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x50'] = comm
+          comm = aksy.sysex.Command('\x07\x51', 'get_pad_midi_channel', (), (aksy.sysex.BYTE,))
+          self.commands['\x07\x51'] = comm
+          comm = aksy.sysex.Command('\x07\x52', 'get_pad_sensitivity', (), ())
+          self.commands['\x07\x52'] = comm
+          comm = aksy.sysex.Command('\x07\x53', 'get_def_note_assign', (aksy.sysex.BYTE,), ())
+          self.commands['\x07\x53'] = comm
+          comm = aksy.sysex.Command('\x07\x54', 'get_chrom_start_note', (aksy.sysex.BYTE,), ())
+          self.commands['\x07\x54'] = comm
+          comm = aksy.sysex.Command('\x06\x01', 'set_sampler_name', (aksy.sysex.STRING,), ())
+          self.commands['\x06\x01'] = comm
+          comm = aksy.sysex.Command('\x06\x02', 'set_scsi_id', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x02'] = comm
+          comm = aksy.sysex.Command('\x06\x03', 'set_master_tune', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x03'] = comm
+          comm = aksy.sysex.Command('\x06\x04', 'set_master_level', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x04'] = comm
+          comm = aksy.sysex.Command('\x06\x05', 'set_midi_out_thru', (), ())
+          self.commands['\x06\x05'] = comm
+          comm = aksy.sysex.Command('\x06\x06', 'set_qlink_local_control', (aksy.sysex.BOOL,), ())
+          self.commands['\x06\x06'] = comm
+          comm = aksy.sysex.Command('\x06\x07', 'set_create_default_items', (aksy.sysex.BOOL,), ())
+          self.commands['\x06\x07'] = comm
+          comm = aksy.sysex.Command('\x06\x08', 'set_midi_file_save_format', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x08'] = comm
+          comm = aksy.sysex.Command('\x06\x09', 'set_cdr_write_speed', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x09'] = comm
+          comm = aksy.sysex.Command('\x06\x0a', 'set_cdr_write_mode', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x0a'] = comm
+          comm = aksy.sysex.Command('\x06\x10', 'set_front_panel_lockout_state', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x10'] = comm
+          comm = aksy.sysex.Command('\x06\x11', 'set_display_contrast', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x11'] = comm
+          comm = aksy.sysex.Command('\x06\x12', 'set_note_display', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x12'] = comm
+          comm = aksy.sysex.Command('\x06\x13', 'set_date_display_format', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x13'] = comm
+          comm = aksy.sysex.Command('\x06\x14', 'set_time_display_format', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x14'] = comm
+          comm = aksy.sysex.Command('\x06\x18', 'set_waveform_view_scale', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x18'] = comm
+          comm = aksy.sysex.Command('\x06\x19', 'set_waveform_view_type', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x19'] = comm
+          comm = aksy.sysex.Command('\x06\x1a', 'set_waveform_view_fill', (aksy.sysex.BOOL,), ())
+          self.commands['\x06\x1a'] = comm
+          comm = aksy.sysex.Command('\x06\x1b', 'set_item_sort_mode', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x1b'] = comm
+          comm = aksy.sysex.Command('\x06\x20', 'set_year', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x20'] = comm
+          comm = aksy.sysex.Command('\x06\x21', 'set_month', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x21'] = comm
+          comm = aksy.sysex.Command('\x06\x22', 'set_day', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x22'] = comm
+          comm = aksy.sysex.Command('\x06\x23', 'set_day_of_week', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x23'] = comm
+          comm = aksy.sysex.Command('\x06\x24', 'set_hours', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x24'] = comm
+          comm = aksy.sysex.Command('\x06\x25', 'set_minutes', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x25'] = comm
+          comm = aksy.sysex.Command('\x06\x26', 'set_seconds', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x26'] = comm
+          comm = aksy.sysex.Command('\x06\x30', 'set_system_clock', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x30'] = comm
+          comm = aksy.sysex.Command('\x06\x31', 'set_digital_out_sync', (), ())
+          self.commands['\x06\x31'] = comm
+          comm = aksy.sysex.Command('\x06\x32', 'set_digital_format', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x32'] = comm
+          comm = aksy.sysex.Command('\x06\x33', 'set_adat_main_out', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x33'] = comm
+          comm = aksy.sysex.Command('\x06\x40', 'set_play_mode', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x40'] = comm
+          comm = aksy.sysex.Command('\x06\x41', 'set_program_monitor_mode', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x41'] = comm
+          comm = aksy.sysex.Command('\x06\x42', 'set_sample_monitor_mode', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x42'] = comm
+          comm = aksy.sysex.Command('\x06\x48', 'set_play_key_note', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x48'] = comm
+          comm = aksy.sysex.Command('\x06\x49', 'set_play_key_velocity', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x49'] = comm
+          comm = aksy.sysex.Command('\x06\x4a', 'set_play_key_midi_channel', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x4a'] = comm
+          comm = aksy.sysex.Command('\x06\x4b', 'set_play_key_echo', (aksy.sysex.BOOL,), ())
+          self.commands['\x06\x4b'] = comm
+          comm = aksy.sysex.Command('\x06\x4c', 'set_program_change_enable', (aksy.sysex.BOOL,), ())
+          self.commands['\x06\x4c'] = comm
+          comm = aksy.sysex.Command('\x06\x4d', 'set_autoload_enable', (aksy.sysex.BOOL,), ())
+          self.commands['\x06\x4d'] = comm
+          comm = aksy.sysex.Command('\x05\x50', 'set_global_pad_mode', (aksy.sysex.BYTE,), ())
+          self.commands['\x05\x50'] = comm
+          comm = aksy.sysex.Command('\x06\x51', 'set_pad_midi_channel', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x51'] = comm
+          comm = aksy.sysex.Command('\x06\x52', 'set_pad_sensitivity', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          self.commands['\x06\x52'] = comm
+          comm = aksy.sysex.Command('\x06\x53', 'set_default_note_assignment', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          self.commands['\x06\x53'] = comm
+          comm = aksy.sysex.Command('\x06\x54', 'set_chromatic_start_note', (aksy.sysex.BYTE,), ())
+          self.commands['\x06\x54'] = comm
 
      def get_os_software_version(self):
           """Get Operating System Software Version
@@ -467,4 +589,412 @@ class Systemtools:
           """
           comm = self.commands.get('\x07\x30')
           return self.z48.execute(comm, ())
+
+     def get_dig_sync(self):
+          """Get Digital Out Sync (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK)
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x31')
+          return self.z48.execute(comm, ())
+
+     def get_dig_format(self):
+          """Get Digital Format <Reply> = (0=PRO, 1=CONSUMER)
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x32')
+          return self.z48.execute(comm, ())
+
+     def get_adat_main_out(self):
+          """Get ADAT Main Out <Reply> = (0=L/R, 1=1/2)
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x33')
+          return self.z48.execute(comm, ())
+
+     def get_play_mode(self):
+          """Get Play Mode (0=Multi, 1=Program; 2=Sample; 3=Muted), handle of item which is the active Play Item
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x40')
+          return self.z48.execute(comm, ())
+
+     def get_prog_monitor_mode(self):
+          """Get Program Monitor Mode  (0=Multi, 1=Program(OMNI))
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x41')
+          return self.z48.execute(comm, ())
+
+     def get_sample_monitor_mode(self):
+          """Get Sample Monitor Mode (0=Multi, 1=Program; 2=Sample(OMNI))
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x42')
+          return self.z48.execute(comm, ())
+
+     def get_play_key_note(self):
+          """Get Play Key Note
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x48')
+          return self.z48.execute(comm, ())
+
+     def get_play_key_velocity(self):
+          """Get Play Key Velocity
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x49')
+          return self.z48.execute(comm, ())
+
+     def get_play_key_midi_channel(self):
+          """Get Play Key Midi Channel <Reply> = (1A=0, 2A=1, ..., 16B=31)
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x4a')
+          return self.z48.execute(comm, ())
+
+     def get_play_key_echo(self):
+          """Get Play Key Echo <Reply> = (0=OFF, 1=ON)
+
+          Returns:
+               aksy.sysex.BOOL
+          """
+          comm = self.commands.get('\x07\x4b')
+          return self.z48.execute(comm, ())
+
+     def get_prog_change_enable(self):
+          """Get Program Change Enable <Reply> = (0=OFF, 1=ON)
+
+          Returns:
+               aksy.sysex.BOOL
+          """
+          comm = self.commands.get('\x07\x4c')
+          return self.z48.execute(comm, ())
+
+     def get_autoload_enable(self):
+          """Get Autoload Enable <Reply> = (0=OFF, 1=ON)
+
+          Returns:
+               aksy.sysex.BOOL
+          """
+          comm = self.commands.get('\x07\x4d')
+          return self.z48.execute(comm, ())
+
+     def get_global_pad_mode(self):
+          """Get Global Pad Mode <Reply> = (0=DEFAULT, 1=CHROMATIC)
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x50')
+          return self.z48.execute(comm, ())
+
+     def get_pad_midi_channel(self):
+          """Get MIDI Channel for MPC Pad
+
+          Returns:
+               aksy.sysex.BYTE
+          """
+          comm = self.commands.get('\x07\x51')
+          return self.z48.execute(comm, ())
+
+     def get_pad_sensitivity(self):
+          """Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
+          """
+          comm = self.commands.get('\x07\x52')
+          return self.z48.execute(comm, ())
+
+     def get_def_note_assign(self, arg0):
+          """Get Default Note Assignment <Data1> = Pad
+          """
+          comm = self.commands.get('\x07\x53')
+          return self.z48.execute(comm, (arg0, ))
+
+     def get_chrom_start_note(self, arg0):
+          """Get Default Note Assignment <Data1> = Pad
+          """
+          comm = self.commands.get('\x07\x54')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_sampler_name(self, arg0):
+          """Set Sampler Name
+          """
+          comm = self.commands.get('\x06\x01')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_scsi_id(self, arg0):
+          """Set SCSI ID
+          """
+          comm = self.commands.get('\x06\x02')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_master_tune(self, arg0):
+          """Set Master Tune
+          """
+          comm = self.commands.get('\x06\x03')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_master_level(self, arg0):
+          """Set Master Level <Data1> = (-42dB ­ 0dB in 6dB * 7 steps)
+          """
+          comm = self.commands.get('\x06\x04')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_midi_out_thru(self):
+          """Set MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B), <Data2> = (0=OUT, 1=THRUA, 2=THRUB)
+          """
+          comm = self.commands.get('\x06\x05')
+          return self.z48.execute(comm, ())
+
+     def set_qlink_local_control(self, arg0):
+          """Set Qlink Local Control
+          """
+          comm = self.commands.get('\x06\x06')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_create_default_items(self, arg0):
+          """Set Create Default Items at Startup
+          """
+          comm = self.commands.get('\x06\x07')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_midi_file_save_format(self, arg0):
+          """Set MIDI file save format
+          """
+          comm = self.commands.get('\x06\x08')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_cdr_write_speed(self, arg0):
+          """Set CD-R write speed <Data1> = (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
+          """
+          comm = self.commands.get('\x06\x09')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_cdr_write_mode(self, arg0):
+          """Set CD-R write mode <Data1> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
+          """
+          comm = self.commands.get('\x06\x0a')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_front_panel_lockout_state(self, arg0):
+          """Set Front panel lock-out state <Data1> = (0=NORMAL; 1=LOCKED)
+          """
+          comm = self.commands.get('\x06\x10')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_display_contrast(self, arg0):
+          """  Set Display Contrast
+          """
+          comm = self.commands.get('\x06\x11')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_note_display(self, arg0):
+          """Set Note Display <Data1> = (0=NUMBER, 1=NAME)
+          """
+          comm = self.commands.get('\x06\x12')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_date_display_format(self, arg0):
+          """Set Date Display Format <Data1> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
+          """
+          comm = self.commands.get('\x06\x13')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_time_display_format(self, arg0):
+          """Set Time Display Format <Data1> = (0=12HOUR, 1=24HOUR)
+          """
+          comm = self.commands.get('\x06\x14')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_waveform_view_scale(self, arg0):
+          """Set Waveform View Scale <Data1> = (0=LINEAR, 1=LOG)
+          """
+          comm = self.commands.get('\x06\x18')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_waveform_view_type(self, arg0):
+          """Set Waveform View Type <Data1> = (0=RECTIFIED, 1=BIPOLAR)
+          """
+          comm = self.commands.get('\x06\x19')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_waveform_view_fill(self, arg0):
+          """Set Waveform View Fill <Data1> = (0=OFF, 1=ON)
+          """
+          comm = self.commands.get('\x06\x1a')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_item_sort_mode(self, arg0):
+          """Set Item Sort Mode <Data1> = (0=ALPHABETIC, 1=MEMORY)
+          """
+          comm = self.commands.get('\x06\x1b')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_year(self, arg0):
+          """Set Year
+          """
+          comm = self.commands.get('\x06\x20')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_month(self, arg0):
+          """Set Month
+          """
+          comm = self.commands.get('\x06\x21')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_day(self, arg0):
+          """Set Day
+          """
+          comm = self.commands.get('\x06\x22')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_day_of_week(self, arg0):
+          """Set Day of Week (0=SUN)
+          """
+          comm = self.commands.get('\x06\x23')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_hours(self, arg0):
+          """Set Hours
+          """
+          comm = self.commands.get('\x06\x24')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_minutes(self, arg0):
+          """Set Minutes
+          """
+          comm = self.commands.get('\x06\x25')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_seconds(self, arg0):
+          """Set Seconds
+          """
+          comm = self.commands.get('\x06\x26')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_system_clock(self, arg0):
+          """Set System Clock <Data1> = (0=44·1kHz, 1=48kHz, 2=96kHz)
+          """
+          comm = self.commands.get('\x06\x30')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_digital_out_sync(self):
+          """Set Digital Out Sync <Data1> = (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK) BYTE
+          """
+          comm = self.commands.get('\x06\x31')
+          return self.z48.execute(comm, ())
+
+     def set_digital_format(self, arg0):
+          """Set Digital Format <Data1> = (0=PRO, 1=CONSUMER)
+          """
+          comm = self.commands.get('\x06\x32')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_adat_main_out(self, arg0):
+          """Set ADAT Main Out <Data1> = (0=L/R, 1=1/2)
+          """
+          comm = self.commands.get('\x06\x33')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_play_mode(self, arg0):
+          """Set Play Mode <Data1> = (0=Multi, 1=Program; 2=Sample; 3=Muted) <Data2> = handle of item to become active Play Item
+          """
+          comm = self.commands.get('\x06\x40')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_program_monitor_mode(self, arg0):
+          """Set Program Monitor Mode <Data1> = (0=Multi, 1=Program(OMNI))
+          """
+          comm = self.commands.get('\x06\x41')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_sample_monitor_mode(self, arg0):
+          """   Set Sample Monitor Mode <Data1> = (0=Multi, 1=Program; 2=Sample(OMNI))
+          """
+          comm = self.commands.get('\x06\x42')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_play_key_note(self, arg0):
+          """Set Play Key Note
+          """
+          comm = self.commands.get('\x06\x48')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_play_key_velocity(self, arg0):
+          """Set Play Key Velocity
+          """
+          comm = self.commands.get('\x06\x49')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_play_key_midi_channel(self, arg0):
+          """Set Play Key Midi Channel <Data1> = (1A=0, 2A=1, ..., 16B=31)
+          """
+          comm = self.commands.get('\x06\x4a')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_play_key_echo(self, arg0):
+          """Set Play Key Echo <Data1> = (0=OFF, 1=ON)
+          """
+          comm = self.commands.get('\x06\x4b')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_program_change_enable(self, arg0):
+          """Set Program Change Enable <Data1> = (0=OFF, 1=ON)
+          """
+          comm = self.commands.get('\x06\x4c')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_autoload_enable(self, arg0):
+          """Set Autoload Enable <Data1> = (0=OFF, 1=ON)
+          """
+          comm = self.commands.get('\x06\x4d')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_global_pad_mode(self, arg0):
+          """Set Global Pad Mode <Data1> = (0=DEFAULT, 1=CHROMATIC)
+          """
+          comm = self.commands.get('\x05\x50')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_pad_midi_channel(self, arg0):
+          """Set MIDI Channel
+          """
+          comm = self.commands.get('\x06\x51')
+          return self.z48.execute(comm, (arg0, ))
+
+     def set_pad_sensitivity(self, arg0, arg1):
+          """   Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0­100 = 100%­200%)
+          """
+          comm = self.commands.get('\x06\x52')
+          return self.z48.execute(comm, (arg0, arg1, ))
+
+     def set_default_note_assignment(self, arg0, arg1):
+          """Set Default Note Assignment <Data1> = Pad, <Data2> = Note
+          """
+          comm = self.commands.get('\x06\x53')
+          return self.z48.execute(comm, (arg0, arg1, ))
+
+     def set_chromatic_start_note(self, arg0):
+          """Set Chromatic Start Note
+          """
+          comm = self.commands.get('\x06\x54')
+          return self.z48.execute(comm, (arg0, ))
 

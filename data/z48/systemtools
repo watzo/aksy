@@ -85,3 +85,125 @@ BYTE
 BYTE
 \x07	\x30	get_system_clock	Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
 BYTE
+\x07	\x31	get_dig_sync	Get Digital Out Sync (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK)
+BYTE
+\x07	\x32	get_dig_format	Get Digital Format <Reply> = (0=PRO, 1=CONSUMER)
+BYTE
+\x07	\x33	get_adat_main_out	Get ADAT Main Out <Reply> = (0=L/R, 1=1/2)
+BYTE
+\x07	\x40	get_play_mode	Get Play Mode (0=Multi, 1=Program; 2=Sample; 3=Muted), handle of item which is the active Play Item
+BYTE
+\x07	\x41	get_prog_monitor_mode	Get Program Monitor Mode  (0=Multi, 1=Program(OMNI))
+BYTE
+\x07	\x42	get_sample_monitor_mode	Get Sample Monitor Mode (0=Multi, 1=Program; 2=Sample(OMNI))
+BYTE
+\x07	\x48	get_play_key_note	Get Play Key Note
+BYTE
+\x07	\x49	get_play_key_velocity	Get Play Key Velocity
+BYTE
+\x07	\x4a	get_play_key_midi_channel	Get Play Key Midi Channel <Reply> = (1A=0, 2A=1, ..., 16B=31)
+BYTE
+\x07	\x4b	get_play_key_echo	Get Play Key Echo <Reply> = (0=OFF, 1=ON)
+BOOL
+\x07	\x4c	get_prog_change_enable	Get Program Change Enable <Reply> = (0=OFF, 1=ON)
+BOOL
+\x07	\x4d	get_autoload_enable	Get Autoload Enable <Reply> = (0=OFF, 1=ON)
+BOOL
+\x07	\x50	get_global_pad_mode	Get Global Pad Mode <Reply> = (0=DEFAULT, 1=CHROMATIC)
+BYTE
+\x07	\x51	get_pad_midi_channel	Get MIDI Channel for MPC Pad
+BYTE
+\x07	\x52	get_pad_sensitivity	Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
+
+\x07	\x53	get_def_note_assign	Get Default Note Assignment <Data1> = Pad	BYTE 
+
+\x07	\x54	get_chrom_start_note	Get Default Note Assignment <Data1> = Pad	BYTE
+
+\x06	\x01	set_sampler_name	Set Sampler Name	STRING
+
+\x06	\x02	set_scsi_id	Set SCSI ID	BYTE
+
+\x06	\x03	set_master_tune	Set Master Tune	BYTE
+
+\x06	\x04	set_master_level	Set Master Level <Data1> = (-42dB ­ 0dB in 6dB * 7 steps)	BYTE
+
+\x06	\x05	set_midi_out_thru	Set MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B), <Data2> = (0=OUT, 1=THRUA, 2=THRUB)
+
+\x06	\x06	set_qlink_local_control	Set Qlink Local Control	BOOL 
+
+\x06	\x07	set_create_default_items	Set Create Default Items at Startup	BOOL
+
+\x06	\x08	set_midi_file_save_format	Set MIDI file save format	BYTE
+
+\x06	\x09	set_cdr_write_speed	Set CD-R write speed <Data1> = (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)	BYTE
+
+\x06	\x0a	set_cdr_write_mode	Set CD-R write mode <Data1> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)	BYTE
+
+\x06	\x10	set_front_panel_lockout_state	Set Front panel lock-out state <Data1> = (0=NORMAL; 1=LOCKED)	BYTE
+
+\x06	\x11	set_display_contrast	  Set Display Contrast	BYTE
+
+\x06	\x12	set_note_display	Set Note Display <Data1> = (0=NUMBER, 1=NAME)	BYTE
+
+\x06	\x13	set_date_display_format	Set Date Display Format <Data1> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)	BYTE
+
+\x06	\x14	set_time_display_format	Set Time Display Format <Data1> = (0=12HOUR, 1=24HOUR)	BYTE
+
+\x06	\x18	set_waveform_view_scale	Set Waveform View Scale <Data1> = (0=LINEAR, 1=LOG)	BYTE
+   
+\x06	\x19	set_waveform_view_type	Set Waveform View Type <Data1> = (0=RECTIFIED, 1=BIPOLAR)	BYTE
+
+\x06	\x1a	set_waveform_view_fill	Set Waveform View Fill <Data1> = (0=OFF, 1=ON)	BOOL
+
+\x06	\x1b	set_item_sort_mode	Set Item Sort Mode <Data1> = (0=ALPHABETIC, 1=MEMORY)	BYTE
+
+\x06	\x20	set_year	Set Year	BYTE
+
+\x06	\x21	set_month	Set Month	BYTE
+
+\x06	\x22	set_day	Set Day	BYTE
+
+\x06	\x23	set_day_of_week	Set Day of Week (0=SUN)	BYTE
+
+\x06	\x24	set_hours	Set Hours	BYTE
+
+\x06	\x25	set_minutes	Set Minutes	BYTE
+
+\x06	\x26	set_seconds	Set Seconds	BYTE
+
+\x06	\x30	set_system_clock	Set System Clock <Data1> = (0=44·1kHz, 1=48kHz, 2=96kHz)	BYTE
+
+\x06	\x31	set_digital_out_sync	Set Digital Out Sync <Data1> = (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK) BYTE
+
+\x06	\x32	set_digital_format	Set Digital Format <Data1> = (0=PRO, 1=CONSUMER)	BYTE
+
+\x06	\x33	set_adat_main_out	Set ADAT Main Out <Data1> = (0=L/R, 1=1/2)	BYTE
+
+\x06	\x40	set_play_mode	Set Play Mode <Data1> = (0=Multi, 1=Program; 2=Sample; 3=Muted) <Data2> = handle of item to become active Play Item	BYTE
+
+\x06	\x41	set_program_monitor_mode	Set Program Monitor Mode <Data1> = (0=Multi, 1=Program(OMNI))	BYTE
+
+\x06	\x42	set_sample_monitor_mode	Set Sample Monitor Mode <Data1> = (0=Multi, 1=Program; 2=Sample(OMNI))	BYTE
+
+\x06	\x48	set_play_key_note	Set Play Key Note	BYTE
+
+\x06	\x49	set_play_key_velocity	Set Play Key Velocity	BYTE
+
+\x06	\x4a	set_play_key_midi_channel	Set Play Key Midi Channel <Data1> = (1A=0, 2A=1, ..., 16B=31)	BYTE
+
+\x06	\x4b	set_play_key_echo	Set Play Key Echo <Data1> = (0=OFF, 1=ON)	BOOL
+
+\x06	\x4c	set_program_change_enable	Set Program Change Enable <Data1> = (0=OFF, 1=ON)	BOOL
+
+\x06	\x4d	set_autoload_enable	Set Autoload Enable <Data1> = (0=OFF, 1=ON)	BOOL
+
+\x05	\x50	set_global_pad_mode	Set Global Pad Mode <Data1> = (0=DEFAULT, 1=CHROMATIC)	BYTE
+
+\x06	\x51	set_pad_midi_channel	Set MIDI Channel	BYTE
+
+\x06	\x52	set_pad_sensitivity	Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0­100 = 100%­200%)	BYTE	BYTE
+
+\x06	\x53	set_default_note_assignment	Set Default Note Assignment <Data1> = Pad, <Data2> = Note	BYTE	BYTE
+
+\x06	\x54	set_chromatic_start_note	Set Chromatic Start Note	BYTE
+
