@@ -8,14 +8,13 @@ BYTE
 \x04	Select	current	item	by	name	STRING
 
 \x05	Get	handle	of	current	item
-
+DWORD
 \x06	Get	name of current item
-
-
+STRING
 \x07	Get item name from handle	DWORD
-
+STRING
 \x08	Get item handle from name	STRING
-
+DWORD
 \x09	Delete ALL items from memory
 
 \x0A	Delete current item from memory
@@ -24,26 +23,22 @@ BYTE
 
 \x0C	Rename current item	STRING
 
-
 \x0D	Rename item represented by handle <Data1>	DWORD	STRING
 
 \x0E	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
 
 \x0F	Get	Tag	Bitmap
 
-
 \x10	Get name of current item with modified/tagged info
-
+STRING
 \x11 	Get modified state of current item.
-
+BYTE
 \x18	Delete tagged items <Data1> = tag bit	BYTE 
 
-\x40	Start	auditioning	the	current	sample	<Data1>	=	velocity <Data2> =(NO LOOPING, 1=LOOPING)	BYTE	BYTE
+\x40 	Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING) BYTE BYTE
 
 \x41 	Stop playback of the current sample
 
-Play	To	<Data1>	=	velocity,	<Data2>	=	sample	position
-\x42	BYTE	QWORD
+\x42	Play To <Data1> = velocity, <Data2> = sample position BYTE	QWORD
 
-\x43	Play	From	<Data1>	=	velocity,	<Data2>	=	sample	position
-BYTE	QWORD
+\x43 	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD

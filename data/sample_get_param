@@ -1,0 +1,29 @@
+\x1F	Sample Parameter Get
+\x01	Get Group ID
+BYTE
+\x20	Get Trim Start
+QWORD
+\x21	Get Trim End
+QWORD
+\x22	Get Trim Length
+QWORD
+\x24	Get Original Pitch
+BYTE
+\x25	Get Cents Tune (0 ­ ± 36 00)
+SWORD
+\x26	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
+BYTE
+\x30	Get Loop Start <Data1> = loop index	BYTE
+QWORD
+\x31	Get Loop End <Data1> = loop index	BYTE
+QWORD
+\x32	Get Loop Length <Data1> = loop index	BYTE
+QWORD
+\x33	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BYTE
+BYTE
+\x34	Get Loop Tune (0­±50)	BYTE
+SBYTE
+\x35	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BYTE
+BYTE
+\x36	Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE
+BYTE
