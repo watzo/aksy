@@ -214,6 +214,7 @@ class Program(Base):
     >>> p = Program('sooper strings.akp')
     >>> len(p.create_chunk())
     74
+    >>> p.keygroups[0].zones[0].samplename = 'sooper A1.wav'
     >>> p.writefile()
     """
     def __init__(self, filename, chunk=None, **kwargs):
@@ -512,7 +513,9 @@ class Keygroup(Base):
 class Zone(Base):
     """
     >>> z = Zone()
+    48 + 8
     >>> len(z.create_chunk())
+    56 
     """
     def setdefaults(self):
         # XXX: 2 bytes missing from description
@@ -530,6 +533,7 @@ class Zone(Base):
         self.velo_start = 0
 
     def create_chunk(self):
+        print self.samplename
         return struct.pack('4sl2B20s10Bh14B',
             'zone',
             48,
