@@ -16,6 +16,7 @@
 #define Z48_MEMORY_PUT 0x20
 #define Z48_DISK_PUT 0x40
 /* sysex defs */
+#define SYSEX_OK 0x4f
 #define SYSEX_REPLY 0x52
 #define SYSEX_ERROR 0x45
 /* gives a z48_ok reply */
@@ -54,6 +55,10 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
  * handle should be a pointer to a preallocated 4 byte value */
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     char* name, char* handle);
+
+/* sets the current path for the first disk found on the disk list */
+int akai_usb_device_set_current_path(akai_usb_device akai_dev,
+    char* path);
 
 /* uploads a file to the sampler. location is Z48_MEMORY or Z48_DISK */
 int akai_usb_device_put(akai_usb_device akai_dev, 

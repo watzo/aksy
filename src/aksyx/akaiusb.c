@@ -150,31 +150,42 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
 		for (; i < name_length+11 ; i++)
 			printf("%02x ", sysex[i]);
 		printf("\n");
-    /* success reply: \xf0\x47 <device> <section, command, <reply_ok> <4 byte handle>, \xf7 */
-    /* error reply: \xf0\x47 <device> <section, command, <reply_error>, \xf7 */
+    /* success reply: \xf0\x47 <device> userref <section, command, <reply_ok> <4 byte handle>, \xf7 */
+    /* error reply: \xf0\x47 <device> userref <section, command, <reply_error>, \xf7 */
     if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, name_length + 11, USB_TIMEOUT))
     {
         retval = AKAI_TRANSMISSION_ERROR;
     }
     else
     {
-        data = (unsigned char*) calloc(10, sizeof(unsigned char));
-        if (usb_bulk_read(akai_dev->dev, EP_IN, data, 11, USB_TIMEOUT) < 0)
+        data = (unsigned char*) calloc(12, sizeof(unsigned char));
+        int ret;
+read_sysex:
+        if ((ret = usb_bulk_read(akai_dev->dev, EP_IN, data, 12, USB_TIMEOUT)) < 0)
         {
             retval = AKAI_TRANSMISSION_ERROR;
         }
         else
         {
-            if (data[5] == SYSEX_ERROR)
+            int i = 0;
+		for (; i < 11 ; i++)
+			printf("%02x ", data[i]);
+		printf("\n");
+    
+            if (data[4] == SYSEX_ERROR)
             {
                 printf("ERROR\n");
                 retval = AKAI_SYSEX_ERROR;
             }
-            else if (data[5] == SYSEX_REPLY)
+            else if (data[4] == SYSEX_REPLY)
             {
                 printf("SUCCESS\n");
                 memcpy(handle, data+6, 4*sizeof(unsigned char));
                 retval = AKAI_SUCCESS;
+            }
+            else if (data[4] == SYSEX_OK)
+            {
+                goto read_sysex;
             }
             else
             {
@@ -289,11 +300,18 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     fclose(dest_file);
     free(data);
 
+    if (!retval)
+    {
 #ifdef _POSIX_SOURCE
-    print_transfer_stats(t1, t2, bytes_transferred);
+        print_transfer_stats(t1, t2, bytes_transferred);
 #endif
-
-    return retval? retval: AKAI_SUCCESS;
+        return AKAI_SUCCESS;
+    }
+    else
+    {
+        remove(dest_filename);
+        return retval;
+    }
 }
 
 /* uploads a file to the sampler. */
