@@ -67,7 +67,6 @@ while line:
         args = ['self']
         data = []
         for i in range(3, len(elems)):
-            print repr(elems[i])
             if elems[i] != 'NA':
                 data.append( sysex_module_name + '.' + elems[i])
                 args.append('arg' + str(i-3))
@@ -89,8 +88,14 @@ while line:
         methods.writelines( "%sdef %s(%s):\n" % (indent_block, name, ', '.join(args))) 
 
         # docstring
-        format = { 'indent': indent_block, 'desc': desc, 'returns': ('\n'+indent_block*3).join(reply_spec) }
-        methods.writelines( "%(indent)s%(indent)s\"\"\"%(desc)s\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s%(indent)s\n%(indent)s%(indent)s\"\"\"\n" % format)
+        format = { 'indent': indent_block, 'desc': desc,'returns': ('\n'+indent_block*3).join(reply_spec) }
+        if len(reply_spec) > 0:
+            format['returns'] = "\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s" % format
+        else:
+            format['returns'] = ""
+        
+        methods.writelines(
+            "%(indent)s%(indent)s\"\"\"%(desc)s%(returns)s\n%(indent)s%(indent)s\"\"\"\n" % format)
         
         # command object creation
         comm_args = []
