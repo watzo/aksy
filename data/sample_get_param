@@ -1,51 +1,51 @@
 \x1F	Sample	Parameter Get
-\x01	Get Group ID
+\x01	get_group_id	Get Group ID
 BYTE
-\x20	Get Trim Start
+\x20	get_trim_start	Get Trim Start
 QWORD
-\x21	Get Trim End
+\x21	get_trim_end	Get Trim End
 QWORD
-\x22	Get Trim Length
+\x22	get_trim_length	Get Trim Length
 QWORD
-\x24	Get Original Pitch
+\x24	get_orig_pitch	Get Original Pitch
 BYTE
-\x25	Get Cents Tune (0 ­ ± 36 00)
+\x25	get_cents_tune	Get Cents Tune (0 ­ ± 36 00)
 SWORD
-\x26	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
+\x26	get_playback_mode	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
 BYTE
-\x30	Get Loop Start <Data1> = loop index	BYTE
+\x30	get_loop_start	Get Loop Start <Data1> = loop index	BYTE
 QWORD
-\x31	Get Loop End <Data1> = loop index	BYTE
+\x31	get_loop_end	Get Loop End <Data1> = loop index	BYTE
 QWORD
-\x32	Get Loop Length <Data1> = loop index	BYTE
+\x32	get_loop_length	Get Loop Length <Data1> = loop index	BYTE
 QWORD
-\x33	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BOOL
+\x33	get_loop_lock	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BOOL
 BYTE
-\x34	Get Loop Tune (0­±50)	BYTE
+\x34	get_loop_tune	Get Loop Tune (0­±50)	BYTE
 SBYTE
-\x35	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BOOL
+\x35	get_loop_dir	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BOOL
 BYTE
-\x36	Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE
+\x36	get_loop_type	Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE
 BYTE
-\x37	Get Number of Loop Repetitions	BYTE
+\x37	get_no_loop_reps	Get Number of Loop Repetitions	BYTE
 BYTE
-\x38	Get Number of Loops
+\x38	get_no_loops	Get Number of Loops
 BYTE
-\x40	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
+\x40	get_region_start	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
 QWORD
-\x41	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
+\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
 QWORD
-\x42	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
+\x42	get_region_lenght	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
 QWORD
-\x44	Get Number of Regions
+\x44	get_no_regions	Get Number of Regions
 BYTE
-\x50	Get Sample Length
+\x50	get_sample_length	Get Sample Length
 QWORD
-\x51	Get Sample Rate [Hz]
+\x51	get_sample_rate	Get Sample Rate [Hz]
 DWORD
-\x52	Get Sample Bit-Depth [bits]
+\x52	get_bit_depth	Get Sample Bit-Depth [bits]
 BYTE
-\x54	Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
+\x54	get_sample_type	Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
 BOOL
-\x55	Get Number of Channels
+\x55	get_no_channels	Get Number of Channels
 BYTE
