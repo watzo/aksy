@@ -2,21 +2,21 @@
 from wxPython.wx import wxPySimpleApp, wxFrame, wxPanel, wxID_ANY, wxDEFAULT_FRAME_STYLE, wxNO_FULL_REPAINT_ON_RESIZE, wxTR_DEFAULT_STYLE, wxART_FOLDER, wxART_FILE_OPEN, wxART_OTHER, EVT_SIZE, wxImageList, wxArtProvider_GetBitmap, wxTreeItemIcon_Normal, wxTreeItemIcon_Expanded, wxART_REPORT_VIEW, wxTreeItemIcon_Selected, wxMenu, wxMenuBar, EVT_MENU, wxMessageDialog, wxOK, wxPopupWindow, EVT_RIGHT_DOWN, EVT_RIGHT_UP, wxSIMPLE_BORDER, wxPopupTransientWindow, wxStaticText
 
 from wxPython.gizmos import wxTreeListCtrl
-from wxPython.wx import wxID_CUT, wxID_COPY, wxNewId, wxID_OK
+from wxPython.wx import wxID_CUT, wxID_COPY, wxID_PASTE, wxNewId, wxID_OK, wxPyDataObjectSimple, wxTextDataObject, wxFileDropTarget
 from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT, EVT_TREE_ITEM_EXPANDING, EVT_TREE_ITEM_ACTIVATED
-from wxPython.wx import EVT_TREE_SEL_CHANGED, EVT_TREE_KEY_DOWN, WXK_DELETE
+from wxPython.wx import EVT_TREE_SEL_CHANGED, EVT_TREE_KEY_DOWN, WXK_DELETE, EVT_TREE_BEGIN_DRAG, EVT_TREE_END_DRAG
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
 from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME
 
 import wrappers
 import aksysdisktools, program_main, multi_main, sample_main
 import aksy
-import os.path, traceback
+import os.path, traceback, sys
 
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = True
+USE_MOCK_OBJECTS = False
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -24,15 +24,22 @@ class Frame(wxFrame):
                          style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE) 
        
         filemenu= wxMenu()
-        filemenu.Append(ID_ABOUT, "&About"," Information about this program")
-        filemenu.Append(wxID_COPY, "Copy\tCtrl+C", "Copy") 
         filemenu.AppendSeparator()
         filemenu.Append(ID_EXIT,"E&xit\tCtrl+Q"," Terminate the program")
 
+        editmenu = wxMenu()
+        editmenu.Append(wxID_CUT, "Cut\tCtrl+x", "Cut") 
+        editmenu.Append(wxID_COPY, "Copy\tCtrl+C", "Copy") 
+        editmenu.Append(wxID_PASTE, "Paste\tCtrl+V", "Paste") 
+        helpmenu = wxMenu()
+        helpmenu.Append(ID_ABOUT, "&About"," Information about this program")
+
         menuBar = wxMenuBar()
         menuBar.Append(filemenu,"&File") 
+        menuBar.Append(editmenu,"&Edit") 
+        menuBar.Append(helpmenu,"&Help") 
         self.SetMenuBar(menuBar) 
-        self.SetSize((640, 480))
+        self.SetSize((800, 600))
         self.Show(True)
         EVT_MENU(self, ID_EXIT, self.OnExitMenu)   
         EVT_MENU(self, ID_ABOUT, self.OnAbout) 
@@ -70,6 +77,8 @@ class Frame(wxFrame):
 class AksyFSTree(wxTreeListCtrl):
     def __init__(self, parent, id, **kwargs):
         wxTreeListCtrl.__init__(self, parent, id, **kwargs)
+        target = AksyFileDropTarget(self)
+        self.SetDropTarget(target)
 
         isz = (16,16)
         il = wxImageList(isz[0], isz[1])
@@ -100,8 +109,24 @@ class AksyFSTree(wxTreeListCtrl):
 
         EVT_TREE_ITEM_EXPANDING(self, id, self.OnItemExpanding)
         EVT_TREE_ITEM_ACTIVATED(self, id, self.OnItemActivate)
-        EVT_TREE_SEL_CHANGED(self, id, self.OnSelChanged)
-        EVT_TREE_KEY_DOWN(self, id, self.OnKeyDown)
+        EVT_TREE_BEGIN_DRAG(self, id, self.OnItemBeginDrag)
+        EVT_TREE_END_DRAG(self, id, self.OnItemEndDrag)
+        #EVT_TREE_SEL_CHANGED(self, id, self.OnSelChanged)
+        #EVT_TREE_KEY_DOWN(self, id, self.OnKeyDown)
+
+    def OnItemBeginDrag(self, evt):
+        id = evt.GetItem()
+        self.draggedItem = self.GetPyData(id)
+        print "BeginDrag ", self.draggedItem.name
+        evt.Allow()
+
+    def OnItemEndDrag(self, evt):
+        dest = evt.GetItem()
+        item = self.GetPyData(dest)
+        print "EndDrag %s, Mod: %s" % (repr(item), repr(evt.GetKeyCode()))
+        if not isinstance(item, wrappers.Folder):
+            return
+        self.AppendAksyItem(dest, self.draggedItem)
 
     def AppendAksyItem(self, parent, item, depth=1):
 
@@ -157,6 +182,8 @@ class AksyFSTree(wxTreeListCtrl):
         if evt.GetKeyCode() == WXK_DELETE:
             print "OnKeyDown delete: %s" % item.name
             self.Delete(id)
+        else:
+            evt.Skip()
 
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
@@ -209,8 +236,9 @@ class TestPanel(wxPanel):
         EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
         EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
-        EVT_MENU(self, wxID_COPY, self.OnCopy)   
         EVT_MENU(parent, wxID_COPY, self.OnCopy)   
+        EVT_MENU(parent, wxID_CUT, self.OnCut)   
+        EVT_MENU(parent, wxID_PASTE, self.OnPaste)   
 
         disks = wrappers.Storage("disk")
         mem = wrappers.Storage("memory")
@@ -283,28 +311,35 @@ class TestPanel(wxPanel):
         id = self.tree.GetSelection()
 
         item = self.tree.GetPyData(id)
-        print repr(item.name)
+        print "OnCopy ", repr(item.name)
         if wxTheClipboard.Open():
-            data = wxFileDataObject()
-            if wxTheClipboard.GetData(data):
-                print repr(data)
+            data = wxTextDataObject("\\".join(item.path))
+            if wxTheClipboard.SetData(data):
+                print "Clipboard data ", repr(data)
             wxTheClipboard.Close()
 
     def OnCut(self, evt):
         # this is always a node
         # hide it
+        id = self.tree.GetSelection()
+        item = self.tree.GetPyData(id)
+        print "OnCut ", repr(item.name)
         if wxTheClipboard.Open():
-            data = wxFileDataObject()
-            if wxTheClipboard.GetData(data):
+            data = AksyData()
+            if wxTheClipboard.SetData(data):
                 # get the filenames 
                 pass
             wxTheClipboard.Close()
         
     def OnPaste(self, evt):
+        parent_id = self.tree.GetSelection()
         if wxTheClipboard.Open():
-            data = wxFileDataObject()
+            data = wxTextDataObject()
             if wxTheClipboard.GetData(data):
-               pass 
+                print "Clipboard data ", repr(data.GetText())
+                #item = self.tree.GetPyData(data.getId())
+                print "OnPaste ", repr(item.name)
+                #self.tree.AppendAksyItem(id, data.getId())
             # or a cut/copied node
             # if cut -> paste the node to the new location
             # and remove the old node
@@ -445,6 +480,30 @@ class FileMenu(wxMenu):
         for index, action in enumerate(actions):
             self.Append(action.id, action.display_name, action.display_name)
          
+class AksyItem(wxPyDataObjectSimple):
+    pass
+
+class AksyData(wxFileDataObject):
+    def setId(self, id):
+        self.id = id
+
+    def getId(self):
+        return self.id
+
+class AksyFileDropTarget(wxFileDropTarget):
+    def __init__(self, window):
+        wxFileDropTarget.__init__(self)
+        self.tree = window
+                                                                                                                                                            
+    def OnDropFiles(self, x, y, filenames):
+        print "Location: ", repr(self.tree.HitTest((x,y)))
+        sys.stderr.writelines("\n%d file(s) dropped at %d,%d:\n" %
+                              (len(filenames), x, y))
+        # start upload
+        for file in filenames:
+            sys.stderr.writelines(file + '\n')
+
+        # append items
 
 if __name__ == '__main__':
     app = wxPySimpleApp()
