@@ -20,7 +20,7 @@ file_out.writelines( "%s\n" % preamble)
 file_out.writelines( "import %s\n" % sysex_module_name ) 
 
 register_commands = StringIO.StringIO()
-register_commands.writelines("def register_%s(%s)\n" % (section_name, z48_instance_name))
+register_commands.writelines("def register_%s(%s):\n" % (section_name, z48_instance_name))
 
 # Commands
 line = file_in.readline()
@@ -64,15 +64,20 @@ while line:
         comm_args.extend(args[1:])
         comm_args.append('')
         file_out.writelines( 
-            "%scomm =  %s.get(('%s','%s'))\n" \
+            "%scomm =  %s.commands.get(('%s','%s'))\n" \
             % (indent_block, z48_instance_name, section_id, id))
 
         file_out.writelines( "%sreturn %s.execute(comm, %s)\n\n" % (indent_block, z48_instance_name, '('+ ', '.join(comm_args) + ')'))
 
+        if len(reply_spec) == 1:
+            reply_spec = '(' + reply_spec[0] + ',)' 
+        else:
+            reply_spec = '(' + ', '.join(reply_spec) + ')'
+
         # put the command in a dict with tuple key (section_id, id) 
         register_commands.writelines( 
-            "%scomm =  %s.get(('%s','%s'), sysex.Command('%s','%s', '%s', (%s,%s), %s))\n" \
-            % (indent_block, z48_instance_name, section_id, id, section_id, id, name, data1, data2, '(' + ', '.join(reply_spec) + ')'))
+            "%scomm = sysex.Command('%s','%s', '%s', (%s,%s), %s)\n" \
+            % (indent_block, section_id, id, name, data1, data2, reply_spec))
 
         register_commands.writelines("%s%s.commands[('%s', '%s')] = comm\n" % (indent_block, z48_instance_name, section_id, id))
     except ValueError, e:
