@@ -8,220 +8,189 @@ __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
 import sysex
-def update_disklist(z48):
-     """Update the list of disks connected
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x01'))
-     return z48.execute(comm, ())
+class Disktools:
+     def __init__(self, z48):
+          self.z48 = z48
+          self.commands = {}
+          comm = sysex.Command('\x20','\x01', 'update_disklist', (), ())
+          self.commands[('\x20', '\x01')] = comm
+          comm = sysex.Command('\x20','\x02', 'select_disk', (sysex.WORD,), ())
+          self.commands[('\x20', '\x02')] = comm
+          comm = sysex.Command('\x20','\x03', 'test_disk', (sysex.WORD,), ())
+          self.commands[('\x20', '\x03')] = comm
+          comm = sysex.Command('\x20','\x04', 'get_no_disks', (), (sysex.PAD, sysex.BYTE))
+          self.commands[('\x20', '\x04')] = comm
+          comm = sysex.Command('\x20','\x05', 'get_disklist', (), (sysex.WORD, sysex.BYTE, sysex.BYTE, sysex.BYTE, sysex.BYTE, sysex.STRING))
+          self.commands[('\x20', '\x05')] = comm
+          comm = sysex.Command('\x20','\x09', 'get_curr_path', (), (sysex.STRING,))
+          self.commands[('\x20', '\x09')] = comm
+          comm = sysex.Command('\x20','\x0D', 'eject_disk', (sysex.WORD,), ())
+          self.commands[('\x20', '\x0D')] = comm
+          comm = sysex.Command('\x20','\x10', 'get_no_subfolders', (), (sysex.PAD, sysex.WORD))
+          self.commands[('\x20', '\x10')] = comm
+          comm = sysex.Command('\x20','\x12', 'get_subfolder_names', (), (sysex.STRING,))
+          self.commands[('\x20', '\x12')] = comm
+          comm = sysex.Command('\x20','\x13', 'set_curr_folder', (sysex.STRING,), ())
+          self.commands[('\x20', '\x13')] = comm
+          comm = sysex.Command('\x20','\x15', 'load_folder', (sysex.STRING,), ())
+          self.commands[('\x20', '\x15')] = comm
+          comm = sysex.Command('\x20','\x16', 'create_subfolder', (sysex.STRING,), ())
+          self.commands[('\x20', '\x16')] = comm
+          comm = sysex.Command('\x20','\x17', 'del_subfolder', (sysex.STRING,), ())
+          self.commands[('\x20', '\x17')] = comm
+          comm = sysex.Command('\x20','\x18', 'rename_subfolder', (sysex.STRING, sysex.STRING), ())
+          self.commands[('\x20', '\x18')] = comm
+          comm = sysex.Command('\x20','\x20', 'get_no_files', (), (sysex.WORD,))
+          self.commands[('\x20', '\x20')] = comm
+          comm = sysex.Command('\x20','\x22', 'get_filenames', (), (sysex.STRING,))
+          self.commands[('\x20', '\x22')] = comm
+          comm = sysex.Command('\x20','\x28', 'rename_file', (sysex.STRING, sysex.STRING), ())
+          self.commands[('\x20', '\x28')] = comm
+          comm = sysex.Command('\x20','\x29', 'delete_file', (sysex.STRING,), ())
+          self.commands[('\x20', '\x29')] = comm
+          comm = sysex.Command('\x20','\x2A', 'load_file', (sysex.STRING,), ())
+          self.commands[('\x20', '\x2A')] = comm
 
-def select_disk(z48, arg):
-     """Select Disk <Data1> = Disk Handle
+     def update_disklist(self):
+          """Update the list of disks connected
+          """
+          comm =  self.commands.get(('\x20','\x01'))
+          return self.z48.execute(comm, ())
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x02'))
-     return z48.execute(comm, (arg, ))
+     def select_disk(self, arg0):
+          """Select Disk <Data1> = Disk Handle
+          """
+          comm =  self.commands.get(('\x20','\x02'))
+          return self.z48.execute(comm, (arg0, ))
 
-def test_disk(z48, arg):
-     """Test if the disk is valid <Data1> = Disk Handle
+     def test_disk(self, arg0):
+          """Test if the disk is valid <Data1> = Disk Handle
+          """
+          comm =  self.commands.get(('\x20','\x03'))
+          return self.z48.execute(comm, (arg0, ))
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x03'))
-     return z48.execute(comm, (arg, ))
+     def get_no_disks(self):
+          """Get the number of disks connected
 
-def get_no_disks(z48):
-     """Get the number of disks connected
+          Returns:
+               sysex.PAD
+               sysex.BYTE
+          """
+          comm =  self.commands.get(('\x20','\x04'))
+          return self.z48.execute(comm, ())
 
-     Returns:
-          sysex.PAD
-          sysex.BYTE     
-     """
-     comm =  z48.commands.get(('\x20','\x04'))
-     return z48.execute(comm, ())
+     def get_disklist(self):
+          """Get list of all connected disks
 
-def get_disklist(z48):
-     """Get list of all connected disks
+          Returns:
+               sysex.WORD
+               sysex.BYTE
+               sysex.BYTE
+               sysex.BYTE
+               sysex.BYTE
+               sysex.STRING
+          """
+          comm =  self.commands.get(('\x20','\x05'))
+          return self.z48.execute(comm, ())
 
-     Returns:
-          sysex.WORD
-          sysex.BYTE
-          sysex.BYTE
-          sysex.BYTE
-          sysex.BYTE
-          sysex.STRING     
-     """
-     comm =  z48.commands.get(('\x20','\x05'))
-     return z48.execute(comm, ())
+     def get_curr_path(self):
+          """Get current path of current disk
 
-def get_curr_path(z48):
-     """Get current path of current disk
+          Returns:
+               sysex.STRING
+          """
+          comm =  self.commands.get(('\x20','\x09'))
+          return self.z48.execute(comm, ())
 
-     Returns:
-          sysex.STRING     
-     """
-     comm =  z48.commands.get(('\x20','\x09'))
-     return z48.execute(comm, ())
+     def eject_disk(self, arg0):
+          """Eject Disk <Data1> = Disk Handle
+          """
+          comm =  self.commands.get(('\x20','\x0D'))
+          return self.z48.execute(comm, (arg0, ))
 
-def eject_disk(z48, arg):
-     """Eject Disk <Data1> = Disk Handle
+     def get_no_subfolders(self):
+          """Get number of sub-folders in the current folder.
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x0D'))
-     return z48.execute(comm, (arg, ))
+          Returns:
+               sysex.PAD
+               sysex.WORD
+          """
+          comm =  self.commands.get(('\x20','\x10'))
+          return self.z48.execute(comm, ())
 
-def get_no_subfolders(z48):
-     """Get number of sub-folders in the current folder.
+     def get_subfolder_names(self):
+          """Get the names of all of the sub-folders in the current folder.
 
-     Returns:
-          sysex.PAD
-          sysex.WORD     
-     """
-     comm =  z48.commands.get(('\x20','\x10'))
-     return z48.execute(comm, ())
+          Returns:
+               sysex.STRING
+          """
+          comm =  self.commands.get(('\x20','\x12'))
+          return self.z48.execute(comm, ())
 
-def get_subfolder_names(z48):
-     """Get the names of all of the sub-folders in the current folder.
+     def set_curr_folder(self, arg0):
+          """Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)
+          """
+          comm =  self.commands.get(('\x20','\x13'))
+          return self.z48.execute(comm, (arg0, ))
 
-     Returns:
-          sysex.STRING     
-     """
-     comm =  z48.commands.get(('\x20','\x12'))
-     return z48.execute(comm, ())
+     def load_folder(self, arg0):
+          """Load Folder: the selected folder, and all its contents (including sub- 
+          """
+          comm =  self.commands.get(('\x20','\x15'))
+          return self.z48.execute(comm, (arg0, ))
 
-def set_curr_folder(z48, arg):
-     """Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)
+     def create_subfolder(self, arg0):
+          """Create Folder: Creates a sub-folder in the currently selected folder.
+          """
+          comm =  self.commands.get(('\x20','\x16'))
+          return self.z48.execute(comm, (arg0, ))
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x13'))
-     return z48.execute(comm, (arg, ))
+     def del_subfolder(self, arg0):
+          """Delete Sub-Folder.
+          """
+          comm =  self.commands.get(('\x20','\x17'))
+          return self.z48.execute(comm, (arg0, ))
 
-def load_folder(z48, arg):
-     """Load Folder: the selected folder, and all its contents (including sub- 
+     def rename_subfolder(self, arg0, arg1):
+          """Rename Folder: <Data1> = name of folder to rename
+          """
+          comm =  self.commands.get(('\x20','\x18'))
+          return self.z48.execute(comm, (arg0, arg1, ))
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x15'))
-     return z48.execute(comm, (arg, ))
+     def get_no_files(self):
+          """Get number of files in the current folder.
 
-def create_subfolder(z48, arg):
-     """Create Folder: Creates a sub-folder in the currently selected folder.
+          Returns:
+               sysex.WORD
+          """
+          comm =  self.commands.get(('\x20','\x20'))
+          return self.z48.execute(comm, ())
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x16'))
-     return z48.execute(comm, (arg, ))
+     def get_filenames(self):
+          """Get the names of all of the files in the current folder.
 
-def del_subfolder(z48, arg):
-     """Delete Sub-Folder.
+          Returns:
+               sysex.STRING
+          """
+          comm =  self.commands.get(('\x20','\x22'))
+          return self.z48.execute(comm, ())
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x17'))
-     return z48.execute(comm, (arg, ))
+     def rename_file(self, arg0, arg1):
+          """ Rename File 
+          """
+          comm =  self.commands.get(('\x20','\x28'))
+          return self.z48.execute(comm, (arg0, arg1, ))
 
-def rename_subfolder(z48, arg1, arg2):
-     """Rename Folder: <Data1> = name of folder to rename
+     def delete_file(self, arg0):
+          """Delete File. <Data1> = name of file to delete.
+          """
+          comm =  self.commands.get(('\x20','\x29'))
+          return self.z48.execute(comm, (arg0, ))
 
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x18'))
-     return z48.execute(comm, (arg1, arg2, ))
+     def load_file(self, arg0):
+          """Load File <Data1> = name of file to load.
+          """
+          comm =  self.commands.get(('\x20','\x2A'))
+          return self.z48.execute(comm, (arg0, ))
 
-def get_no_files(z48):
-     """Get number of files in the current folder.
-
-     Returns:
-          sysex.WORD     
-     """
-     comm =  z48.commands.get(('\x20','\x20'))
-     return z48.execute(comm, ())
-
-def get_filenames(z48):
-     """Get the names of all of the files in the current folder.
-
-     Returns:
-          sysex.STRING     
-     """
-     comm =  z48.commands.get(('\x20','\x22'))
-     return z48.execute(comm, ())
-
-def rename_file(z48, arg1, arg2):
-     """ Rename File 
-
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x28'))
-     return z48.execute(comm, (arg1, arg2, ))
-
-def delete_file(z48, arg):
-     """Delete File. <Data1> = name of file to delete.
-
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x29'))
-     return z48.execute(comm, (arg, ))
-
-def load_file(z48, arg):
-     """Load File <Data1> = name of file to load.
-
-     Returns:
-               
-     """
-     comm =  z48.commands.get(('\x20','\x2A'))
-     return z48.execute(comm, (arg, ))
-
-def register_disktools(z48):
-     comm = sysex.Command('\x20','\x01', 'update_disklist', (None,None), ())
-     z48.commands[('\x20', '\x01')] = comm
-     comm = sysex.Command('\x20','\x02', 'select_disk', (sysex.WORD,None), ())
-     z48.commands[('\x20', '\x02')] = comm
-     comm = sysex.Command('\x20','\x03', 'test_disk', (sysex.WORD,None), ())
-     z48.commands[('\x20', '\x03')] = comm
-     comm = sysex.Command('\x20','\x04', 'get_no_disks', (None,None), (sysex.PAD, sysex.BYTE))
-     z48.commands[('\x20', '\x04')] = comm
-     comm = sysex.Command('\x20','\x05', 'get_disklist', (None,None), (sysex.WORD, sysex.BYTE, sysex.BYTE, sysex.BYTE, sysex.BYTE, sysex.STRING))
-     z48.commands[('\x20', '\x05')] = comm
-     comm = sysex.Command('\x20','\x09', 'get_curr_path', (None,None), (sysex.STRING,))
-     z48.commands[('\x20', '\x09')] = comm
-     comm = sysex.Command('\x20','\x0D', 'eject_disk', (sysex.WORD,None), ())
-     z48.commands[('\x20', '\x0D')] = comm
-     comm = sysex.Command('\x20','\x10', 'get_no_subfolders', (None,None), (sysex.PAD, sysex.WORD))
-     z48.commands[('\x20', '\x10')] = comm
-     comm = sysex.Command('\x20','\x12', 'get_subfolder_names', (None,None), (sysex.STRING,))
-     z48.commands[('\x20', '\x12')] = comm
-     comm = sysex.Command('\x20','\x13', 'set_curr_folder', (sysex.STRING,None), ())
-     z48.commands[('\x20', '\x13')] = comm
-     comm = sysex.Command('\x20','\x15', 'load_folder', (sysex.STRING,None), ())
-     z48.commands[('\x20', '\x15')] = comm
-     comm = sysex.Command('\x20','\x16', 'create_subfolder', (sysex.STRING,None), ())
-     z48.commands[('\x20', '\x16')] = comm
-     comm = sysex.Command('\x20','\x17', 'del_subfolder', (sysex.STRING,None), ())
-     z48.commands[('\x20', '\x17')] = comm
-     comm = sysex.Command('\x20','\x18', 'rename_subfolder', (sysex.STRING,sysex.STRING), ())
-     z48.commands[('\x20', '\x18')] = comm
-     comm = sysex.Command('\x20','\x20', 'get_no_files', (None,None), (sysex.WORD,))
-     z48.commands[('\x20', '\x20')] = comm
-     comm = sysex.Command('\x20','\x22', 'get_filenames', (None,None), (sysex.STRING,))
-     z48.commands[('\x20', '\x22')] = comm
-     comm = sysex.Command('\x20','\x28', 'rename_file', (sysex.STRING,sysex.STRING), ())
-     z48.commands[('\x20', '\x28')] = comm
-     comm = sysex.Command('\x20','\x29', 'delete_file', (sysex.STRING,None), ())
-     z48.commands[('\x20', '\x29')] = comm
-     comm = sysex.Command('\x20','\x2A', 'load_file', (sysex.STRING,None), ())
-     z48.commands[('\x20', '\x2A')] = comm
