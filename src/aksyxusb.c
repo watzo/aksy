@@ -17,13 +17,14 @@ Z48Sampler_init(PyObject *self, PyObject* args)
 static PyObject* 
 Z48Sampler_init_usb(PyObject *self, PyObject *args)
 {
+	struct usb_bus *bus;
+	struct usb_device *dev;
+
 	if (akai_z48) 
 	{
 		return PyErr_Format(PyExc_Exception, "USB is already initialized");
 	}
 
-	struct usb_bus *bus;
-	struct usb_device *dev;
 
 	usb_init();
 
@@ -56,30 +57,6 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 			return PyErr_Format(PyExc_Exception, "USB initialization failed. Check permissions on device. rc: %i.", rc);
 		}
 
-
-		/* setup sequence (sniffed from windows usblog) */
-		unsigned char* setup_msg = "\x03\x01";
-	    rc = usb_bulk_write(akai_z48, EP_OUT, setup_msg, 2, 1000);
-
-		/* turn of confirmation messages */
-	    unsigned char* msg = "\x10\x08\x00\xF0\x47\x5F\x00\x00\x01\x00\xF7";
-		unsigned char buffer[64];
-	    rc = usb_bulk_write(akai_z48, EP_OUT, msg, 11, 1000);
-		/* DONE message */
-	 	rc = usb_bulk_read(akai_z48,EP_IN, buffer, 8, 1000);
-
-		/* disable sync sysex current item and display */
-		msg = "\x10\x08\x00\xf0\x47\x5f\x00\x00\x03\x00\xf7"; 
-	    rc = usb_bulk_write(akai_z48, EP_OUT, msg, 11, 1000);
-		/* sync DONE message */
-	 	rc = usb_bulk_read(akai_z48,EP_IN,buffer,10,1000);
-
-		/* disable checksums */
-		msg = "\x10\x07\x00\xf0\x47\x5f\x00\x04\x00\xf7";
-	    rc = usb_bulk_write(akai_z48, EP_OUT, msg, 10, 1000);
-		/* DONE message */
-	 	rc = usb_bulk_read(akai_z48,EP_IN, buffer, 64, 1000);
-
     	Py_INCREF(Py_None);
 	    return Py_None;
 	}
@@ -89,12 +66,14 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 static PyObject* 
 Z48Sampler_close_usb(PyObject *self, PyObject *args)
 {
+	int rc;
+
 	if (!akai_z48)
 	{
 		return PyErr_Format(PyExc_Exception, "USB was not initialized so could not be closed");
 	}
 
-	int rc = usb_release_interface(akai_z48, 0);
+	rc = usb_release_interface(akai_z48, 0);
 	rc = usb_close (akai_z48)|rc;
 	akai_z48 = 0;
 
@@ -112,9 +91,10 @@ Z48Sampler_clear_remote_buf(PyObject *self, PyObject *args)
 {
 	int rc = 1, read = 0;
 	unsigned char buf[1];
+	usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, USB_TIMEOUT);  
 	while (rc > 0)
 	{
-		rc = usb_bulk_read(akai_z48, EP_IN, buf, 1, 100);  
+		rc = usb_bulk_read(akai_z48, EP_IN, buf, 1, USB_TIMEOUT);  
 		read += rc;
 	}
 
@@ -123,15 +103,26 @@ Z48Sampler_clear_remote_buf(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-/* Gets a file from the sampler */
+/* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49). Caller must ensure buffer points to an array with 4 elements */
+int 
+z48_reply_ok(unsigned char* buffer)
+{
+	if (buffer[0] != 0x41) return 0;
+	if (buffer[1] != 0x6b) return 0;
+	if (buffer[2] != 0x61) return 0;
+	if (buffer[3] != 0x49) return 0;
+	return 1;
+}
+
+/* Gets a file from the sampler. Any existing file with the same name will be overwritten */
 static PyObject*
 Z48Sampler_get(PyObject* self, PyObject* args)
 {
-	PyObject* self_arg;
-	unsigned char *dest, *src, *command, *buffer;
-	unsigned char reply[12];
-	int src_len, dest_len, bytes_to_read, bytes_read = 0;
+	PyObject *self_arg, *ret = NULL;
+	unsigned char *dest, *src, *command, *data;
+	int src_len, dest_len, block_size = 4096*4, bytes_transferred = 0;
 	FILE* fp;
+	int rc = 0;
 
 #ifdef _POSIX_SOURCE
 	struct timeval t1, t2;
@@ -144,68 +135,82 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 	}
 	else
 	{
-		/* create 'get' command: 0x41 and the name of the file to transfer */
+		/* create get request */
 		command = (unsigned char*) PyMem_Malloc((src_len+1) * sizeof(unsigned char));
-		command[0] = GET_COMMAND;
+		command[0] = Z48_GET;
 		memcpy(command+1, src, src_len * sizeof(unsigned char));
 
-		usb_bulk_write(akai_z48, EP_OUT, command, src_len+1, 500);
+		usb_bulk_write(akai_z48, EP_OUT, command, src_len+1, USB_TIMEOUT);
 		PyMem_Free(command);
 
-		/* get the number of bytes to read */
-		buffer = (unsigned char*)PyMem_Malloc(8 * sizeof(unsigned char));
-		int rc = usb_bulk_read(akai_z48, EP_IN, buffer, 8, 500);  
-		bytes_to_read = (buffer[7]
-				| buffer[6] << 8 
-				| buffer[5] << 16 
-				| buffer[4] << 24);
+		fp = fopen(dest, "w+"); 
 
-		PyMem_Free(buffer);
-		buffer = (unsigned char*)PyMem_Malloc(bytes_to_read * sizeof(unsigned char));
+		data = PyMem_Malloc(block_size * sizeof(unsigned char));
 #ifdef _POSIX_SOURCE
 	   	gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
-		rc = usb_bulk_read(akai_z48, EP_IN, buffer, bytes_to_read, 500);  
-		bytes_read+=rc;
 
-		if (rc < 0)
+
+		do
 		{
-			PyMem_Free(buffer);
-			return PyErr_Format(PyExc_Exception, "File was not successfully transferred.");
+			rc = usb_bulk_read(akai_z48, EP_IN, data, block_size, USB_TIMEOUT);  
+
+			if (rc == block_size)
+			{
+				bytes_transferred+= rc;
+
+				/* write to file */
+				fwrite(data, sizeof(unsigned char), rc, fp);
+
+				/* sent continue request */
+				usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, USB_TIMEOUT);  
+			}	
+			else if (rc == 8)
+			{
+				/* get the number of bytes to read */
+#ifdef _DEBUG
+				printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Advertised: %i\n", 
+					block_size, rc, bytes_transferred, GET_BYTES_TRANSFERRED(data));
+#endif
+				if (bytes_transferred > 0) 
+				{
+					block_size = GET_BLOCK_SIZE(data);
+					if (block_size == 0)
+					{
+						/* file transfer completed */
+						break;
+					}
+				}
+			}
+			else if (rc == 4 && z48_reply_ok(data))	
+			{
+				continue;
+			}
+			else
+			{
+				printf("At bulk read: Unexpected reply, rc %i or unexpected end of transmission.\n", rc);
+				ret = PyErr_Format(PyExc_Exception, "Transmission Error."); 
+			}
+
+		} while(rc > 0);
+
+		/* close the file */
+		fclose(fp);
+		PyMem_Free(data);
+
+		if (ret != NULL)
+		{
+			return ret;
 		}
 		else
 		{
-			assert (rc == bytes_to_read);
-
-			/* After the file bytes 4+8 additional reply bytes are sent */
-			
-			fp = fopen(dest, "w");
-			int i = 1;
-			while(rc > 0)
-			{
-				/* write to file */
-				fwrite(buffer, sizeof(unsigned char), rc, fp);
-				/* continue reading bytes */
-				usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, 500);  
-				/* first time 4 bytes are returned */
-				if (i == 1) usb_bulk_read(akai_z48, EP_IN, reply, 4, 500);  
-				i++;
-				usb_bulk_read(akai_z48, EP_IN, reply, 8, 500);  
-				rc = usb_bulk_read(akai_z48, EP_IN, buffer, bytes_to_read, 500);  
-				bytes_read+=rc;
-				printf("Rc2: %i\n", rc);
-			}
-
 #ifdef _POSIX_SOURCE
 			gettimeofday(&t2, NULL); // timeval, timezone struct
-			// get elapsed time in seconds
+			// get elapsed time in seconds. 
 			elapsed = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)/1000000.0f;
-			kbps = bytes_to_read/(1024*elapsed);
-			printf("Transfered %i bytes in elapsed %4f (%4f kB/s)\n", bytes_read, elapsed, kbps); 
+			kbps = bytes_transferred/(1024*elapsed);
+			printf("Transfered %i bytes in elapsed %6f (%6f kB/s)\n", bytes_transferred, elapsed, kbps); 
 #endif
-			/* write the file */
-			fclose(fp);
-			PyMem_Free(buffer);
 			Py_INCREF(Py_None);
 			return Py_None;
 		}
@@ -217,8 +222,8 @@ static PyObject*
 Z48Sampler_put(PyObject* self, PyObject* args)
 {
 	PyObject *self_arg;
-	unsigned char *src, *dest, *buf;
-	int src_len, dest_len;
+	unsigned char *src, *dest, *buf, *command, *reply_buf;
+	int src_len, dest_len, filesize, rc, blocksize = 4096 * 4, bytes_sent = 0;
 	FILE* fp;
 
 	if(!PyArg_ParseTuple(args, "Os#s#", &self_arg, &src, &src_len, &dest, &dest_len))
@@ -229,28 +234,73 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 	{
 		/* Get file info */
 		struct stat* st = (struct stat*)PyMem_Malloc(sizeof(struct stat));
-		stat(src, st);
-		int bytes_to_write = st->st_size;
+		rc = stat(src, st);
+
+		if (rc < 0)
+		{
+			PyMem_Free(st);
+			return PyErr_Format(PyExc_Exception, "Could not stat file %s. rc: %i", src, rc);
+		}
+
+		filesize = st->st_size;
 		//  read in st->st_blksize ???
 		PyMem_Free(st);
-		buf = PyMem_Malloc(bytes_to_write * sizeof(unsigned char));
+		buf = PyMem_Malloc(filesize * sizeof(unsigned char));
 
 		fp = fopen(src, "r");
-		fread(buf, sizeof(unsigned char), bytes_to_write, fp);
-		fclose(fp);
-		// command sequence ?
-		// usb_bulk_write(akai_z48, EP_OUT, buf, bytes_to_write); 
-		/* write the file data */
-		int rc = usb_bulk_write(akai_z48, EP_OUT, buf, bytes_to_write, 1000); 
 
-		if (rc < 0 || rc < bytes_to_write)
+		/* create 'put' command: 0x41, byte size and the name of the file to transfer */
+		command = (unsigned char*) PyMem_Malloc((src_len+5) * sizeof(unsigned char));
+		command[0] = Z48_PUT;
+		command[1] = filesize >> 24;
+		command[2] = filesize >> 16;
+		command[3] = filesize >> 8;
+		command[4] = filesize;
+
+		memcpy(command+1, src, src_len * sizeof(unsigned char));
+
+		rc = usb_bulk_write(akai_z48, EP_OUT, command, src_len+5, 1000); 
+
+		if (rc < 0)
 		{
-			PyMem_Free(buf);
+			printf("Command not sent\n");
+		}
+
+		reply_buf = (unsigned char*) PyMem_Malloc(8 * sizeof(unsigned char));
+
+		do 
+		{
+			printf("AT start transfer\n");
+			rc = usb_bulk_read(akai_z48, EP_IN, reply_buf, 8, 1000); 
+
+			if (rc == 8)
+			{
+				printf("Got reply\n");
+
+				blocksize= GET_BLOCK_SIZE(reply_buf);	
+			}
+			rc = fread(buf, sizeof(unsigned char), blocksize, fp);
+
+			printf("do transfer\n");
+			rc = usb_bulk_write(akai_z48, EP_OUT, buf, rc, 1000); 
+			bytes_sent+= rc;
+
+			/* continue */
+			printf("continue\n");
+			rc = usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, 1000); 
+		} while(!feof(fp) && rc > 0);
+
+		fclose(fp);
+
+		PyMem_Free(reply_buf);
+		PyMem_Free(buf);
+
+		if (rc < 0)
+		{
 			return PyErr_Format(PyExc_Exception, "File transfer failed.");
 		}
 		else
 		{
-			PyMem_Free(buf);
 			Py_INCREF(Py_None);
 			return Py_None;
 		}
@@ -278,17 +328,19 @@ Z48Sampler_execute(PyObject* self, PyObject* args)
 	}
 	else
 	{
-		usb_bulk_write(akai_z48, EP_OUT, sysex_command, string_length, 500);
+		usb_bulk_write(akai_z48, EP_OUT, sysex_command, string_length, USB_TIMEOUT);
 		buffer = (unsigned char*)PyMem_Malloc( 1024 * sizeof(unsigned char));
-		rc = usb_bulk_read(akai_z48, EP_IN, buffer, 1024, 500);  
+		rc = usb_bulk_read(akai_z48, EP_IN, buffer, 1024, USB_TIMEOUT);  
 
 		if (rc < 0)
 		{
-			PyMem_Free(buffer);
-			return PyErr_Format(PyExc_Exception, "Error reading sysex reply, rc: %i.", rc);
+			ret = PyErr_Format(PyExc_Exception, "Error reading sysex reply, rc: %i.", rc);
+		}
+		else
+		{
+			ret = Py_BuildValue("s#", buffer, rc); 
 		}
 
-		ret = Py_BuildValue("s#", buffer, rc); 
 		PyMem_Free(buffer);
 		return ret;
 	}
