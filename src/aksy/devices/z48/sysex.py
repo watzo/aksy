@@ -4,13 +4,14 @@ class Command:
     """Represents a system exclusive command.
     """
 
-    def __init__(self, id, name, arg_types, reply_spec=None):
+    def __init__(self, id, name, arg_types, reply_spec=()):
         self.id = id
         self.name = name
         self.arg_types = []
         self.reply_spec = reply_spec
 
         for arg_type in arg_types:
+
             if arg_type is not None:
                 self.arg_types.append(arg_type)
 
@@ -84,30 +85,35 @@ class Reply:
     r""" Encapsulates a sysex reply
 
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), (BYTE,)) 
+    >>> dcmd = Command('\x01\x01', 'dummy', (),(BYTE,))
+    >>> reply = Reply(''.join(bytes), dcmd) 
     >>> reply.parse()
     1
 
+    >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x00','\x02\x01\x02', '\x00', '\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b', '\x00', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), (WORD, BYTE, BYTE, BYTE, BYTE, STRING)) 
+    >>> reply = Reply(''.join(bytes), dcmd) 
     >>> reply.parse() 
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
     # Future: should raise unknown disk error 
+    >>> dcmd.reply_spec = ()
     >>> bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
-    >>> reply = Reply(bytes,()) 
+    >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     Traceback (most recent call last):
     Exception: System exclusive error, code 180, message: Unknown disk error
 
     # using pad type if we encounter bytes not according to specification
+    >>> dcmd.reply_spec = (PAD, WORD)
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x10', '\x02', '\x15', '\x00', '\xf7')
-    >>> reply = Reply(''.join(bytes),(PAD, WORD)) 
+    >>> reply = Reply(''.join(bytes), dcmd) 
     >>> reply.parse() 
     21
 
     # not possible yet how to deal with the dump request replies
-    >>> reply = Reply('\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7',()) 
+    >>> dcmd.reply_spec = ()
+    >>> reply = Reply('\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7', dcmd) 
     >>> reply.parse() 
     Traceback (most recent call last):
         ParseException("Unknown reply type: %02x" % struct.unpack('B', reply_id))
@@ -115,29 +121,34 @@ class Reply:
 
     # reply on 'bulk command 10 05' 10 0a 00 f0 47 5e 20 00 00 10 05 15 f7
     # popped 2 0 bytes after header 5f  and here we discover how ak.sys gets its disk list! (but what about the 15? arg checksum?)
+    >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x05\x00\x02\x01\x02\x00\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b\x00\xf7'
-    >>> reply = Reply(bytes, (WORD, BYTE, BYTE, BYTE, BYTE, STRING)) 
+    >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x20\x53\x74\x72\x69\x6e\x67\x20\x41\x32\x2e\x77\x61\x76\x00\xf7'
-    >>> reply = Reply(bytes, (STRING,)) 
+    >>> dcmd.reply_spec = (STRING,)
+    >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     'Mell String A2.wav'
 
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x6f\x74\x72\x6f\x6e\x20\x53\x74\x72\x69\x6e\x67\x73\x2e\x61\x6b\x70\x00\xf7'
-    >>> reply = Reply(bytes, (STRING,)) 
+    >>> dcmd.reply_spec = (STRING,)
+    >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     'Mellotron Strings.akp'
 
     >>> bytes = '\xf0\x47\x5f\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'
-    >>> reply = Reply(bytes, (STRING,)) 
+    >>> dcmd.reply_spec = (PAD, STRING,)
+    >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
-     '\x08Z8 Sampler'
+    'Z8 Sampler'
+
     """
-    def __init__(self, bytes, reply_spec=(), z48id=None, userref=None):
+    def __init__(self, bytes, command, z48id=None, userref=None):
         self.bytes = bytes
-        self.reply_spec = reply_spec
+        self.command = command
         self.z48id = z48id
         self.userref = userref
 
@@ -150,7 +161,7 @@ class Reply:
 
         # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
-        if self.z48id is not None:
+        if self.userref is not None:
             i += len(self.z48id)
         else:
             i += 1
@@ -158,7 +169,8 @@ class Reply:
         i += 1 # userref 
         reply_id = self.bytes[i]
 
-        i +=  3 # skip past the reply, section and command
+        i +=  1 # skip past the reply
+        i += len(self.command.id) # skip past the command id (section, item)
         if reply_id == REPLY_ID_OK:
             return None 
         elif reply_id == REPLY_ID_DONE:
@@ -180,7 +192,7 @@ class Reply:
         """Parses a byte string without type information
         """
         result = []
-        for type in self.reply_spec:
+        for type in self.command.reply_spec:
             part, len_parsed = parse_byte_string(bytes, type, offset) 
             if part is not None:
                 result.append(part)
