@@ -33,19 +33,19 @@ class Command:
 class Request:
     """ Encapsulates a sysex request
 
-    # select disk:
+    Select disk:
     >>> arg = 512 
     >>> command = Command('\x20', '\x02', 'select_disk', (WORD,None), ()) 
     >>> Request(command, (arg,))
     ['f0', '47', '5f', '00', '20', '02', '00', '02', 'f7']
 
-    # select root folder:
+    Select root folder:
     >>> folder = ''
     >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
 
-    # select autoload folder:
+    Select autoload folder:
     >>> folder = 'autoload'
     >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
     >>> Request(command, (folder,))
@@ -275,7 +275,7 @@ def _to_byte_string(src_type, value):
     >>> _to_byte_string(STRING, 'test')
     >>> _to_byte_string(STRING, 'test sdf')
     """
-    if (src_type == BYTE or src_type == ZERO):
+    if (src_type == BYTE):
        byte_string = struct.pack('<b', value)
     elif (src_type == SBYTE):
        byte_string = struct.pack('<b', value)
