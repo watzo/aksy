@@ -87,7 +87,7 @@ class Loop:
     def __init__(self, type, start, end, fraction):
         self.start = start
         self.end = end 
-        # 0: no looping, 1: one shot, 2: loop in release 3: loop until release
+        # 0: no looping, 1: looping 2: one shot
         self.type = type or 0
         self.fraction = 0
         self.count = 0
@@ -211,12 +211,17 @@ class Program(Base):
     """
     TODO: merge in aksy model
 
-    >>> p = Program('sooper strings.akp')
+    >>> p = Program('sooperstrings.akp')
     >>> len(p.create_chunk())
-    74
+    164
     
+    >>> p.midi_prog_no = 1
+    >>> p.lfos[0].waveform = LFO.SAW_BI 
+
     Note the lack of file extension with sample assigning:
-    >>> p.keygroups[0].zones[0].samplename = 'test'
+    >>> p.keygroups[0].zones[0].samplename = 'FSM Strings4 C1'
+    >>> p.keygroups.append(Keygroup())
+    >>> p.keygroups[1].zones[0].samplename = 'test'
     >>> p.keygroups[0].zones[0].low_vel = 33
     >>> p.keygroups[0].zones[0].high_vel = 35 
     >>> p.writefile()
@@ -358,7 +363,7 @@ class Program(Base):
         file = open(self.filename, 'rb')
         file.close()
 
-   def __repr__(self):
+    def __repr__(self):
         string_repr = StringIO(
         string_repr.write('<Akai Program'))
         string_repr.write(''.join(['property: %s, val %s\n' % (item, val) 
@@ -476,7 +481,7 @@ class Keygroup(Base):
     Exception: Unknown property: blow_note
     >>> kg = Keygroup(low_note=45)
     >>> len(kg.create_chunk())
-
+    352
     """
     def setdefaults(self):
         self.low_note=21 
@@ -732,7 +737,7 @@ class AuxEnvelope(Base):
         self.level1 = 100 
         self.level2 = 100 
         self.level3 = 100 
-        self.level4 = 100 
+        self.level4 = 0 
         self.velo_to_rate1 = 0
         self.kb_to_r2_r4 = 0
         self.velo_on_to_r4 = 0
