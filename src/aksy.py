@@ -1,7 +1,7 @@
 from aksyxusb import Z48Sampler
 from sysex import Request, Reply 
 import sysex
-import aksysdisktools, program_main
+import aksysdisktools, program_main, multi_main, sample_main
 import struct
 import sys,time
 
@@ -42,7 +42,9 @@ class Z48(Z48Sampler):
     def __init__(self):
         Z48Sampler.__init__(self)
         self.disktools = aksysdisktools.DiskTools(self)
-        self.program_main = program_main.ProgramMain(self)
+        self.program_module = program_main.ProgramMain(self)
+        self.sample_module = sample_main.SampleMain(self)
+        self.multi_module = multi_main.MultiMain(self)
 
     def init(self):
         """Initializes the connection with the sampler
