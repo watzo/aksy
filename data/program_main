@@ -1,47 +1,47 @@
 \x14	program_main	Program Main
-\x01 	get_no_programs	Get number of items in memory
+\x01	get_no_items	Get number of items in memory
 
-\x02\x00	get_program_handles	Get list of info for all items: 0=list of handles;
+\x02\x00	get_handles	Get list of info for all items: 0=list of handles;
 DWORD
-\x02\x01	get_program_names	Get list of info for all items: 1=list of names
+\x02\x01	get_names	Get list of info for all items: 1=list of names
 STRING
-\x02\x02	get_program_handles_names	Get list of info for all items: 2=list of handle+name;
+\x02\x02	get_handles_names	Get list of info for all items: 2=list of handle+name;
 DWORD	STRING
-\x02\x03	get_program_modified	Get list of info for all items: 3=list of handle+modified/tagged name
+\x02\x03	get_modified	Get list of info for all items: 3=list of handle+modified/tagged name
 DWORD	STRING
-\x03	set_curr_program_by_handle	Select current item by handle	DWORD
+\x03	set_current_by_handle	Select current item by handle	DWORD
 
-\x04	set_curr_program_by_name	Select current item by name	STRING
+\x04	set_current_by_name	Select current item by name	STRING
 
-\x05	curr_get_program_handle	Get handle of current item
+\x05	get_current_handle	Get handle of current item
 DWORD
-\x06	curr_get_program_name	Get name of current item
+\x06	get_current_name	Get name of current item
 STRING
-\x07	get_program_name_by_handle	Get item name from handle	DWORD
-STRIN
-\x08	get_program_handle_from_name	Get item handle from name	STRING
+\x07	get_name_by_handle	Get item name from handle	DWORD
+STRING
+\x08	get_handle_from_name	Get item handle from name	STRING
 DWORD
-\x09	delete_all_programs	Delete ALL items from memory
+\x09	delete_all	Delete ALL items from memory
 
-\x0A	curr_program_delete	Delete current item from memory
+\x0A	delete_current	Delete current item from memory
 
-\x0B	delete_program_by_handle	Delete item represented by handle <Data1>	DWORD
+\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
 
-\x0C	curr_program_rename	Rename current item	STRING
+\x0C	rename_current	Rename current item	STRING
 
-\x0D	rename_program_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+\x0D	rename__by_handle	Rename item represented by handle <Data1>	DWORD	STRING
 
-\x0E	tag_program	Set Tag Bit <Data1> = bit to set(0-7), <Data2> = (0=OFF, 1=ON), Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
+\x0E	tag	Set Tag Bit <Data1> = bit to set(0-7), <Data2> = (0=OFF, 1=ON), Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
 
-\x0F	get_program_tag_bitmap	Get Tag Bitmap
+\x0F	get_tag_bitmap	Get Tag Bitmap
 WORD
-\x10	curr_get_program_mod_tagged	Get name of current item with modified/tagged info.
+\x10	get_current_modified	Get name of current item with modified/tagged info.
 
-\x11	curr_get_program_modified	Get modified state of current item.
+\x11	get_modified	Get modified state of current item.
 BYTE
-\x18	delete_tagged_programs	Delete tagged items <Data1> = tag bit	BYTE
+\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE
 
-\x40	create_program	Create New Program <Data1> = number of keygroups;<Data2> = name.	WORD	STRING
+\x40	create_new	Create New Program <Data1> = number of keygroups;<Data2> = name.	WORD	STRING
 
-\x41	curr_program_add_keygroups	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE
+\x41	add_keygroups_to_current	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE
 

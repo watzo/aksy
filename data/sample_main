@@ -1,35 +1,35 @@
 \x1C	sample_main	Sample Main
-\x01	Get number of items in memory
+\x01	get_no_items	Get number of items in memory
 BYTE
-\x02\x00	get_sample_handles Get Sample handles	BYTE
+\x02\x00	get_handles	Get Sample handles	BYTE
 
-\x02\x01	get_sample_names Get sample names	BYTE
+\x02\x01	get_names	Get sample names	BYTE
 
-\x02\x02	get_sample_handles_names	Get list of sample handles and names	BYTE
+\x02\x02	get_handles_names	Get list of sample handles and names	BYTE
 
-\x02\x03	get_sample_handles_modified	Get a list of modified/tagged samples	BYTE
+\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
 
-\x03	set_curr_sample_by_handle	Select current item by handle	DWORD
+\x03	set_current_by_handle	Select current item by handle	DWORD
 
-\x04	set_curr_sample_by_name	Select current item by name	STRING
+\x04	set_current_by_name	Select current item by name	STRING
 
-\x05	get_curr_sample_handle	Get handle of current item
+\x05	get_current_handle	Get handle of current item
 DWORD
-\x06	get_curr_sample_name	Get name of current item
+\x06	get_current_name	Get name of current item
 STRING
-\x07	get_sample_name_by_handle	Get item name from handle	DWORD
+\x07	get_name_by_handle	Get item name from handle	DWORD
 STRING
-\x08	get_sample_handle_by_name	Get item handle from name	STRING
+\x08	get_handle_by_name	Get item handle from name	STRING
 DWORD
-\x09	delete_all_samples	Delete ALL items from memory
+\x09	delete_all	Delete ALL items from memory
 
-\x0A	delete_curr_sample	Delete current item from memory
+\x0A	delete_current	Delete current item from memory
 
-\x0B	delete_sample_by_handle	Delete item represented by handle <Data1>	DWORD
+\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
 
-\x0C	rename_curr_sample	Rename current item	STRING
+\x0C	rename_current	Rename current item	STRING
 
-\x0D	rename_sample_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
 
 \x0E	set_tag_bit	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
 
@@ -39,13 +39,13 @@ DWORD
 STRING
 \x11 	get_modified	Get modified state of current item.
 BYTE
-\x18	delete_tagged_samples	Delete tagged items <Data1> = tag bit	BYTE 
+\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
 
-\x40 	play_curr_sample	Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING) BYTE BYTE
+\x40 	play	Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING) BYTE BYTE
 
-\x41 	stop_curr_sample	Stop playback of the current sample
+\x41 	stop	Stop playback of the current sample
 
-\x42	play_sample_to	Play To <Data1> = velocity, <Data2> = sample position BYTE	QWORD
+\x42	play_until	Play To <Data1> = velocity, <Data2> = sample position BYTE	QWORD
 
-\x43 	play_sample_from	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+\x43 	play_from	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
 

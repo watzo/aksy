@@ -1,21 +1,21 @@
 \x18	multi_main	Multi Main
 \x01	get_no_items	Get number of items in memory
 BYTE
-\x02\x00	get_multi_handles	Get handles <Data1>: 0=list of handles
+\x02\x00	get_handles	Get handles <Data1>: 0=list of handles
 DWORD
-\x02\x01	get_multi_names	Get names items: <Data1>; 1=list of names; 
+\x02\x01	get_names	Get names items: <Data1>; 1=list of names; 
 STRING
-\x02\x02	get_multi_handles_names	Get handles names: <Data1>; 2=list of handle+name
-DWORD STRING
-\x02\x03	get_multi_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
-DWORD STRING
-\x03	set_curr_multi	Select by handle	DWORD
+\x02\x02	get_handles_names	Get handles names: <Data1>; 2=list of handle+name
+DWORD	STRING
+\x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
+DWORD	STRING
+\x03	set_current	Select by handle	DWORD
 
-\x04	set_multi_by_name	Select by name	STRING
+\x04	set_by_name	Select by name	STRING
 
-\x05	get_curr_multi_handle	Get current handle 
+\x05	get_current_handle	Get current handle 
 DWORD
-\x06	get_curr_multi_name	Get name of current item
+\x06	get_current_name	Get name of current item
 STRING
 \x07	get_name_by_handle	Get item name from handle	DWORD
 STRING
@@ -23,17 +23,17 @@ STRING
 DWORD
 \x09	delete_all	Delete ALL items from memory
 
-\x0A	delete_curr_multi	Delete current item from memory
+\x0A	delete_current	Delete current item from memory
 
 \x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
 
-\x0C	rename_curr_multi	Rename current item	STRING
+\x0C	rename_current	Rename current item	STRING
 
 \x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
 
-\x0E	set_tag_bitmap	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE	BYTE
+\x0E	tag	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE	BYTE
 
 \x0F	get_tag_bitmap	Get Tag Bitmap
 WORD
-\x10	get_curr_modified	Get name of current item with modified/tagged info.
+\x10	get_current_modified	Get name of current item with modified/tagged info.
 STRING
