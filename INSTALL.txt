@@ -1,0 +1,21 @@
+1. REQUIREMENTS/DEPENDENCIES
+
+Python > 2.2
+
+The aksy usb extension depends on libusb:
+libusb.sourceforge.net
+
+A windows port is available at:
+libusb-win32.sourceforge.net
+
+The extension has been tested with libusb 0.1.8
+
+To run aksy as normal user, install hotplug.
+
+2. INSTALLATION
+
+To install the aksyxusb extension, run: 
+
+python setup.py build
+python setup.py install (as root)
+

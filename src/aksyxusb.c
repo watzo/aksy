@@ -1,6 +1,6 @@
 #include <Python.h>
 #include <usb.h>
-#include "aksyx.h"
+#include "aksyxusb.h"
 
 static struct usb_dev_handle *akai_z48 = 0;
 
@@ -35,7 +35,7 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 		  if (dev->descriptor.idVendor == VENDOR_ID && dev->descriptor.idProduct == PRODUCT_ID)
 		  {
 			akai_z48 = usb_open(dev);
-			printf("Opening device\n");
+			// printf("Opening device\n");
 			break;
 		  }
 		}
@@ -62,19 +62,20 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 	    //char msg1[] = "\x10\x08\x0\xF0\x47\x5F\x0\x20\x5\xF7";
 	    char msg[] = "\x10\x08\x00\xF0\x47\x5F\x00\x00\x01\x00\xF7";
 	    retval = usb_bulk_write(akai_z48, 0x82, setupmsg, 2, 5000);
-	    printf("Retval: %i \n", retval);
-		char buffer[8];
+		unsigned char buffer[8];
 	    retval = usb_bulk_write(akai_z48, 0x82, msg, 11, 5000);
 	 	retval = usb_bulk_read(akai_z48,0x02,buffer,8,1000);
 
+		/*
 		int i;
 		for(i=0; i<retval; i++) {
-       		printf("%02x", buffer[i] & 0x00FF);
+       		printf("%02x", buffer[i]);
         	if(i % 16 == 15) printf("\n");
         	else printf(" ");
    		}
                                                                                                                                                            
       	printf("\n");
+		*/
     	Py_INCREF(Py_None);
 	    return Py_None;
 	}
@@ -121,25 +122,29 @@ Z48Sampler_execute(PyObject* self, PyObject* args)
 	}
 	else
 	{
-   		printf("Z48Sampler.execute called with %s\n", sysex_command);
 		int retval = usb_bulk_write(akai_z48, 0x82, sysex_command, string_length, 1000);
-		char buffer[64];
+		unsigned char* buffer = (unsigned char*)PyMem_Malloc( 64 * sizeof(unsigned char));
 		retval = usb_bulk_read(akai_z48,0x02,buffer,64,1000);  
    		printf("Z48Sampler.execute finished with retval %i\n", retval);
-		int i = 0;
-		char* retbuff = malloc(retval*2); /* this is ok for individual purposes */
+
+		if (retval < 0)
+		{
+			PyMem_Free(buffer);
+			return PyErr_Format(PyExc_Exception, "Error reading sysex reply.");
+		}
+
 		PyObject* ret;
 
+		/* debug printing */
+		int i = 0;
 		for(i=0; i<retval; i++) 
 		{
-			sprintf(retbuff + i*2,"%02x", buffer[i] & 0x00ff );
-
-			printf("%02x", buffer[i] & 0x00FF);
+			printf("%02x", buffer[i]);
 			if(i % 16 == 15) printf("\n");
 			else printf(" ");
 		}
-		ret = Py_BuildValue("s", retbuff); 
-		free(retbuff);
+		ret = Py_BuildValue("s#", buffer, retval); 
+		PyMem_Free(buffer);
 		return ret;
 	}
 }
@@ -159,13 +164,13 @@ static PyMethodDef ModuleMethods[] = { {NULL} };
 extern "C"
 #endif
 
-void initaksyx()
+void initaksyxusb()
 {
     PyMethodDef *def;
 
     /* create a new module and class */
 	/* TODO: extend object */
-    PyObject *module = Py_InitModule("aksyx", ModuleMethods);
+    PyObject *module = Py_InitModule("aksyxusb", ModuleMethods);
     PyObject *moduleDict = PyModule_GetDict(module);
     PyObject *classDict = PyDict_New();
     PyObject *className = PyString_FromString("Z48Sampler");

@@ -37,7 +37,6 @@ class Request:
     def __init__(self, command):
         bytes = ['\xf0']
         bytes.extend(SYSEX_HEADER) 
-        print command.section_id
         bytes.append(command.section_id) 
         bytes.append(command.id) 
         data = command.get_data_bytes()
@@ -45,13 +44,19 @@ class Request:
             bytes.extend(data)
         bytes.append('\xf7')
 
-        print "REQ BYTES:>%s<" % repr(bytes)
         self._bytes = ''.join(bytes)
 
     def get_bytes(self):
         return self._bytes;
         
 class Reply:
+    """ Encapsulates a sysex reply
+
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, USERREF, REPLY_ID_REPLY, '\x20','\x05', BYTE, '\x01', END_SYSEX)
+    >>> reply = Reply(''.join(bytes)) 
+    >>> reply.parse()
+    1
+    """
     def __init__(self, bytes):
         self.bytes = bytes
 
@@ -59,29 +64,33 @@ class Reply:
         """ Parses the command sequence
         """
 
-        if int(self.bytes[0:1],16) != START_SYSEX or int(self.bytes[-2:-1],16) != END_SYSEX:
+        if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
             raise ParseException("Invalid system exclusive string received")
 
-        bytes = self.bytes[2:-2] # get rid of start and end byte
         result = []
-        i = 4 # skip vendor id, z8 id, device id, userref (TODO:consider the user ref)
-        reply_id = int(bytes[i:i+1],16)
+        i = 4 # skip start, vendor id, z8 id, userref (TODO:consider the user ref)
+        reply_id = self.bytes[i]
         if reply_id == REPLY_ID_OK:
             return []
         elif reply_id == REPLY_ID_DONE:
             return []
         elif reply_id == REPLY_ID_ERROR:
             raise Exception("System exclusive error, code %i" %(int(bytes[i],16) + 128* int(bytes[i+1],16)))
+        elif reply_id == REPLY_ID_REPLY:
+            # continue
+            pass
         else:
-            raise ParseException("Unknown reply type: %i" % reply_id)
+            raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
-        i +=  4 # skip the section and command (TODO: reconsider)
-        while i < (len(bytes)):
-            part,len_parsed = parse_byte_string(bytes, i)
+        i +=  3 # skip the section and command (TODO: reconsider)
+        while i < (len(self.bytes) - 1):
+            part, len_parsed = parse_byte_string(self.bytes, i)
             result.append(part)
             i += len_parsed
-
-        return result
+        if len(result) == 1:
+            return result[0]
+        else:
+            return result
 
 class ParseException(Exception):
     """ Exception raised when parsing system exclusive fails
@@ -95,40 +104,47 @@ class Error(Exception):
 
 # Module vars and methods
 
-BYTE        = 0x01;
-SBYTE       = 0x02;
-WORD        = 0x03; # 2 BYTES
-SWORD       = 0x04;
-DWORD       = 0x05;
-SDWORD      = 0x06;
-QWORD       = 0x07; # 2 x 4 BYTES
-SQWORD      = 0x08;
-STRING      = 0x09;
-TWO_BYTES   = 0x10;
-THREE_BYTES = 0x11;
-CUSTOM      = 0x20;
+INT         = '\x00'
+BYTE        = '\x01'
+SBYTE       = '\x02'
+WORD        = '\x03' # 2 BYTES
+SWORD       = '\x04'
+DWORD       = '\x05'
+SDWORD      = '\x06'
+QWORD       = '\x07' # 2 x 4 BYTES
+SQWORD      = '\x08'
+STRING      = '\x09'
+TWO_BYTES   = '\x10'
+THREE_BYTES = '\x11'
+CUSTOM      = '\x20'
+
+POSTIVE     = '\x00'
+NEGATIVE    = '\x01'
 
 STRING_TERMINATOR = '\x00'
 
-REPLY_ID_OK = 0x4F
-REPLY_ID_DONE = 0x44
-REPLY_ID_REPLY = 0x52
-REPLY_ID_ERROR = 0x55
+REPLY_ID_OK = '\x4f'
+REPLY_ID_DONE = '\x44'
+REPLY_ID_REPLY = '\x52'
+REPLY_ID_ERROR = '\x55'
 
-START_SYSEX = 0xf0
-SYSEX_HEADER = ('\x47','\x5f', '\x00') # TODO: Shouldn't have this hard coded
-END_SYSEX = 0Xf7
+START_SYSEX = '\xf0'
+AKAI_ID = '\x47'
+Z48_ID = '\x5f'
+USERREF = '\x00'
+SYSEX_HEADER = (AKAI_ID, Z48_ID, USERREF ) # TODO: Shouldn't have this hard coded
+END_SYSEX = '\xf7'
 
 def _to_byte_string(src_type, value):
     """
     """
     # TODO: raise valueerrors if value out of range 
-    if (src_type == BYTE):
-       byte_string = struct.pack('b', value)
+    if (src_type == BYTE or src_type == INT):
+       byte_string = struct.pack('<b', value)
     elif (src_type == SBYTE):
-       byte_string = struct.pack('b', value)
+       byte_string = struct.pack('<b', value)
     elif (src_type == WORD):
-       byte_string = struct.pack('2b', (value[1],value[0])) # OR pack big endian?
+       byte_string = struct.pack('<2b', (value[1],value[0])) 
     elif (src_type == STRING):
         if not type(value) == type(''):
             raise ValueError("Value %s should be a (non unicode) string." % (value))
@@ -148,26 +164,63 @@ def _to_byte_string(src_type, value):
 def parse_byte_string(data, offset=0):
     """ Parses a bytestring
 
-    >>> parse_byte_string((STRING,'1e','0f','1d','1e','0'))
-    ('TEST', 5)
+    >>> parse_byte_string((STRING, '\x54','\x45','\x53','\x54', STRING_TERMINATOR))
+    ('TEST', 6)
 
-    >>> parse_byte_string((BYTE,'aa'))
-    (170, 1)
+    >>> parse_byte_string((BYTE + '\x0f'))
+    (15, 2)
 
+
+    >>> parse_byte_string((SBYTE + '\x01\x0f'))
+    (-15, 3)
+
+    >>> parse_byte_string((WORD + '\x0f\x0f'))
+    (3855, 3)
+
+    >>> parse_byte_string((SWORD + '\x01\x0f\x0f'))
+    (-3855, 4)
+
+    >>> parse_byte_string((DWORD + '\x00\x0f\x0f'))
+    (3855, 4)
+
+    >>> parse_byte_string((SDWORD + '\x01\x00\x0f\x0f'))
+    (3855, 5)
     """
 
-    dest_type = data[offset:offset+1]
-    len_parsed_data = 0
+    dest_type = data[offset]
+    len_parsed_data = 1 
+    if (dest_type == BYTE or dest_type == INT):
+        result = struct.unpack('b', data[offset+1])[0]
+        len_parsed_data += 1
 
-    if (dest_type == BYTE):
-        result = int(data[offset+2:offset+3],16)
-        len_parsed_data += 2;
     elif (dest_type == SBYTE):
-        result = int(data[offset+2:offset+4],16)
+        result = struct.unpack('b', data[offset+2])[0]
+
+        if data[offset+1] == NEGATIVE:
+            result *= -1 
+         
         len_parsed_data += 2;
+
     elif (dest_type == WORD):
-        result = struct.unpack('2b', data[1])
+        result = struct.unpack('<H', data[offset+1:offset+3])[0]
         len_parsed_data += 2;
+
+    elif (dest_type == SWORD):
+        result = struct.unpack('<H', data[offset+2:offset+4])[0]
+
+        if data[offset+1] == NEGATIVE:
+            result *= -1 
+
+        len_parsed_data += 3;
+    elif (dest_type == DWORD):
+        result = struct.unpack('<I', data[offset+1:offset+5])[0]
+
+        len_parsed_data += 3;
+    elif (dest_type == SDWORD):
+        result = struct.unpack('<I', data[offset+1:offset+5])[0]
+        len_parsed_data += 5;
+
+        result = struct.unpack('<I', data[offset+2:offset+4])[0]
     elif (dest_type == STRING):
         bytes = []
         for char in data[1:]:
@@ -178,7 +231,7 @@ def parse_byte_string(data, offset=0):
                 bytes.append(_convert_akai_char(char))
         result = ''.join(bytes)
     else: 
-        raise ValueError("unsupported type %s" % repr(src_type))
+        raise ValueError("unsupported type %s" % repr(dest_type))
         
     return (result, len_parsed_data)
 
@@ -190,8 +243,12 @@ def _to_akai_char(value):
 
 def _convert_akai_char(value):
     """ Converts an akai string encoded ascii value to a python string
+
+    >>> _convert_akai_char('\x3f')
+    '?'
     """
-    value = int(value)
+    value = struct.unpack('b', value)[0]
+    assert value > 0 and value < 256
     return str(chr(value))
 
 
