@@ -117,6 +117,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     command = (unsigned char*) calloc(src_filename_length+1, sizeof(unsigned char));
     command[0] = (location == Z48_MEMORY)?Z48_MEMORY_GET: Z48_DISK_GET;
     memcpy(command+1, src_filename, src_filename_length * sizeof(unsigned char));
+    /* for memory get, the filename should be a DWORD handle eg * \x00\x01\x00\x01 */
 
     usb_bulk_write(akai_dev->dev, EP_OUT, command, src_filename_length+1, timeout);
     free(command);
@@ -276,11 +277,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 		usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, 1000); 
 	} while(rc > 0);
 
-#ifdef _POSIX_SOURCE
-	print_transfer_stats(t1, t2, bytes_transferred);
-#endif
 	fclose(fp);
-
 	free(reply_buf);
 	free(buf);
 
@@ -289,6 +286,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 		return AKAI_TRANSMISSION_ERROR;
 	}
 
+#ifdef _POSIX_SOURCE
+	print_transfer_stats(t1, t2, bytes_transferred);
+#endif
 	return 1;
 }
 
