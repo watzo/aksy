@@ -160,31 +160,38 @@ class Folder(File):
         self.path = path
         self.name = path[-1]
         self.type = File.FOLDER
+        self.children = []
 
         print "Initializing folder %s" % repr(path)
 
     def get_children(self):
-        """
+        """Gets the children of this folder
+        or returns a cached version when already retrieved.
         """
         self.set_current()
-        children = [Folder(self.disktools, self.path + (subfolder,))
+        if len(self.children) > 0:
+            return self.children
+
+        self.children = [Folder(self.disktools, self.path + (subfolder,))
             for subfolder in self.disktools.get_subfolder_names()]
 
-        # TODO: check this! this currently does not work
         files = [ File(self.disktools, self.path + (name,)) for name in 
             self.disktools.get_filenames() ]
 
-        children.extend(files)
-        return children
+        self.children.extend(files)
+        print "Returning children %s of folder %s" % (repr(self.children),
+        repr(self.path))
+        return self.children
 
     def has_children(self):
-        return (self.disktools.get_no_files() > 0 or
+        return (len(self.children) > 0 or self.disktools.get_no_files() > 0 or
             self.disktools.get_no_subfolders() > 0)
         
     def set_current(self):
-        print "Current folder: %s" % self.disktools.get_curr_path()
+        print "Current folder before set_current: %s" % self.disktools.get_curr_path()
         for item in self.path:
             self.disktools.set_curr_folder(item)
+        print "Current folder after set_current: %s" % self.disktools.get_curr_path()
 
     def rename(self, new_name):
         self.get_parent().set_current()
@@ -283,7 +290,7 @@ class Storage:
         self._children = []
     
     def has_children(self):
-        return True 
+        return len(self._children) > 0 
 
     def get_children(self):
         return self._children    

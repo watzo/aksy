@@ -4,8 +4,9 @@ from wxPython.wx import wxPySimpleApp, wxFrame, wxPanel, wxID_ANY, wxDEFAULT_FRA
 from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY, wxNewId, wxID_OK
 from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT, EVT_TREE_ITEM_EXPANDING, EVT_TREE_ITEM_ACTIVATED
+from wxPython.wx import EVT_TREE_SEL_CHANGED
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
-from wxPython.wx import wxFileDialog 
+from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME
 
 import wrappers
 import aksysdisktools, program_main, multi_main, sample_main
@@ -15,7 +16,7 @@ import os.path, traceback
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = False
+USE_MOCK_OBJECTS = True
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -24,8 +25,9 @@ class Frame(wxFrame):
        
         filemenu= wxMenu()
         filemenu.Append(ID_ABOUT, "&About"," Information about this program")
+        filemenu.Append(wxID_COPY, "Copy\tCtrl+C", "Copy") 
         filemenu.AppendSeparator()
-        filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
+        filemenu.Append(ID_EXIT,"E&xit\tCtrl+Q"," Terminate the program")
 
         menuBar = wxMenuBar()
         menuBar.Append(filemenu,"&File") 
@@ -33,6 +35,7 @@ class Frame(wxFrame):
         self.SetSize((640, 480))
         self.Show(True)
         EVT_MENU(self, ID_EXIT, self.OnExitMenu)   
+        EVT_MENU(self, wxID_COPY, self.OnCopy)   
         EVT_MENU(self, ID_ABOUT, self.OnAbout) 
 
         EVT_CLOSE(self, self.OnExit)
@@ -57,7 +60,43 @@ class Frame(wxFrame):
     def OnExit(self,e):
         self.z.close()
         self.Destroy() 
-            
+
+    """Copy and paste operations.
+    2 types: 
+        -copy/paste aksy items in the tree
+        -copy/paste filenames between aksy 
+    """
+    def OnCut(self, evt):
+        # this is always a node
+        # hide it
+        if wxTheClipboard.Open():
+            data = wxFileDataObject()
+            if wxTheClipboard.GetData(data):
+                # get the filenames 
+                pass
+            wxTheClipboard.Close()
+        
+    def OnCopy(self, evt):
+        print repr(evt.GetClientData())
+        # this is always a node to be copied.
+        # get the event origin
+        if wxTheClipboard.Open():
+            data = wxFileDataObject()
+            if wxTheClipboard.GetData(data):
+                print repr(data)
+            wxTheClipboard.Close()
+
+    def OnPaste(self, evt):
+        if wxTheClipboard.Open():
+            data = wxFileDataObject()
+            if wxTheClipboard.GetData(data):
+               pass 
+            # or a cut/copied node
+            # if cut -> paste the node to the new location
+            # and remove the old node
+            # otherwise create the new node
+
+           
     def reportException(self, exception):
         traceback.print_exc()
         d= wxMessageDialog( self, "%s\n" % exception[0], "An error occurred", wxOK)
@@ -97,8 +136,9 @@ class AksyFSTree(wxTreeListCtrl):
 
         EVT_TREE_ITEM_EXPANDING(self, id, self.OnItemExpanding)
         EVT_TREE_ITEM_ACTIVATED(self, id, self.OnItemActivate)
+        EVT_TREE_SEL_CHANGED(self, id, self.OnSelChanged)
 
-    def AppendAksyItem(self, parent, item):
+    def AppendAksyItem(self, parent, item, depth=1):
 
         """Appends an item to the tree. default is root
         """
@@ -106,6 +146,14 @@ class AksyFSTree(wxTreeListCtrl):
             parent = self.root
 
         child = wxTreeListCtrl.AppendItem(self, parent, item.name)
+        if depth == 1 and item.has_children():
+        
+            print "Child %s.Name: %s Aksy children: " % (repr(child), item.name)
+            for grandchild in item.get_children():
+                print "Child %s.Name: %s Aksy children: " % (repr(child), grandchild.name)
+                wx_grandchild = self.AppendAksyItem(child, grandchild, 0)
+                self.SetPyData(wx_grandchild, grandchild)
+
         self.SetPyData(child, item)
         self.AddItemIndex(item.name, child)
 
@@ -134,24 +182,30 @@ class AksyFSTree(wxTreeListCtrl):
     def GetItemByName(self, name):
         return self._index[name]
 
+    def OnSelChanged(self, evt):
+        print "OnItemExpanding: %s" % repr(evt.GetItem())
+
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
         print "OnItemExpanding: %s" % item.name
 
         cookie = 1
+        """
+        """
         wx_child, cookie = self.GetFirstChild(id, cookie)
+        last_child = self.GetLastChild(id) 
             
-        while wx_child.IsOk():
+        while 1:
+            child_item = self.GetPyData(wx_child)
+            if not self.ItemHasChildren(wx_child) and child_item.has_children():
+                for child in child_item.get_children():
+                    print "Appending Child %s.Name: %s Aksy children: %s" % (repr(wx_child), child_item.name, repr(child_item.get_children()))
+                    # subfolders
+                    self.AppendAksyItem(wx_child, child) 
 
-            print "FirstChild %s" % repr(wx_child)
-            for child in item.get_children():
-                if child.has_children():
-                    grandchildren = child.get_children()
-                    for grandchild in grandchildren:
-                        self.AppendAksyItem(wx_child, grandchild) 
-
-            wx_child, cookie = self.GetNextChild(wx_child, cookie)
+            wx_child,cookie = self.GetNextChild(id, cookie)
+            if wx_child == last_child: break
 
     def OnItemActivate(self, evt):
         # TODO: hookup the edit views here
@@ -182,6 +236,7 @@ class TestPanel(wxPanel):
         EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
         EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
+        EVT_MENU(self, wxID_COPY, self.OnCopy)   
 
         disks = wrappers.Storage("disk")
         mem = wrappers.Storage("memory")
@@ -222,26 +277,36 @@ class TestPanel(wxPanel):
             # Setup some items
             disktools = self.z.disktools
 
-            children = { "disk": (wrappers.Folder(disktools,('', 'Autoload',)),
-            wrappers.Folder(disktools, ('', 'Mellotron',)),
-            wrappers.Folder(disktools, ('', 'Songs',)) ),}
-            files = { "Mellotron": (
-            wrappers.File(disktools, ('', 'Mellotron', 'Sample.AKP',)),
-            wrappers.File(disktools, ('', 'Mellotron', 'Sample.wav',))), }
-            
+            rootfolder = wrappers.Folder(disktools, ("",))
+            rootfolder.children.append(wrappers.Folder(disktools,('', 'Autoload',)))
+            rootfolder.children.append(wrappers.Folder(disktools,('', 'Songs',)))
+            mellotron_folder = wrappers.Folder(disktools,('', 'Mellotron',))
+            choir_folder = wrappers.Folder(disktools,('', 'Choir',))
+            choir_folder.children.extend(
+                (wrappers.File(disktools, ('', 'Mellotron', 'Choir', 'Choir.AKP',)),
+                wrappers.File(disktools, ('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
 
-            for item in storage: 
-                if children.has_key(item.name):
-                    subfolders = children[item.name]
-                    for folder in subfolders:
-                        item = self.tree.AppendAksyItem(disks_id, folder)
-                        if files.has_key(folder.name):
-                            file_list = files[folder.name]
-                            for file in file_list:
-                                self.tree.AppendAksyItem(item, file)
+            mellotron_folder.children.extend(
+                (choir_folder,
+                wrappers.File(disktools, ('', 'Mellotron', 'Sample.AKP',)),
+                wrappers.File(disktools, ('', 'Mellotron', 'Sample.wav',)),))
+            rootfolder.children.append(mellotron_folder)
+            disks.set_children(rootfolder.get_children())
 
+            for folder in rootfolder.get_children():
+                 item = self.tree.AppendAksyItem(disks_id, folder)
 
         self.tree.Expand(self.tree.root)
+
+    def OnCopy(self, evt):
+        print repr(evt.GetSelection())
+        # this is always a node to be copied.
+        # get the event origin
+        if wxTheClipboard.Open():
+            data = wxFileDataObject()
+            if wxTheClipboard.GetData(data):
+                print repr(data)
+            wxTheClipboard.Close()
 
 
     def register_menu_actions(self, actions):
@@ -258,6 +323,9 @@ class TestPanel(wxPanel):
 
         if actions.has_key('delete') and actions == wrappers.InMemoryFile.actions:
             actions['delete'].epilog = self.remove_from_memory_branch
+
+        action = wrappers.Action('copy','Copy\tCtrl+C')
+        actions['copy'] = action
 
         for key in actions.keys():
             id = wxNewId()
