@@ -108,16 +108,17 @@ Z48Sampler_close_usb(PyObject *self, PyObject *args)
 }
 
 static PyObject* 
-Z48Sampler_reset_usb_conn(PyObject *self, PyObject *args)
+Z48Sampler_clear_remote_buf(PyObject *self, PyObject *args)
 {
-	int rc = usb_clear_halt(akai_z48, EP_IN);
-	rc = rc | usb_clear_halt(akai_z48, EP_OUT);
-
-	if (rc)
+	int rc = 1, read = 0;
+	unsigned char buf[1];
+	while (rc > 0)
 	{
-		return PyErr_Format(PyExc_Exception, "USB connection was not successfully reset, rc: %i.", rc);
+		rc = usb_bulk_read(akai_z48, EP_IN, buf, 1, 100);  
+		read += rc;
 	}
 
+	printf("%i bytes read from endpoint\n", read);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -128,7 +129,8 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 {
 	PyObject* self_arg;
 	unsigned char *dest, *src, *command, *buffer;
-	int src_len, dest_len, bytes_to_read;
+	unsigned char reply[12];
+	int src_len, dest_len, bytes_to_read, bytes_read = 0;
 	FILE* fp;
 
 #ifdef _POSIX_SOURCE
@@ -163,7 +165,8 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 #ifdef _POSIX_SOURCE
 	   	gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
-		rc = usb_bulk_read(akai_z48, EP_IN, buffer, bytes_to_read, 5000);  
+		rc = usb_bulk_read(akai_z48, EP_IN, buffer, bytes_to_read, 500);  
+		bytes_read+=rc;
 
 		if (rc < 0)
 		{
@@ -172,17 +175,35 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 		}
 		else
 		{
-#ifdef _POSIX_SOURCE
-			gettimeofday(&t2, NULL); // timeval, timezone struct
-			elapsed = (t2.tv_usec - t1.tv_usec)/1000.0f;
-			kbps = bytes_to_read/(1024*elapsed);
-			printf("Transfered %i bytes in elapsed %4f (%4f kB/s)\n", rc, elapsed, kbps); 
-#endif
 			assert (rc == bytes_to_read);
 
-			/* write the file */
+			/* After the file bytes 4+8 additional reply bytes are sent */
+			
 			fp = fopen(dest, "w");
-			fwrite(buffer, sizeof(unsigned char), rc, fp);
+			int i = 1;
+			while(rc > 0)
+			{
+				/* write to file */
+				fwrite(buffer, sizeof(unsigned char), rc, fp);
+				/* continue reading bytes */
+				usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, 500);  
+				/* first time 4 bytes are returned */
+				if (i == 1) usb_bulk_read(akai_z48, EP_IN, reply, 4, 500);  
+				i++;
+				usb_bulk_read(akai_z48, EP_IN, reply, 8, 500);  
+				rc = usb_bulk_read(akai_z48, EP_IN, buffer, bytes_to_read, 500);  
+				bytes_read+=rc;
+				printf("Rc2: %i\n", rc);
+			}
+
+#ifdef _POSIX_SOURCE
+			gettimeofday(&t2, NULL); // timeval, timezone struct
+			// get elapsed time in seconds
+			elapsed = (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec)/1000000.0f;
+			kbps = bytes_to_read/(1024*elapsed);
+			printf("Transfered %i bytes in elapsed %4f (%4f kB/s)\n", bytes_read, elapsed, kbps); 
+#endif
+			/* write the file */
 			fclose(fp);
 			PyMem_Free(buffer);
 			Py_INCREF(Py_None);
@@ -277,8 +298,8 @@ static PyMethodDef Z48SamplerMethods[] =
 {
     {"__init__", Z48Sampler_init, METH_O, "init"},
     {"init_usb", Z48Sampler_init_usb, METH_O, "Initializes USB device and interface."},
-    {"reset_usb_conn", Z48Sampler_reset_usb_conn, METH_O, "Resets USB endpoints."},
     {"close_usb", Z48Sampler_close_usb, METH_O, "Closes USB device and interface."},
+    {"_clear", Z48Sampler_clear_remote_buf, METH_O, "Clears unread data on the sampler."},
     {"_get", Z48Sampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", Z48Sampler_put, METH_VARARGS, "Puts a file on the sampler"},
     {"_execute", Z48Sampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},

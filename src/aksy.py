@@ -1,5 +1,6 @@
 from aksyxusb import Z48Sampler
 from sysex import Request, Reply 
+import sysex
 import disktools
 import struct
 import sys
@@ -12,15 +13,21 @@ class Z48(Z48Sampler):
     >>> z.init_usb()
     >>> z.get_no_disks()
     1
-    >>> # z.get_disklist() 
-    # [512, 1, 2, 256, 'Z48 & MPC4K']
+    >>> z.get_disklist() 
+    [512, 1, 2, 0, 1, 'Z48 & MPC4K']
+    >>> z._clear()
 
     # it now says done!
     >>> z.select_disk(512) 
     >>> z.set_curr_folder('') 
-    >>> z._execute('\x10\x0a\x00\xf0\x47\x5e\x20\x00\x00\x10\x20\x30\xf7')
+    >>> z.set_curr_folder('AUTOLOAD') 
+    # should read approx. 99123 bytes
+    >>> z.get('Ride 1.wav', '/home/walco/dev/aksy' ) 
+
+    # the number can differ ofcourse...
     >>> z.get_no_subfolders() 
-    >>> z.get_subfolder_names() 
+    21
+    >>> #z.get_subfolder_names() 
     >>> z.close_usb()
     """
 
@@ -46,6 +53,9 @@ class Z48(Z48Sampler):
         """
         Z48Sampler.close_usb(self)
 
+    def get(self, filename, destpath):
+        # fix this call
+        Z48Sampler._get(self, sysex._to_byte_string(sysex.STRING, filename), destpath + '/' + filename)
     def execute(self, command, args):
         request = Request(command, args)
         sys.stderr.writelines("Request: %s\n" % repr(request))
