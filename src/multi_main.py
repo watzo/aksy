@@ -15,21 +15,21 @@ class MultiMain:
           self.commands = {}
           comm = sysex.Command('\x18','\x01', 'get_no_items', (), (sysex.BYTE,))
           self.commands[('\x18', '\x01')] = comm
-          comm = sysex.Command('\x18','\x02\x00', 'get_multi_handles', (), (sysex.DWORD,))
+          comm = sysex.Command('\x18','\x02\x00', 'get_handles', (), (sysex.DWORD,))
           self.commands[('\x18', '\x02\x00')] = comm
-          comm = sysex.Command('\x18','\x02\x01', 'get_multi_names', (), (sysex.STRING,))
+          comm = sysex.Command('\x18','\x02\x01', 'get_names', (), (sysex.STRING,))
           self.commands[('\x18', '\x02\x01')] = comm
-          comm = sysex.Command('\x18','\x02\x02', 'get_multi_handles_names', (), (sysex.DWORD, sysex.STRING))
+          comm = sysex.Command('\x18','\x02\x02', 'get_handles_names', (), (sysex.DWORD, sysex.STRING))
           self.commands[('\x18', '\x02\x02')] = comm
-          comm = sysex.Command('\x18','\x02\x03', 'get_multi_handles_tagged', (), (sysex.DWORD, sysex.STRING))
+          comm = sysex.Command('\x18','\x02\x03', 'get_handles_tagged', (), (sysex.DWORD, sysex.STRING))
           self.commands[('\x18', '\x02\x03')] = comm
-          comm = sysex.Command('\x18','\x03', 'set_curr_multi', (sysex.DWORD,), ())
+          comm = sysex.Command('\x18','\x03', 'set_current', (sysex.DWORD,), ())
           self.commands[('\x18', '\x03')] = comm
-          comm = sysex.Command('\x18','\x04', 'set_multi_by_name', (sysex.STRING,), ())
+          comm = sysex.Command('\x18','\x04', 'set_by_name', (sysex.STRING,), ())
           self.commands[('\x18', '\x04')] = comm
-          comm = sysex.Command('\x18','\x05', 'get_curr_multi_handle', (), (sysex.DWORD,))
+          comm = sysex.Command('\x18','\x05', 'get_current_handle', (), (sysex.DWORD,))
           self.commands[('\x18', '\x05')] = comm
-          comm = sysex.Command('\x18','\x06', 'get_curr_multi_name', (), (sysex.STRING,))
+          comm = sysex.Command('\x18','\x06', 'get_current_name', (), (sysex.STRING,))
           self.commands[('\x18', '\x06')] = comm
           comm = sysex.Command('\x18','\x07', 'get_name_by_handle', (sysex.DWORD,), (sysex.STRING,))
           self.commands[('\x18', '\x07')] = comm
@@ -37,19 +37,19 @@ class MultiMain:
           self.commands[('\x18', '\x08')] = comm
           comm = sysex.Command('\x18','\x09', 'delete_all', (), ())
           self.commands[('\x18', '\x09')] = comm
-          comm = sysex.Command('\x18','\x0A', 'delete_curr_multi', (), ())
+          comm = sysex.Command('\x18','\x0A', 'delete_current', (), ())
           self.commands[('\x18', '\x0A')] = comm
           comm = sysex.Command('\x18','\x0B', 'delete_by_handle', (sysex.DWORD,), ())
           self.commands[('\x18', '\x0B')] = comm
-          comm = sysex.Command('\x18','\x0C', 'rename_curr_multi', (sysex.STRING,), ())
+          comm = sysex.Command('\x18','\x0C', 'rename_current', (sysex.STRING,), ())
           self.commands[('\x18', '\x0C')] = comm
           comm = sysex.Command('\x18','\x0D', 'rename_by_handle', (sysex.DWORD, sysex.STRING), ())
           self.commands[('\x18', '\x0D')] = comm
-          comm = sysex.Command('\x18','\x0E', 'set_tag_bitmap', (sysex.BYTE, sysex.BYTE, sysex.BYTE), ())
+          comm = sysex.Command('\x18','\x0E', 'tag', (sysex.BYTE, sysex.BYTE, sysex.BYTE), ())
           self.commands[('\x18', '\x0E')] = comm
           comm = sysex.Command('\x18','\x0F', 'get_tag_bitmap', (), (sysex.WORD,))
           self.commands[('\x18', '\x0F')] = comm
-          comm = sysex.Command('\x18','\x10', 'get_curr_modified', (), (sysex.STRING,))
+          comm = sysex.Command('\x18','\x10', 'get_current_modified', (), (sysex.STRING,))
           self.commands[('\x18', '\x10')] = comm
 
      def get_no_items(self):
@@ -61,7 +61,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x01'))
           return self.z48.execute(comm, ())
 
-     def get_multi_handles(self):
+     def get_handles(self):
           """Get handles <Data1>: 0=list of handles
 
           Returns:
@@ -70,7 +70,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x02\x00'))
           return self.z48.execute(comm, ())
 
-     def get_multi_names(self):
+     def get_names(self):
           """Get names items: <Data1>; 1=list of names; 
 
           Returns:
@@ -79,7 +79,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x02\x01'))
           return self.z48.execute(comm, ())
 
-     def get_multi_handles_names(self):
+     def get_handles_names(self):
           """Get handles names: <Data1>; 2=list of handle+name
 
           Returns:
@@ -89,7 +89,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x02\x02'))
           return self.z48.execute(comm, ())
 
-     def get_multi_handles_tagged(self):
+     def get_handles_tagged(self):
           """Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
 
           Returns:
@@ -99,19 +99,19 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x02\x03'))
           return self.z48.execute(comm, ())
 
-     def set_curr_multi(self, arg0):
+     def set_current(self, arg0):
           """Select by handle
           """
           comm =  self.commands.get(('\x18','\x03'))
           return self.z48.execute(comm, (arg0, ))
 
-     def set_multi_by_name(self, arg0):
+     def set_by_name(self, arg0):
           """Select by name
           """
           comm =  self.commands.get(('\x18','\x04'))
           return self.z48.execute(comm, (arg0, ))
 
-     def get_curr_multi_handle(self):
+     def get_current_handle(self):
           """Get current handle 
 
           Returns:
@@ -120,7 +120,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x05'))
           return self.z48.execute(comm, ())
 
-     def get_curr_multi_name(self):
+     def get_current_name(self):
           """Get name of current item
 
           Returns:
@@ -153,7 +153,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x09'))
           return self.z48.execute(comm, ())
 
-     def delete_curr_multi(self):
+     def delete_current(self):
           """Delete current item from memory
           """
           comm =  self.commands.get(('\x18','\x0A'))
@@ -165,7 +165,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x0B'))
           return self.z48.execute(comm, (arg0, ))
 
-     def rename_curr_multi(self, arg0):
+     def rename_current(self, arg0):
           """Rename current item
           """
           comm =  self.commands.get(('\x18','\x0C'))
@@ -177,7 +177,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x0D'))
           return self.z48.execute(comm, (arg0, arg1, ))
 
-     def set_tag_bitmap(self, arg0, arg1, arg2):
+     def tag(self, arg0, arg1, arg2):
           """Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) <Data3> = (0=CURRENT, 1=ALL)
           """
           comm =  self.commands.get(('\x18','\x0E'))
@@ -192,7 +192,7 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x0F'))
           return self.z48.execute(comm, ())
 
-     def get_curr_modified(self):
+     def get_current_modified(self):
           """Get name of current item with modified/tagged info.
 
           Returns:
