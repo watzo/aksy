@@ -219,6 +219,8 @@ class Program(Base):
     >>> p.lfos[0].waveform = LFO.SAW_BI 
 
     Note the lack of file extension with sample assigning:
+    >>> p.keygroups[0].low_note = 25
+    >>> p.keygroups[0].high_note = 126 
     >>> p.keygroups[0].zones[0].samplename = 'FSM Strings4 C1'
     >>> p.keygroups.append(Keygroup())
     >>> p.keygroups[1].zones[0].samplename = 'test'
@@ -304,7 +306,7 @@ class Program(Base):
             'APRG'
             'prg ',
             6, 
-            0, 
+            1, # set to zero program was not read...
             self.midi_prog_no,
             len(self.keygroups),
             0, 
@@ -551,12 +553,24 @@ class Zone(Base):
         self.velo_start = 0
 
     def create_chunk(self):
-        return struct.pack('<4sl2b20s10bh14b',
+        return struct.pack('<4sl2b20s22bh2b',
             'zone',
             48,
             0,
             len(self.samplename),
             self.samplename,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             self.low_vel,
             self.high_vel,
             self.fine,
@@ -569,21 +583,7 @@ class Zone(Base):
             self.kb_track,
             self.velo_start,
             0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
             0)
-
-           
 
 class Filter(Base):
     """
