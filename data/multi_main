@@ -1,13 +1,13 @@
 \x18	multi_main	Multi Main
 \x01	get_no_items	Get number of items in memory
 BYTE
-\x02\x00	get_handles	Get handles <Data1>: 0=list of handles
+\x02\x00	get_multi_handles	Get handles <Data1>: 0=list of handles
 DWORD
-\x02\x01	get_names	Get names items: <Data1>; 1=list of names; 
+\x02\x01	get_multi_names	Get names items: <Data1>; 1=list of names; 
 STRING
-\x02\x02	get_handles_names	Get handles names: <Data1>; 2=list of handle+name
+\x02\x02	get_multi_handles_names	Get handles names: <Data1>; 2=list of handle+name
 DWORD STRING
-\x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
+\x02\x03	get_multi_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
 DWORD STRING
 \x03	set_curr_multi	Select by handle	DWORD
 
