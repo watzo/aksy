@@ -41,11 +41,11 @@ STRING
 BYTE
 \x28	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
 
-\x28	\x40	play_song   Play Song
+\x28	\x40	play_song	Play Song
 
-\x28	\x41	pause_song   Pause Song
+\x28	\x41	pause_song	Pause Song
 
-\x28	\x42	stop_song   Stop Song
+\x28	\x42	stop_song	Stop Song
 
 \x28	\x01	set_group_id	Set Group ID	BYTE
 
@@ -55,7 +55,7 @@ BYTE
 
 \x28	\x12	set_tempo_mode	Set Tempo Mode <Data1> = (0=FILE, 1=MANUAL, 2=MULTI)	BYTE
 
-\x28	\x13	set_manual_tempo  Set Manual Tempo <Data1> = (tempo×10)bpm	WORD
+\x28	\x13	set_manual_tempo	Set Manual Tempo <Data1> = (tempo×10)bpm	WORD
 
 \x28	\x18	set_midi_output	Set MIDI output port <Data1> = (0=NONE, 1=MIDI A, 2=MIDI B)	BOOL
 
@@ -79,5 +79,5 @@ BYTE
 WORD
 \x28	\x23	get_curr_bar	Get Current Bar
 WORD
-\x28	\x24	Get Current Tempo <Reply> = (tempo×10)bpm 
+\x28	\x24	get_curr_tempo	Get Current Tempo <Reply> = (tempo×10)bpm 
 WORD
