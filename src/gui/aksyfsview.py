@@ -35,7 +35,6 @@ class Frame(wxFrame):
         self.SetSize((640, 480))
         self.Show(True)
         EVT_MENU(self, ID_EXIT, self.OnExitMenu)   
-        EVT_MENU(self, wxID_COPY, self.OnCopy)   
         EVT_MENU(self, ID_ABOUT, self.OnAbout) 
 
         EVT_CLOSE(self, self.OnExit)
@@ -61,42 +60,7 @@ class Frame(wxFrame):
         self.z.close()
         self.Destroy() 
 
-    """Copy and paste operations.
-    2 types: 
-        -copy/paste aksy items in the tree
-        -copy/paste filenames between aksy 
-    """
-    def OnCut(self, evt):
-        # this is always a node
-        # hide it
-        if wxTheClipboard.Open():
-            data = wxFileDataObject()
-            if wxTheClipboard.GetData(data):
-                # get the filenames 
-                pass
-            wxTheClipboard.Close()
-        
-    def OnCopy(self, evt):
-        print repr(evt.GetClientData())
-        # this is always a node to be copied.
-        # get the event origin
-        if wxTheClipboard.Open():
-            data = wxFileDataObject()
-            if wxTheClipboard.GetData(data):
-                print repr(data)
-            wxTheClipboard.Close()
-
-    def OnPaste(self, evt):
-        if wxTheClipboard.Open():
-            data = wxFileDataObject()
-            if wxTheClipboard.GetData(data):
-               pass 
-            # or a cut/copied node
-            # if cut -> paste the node to the new location
-            # and remove the old node
-            # otherwise create the new node
-
-           
+          
     def reportException(self, exception):
         traceback.print_exc()
         d= wxMessageDialog( self, "%s\n" % exception[0], "An error occurred", wxOK)
@@ -183,7 +147,7 @@ class AksyFSTree(wxTreeListCtrl):
         return self._index[name]
 
     def OnSelChanged(self, evt):
-        print "OnItemExpanding: %s" % repr(evt.GetItem())
+        print "OnSelChanged: %s" % repr(evt.GetItem())
 
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
@@ -237,6 +201,7 @@ class TestPanel(wxPanel):
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
         EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
         EVT_MENU(self, wxID_COPY, self.OnCopy)   
+        EVT_MENU(parent, wxID_COPY, self.OnCopy)   
 
         disks = wrappers.Storage("disk")
         mem = wrappers.Storage("memory")
@@ -298,16 +263,45 @@ class TestPanel(wxPanel):
 
         self.tree.Expand(self.tree.root)
 
+    """Copy and paste operations.
+    2 types: 
+        -copy/paste aksy items in the tree
+        -copy/paste filenames between aksy 
+    """
+
     def OnCopy(self, evt):
-        print repr(evt.GetSelection())
         # this is always a node to be copied.
-        # get the event origin
+        id = self.tree.GetSelection()
+
+        item = self.tree.GetPyData(id)
+        print repr(item.name)
         if wxTheClipboard.Open():
             data = wxFileDataObject()
             if wxTheClipboard.GetData(data):
                 print repr(data)
             wxTheClipboard.Close()
 
+    def OnCut(self, evt):
+        # this is always a node
+        # hide it
+        if wxTheClipboard.Open():
+            data = wxFileDataObject()
+            if wxTheClipboard.GetData(data):
+                # get the filenames 
+                pass
+            wxTheClipboard.Close()
+        
+    def OnPaste(self, evt):
+        if wxTheClipboard.Open():
+            data = wxFileDataObject()
+            if wxTheClipboard.GetData(data):
+               pass 
+            # or a cut/copied node
+            # if cut -> paste the node to the new location
+            # and remove the old node
+            # otherwise create the new node
+
+ 
 
     def register_menu_actions(self, actions):
 
