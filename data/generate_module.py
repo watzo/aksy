@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys, os, os.path, StringIO
 import aksy.sysex
+import sysex_info
 
 def _arglist_helper(arglist):
     """Creates correct string rep 
@@ -24,16 +25,17 @@ def classname_helper(section_name):
 
 # could use ljust etc...
 indent_block = "     "
-sysex_module_name = 'aksy.devices.z48.sysex'
-sampler_name = 'z48'
+sysex_module_name = 'aksy.devices.akai.sysex'
+device_name = 'z48'
 
 file_in_name = sys.argv[1]
-skip_replyspec = False
+skip_replyspec = True
 if len(sys.argv)== 3:
     skip_replyspec = bool(sys.argv[2])
+if len(sys.argv)== 4:
+    device_name = bool(sys.argv[3])
 
-custom_request = False 
-    
+device_id = sysex_info.devices[device_name]['device_id']
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
 preamble = "".join(file_preamble.readlines())
@@ -54,7 +56,7 @@ file_out.writelines( "%s\n" % preamble)
 file_out.writelines( "import %s\n\n" % sysex_module_name ) 
 file_out.writelines( "class %s:\n" % classname_helper(section_name))
 file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
-file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, sampler_name, sampler_name))
+file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 #file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
 
@@ -110,10 +112,7 @@ while line:
         methods.writelines( 
             "%scomm = self.commands.get('%s%s')\n" % (indent_block*2, section_id, id))
 
-        if custom_request:
-            extra_args = ', ' +  sysex_module_name + "." + 'AKSYS_Z48_ID'
-        else: extra_args = ''
-        methods.writelines( "%sreturn self.%s.execute(comm, %s%s)\n\n" % (indent_block*2, sampler_name, '('+ ', '.join(comm_args) + ')',extra_args))
+        methods.writelines( "%sreturn self.%s.execute(comm, %s)\n\n" % (indent_block*2, device_name, '('+ ', '.join(comm_args) + ')'))
 
         # put the command in a dict with tuple key (section_id, id) 
         if skip_replyspec:
@@ -121,8 +120,8 @@ while line:
         else:
             replyspec_arg = _arglist_helper(reply_spec)
         file_out.writelines( 
-            "%scomm = %s.Command('%s%s', '%s', %s, %s)\n" \
-            % ((indent_block*2), sysex_module_name, section_id, id, name, _arglist_helper(data), replyspec_arg))
+            "%scomm = %s.Command(%s, '%s%s', '%s', %s, %s)\n" \
+            % ((indent_block*2), sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg))
 
         file_out.writelines("%sself.commands['%s%s'] = comm\n" % ((indent_block*2), section_id, id))
     except IndexError, e:
@@ -136,4 +135,4 @@ file_in.close()
 file_out.writelines("\n%s" % methods.getvalue())
 methods.close()
 file_out.close()
-os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', sampler_name, destfile))
+os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
