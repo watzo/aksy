@@ -32,6 +32,8 @@ class Z48(Z48Sampler):
     ()
     >>> z.close_usb()
     """
+    MEMORY = 0
+    DISK = 1
 
     def __init__(self):
         Z48Sampler.__init__(self)
@@ -68,11 +70,11 @@ class Z48(Z48Sampler):
         # fix this call
         Z48Sampler._get(self, sysex._to_byte_string(sysex.STRING, filename), destpath + '/' + filename)
 
-    def put(self, src, dest):
+    def put(self, path, remote_name, destination=MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
+        Default destination is memory
         """
-        # fix this call
-        Z48Sampler._put(self, src, sysex._to_byte_string(sysex.STRING, dest))
+        Z48Sampler._put(self, path, sysex._to_byte_string(sysex.STRING, remote_name), destination)
 
     def execute(self, command, args, z48id=None, userref=None):
         request = Request(command, args, z48id, userref)
