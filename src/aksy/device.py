@@ -12,12 +12,10 @@ class Devices:
     _devices = config.devices 
     def get_instance(name, type=None, *args, **kwargs):
         module_name, klass = Devices._devices[(name, type)]
-        sys.stderr.writelines(module_name)
         mod = __import__(module_name)
         components = module_name.split('.')
         for comp in components[1:]:
             mod = getattr(mod, comp)
-        sys.stderr.writelines(repr(mod))
         if not hasattr(mod, klass):
             raise Exception('Device %s not found' %name)
         return getattr(mod, klass)(*args, **kwargs)
@@ -67,11 +65,6 @@ class Request:
 class Reply:
     """Maps the command reply sequence to aksy types
     """
-
-
-#Device.register('z48', 'aksy.z48.device' ,'Sampler')
-#Device.register('mock_z48', 'aksy.mock_z48.sampler','Sampler')
-
 
 if __name__ == "__main__":
     import doctest, sys
