@@ -16,7 +16,7 @@ ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 ID_MAIN_PANEL = wxNewId()
 
-USE_MOCK_OBJECTS = True
+USE_MOCK_OBJECTS = False
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -45,10 +45,9 @@ class Frame(wxFrame):
 
         # values hardcoded for now
         if not USE_MOCK_OBJECTS:
-            self.sampler = Devices.get_instance('z48', 0)
+            self.sampler = Devices.get_instance('z48', 'usb', 0)
         else:
             self.sampler = Devices.get_instance('mock_z48', None, 1)
-            print self.sampler
 
         try:
             self.sampler.init()
@@ -123,7 +122,6 @@ class AksyFSTree(wxTreeListCtrl):
         self.root = self.AddRoot("Z48")
         self.SetItemImage(self.root, self.fldridx, which = wxTreeItemIcon_Normal)
         self.SetItemImage(self.root, self.fldropenidx, which = wxTreeItemIcon_Expanded)
-        self._id_to_item = {}
         self._item_to_id = {}
 
         EVT_TREE_ITEM_EXPANDING(self, id, self.OnItemExpanding)
@@ -232,9 +230,9 @@ class AksyFSTree(wxTreeListCtrl):
         id = evt.GetItem()
         item = self.GetPyData(id)
 
-        print "OnItemExpanding %s" % repr(item.get_name())
+        print "OnItemExpanding %s %s" % (id, repr(item.get_name()))
         for item in item.get_children():
-            if item.get_handle() not in self._id_to_item:
+            if item.get_handle() not in self._item_to_id:
                 self.AppendAksyItem(id, item)
 
     def OnItemActivate(self, evt):
@@ -373,6 +371,7 @@ class TreePanel(wxPanel):
                 self.register_menu_action(file_transfer_action)
             elif action.function_name == 'load':
                 action.display_name +=  '\tCtrl+L'
+                # should be a notification of some sort
                 action.epilog = self.add_to_memory_branch
 
             if action.function_name == 'delete':
@@ -444,7 +443,7 @@ class TreePanel(wxPanel):
             else:
                 action.epilog(item, result)
 
-        self.recordedActions.append(action, args)
+        self.recordedActions.append((action, args,))
 
     def select_directory(self, item):
         dir_dialog = wxDirDialog(self, "Choose a destination for %s" %item.get_name(), 
@@ -490,6 +489,7 @@ class TreePanel(wxPanel):
 
     def add_to_memory_branch(self, item, result):
         """Updates the memory branch when an item has been loaded
+        Should be factored out
         """
         memory_folder = self.tree.get_item_by_name('memory')
         if not isinstance(result, list):

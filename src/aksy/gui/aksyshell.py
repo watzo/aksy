@@ -2,6 +2,7 @@ import wx
 from wx import py 
 from wxPython.wx import wxPySimpleApp, wxFrame,wxID_ANY,wxDEFAULT_FRAME_STYLE,wxNO_FULL_REPAINT_ON_RESIZE,wxMenu
 from wxPython.wx import wxNewId,wxMenuBar,EVT_MENU, EVT_CLOSE, wxMessageDialog, wxOK, wxSplitterWindow
+from wxPython.wx import WXK_TAB
 from aksy.device import Devices
 import sys
 
@@ -70,6 +71,14 @@ class Interpreter(py.interpreter.Interpreter):
             sys.ps2 = '... '
         self.startupScript = '~/.aksyrc' 
 
+    def getAutoCompleteKeys(self):
+        return [ord('.'), WXK_TAB]
+
+    def getAutoCompleteList(self, command='', *args, **kw):
+        clist = py.interpreter.Interpreter.getAutoCompleteList(self, command, args, kw)
+        print repr(clist)
+        return clist
+
 class AksyShell(wx.SplitterWindow):
     def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=wx.SP_3D,
@@ -83,17 +92,17 @@ class AksyShell(wx.SplitterWindow):
 
         self.editor = self.shell
         self.notebook = wx.Notebook(parent=self, id=-1)
-        self.filling = py.filling.Filling(parent=self.notebook,
-                               rootObject=rootObject,
-                               rootLabel=rootLabel,
-                               rootIsNamespace=rootIsNamespace)
+        #self.filling = py.filling.Filling(parent=self.notebook,
+        #                       rootObject=rootObject,
+        #                       rootLabel=rootLabel,
+        #                       rootIsNamespace=rootIsNamespace)
         # Add aksy vars
         self.shell.interp.introText = intro
         self.shell.interp.copyright = '' 
         self.shell.interp.locals['z48'] = rootObject
         
         # Add programs, samples, multis in memory
-        self.notebook.AddPage(page=self.filling, text='Namespace', select=True)
+        # self.notebook.AddPage(page=self.filling, text='Namespace', select=True)
         self.SplitHorizontally(self.shell, self.notebook, 300)
         self.SetMinimumPaneSize(1)
 
