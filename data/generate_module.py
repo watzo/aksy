@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sys, os, os.path, StringIO
 import aksy.sysex
 
@@ -40,10 +41,14 @@ file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
 preamble = "".join(file_preamble.readlines())
 file_preamble.close() 
+command_spec = open( 'commandspec', 'r')
+commandspec = ", ".join(command_spec.readlines()[0].rstrip().split("\t"))
+command_spec.close() 
+
 line = file_in.readline() 
 
 # Section data
-section_id, section_name, section_desc = line[:-1].split('\t')
+section_name, section_desc = line.rstrip().split('\t')
 destfile = section_name + '.py'
 
 file_out = open(destfile, 'w')
@@ -54,6 +59,7 @@ file_out.writelines( "class %s:\n" % classname_helper(section_name))
 file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, sampler_name, sampler_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
+file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
 
 methods = StringIO.StringIO()
 
@@ -61,22 +67,23 @@ methods = StringIO.StringIO()
 line = file_in.readline()
 while line:
     try:
-        elems = line[:-1].split('\t')
-        id = elems[0]
+        elems = line.rstrip().split('\t')
+        section_id = elems[0]
+        id = elems[1]
         if generate_methods is not None:
             elems.insert(1, method_name_helper(elems[1])) 
 
-        name = elems[1]
-        desc = elems[2]
+        name = elems[2]
+        desc = elems[3]
 
         args = ['self']
         data = []
-        for i in range(3, len(elems)):
+        for i in range(4, len(elems)):
             if elems[i] != 'NA':
                 data.append( sysex_module_name + '.' + elems[i])
-                args.append('arg' + str(i-3))
+                args.append('arg' + str(i-4))
 
-        reply_spec_line = file_in.readline()[:-1].split('\t')
+        reply_spec_line = file_in.readline().rstrip().split('\t')
         #reply_spec = reply_spec_line[0:len(reply_spec_line)]
         #reply_spec_desc = reply_spec_line[len(reply_spec_line):]
         reply_spec = reply_spec_line
@@ -107,8 +114,7 @@ while line:
         comm_args.extend(args[1:])
         comm_args.append('')
         methods.writelines( 
-            "%scomm =  self.commands.get(('%s','%s'))\n" \
-            % (indent_block*2, section_id, id))
+            "%scomm = self.commands.get('%s%s')\n" % (indent_block*2, section_id, id))
 
         if custom_request:
             extra_args = ', ' +  sysex_module_name + "." + 'AKSYS_Z48_ID'
@@ -117,10 +123,10 @@ while line:
 
         # put the command in a dict with tuple key (section_id, id) 
         file_out.writelines( 
-            "%scomm = %s.Command('%s','%s', '%s', %s, %s)\n" \
+            "%scomm = %s.Command('%s%s', '%s', %s, %s)\n" \
             % ((indent_block*2), sysex_module_name, section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
 
-        file_out.writelines("%sself.commands[('%s', '%s')] = comm\n" % ((indent_block*2), section_id, id))
+        file_out.writelines("%sself.commands['%s%s'] = comm\n" % ((indent_block*2), section_id, id))
     except IndexError, e:
         print "Parse error at line: %s, reason %s " % (line, e.args)
     except ValueError, e:
@@ -132,4 +138,4 @@ file_in.close()
 file_out.writelines("\n%s" % methods.getvalue())
 methods.close()
 file_out.close()
-os.renames(destfile, os.path.join('..','src', 'aksy', sampler_name, destfile))
+os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', sampler_name, destfile))
