@@ -1,9 +1,7 @@
 import struct, sys 
 
 class Command:
-    """ 
-        Represents a system exclusive command.
-
+    """Represents a system exclusive command.
     """
 
     def __init__(self, section_id, id, name, arg_types, reply_spec=None):
@@ -18,12 +16,11 @@ class Command:
                 self.arg_types.append(arg_type)
 
     def create_arg_bytes(self, args):
-        """ Returns the sysex byte sequence for the command arg data -
-            
+        """Returns the sysex byte sequence for the command arg data -
         """
         bytes = []
         for type,arg in zip(self.arg_types, args):
-            bytes.append(_to_byte_string(type, arg))
+            bytes.append(type.encode(arg))
 
         if len(bytes) == 0:
             return None
@@ -84,13 +81,8 @@ class Request:
 class Reply:
     r""" Encapsulates a sysex reply
 
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20','\x05', BYTE, '\x01', END_SYSEX)
-    >>> reply = Reply(''.join(bytes)) 
-    >>> reply.parse()
-    1
-
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20','\x05', '\x01', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), (BYTE)) 
+    >>> reply = Reply(''.join(bytes), (BYTE,)) 
     >>> reply.parse()
     1
 
@@ -104,7 +96,6 @@ class Reply:
     >>> reply = Reply(bytes,()) 
     >>> reply.parse() 
     Traceback (most recent call last):
-        raise Exception("System exclusive error, code %2x, message %s" % (code, errors[code])
     Exception: System exclusive error, code 180, message: Unknown disk error
 
     # using pad type if we encounter bytes not according to specification
@@ -173,20 +164,20 @@ class Reply:
             b1, b2 = struct.unpack('2B', self.bytes[i:i+2])
             code = (b2 << 7) + b1
 
-            raise Exception("System exclusive error, code %02x, message: %s " % (code, errors[code]))
+            raise Exception("System exclusive error, code %02x, message: %s " % (code, errors.get(code, "Unknown")))
         elif reply_id == REPLY_ID_REPLY:
             # continue
             pass
         else:
             raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
+        assert(len(self.reply_spec) > 0)
 
-        if len(self.reply_spec) > 0:
-            return self.parse_untyped_bytes(self.bytes, i)
-        else:
-            return self.parse_typed_bytes(self.bytes, i)
+        return self.parse_untyped_bytes(self.bytes, i)
 
     def parse_typed_bytes(self, bytes, offset):
+        raise NotImplementedError
+
         result = []
         while offset < (len(bytes) - 1):
             part, len_parsed = parse_byte_string(bytes, offset)
@@ -203,7 +194,7 @@ class Reply:
         """
         result = []
         for type in self.reply_spec:
-            part, len_parsed = parse_byte_string(bytes, offset, type) 
+            part, len_parsed = parse_byte_string(bytes, type, offset) 
             if part is not None:
                 result.append(part)
             offset += len_parsed
@@ -235,20 +226,6 @@ AKSYS_Z48_ID = '\x5e\x20\x00' # used by ak.Sys for some requests
 DEFAULT_USERREF = '\x00'
 END_SYSEX = '\xf7'
 
-# Sysex type ids
-BYTE        = '\x01'
-SBYTE       = '\x02'
-WORD        = '\x03' # 2 BYTES
-SWORD       = '\x04'
-DWORD       = '\x05'
-SDWORD      = '\x06'
-QWORD       = '\x07' # 2 x 4 BYTES
-SQWORD      = '\x08'
-STRING      = '\x09'
-TWO_BYTES   = '\x10'
-THREE_BYTES = '\x11'
-CUSTOM      = '\x20'
-
 POSTIVE     = '\x00'
 NEGATIVE    = '\x01'
 
@@ -259,173 +236,391 @@ REPLY_ID_DONE = '\x44'
 REPLY_ID_REPLY = '\x52'
 REPLY_ID_ERROR = '\x45'
 
-# aksy type extensions
-PAD         = '\x21' # unspecified return code
-BOOL        = '\x22' # BYTE(0,1)
-CENTS       = '\x22' # SWORD(+- 3600)
 
-def _to_byte_string(src_type, value):
-    r"""
+class SysexType(object):
+    def __init__(self, size, signed=False, id=None):
+        self.id = id
+        self.size = size
+        self.max_val = signed and pow(2, 7*size-1) - 1 or pow(2, 7*size) - 1
+        self.min_val = signed and self.max_val*-1 or 0
+        
+    def set_min_val(self, value):
+        self.min_val = value
 
-    TODO: raise value errors if value out of range 
-    >>> _to_byte_string(WORD, 256)
-    '\x00\x02'
+    def set_max_val(self, value):
+        self.max_val = value
 
-    >>> _to_byte_string(BYTE, 128)
-    Traceback (most recent call last):
-        if value > 127: raise ValueError
-    ValueError
+    def encode(self, value):
+        """Encodes a value as sysex byte string
+        """
+        raise NotImplementedError
 
-    >>> _to_byte_string(BOOL, False)
-    '\x00'
-    >>> _to_byte_string(STRING, '')
-    '\x00'
-    >>> _to_byte_string(STRING, 'test')
-    'test\x00'
-    >>> _to_byte_string(STRING, 'test sdf')
-    'test sdf\x00'
-    """
-    if (src_type == BOOL):
+    def decode(self, value):
+        """Decodes a value from a sysex byte string
+        """
+        raise NotImplementedError
+
+    def validate_encode(self, value):
+        """Validates the value to encode
+        """
+        if (value < self.min_val or
+            value > self.max_val): 
+            raise ValueError("Value %s out of range:[%s-%s]" % (repr(value),
+                              repr(self.min_val), repr(self.max_val)))
+
+    def validate_decode(self, value):
+        """Validates the value to decode
+        """
+        if value is None or self.size != len(value):
+            raise ValueError("Length of string to decode %s <> %s" % (repr(value), repr(self.size)))
+
+class ByteType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 1, False, 'x01')
+
+    def encode(self, value):
+        """
+        >>> b = ByteType()
+        >>> b.encode(128)
+        Traceback (most recent call last):
+            if value > 127: raise ValueError
+        ValueError: Value 128 out of range:[0-127]
+        """
+
+        super(ByteType, self).validate_encode(value)
+        return struct.pack('B', value)
+
+    def decode(self, string):
+        """
+        b = ByteType()
+        b.decode('\x05')
+        5
+        """
+        super(ByteType, self).validate_decode(string)
+        return struct.unpack('B', string)[0]
+
+class SignedByteType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 2, True, 'x02')
+
+    def encode(self, value):
+        """
+        sb = SignedByteType()
+        sb.encode(-5)
+        '\x01\x05'
+        """
+        super(SignedByteType, self).validate_encode(value)
+        sign = value < 0 and 1 or 0
+        return struct.pack('2B', sign, abs(value))
+
+    def decode(self, string):
+        """
+        sb = SignedByteType()
+        sb.decode('\x01\x05')
+        -5
+        """
+        super(SignedByteType, self).validate_decode(string)
+        result = struct.unpack('B', string[1])[0]
+
+        if string[0] == NEGATIVE:
+            result *= -1 
+        return result
+
+class WordType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 2, False, 'x03')
+
+    def encode(self, value):
+        """
+        w = WordType()
+        w.encode(256)
+        '\x00\x02'
+        """
+        super(WordType, self).validate_encode(value)
+        return struct.pack('2B', value & 0x0f, value >> 7)
+
+    def decode(self, string):
+        super(WordType, self).validate_decode(string)
+        b1, b2 = struct.unpack('2B', string)
+        return (b2 << 7) + b1
+
+class SignedWordType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 3, True, 'x04')
+
+    def encode(self, value):
+        r"""
+        >>> sw = SignedWordType()
+        >>> sw.encode(256)
+        '\x00\x00\x02'
+
+        >>> sw.encode(-16383)
+        '\x01\x7f\x7f'
+
+        >>> sw.encode(-256)
+        '\x01\x00\x02'
+        """
+        super(SignedWordType, self).validate_encode(value)
+        sign = value < 0 and 1 or 0
+        value = abs(value)
+        return struct.pack('3B', sign, value & 0x7f, value >> 7)
+
+    def decode(self, string):
+        r"""
+        >>> sw = SignedWordType()
+        >>> sw.decode('\x01\x00\x02')
+        -256
+        >>> sw.decode('\x01\x7f\x7f')
+        -16383
+        """
+        super(SignedWordType, self).validate_decode(string)
+        s, b1, b2 = struct.unpack('3B', string[:3])
+        sign = s and -1 or 1
+        return sign * ((b2 << 7) | b1)
+
+class DoubleWordType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 4, False, '\x05')
+
+    def encode(self, value):
+        r"""
+        >>> dw = DoubleWordType()
+        >>> dw.encode(268435455) 
+        '\x7f\x7f\x7f\x7f'
+        >>> dw.encode(1) 
+        '\x01\x00\x00\x00'
+        """
+        return struct.pack('4B', value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
+
+    def decode(self, string):
+        r"""
+        >>> dw = DoubleWordType()
+        >>> dw.decode('\x7f\x7f\x7f\x7f')
+        268435455
+        """
+        super(DoubleWordType, self).validate_decode(string)
+        b1, b2, b3, b4 = struct.unpack('4B', string)
+        return (b4 << 21) | (b3 << 14) | (b2 << 7) | b1
+
+class SignedDoubleWordType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 5, True, '\x06')
+
+    def encode(self, value):
+        r"""
+        >>> sdw = SignedDoubleWordType()
+        >>> sdw.encode(-268435455) 
+        '\x01\x7f\x7f\x7f\x7f'
+        """
+        sign = value < 0 and 1 or 0
+        value = abs(value)
+        return struct.pack('5B', sign, value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
+        
+    def decode(self, string):
+        r"""
+        >>> sdw = SignedDoubleWordType()
+        >>> sdw.decode('\x01\x7f\x7f\x7f\x7f')
+        -268435455
+        """
+        super(SignedDoubleWordType, self).validate_decode(string)
+
+        s, b1, b2, b3, b4 = struct.unpack('5B', string)
+        sign = s and -1 or 1
+        return sign * ((b4 << 21) | (b3 << 14) | (b2 << 7) | b1)
+
+class QWordType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 8, False, '\x07')
+
+    def encode(self, value):
+        r"""
+        >>> qw = QWordType()
+        >>> qw.encode(268435455) 
+        '\x7f\x7f\x7f\x7f\x00\x00\x00\x00'
+        """
+
+        super(QWordType, self).validate_encode(value)
+        return struct.pack('8B',  value & 0x7f, (value >> 7) & 0x7f,
+            (value >> 14) & 0x7f, (value >> 21) & 0x7f, (value >> 28) & 0x7f,
+            (value >> 35) & 0x7f, (value >> 42) & 0x7f, (value >> 49) & 0x7f)
+
+    def decode(self, string):
+        """
+        >>> qw = QWordType()
+        >>> qw.decode('\x7f\x7f\x7f\x7f\x7f\x7f\x7f\x7f')
+        72057594037927935L
+        """
+        super(QWordType, self).validate_decode(string)
+        b1, b2, b3, b4, b5, b6, b7, b8 = struct.unpack('8B', string)
+        # bitshifting looks prettier but this works ;-)
+        return (b8*pow(2,49)|b7*pow(2,42)|b6*pow(2,35)|b5*pow(2,28)|b4*pow(2,21)|b3*pow(2,14)|b2*pow(2,7)|b1)
+
+class SignedQWordType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 9, True, '\x08')
+
+    def encode(self, value):
+        r"""
+        >>> sdw = SignedQWordType()
+        >>> sdw.encode(-268435455) 
+        '\x01\x7f\x7f\x7f\x7f\x00\x00\x00\x00'
+        """
+        super(SignedQWordType, self).validate_encode(value)
+        sign = value < 0 and 1 or 0
+        value = abs(value)
+        return struct.pack('9B', sign, value & 0x7f, (value >> 7) & 0x7f,
+            (value >> 14) & 0x7f, (value >> 21) & 0x7f, (value >> 28) & 0x7f,
+            (value >> 35) & 0x7f, (value >> 42) & 0x7f, (value >> 49) & 0x7f)
+
+    def decode(self, string):
+        r"""
+        >>> qw = SignedQWordType()
+        >>> qw.decode('\x01\x7f\x7f\x7f\x7f\x7f\x7f\x7f\x7f')
+        -72057594037927935L
+
+        >>> qw.decode('\x01\x00\x00\x00\x00\x00\x00\x7f\x00')
+        -558551906910208L
+        """
+        super(SignedQWordType, self).validate_decode(string)
+        s, b1, b2, b3, b4, b5, b6, b7, b8 = struct.unpack('9B', string)
+        sign = s and -1 or 1
+        # bitshifting looks prettier but this works without losing bits ;-)
+        return sign * (b8*pow(2,49)|b7*pow(2,42)|b6*pow(2,35)|b5*pow(2,28)|b4*pow(2,21)|b3*pow(2,14)|b2*pow(2,7)|b1)
+
+class BoolType(ByteType):
+    def __init__(self):
+        ByteType.__init__(self)
+        self.set_max_val(1)
+
+    def encode(self, value):
+        r"""
+        >>> b = BoolType()
+        >>> b.encode(False)
+        '\x00'
+        """
         value = int(value)
-        byte_string = struct.pack('B', value)
-    elif (src_type == BYTE):
-        if value > 127: raise ValueError
-        byte_string = struct.pack('B', value)
-    elif (src_type == SBYTE):
-        if value > 127 or value < -127: raise ValueError
+        return super(BoolType, self).encode(value)
 
-        # FIXME: sign byte
-        byte_string = struct.pack('B', value)
-    elif (src_type == WORD):
-        if value > 16383: raise ValueError
-        byte_string = struct.pack('2B', value & 0x0f, value >> 7)
-    elif (src_type == STRING):
+    def decode(self, string):
+        super(BoolType, self).validate_decode(string)
+        return bool(struct.unpack('B', string)[0])
+
+class StringType(object):
+    def __init__(self):
+        self.id = '\x09' 
+        self.size = None # variable size
+
+    def validate_encode(self, value):
         if not type(value) == type('') and value != '':
             raise ValueError("Value %s should be a (non unicode) string." % (value))
-        else:
-            # note: string length+1 to automagically add the string terminator
-            byte_string = struct.pack(str(len(value)+1) + 's', value) 
-    else: 
-        raise ValueError("unsupported type %s" % repr(src_type))
 
-    return byte_string
+    def encode(self, value):
+        r"""
+        >>> s = StringType()
+        >>> s.encode('test sdf')
+        'test sdf\x00'
+        """
+        self.validate_encode(value)
+        return struct.pack(str(len(value)+1) + 's', value) 
 
-def parse_byte_string(data, offset=0, type=None):
-    r""" Parses a byte string
-
-    >>> parse_byte_string(STRING + '\x54\x45\x53\x54' + STRING_TERMINATOR)
-    ('TEST', 6)
-
-    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, 0, STRING)
-    ('TEST', 5)
-
-    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR + '\x54\x45\x53\x54' + STRING_TERMINATOR, 0, STRING)
-    (('TEST', 'TEST'), 10)
-
-    Type info in the data: 
-    >>> parse_byte_string(BYTE + '\x0f')
-    (15, 2)
-
-    No type info in the data: 
-    >>> parse_byte_string('\x0f', 0, BYTE)
-    (15, 1)
-
-    >>> parse_byte_string(SBYTE + '\x01\x0f')
-    (-15, 3)
-
-    XXX: this is probably not correct
-    >>> parse_byte_string(WORD + '\x00\x03')
-    (384, 3)
-
-    >>> parse_byte_string(SWORD + '\x01\x0f\x0f')
-    (-1935, 4)
-
-    >>> parse_byte_string(DWORD + '\x01\x01\x01\x0f')
-    (251724033L, 5)
-
-    >>> parse_byte_string(SDWORD + '\x01\x01\x01\x0f\x0f')
-    (-252641537L, 6)
-
-    >>> parse_byte_string(BOOL + '\x00')
-    (False, 2)
-
-    >>> parse_byte_string(BOOL + '\x01')
-    (True, 2)
-
-    """
-
-    len_parsed_data = 0
-
-    if type == None:
-        type = data[offset]
-        offset += 1
-        len_parsed_data += 1 
-    if (type == PAD):
-        return (None, 1)
-    if (type == BYTE ):
-        result = struct.unpack('B', data[offset])[0]
-        len_parsed_data += 1
-
-    elif (type == BOOL):
-        result = bool(struct.unpack('B', data[offset])[0])
-        len_parsed_data += 1
-
-    elif (type == SBYTE):
-        result = struct.unpack('B', data[offset+1])[0]
-
-        if data[offset] == NEGATIVE:
-            result *= -1 
-         
-        len_parsed_data += 2;
-
-    elif (type == WORD or type == TWO_BYTES):
-        b1, b2 = struct.unpack('2B', data[offset:offset+2])
-        result = (b2 << 7) + b1
-        len_parsed_data += 2;
-
-    elif (type == SWORD):
-        b1, b2 = struct.unpack('2B', data[offset+1:offset+3])
-        result = (b1 << 7) + b2
-        
-        if data[offset] == NEGATIVE:
-            result *= -1 
-
-        len_parsed_data += 3;
-    elif (type == DWORD):
-        result = struct.unpack('<I', data[offset:offset+4])[0]
-        len_parsed_data += 4;
-
-    elif (type == SDWORD):
-        result = struct.unpack('<I', data[offset+1:offset+5])[0]
-
-        if data[offset+1] == NEGATIVE:
-            result *= -1 
-
-        len_parsed_data += 5;
-    elif (type == STRING):
+    def decode_strings(self, string):    
+        result = []
         index = 0
-        strings = []
-        for char in data[offset:]:
+        offset = 0
+        for char in string:
             #sys.stderr.writelines( "c:%s i:%s\n" % (char, index) )
             if (char == END_SYSEX):
                 break;
             if char == STRING_TERMINATOR:
-                strings.append(struct.unpack( str(index) + 's', data[offset:offset+index])[0])
+                result.append(struct.unpack( str(index) + 's', string[offset:offset+index])[0])
                 offset += index + 1
                 index = 0
             else:
                 index += 1
+        return result
 
-        for string in strings:
-            len_parsed_data += (len(string) + 1)
+class PadType(SysexType):
+    def __init__(self):
+        SysexType.__init__(self, 1, False)
 
-        if len(strings) == 0:
+    def decode(self, value):
+        return None
+
+# Sysex type ids
+BYTE        = ByteType()
+SBYTE       = SignedByteType()
+WORD        = WordType()
+SWORD       = SignedWordType()
+DWORD       = DoubleWordType()
+SDWORD      = SignedDoubleWordType()
+QWORD       = QWordType() # '\x07' # 2 x 4 BYTES
+SQWORD      = SignedQWordType() # '\x08'
+STRING      = StringType()
+TWO_BYTES   = SysexType(2, False, '\x0a')
+THREE_BYTES = SysexType(3, False, '\x0b')
+CUSTOM      = '\x20'
+
+# aksy type extensions
+PAD         = PadType()
+BOOL        = BoolType()
+CENTS       = '\x23' # SWORD(+- 3600)
+PAN         = '\x24' # BYTE(0, 100) -> translated to -50-50 
+LEVEL       = '\x25' # SWORD(-600,+60) 10xdB
+
+def parse_byte_string(data, type, offset=0):
+    r""" Parses a byte string
+
+    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, STRING)
+    ('TEST', 5)
+
+    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 1)
+    ('EST', 4)
+
+    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR + '\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 0)
+    (('TEST', 'TEST'), 10)
+
+    No type info in the data: 
+    >>> parse_byte_string('\x0f', BYTE)
+    (15, 1)
+
+    >>> parse_byte_string('\x01\x0f', SBYTE)
+    (-15, 2)
+
+    XXX: this is probably not correct
+    >>> parse_byte_string('\x00\x03', WORD)
+    (384, 2)
+
+    >>> parse_byte_string('\x01\x0f\x0f', SWORD)
+    (-1935, 3)
+
+    >>> parse_byte_string('\x7f\x7f\x7f\x7f', DWORD)
+    (268435455, 4)
+
+    >>> parse_byte_string('\x01\x7f\x7f\x7f\x7f', SDWORD)
+    (-268435455, 5)
+
+    >>> parse_byte_string('\x00', BOOL)
+    (False, 1)
+
+    >>> parse_byte_string('\x01', BOOL)
+    (True, 1)
+
+    """
+    
+    len_parsed_data = 0
+    if not isinstance(type, StringType):
+        result = type.decode(data[offset:offset+type.size])
+        len_parsed_data += type.size
+    else:
+        result = type.decode_strings(data[offset:])
+        if len(result) == 0:
             result = None
         else:
-            result = len(strings) > 1 and tuple(strings) or strings[0]
-    else: 
-        raise ValueError("unsupported type %s" % repr(type))
-        
+            for string in result:
+                len_parsed_data += (len(string) + 1)
+
+            result = len(result) > 1 and tuple(result) or result[0]
+ 
     return (result, len_parsed_data)
 
 def _to_string(ordvalues):
