@@ -46,6 +46,9 @@ file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\
 file_out.writelines( "%s\n" % preamble) 
 file_out.writelines( "import %s\n\n" % sysex_module_name ) 
 file_out.writelines( "class %s:\n" % classname_helper(section_name))
+file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
+file_out.writelines( "%sself.z48 = z48\n" % (indent_block*2))
+file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 
 methods = StringIO.StringIO()
 
@@ -63,7 +66,8 @@ while line:
 
         args = ['self']
         data = []
-        for i in range(3, len(elems)-1):
+        for i in range(3, len(elems)):
+            print repr(elems[i])
             if elems[i] != 'NA':
                 data.append( sysex_module_name + '.' + elems[i])
                 args.append('arg' + str(i-3))
@@ -101,9 +105,9 @@ while line:
         # put the command in a dict with tuple key (section_id, id) 
         file_out.writelines( 
             "%scomm = sysex.Command('%s','%s', '%s', %s, %s)\n" \
-            % (indent_block, section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
+            % ((indent_block*2), section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
 
-        file_out.writelines("%sself.commands[('%s', '%s')] = comm\n" % (indent_block, section_id, id))
+        file_out.writelines("%sself.commands[('%s', '%s')] = comm\n" % ((indent_block*2), section_id, id))
     except IndexError, e:
         print "Parse error at line: %s, reason %s " % (line, e.args)
     except ValueError, e:
