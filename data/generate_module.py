@@ -27,15 +27,12 @@ indent_block = "     "
 sysex_module_name = 'aksy.devices.z48.sysex'
 sampler_name = 'z48'
 
-generate_methods = None
 file_in_name = sys.argv[1]
+skip_replyspec = False
 if len(sys.argv)== 3:
-    generate_methods = bool(sys.argv[2])
+    skip_replyspec = bool(sys.argv[2])
 
-if len(sys.argv)== 4:
-    custom_request = bool(sys.argv[3])
-else:
-    custom_request = False 
+custom_request = False 
     
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
@@ -59,7 +56,7 @@ file_out.writelines( "class %s:\n" % classname_helper(section_name))
 file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, sampler_name, sampler_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
-file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
+#file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
 
 methods = StringIO.StringIO()
 
@@ -70,9 +67,6 @@ while line:
         elems = line.rstrip().split('\t')
         section_id = elems[0]
         id = elems[1]
-        if generate_methods is not None:
-            elems.insert(1, method_name_helper(elems[1])) 
-
         name = elems[2]
         desc = elems[3]
 
@@ -122,9 +116,13 @@ while line:
         methods.writelines( "%sreturn self.%s.execute(comm, %s%s)\n\n" % (indent_block*2, sampler_name, '('+ ', '.join(comm_args) + ')',extra_args))
 
         # put the command in a dict with tuple key (section_id, id) 
+        if skip_replyspec:
+            replyspec_arg = None    
+        else:
+            replyspec_arg = _arglist_helper(reply_spec)
         file_out.writelines( 
             "%scomm = %s.Command('%s%s', '%s', %s, %s)\n" \
-            % ((indent_block*2), sysex_module_name, section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
+            % ((indent_block*2), sysex_module_name, section_id, id, name, _arglist_helper(data), replyspec_arg))
 
         file_out.writelines("%sself.commands['%s%s'] = comm\n" % ((indent_block*2), section_id, id))
     except IndexError, e:
