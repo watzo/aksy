@@ -39,7 +39,7 @@ WORD
 
 \x11	curr_program_get_modified	Get modified state of current item.
 BYTE
-\x18	delete_tagged_programs	BYTE(0 ­ 7)	Delete tagged items <Data1> = tag bit
+\x18	delete_tagged_programs	Delete tagged items <Data1> = tag bit	BYTE
 
 \x40	create_program	Create New Program <Data1> = number of keygroups;<Data2> = name.	WORD	STRING
 
