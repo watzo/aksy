@@ -12,7 +12,7 @@ import aksy
 ID_ABOUT=1001
 ID_EXIT=1002
 ID_TEST=1003
-USE_MOCK_OBJECTS = True
+USE_MOCK_OBJECTS = False
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -84,15 +84,15 @@ class TestPanel(wxPanel):
 
         # Move this stuff somewhere else...
         if not USE_MOCK_OBJECTS:
-            disk = Disk(z.disktools.get_disklist())   # not fool proof for multiple
+            disk = wrappers.Disk(self.z.disktools.get_disklist())   # not fool proof for multiple
                                                          # disks
-            z.disktools.select_disk(disk.handle)    # TODO: handle exceptions
-            rootfolder = wrappers.Folder(z.disktools, "")
+            self.z.disktools.select_disk(disk.handle)    # TODO: handle exceptions
+            rootfolder = wrappers.Folder(self.z.disktools, [""])
             rootfolder.get_children()
 
-            programs = z.program_main.get_program_names()
-            multis = z.multi_main.get_multi_names()
-            samples = z.sample_main.get_sample_names()
+            programs = self.z.program_main.get_program_names()
+            multis = self.z.multi_main.get_multi_names()
+            samples = self.z.sample_main.get_sample_names()
         else:
             
             # Add some items
@@ -138,15 +138,15 @@ class TestPanel(wxPanel):
         self.tree.SetSize(self.GetSize())
 
 class FileMenu(wxMenu):
-      def __init__(self, parent, style):
-            wxMenu.__init__(self)
-            self.Append(wxID_CUT, 'Rename', 'Rename')
-            self.Append(wxID_COPY, 'Transfer', 'Transfer to pc')
+    def __init__(self, parent, style):
+         wxMenu.__init__(self)
+         self.Append(wxID_CUT, 'Rename', 'Rename')
+         self.Append(wxID_COPY, 'Transfer', 'Transfer to pc')
 
-            EVT_MENU(parent, wxID_CUT, self.OnSelect)
-            EVT_MENU(parent, wxID_COPY, self.OnSelect)
-      def OnSelect(self, evt):
-            print "EVENT"
+         EVT_MENU(parent, wxID_CUT, self.OnSelect)
+         EVT_MENU(parent, wxID_COPY, self.OnSelect)
+    def OnSelect(self, evt):
+         print "EVENT"
 
     def setActions(self, actions):
         for action in actions:

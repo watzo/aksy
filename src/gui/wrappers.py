@@ -18,24 +18,33 @@ class Disk(object):
         self.name = name
 
 class Folder(object):
-    def __init__(self, disktools, name):
-
-        self.name = name
+    def __init__(self, disktools, path):
+        """ TODO: find a nice solution for the primitive folder selection
+        """
         self.disktools = disktools
+        self.path = path
 
-        disktools.set_curr_folder(name)
+        print "Initializing folder %s" % repr(path)
+        self.set_current()
 
     def get_children(self):
         """
         """
-        children = [ Folder(subfolder) for subfolder in
-            self.disktools.get_subfolder_names() ]
-        files = [ File(disktools, name) for name in 
-            disktools.get_filenames() ]
+        children = []
+        for subfolder in self.disktools.get_subfolder_names():
+            children.append(Folder(self.disktools, self.path + [subfolder]))
+
+        # TODO: check this! this currently does not work
+        # Should stay a 'string item' unless loaded
+        files = [ File(self.disktools, name) for name in 
+            self.disktools.get_filenames() ]
 
         children.extend(files)
         return children
 
+    def set_current(self):
+        for item in self.path:
+            self.disktools.set_curr_folder(item)
 
 class File(object):
 
@@ -43,7 +52,7 @@ class File(object):
         """Initializes a file object - should not be called directly, use 
         getInstance instead.
         """
-        self.disktools = disktools
+        self.module = module
         self.name = name
 
     def getInstance(module, name=None):
@@ -100,6 +109,8 @@ class File(object):
 
 class Multi(File):
     def __init__(self, multi_main, name=None):
+        """
+        """
         
     def get_used_by(self):
         return None
