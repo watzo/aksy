@@ -50,9 +50,9 @@ class Programtools:
           self.commands['\x14\x0E'] = comm
           comm = aksy.sysex.Command('\x14\x0F', 'get_tag_bitmap', (), (aksy.sysex.WORD,))
           self.commands['\x14\x0F'] = comm
-          comm = aksy.sysex.Command('\x14\x10', 'get_modified', (), ())
+          comm = aksy.sysex.Command('\x14\x10', 'get_modified_name', (), ())
           self.commands['\x14\x10'] = comm
-          comm = aksy.sysex.Command('\x14\x11', 'get_modified', (), (aksy.sysex.BYTE,))
+          comm = aksy.sysex.Command('\x14\x11', 'get_modified_state', (), (aksy.sysex.BYTE,))
           self.commands['\x14\x11'] = comm
           comm = aksy.sysex.Command('\x14\x18', 'delete_tagged', (aksy.sysex.BYTE,), ())
           self.commands['\x14\x18'] = comm
@@ -266,13 +266,13 @@ class Programtools:
           comm = self.commands.get('\x14\x0F')
           return self.z48.execute(comm, ())
 
-     def get_modified(self):
+     def get_modified_name(self):
           """Get name of current item with modified/tagged info.
           """
           comm = self.commands.get('\x14\x10')
           return self.z48.execute(comm, ())
 
-     def get_modified(self):
+     def get_modified_state(self):
           """Get modified state of current item.
 
           Returns:

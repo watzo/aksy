@@ -1,6 +1,7 @@
 from aksyxusb import Z48Sampler
 from aksy.sysex import Request, Reply, CommandSpec
-from aksy.devices.z48 import disktools, programtools, multitools, sampletools, model
+from aksy.devices.z48 import disktools, programtools, multitools, sampletools
+from aksy import model
 import struct
 import sys,time
 
@@ -73,8 +74,6 @@ class Sampler(Z48Sampler):
         rootfolder = model.Folder(("",))
         folders = rootfolder.get_children()
         disks.set_children(folders)
-        for folder in folders:
-            self.tree.AppendAksyItem(disks_id, folder)
 
     def close(self):
         """Closes the connection with the sampler

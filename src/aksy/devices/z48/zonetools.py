@@ -22,7 +22,7 @@ class Zonetools:
           self.commands['\x0F\x03'] = comm
           comm = aksy.sysex.Command('\x0F\x04', 'get_output', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
           self.commands['\x0F\x04'] = comm
-          comm = aksy.sysex.Command('\x0F\x05', 'get_filter', (aksy.sysex.Get Zone Filter (0 ­ ±100),), (aksy.sysex.SBYTE,))
+          comm = aksy.sysex.Command('\x0F\x05', 'get_filter', (), (aksy.sysex.SBYTE,))
           self.commands['\x0F\x05'] = comm
           comm = aksy.sysex.Command('\x0F\x06', 'get_tune', (), (aksy.sysex.SBYTE,))
           self.commands['\x0F\x06'] = comm
@@ -30,7 +30,7 @@ class Zonetools:
           self.commands['\x0F\x07'] = comm
           comm = aksy.sysex.Command('\x0F\x08', 'get_playback', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
           self.commands['\x0F\x08'] = comm
-          comm = aksy.sysex.Command('\x0F\x09', 'get_mod_start', (aksy.sysex.Get Zone ModStart(0 ­ ± 99 99), aksy.sysex.BYTE), (aksy.sysex.SWORD,))
+          comm = aksy.sysex.Command('\x0F\x09', 'get_mod_start', (aksy.sysex.BYTE,), (aksy.sysex.SWORD,))
           self.commands['\x0F\x09'] = comm
           comm = aksy.sysex.Command('\x0F\x0A', 'get_low_velocity', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
           self.commands['\x0F\x0A'] = comm
@@ -103,14 +103,14 @@ class Zonetools:
           comm = self.commands.get('\x0F\x04')
           return self.z48.execute(comm, (arg0, ))
 
-     def get_filter(self, arg0):
-          """
+     def get_filter(self):
+          """Get Zone Filter (0 ­ ±100)
 
           Returns:
                aksy.sysex.SBYTE
           """
           comm = self.commands.get('\x0F\x05')
-          return self.z48.execute(comm, (arg0, ))
+          return self.z48.execute(comm, ())
 
      def get_tune(self):
           """Get Zone Cents Tune(0 ­ ±3600)
@@ -139,14 +139,14 @@ class Zonetools:
           comm = self.commands.get('\x0F\x08')
           return self.z48.execute(comm, (arg0, ))
 
-     def get_mod_start(self, arg0, arg1):
-          """
+     def get_mod_start(self, arg0):
+          """Get Zone ModStart(0 ­ ± 99 99)
 
           Returns:
                aksy.sysex.SWORD
           """
           comm = self.commands.get('\x0F\x09')
-          return self.z48.execute(comm, (arg0, arg1, ))
+          return self.z48.execute(comm, (arg0, ))
 
      def get_low_velocity(self, arg0):
           """Get Zone Low Velocity

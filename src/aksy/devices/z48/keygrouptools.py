@@ -126,7 +126,7 @@ class Keygrouptools:
           self.commands['\x12\x19'] = comm
           comm = aksy.sysex.Command('\x12\x1A ', 'set_play_toggle_note', (aksy.sysex.BYTE,), ())
           self.commands['\x12\x1A '] = comm
-          comm = aksy.sysex.Command('\x12\x20', 'set_filter_mode', (aksy.sysex.(0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type, aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.sysex.Command('\x12\x20', 'set_filter_mode', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
           self.commands['\x12\x20'] = comm
           comm = aksy.sysex.Command('\x12\x21', 'set_filter_cutoff', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
           self.commands['\x12\x21'] = comm
@@ -152,7 +152,7 @@ class Keygrouptools:
           self.commands['\x12\x37'] = comm
           comm = aksy.sysex.Command('\x12\x42', 'set_env_ref', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
           self.commands['\x12\x42'] = comm
-          comm = aksy.sysex.Command('\x12\x43', 'set_attack_hold', (), ())
+          comm = aksy.sysex.Command('\x12\x43', 'set_attack_hold', (aksy.sysex.BYTE,), ())
           self.commands['\x12\x43'] = comm
           comm = aksy.sysex.Command('\x12\x50', 'set_lfo_rate', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
           self.commands['\x12\x50'] = comm
@@ -621,11 +621,11 @@ class Keygrouptools:
           comm = self.commands.get('\x12\x1A ')
           return self.z48.execute(comm, (arg0, ))
 
-     def set_filter_mode(self, arg0, arg1, arg2):
-          """Set Filter Mode
+     def set_filter_mode(self, arg0, arg1):
+          """Set Filter Mode (0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type
           """
           comm = self.commands.get('\x12\x20')
-          return self.z48.execute(comm, (arg0, arg1, arg2, ))
+          return self.z48.execute(comm, (arg0, arg1, ))
 
      def set_filter_cutoff(self, arg0, arg1):
           """Set Filter Cutoff Frequency
@@ -699,11 +699,11 @@ class Keygrouptools:
           comm = self.commands.get('\x12\x42')
           return self.z48.execute(comm, (arg0, arg1, ))
 
-     def set_attack_hold(self):
+     def set_attack_hold(self, arg0):
           """Set Attack Hold <Data1> = (0=OFF, 1=ON) (AMP only)
           """
           comm = self.commands.get('\x12\x43')
-          return self.z48.execute(comm, ())
+          return self.z48.execute(comm, (arg0, ))
 
      def set_lfo_rate(self, arg0, arg1):
           """Set LFO Rate (0: LFO1 1: LFO2), rate

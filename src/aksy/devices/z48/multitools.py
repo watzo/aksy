@@ -76,7 +76,7 @@ class Multitools:
           self.commands['\x1B\x12'] = comm
           comm = aksy.sysex.Command('\x1B\x13', 'get_part_level', (), (aksy.sysex.SWORD,))
           self.commands['\x1B\x13'] = comm
-          comm = aksy.sysex.Command('\x1B\x14', 'get_part_output', (aksy.sysex.= L/R; 1­4 = op1/2­op7/8; 5­14 = L, R, op1-op8), aksy.sysex.BYTE), (aksy.sysex.BYTE,))
+          comm = aksy.sysex.Command('\x1B\x14', 'get_part_output', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
           self.commands['\x1B\x14'] = comm
           comm = aksy.sysex.Command('\x1B\x15', 'get_part_pan', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
           self.commands['\x1B\x15'] = comm
@@ -360,14 +360,14 @@ class Multitools:
           comm = self.commands.get('\x1B\x13')
           return self.z48.execute(comm, ())
 
-     def get_part_output(self, arg0, arg1):
-          """Get Part Output, <Reply> = (Output: 0
+     def get_part_output(self, arg0):
+          """Get Part Output, <Reply> = (Output: 0 = L/R; 1­4 = op1/2­op7/8; 5­14 = L, R, op1-op8)
 
           Returns:
                aksy.sysex.BYTE
           """
           comm = self.commands.get('\x1B\x14')
-          return self.z48.execute(comm, (arg0, arg1, ))
+          return self.z48.execute(comm, (arg0, ))
 
      def get_part_pan(self, arg0):
           """Get Part Pan/Balance, <Reply> = Pan/Bal (0­100 = L50­R50); centre=50
