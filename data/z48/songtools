@@ -4,7 +4,7 @@ BYTE
 \x28	\x02\x00	get_handles	Get Sample handles
 
 \x28	\x02\x01	get_names	Get sample names
-
+STRINGARRAY
 \x28	\x02\x02	get_handles_names	Get list of sample handles and names
 HANDLENAMEARRAY
 \x28	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
@@ -36,7 +36,7 @@ DWORD
 \x28	\x0F	get_tag_bitmap	Get Tag Bitmap
 
 \x28	\x10	get_curr_modified	Get name of current item with modified/tagged info
-STRING
+STRINGARRAY
 \x28	\x11 	get_modified	Get modified state of current item.
 BYTE
 \x28	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 

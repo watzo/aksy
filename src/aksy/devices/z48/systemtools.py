@@ -7,228 +7,227 @@ Methods to manipulate system parameters
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.sysex
+import aksy.devices.z48.sysex
 
 class Systemtools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
-          comm = aksy.sysex.Command('\x04\x00', 'get_os_software_version', (), (aksy.sysex.BYTE, aksy.sysex.BYTE))
+          comm = aksy.devices.z48.sysex.Command('\x04\x00', 'get_os_software_version', (), (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE))
           self.commands['\x04\x00'] = comm
-          comm = aksy.sysex.Command('\x04\x01', 'get_os_subversion', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x01', 'get_os_subversion', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x04\x01'] = comm
-          comm = aksy.sysex.Command('\x04\x04', 'get_sampler_model', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x04', 'get_sampler_model', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x04\x04'] = comm
-          comm = aksy.sysex.Command('\x04\x08', 'get_supported_filetypes', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x08', 'get_supported_filetypes', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x04\x08'] = comm
-          comm = aksy.sysex.Command('\x04\x10', 'get_perc_free_wave_mem', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x10', 'get_perc_free_wave_mem', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x04\x10'] = comm
-          comm = aksy.sysex.Command('\x04\x11', 'get_perc_free_cpu_mem', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x11', 'get_perc_free_cpu_mem', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x04\x11'] = comm
-          comm = aksy.sysex.Command('\x04\x12', 'get_wave_mem_size', (), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x12', 'get_wave_mem_size', (), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x04\x12'] = comm
-          comm = aksy.sysex.Command('\x04\x13', 'get_free_wave_mem_size', (), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x13', 'get_free_wave_mem_size', (), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x04\x13'] = comm
-          comm = aksy.sysex.Command('\x04\x18', 'clear_sampler_mem', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x18', 'clear_sampler_mem', (), ())
           self.commands['\x04\x18'] = comm
-          comm = aksy.sysex.Command('\x04\x19', 'purge_unused', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x19', 'purge_unused', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x04\x19'] = comm
-          comm = aksy.sysex.Command('\x04\x1A', 'tag_unused', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x1A', 'tag_unused', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x04\x1A'] = comm
-          comm = aksy.sysex.Command('\x04\x20', 'compact_wave_mem', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x20', 'compact_wave_mem', (), ())
           self.commands['\x04\x20'] = comm
-          comm = aksy.sysex.Command('\x04\x21', 'cancel_compact_wave_mem', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x21', 'cancel_compact_wave_mem', (), ())
           self.commands['\x04\x21'] = comm
-          comm = aksy.sysex.Command('\x04\x22 ', 'get_compact_wave_mem_progress', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x04\x22 ', 'get_compact_wave_mem_progress', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x04\x22 '] = comm
-          comm = aksy.sysex.Command('\x04\x30 ', 'get_async_operation_state', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x30 ', 'get_async_operation_state', (), ())
           self.commands['\x04\x30 '] = comm
-          comm = aksy.sysex.Command('\x04\x31 ', 'cancel_curr_async_operation', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x04\x31 ', 'cancel_curr_async_operation', (), ())
           self.commands['\x04\x31 '] = comm
-          comm = aksy.sysex.Command('\x07\x01', 'get_sampler_name', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x01', 'get_sampler_name', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x07\x01'] = comm
-          comm = aksy.sysex.Command('\x07\x02', 'get_scsi_id', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x02', 'get_scsi_id', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x02'] = comm
-          comm = aksy.sysex.Command('\x07\x03', 'get_master_tune', (), (aksy.sysex.SWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x03', 'get_master_tune', (), (aksy.devices.z48.sysex.SWORD,))
           self.commands['\x07\x03'] = comm
-          comm = aksy.sysex.Command('\x07\x04', 'get_master_level', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x04', 'get_master_level', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x04'] = comm
-          comm = aksy.sysex.Command('\x07\x05', 'get_midi_mode', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x05', 'get_midi_mode', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x05'] = comm
-          comm = aksy.sysex.Command('\x07\x06', 'is_qlink_local_ctrl_enabled', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x06', 'is_qlink_local_ctrl_enabled', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x06'] = comm
-          comm = aksy.sysex.Command('\x07\x07', 'is_default_items_enabled', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x07', 'is_default_items_enabled', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x07'] = comm
-          comm = aksy.sysex.Command('\x07\x08', 'get_midi_file_save_format', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x08', 'get_midi_file_save_format', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x08'] = comm
-          comm = aksy.sysex.Command('\x07\x09', 'get_cdr_write_speed', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x09', 'get_cdr_write_speed', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x09'] = comm
-          comm = aksy.sysex.Command('\x07\x0A', 'get_cdr_write_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x0A', 'get_cdr_write_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x0A'] = comm
-          comm = aksy.sysex.Command('\x07\x10', 'is_front_panel_locked', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x10', 'is_front_panel_locked', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x10'] = comm
-          comm = aksy.sysex.Command('\x07\x11', 'get_display_contrast', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x11', 'get_display_contrast', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x11'] = comm
-          comm = aksy.sysex.Command('\x07\x12', 'get_note_display', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x12', 'get_note_display', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x12'] = comm
-          comm = aksy.sysex.Command('\x07\x13', 'get_date_format', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x13', 'get_date_format', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x13'] = comm
-          comm = aksy.sysex.Command('\x07\x14', 'get_time_format', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x14', 'get_time_format', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x14'] = comm
-          comm = aksy.sysex.Command('\x07\x18', 'get_waveform_view_scale', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x18', 'get_waveform_view_scale', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x18'] = comm
-          comm = aksy.sysex.Command('\x07\x19', 'get_waveform_view_type', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x19', 'get_waveform_view_type', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x19'] = comm
-          comm = aksy.sysex.Command('\x07\x1A', 'get_waveform_view_fill', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x1A', 'get_waveform_view_fill', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x1A'] = comm
-          comm = aksy.sysex.Command('\x07\x1B', 'get_item_sort_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x1B', 'get_item_sort_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x1B'] = comm
-          comm = aksy.sysex.Command('\x07\x20', 'get_year', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x20', 'get_year', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x20'] = comm
-          comm = aksy.sysex.Command('\x07\x21', 'get_month', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x21', 'get_month', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x21'] = comm
-          comm = aksy.sysex.Command('\x07\x22', 'get_day', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x22', 'get_day', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x22'] = comm
-          comm = aksy.sysex.Command('\x07\x23', 'get_day_of_week', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x23', 'get_day_of_week', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x23'] = comm
-          comm = aksy.sysex.Command('\x07\x24', 'get_hours', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x24', 'get_hours', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x24'] = comm
-          comm = aksy.sysex.Command('\x07\x25', 'get_mins', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x25', 'get_mins', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x25'] = comm
-          comm = aksy.sysex.Command('\x07\x26', 'get_secs', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x26', 'get_secs', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x26'] = comm
-          comm = aksy.sysex.Command('\x07\x30', 'get_system_clock', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x30', 'get_system_clock', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x30'] = comm
-          comm = aksy.sysex.Command('\x07\x31', 'get_dig_sync', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x31', 'get_dig_sync', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x31'] = comm
-          comm = aksy.sysex.Command('\x07\x32', 'get_dig_format', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x32', 'get_dig_format', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x32'] = comm
-          comm = aksy.sysex.Command('\x07\x33', 'get_adat_main_out', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x33', 'get_adat_main_out', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x33'] = comm
-          comm = aksy.sysex.Command('\x07\x40', 'get_play_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x40', 'get_play_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x40'] = comm
-          comm = aksy.sysex.Command('\x07\x41', 'get_prog_monitor_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x41', 'get_prog_monitor_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x41'] = comm
-          comm = aksy.sysex.Command('\x07\x42', 'get_sample_monitor_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x42', 'get_sample_monitor_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x42'] = comm
-          comm = aksy.sysex.Command('\x07\x48', 'get_play_key_note', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x48', 'get_play_key_note', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x48'] = comm
-          comm = aksy.sysex.Command('\x07\x49', 'get_play_key_velocity', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x49', 'get_play_key_velocity', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x49'] = comm
-          comm = aksy.sysex.Command('\x07\x4a', 'get_play_key_midi_channel', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x4a', 'get_play_key_midi_channel', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x4a'] = comm
-          comm = aksy.sysex.Command('\x07\x4b', 'get_play_key_echo', (), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x4b', 'get_play_key_echo', (), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x07\x4b'] = comm
-          comm = aksy.sysex.Command('\x07\x4c', 'get_prog_change_enable', (), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x4c', 'get_prog_change_enable', (), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x07\x4c'] = comm
-          comm = aksy.sysex.Command('\x07\x4d', 'get_autoload_enable', (), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x4d', 'get_autoload_enable', (), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x07\x4d'] = comm
-          comm = aksy.sysex.Command('\x07\x50', 'get_global_pad_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x50', 'get_global_pad_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x50'] = comm
-          comm = aksy.sysex.Command('\x07\x51', 'get_pad_midi_channel', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x07\x51', 'get_pad_midi_channel', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x07\x51'] = comm
-          comm = aksy.sysex.Command('\x07\x52', 'get_pad_sensitivity', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x07\x52', 'get_pad_sensitivity', (), ())
           self.commands['\x07\x52'] = comm
-          comm = aksy.sysex.Command('\x07\x53', 'get_def_note_assign', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x07\x53', 'get_def_note_assign', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x07\x53'] = comm
-          comm = aksy.sysex.Command('\x07\x54', 'get_chrom_start_note', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x07\x54', 'get_chrom_start_note', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x07\x54'] = comm
-          comm = aksy.sysex.Command('\x06\x01', 'set_sampler_name', (aksy.sysex.STRING,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x01', 'set_sampler_name', (aksy.devices.z48.sysex.STRING,), ())
           self.commands['\x06\x01'] = comm
-          comm = aksy.sysex.Command('\x06\x02', 'set_scsi_id', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x02', 'set_scsi_id', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x02'] = comm
-          comm = aksy.sysex.Command('\x06\x03', 'set_master_tune', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x03', 'set_master_tune', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x03'] = comm
-          comm = aksy.sysex.Command('\x06\x04', 'set_master_level', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x04', 'set_master_level', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x04'] = comm
-          comm = aksy.sysex.Command('\x06\x05', 'set_midi_out_thru', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x05', 'set_midi_out_thru', (), ())
           self.commands['\x06\x05'] = comm
-          comm = aksy.sysex.Command('\x06\x06', 'set_qlink_local_control', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x06', 'set_qlink_local_control', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x06\x06'] = comm
-          comm = aksy.sysex.Command('\x06\x07', 'set_create_default_items', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x07', 'set_create_default_items', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x06\x07'] = comm
-          comm = aksy.sysex.Command('\x06\x08', 'set_midi_file_save_format', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x08', 'set_midi_file_save_format', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x08'] = comm
-          comm = aksy.sysex.Command('\x06\x09', 'set_cdr_write_speed', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x09', 'set_cdr_write_speed', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x09'] = comm
-          comm = aksy.sysex.Command('\x06\x0a', 'set_cdr_write_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x0a', 'set_cdr_write_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x0a'] = comm
-          comm = aksy.sysex.Command('\x06\x10', 'set_front_panel_lockout_state', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x10', 'set_front_panel_lockout_state', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x10'] = comm
-          comm = aksy.sysex.Command('\x06\x11', 'set_display_contrast', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x11', 'set_display_contrast', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x11'] = comm
-          comm = aksy.sysex.Command('\x06\x12', 'set_note_display', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x12', 'set_note_display', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x12'] = comm
-          comm = aksy.sysex.Command('\x06\x13', 'set_date_display_format', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x13', 'set_date_display_format', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x13'] = comm
-          comm = aksy.sysex.Command('\x06\x14', 'set_time_display_format', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x14', 'set_time_display_format', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x14'] = comm
-          comm = aksy.sysex.Command('\x06\x18', 'set_waveform_view_scale', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x18', 'set_waveform_view_scale', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x18'] = comm
-          comm = aksy.sysex.Command('\x06\x19', 'set_waveform_view_type', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x19', 'set_waveform_view_type', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x19'] = comm
-          comm = aksy.sysex.Command('\x06\x1a', 'set_waveform_view_fill', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x1a', 'set_waveform_view_fill', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x06\x1a'] = comm
-          comm = aksy.sysex.Command('\x06\x1b', 'set_item_sort_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x1b', 'set_item_sort_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x1b'] = comm
-          comm = aksy.sysex.Command('\x06\x20', 'set_year', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x20', 'set_year', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x20'] = comm
-          comm = aksy.sysex.Command('\x06\x21', 'set_month', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x21', 'set_month', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x21'] = comm
-          comm = aksy.sysex.Command('\x06\x22', 'set_day', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x22', 'set_day', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x22'] = comm
-          comm = aksy.sysex.Command('\x06\x23', 'set_day_of_week', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x23', 'set_day_of_week', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x23'] = comm
-          comm = aksy.sysex.Command('\x06\x24', 'set_hours', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x24', 'set_hours', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x24'] = comm
-          comm = aksy.sysex.Command('\x06\x25', 'set_minutes', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x25', 'set_minutes', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x25'] = comm
-          comm = aksy.sysex.Command('\x06\x26', 'set_seconds', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x26', 'set_seconds', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x26'] = comm
-          comm = aksy.sysex.Command('\x06\x30', 'set_system_clock', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x30', 'set_system_clock', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x30'] = comm
-          comm = aksy.sysex.Command('\x06\x31', 'set_digital_out_sync', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x31', 'set_digital_out_sync', (), ())
           self.commands['\x06\x31'] = comm
-          comm = aksy.sysex.Command('\x06\x32', 'set_digital_format', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x32', 'set_digital_format', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x32'] = comm
-          comm = aksy.sysex.Command('\x06\x33', 'set_adat_main_out', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x33', 'set_adat_main_out', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x33'] = comm
-          comm = aksy.sysex.Command('\x06\x40', 'set_play_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x40', 'set_play_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x40'] = comm
-          comm = aksy.sysex.Command('\x06\x41', 'set_program_monitor_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x41', 'set_program_monitor_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x41'] = comm
-          comm = aksy.sysex.Command('\x06\x42', 'set_sample_monitor_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x42', 'set_sample_monitor_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x42'] = comm
-          comm = aksy.sysex.Command('\x06\x48', 'set_play_key_note', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x48', 'set_play_key_note', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x48'] = comm
-          comm = aksy.sysex.Command('\x06\x49', 'set_play_key_velocity', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x49', 'set_play_key_velocity', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x49'] = comm
-          comm = aksy.sysex.Command('\x06\x4a', 'set_play_key_midi_channel', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x4a', 'set_play_key_midi_channel', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x4a'] = comm
-          comm = aksy.sysex.Command('\x06\x4b', 'set_play_key_echo', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x4b', 'set_play_key_echo', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x06\x4b'] = comm
-          comm = aksy.sysex.Command('\x06\x4c', 'set_program_change_enable', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x4c', 'set_program_change_enable', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x06\x4c'] = comm
-          comm = aksy.sysex.Command('\x06\x4d', 'set_autoload_enable', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x4d', 'set_autoload_enable', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x06\x4d'] = comm
-          comm = aksy.sysex.Command('\x05\x50', 'set_global_pad_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x05\x50', 'set_global_pad_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x05\x50'] = comm
-          comm = aksy.sysex.Command('\x06\x51', 'set_pad_midi_channel', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x51', 'set_pad_midi_channel', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x51'] = comm
-          comm = aksy.sysex.Command('\x06\x52', 'set_pad_sensitivity', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x52', 'set_pad_sensitivity', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x06\x52'] = comm
-          comm = aksy.sysex.Command('\x06\x53', 'set_default_note_assignment', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x53', 'set_default_note_assignment', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x06\x53'] = comm
-          comm = aksy.sysex.Command('\x06\x54', 'set_chromatic_start_note', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x06\x54', 'set_chromatic_start_note', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x06\x54'] = comm
 
      def get_os_software_version(self):
           """Get Operating System Software Version
 
           Returns:
-               aksy.sysex.BYTE
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x04\x00')
           return self.z48.execute(comm, ())
@@ -237,7 +236,7 @@ class Systemtools:
           """Get the Sub-Version of the Operating System
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x04\x01')
           return self.z48.execute(comm, ())
@@ -246,7 +245,7 @@ class Systemtools:
           """Get Sampler Model
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x04\x04')
           return self.z48.execute(comm, ())
@@ -255,7 +254,7 @@ class Systemtools:
           """Get List of supported filetypes
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x04\x08')
           return self.z48.execute(comm, ())
@@ -264,7 +263,7 @@ class Systemtools:
           """Get the percentage free Wave memory
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x04\x10')
           return self.z48.execute(comm, ())
@@ -273,7 +272,7 @@ class Systemtools:
           """Get the percentage free CPU memory
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x04\x11')
           return self.z48.execute(comm, ())
@@ -282,7 +281,7 @@ class Systemtools:
           """Get the total number of kilobytes of Wave memory
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x04\x12')
           return self.z48.execute(comm, ())
@@ -291,7 +290,7 @@ class Systemtools:
           """Get the number of kilobytes of free Wave memory
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x04\x13')
           return self.z48.execute(comm, ())
@@ -330,7 +329,7 @@ class Systemtools:
           """Get Compact Wave Memory Progress (%)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x04\x22 ')
           return self.z48.execute(comm, ())
@@ -351,7 +350,7 @@ class Systemtools:
           """Get Sampler Name
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x07\x01')
           return self.z48.execute(comm, ())
@@ -360,7 +359,7 @@ class Systemtools:
           """Get SCSI self ID
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x02')
           return self.z48.execute(comm, ())
@@ -369,7 +368,7 @@ class Systemtools:
           """Get Master Tune
 
           Returns:
-               aksy.sysex.SWORD
+               aksy.devices.z48.sysex.SWORD
           """
           comm = self.commands.get('\x07\x03')
           return self.z48.execute(comm, ())
@@ -378,7 +377,7 @@ class Systemtools:
           """Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x04')
           return self.z48.execute(comm, ())
@@ -387,7 +386,7 @@ class Systemtools:
           """Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x05')
           return self.z48.execute(comm, (arg0, ))
@@ -396,7 +395,7 @@ class Systemtools:
           """Get Qlink Local Control <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x06')
           return self.z48.execute(comm, ())
@@ -405,7 +404,7 @@ class Systemtools:
           """Get Create Default Items at Startup <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x07')
           return self.z48.execute(comm, ())
@@ -414,7 +413,7 @@ class Systemtools:
           """Get MIDI file save format
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x08')
           return self.z48.execute(comm, ())
@@ -423,7 +422,7 @@ class Systemtools:
           """Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x09')
           return self.z48.execute(comm, ())
@@ -432,7 +431,7 @@ class Systemtools:
           """Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x0A')
           return self.z48.execute(comm, ())
@@ -441,7 +440,7 @@ class Systemtools:
           """Get Front panel lock-out state
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x10')
           return self.z48.execute(comm, ())
@@ -450,7 +449,7 @@ class Systemtools:
           """Get Display Contrast
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x11')
           return self.z48.execute(comm, ())
@@ -459,7 +458,7 @@ class Systemtools:
           """Get Note Display <Reply> = (0=NUMBER, 1=NAME)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x12')
           return self.z48.execute(comm, ())
@@ -468,7 +467,7 @@ class Systemtools:
           """Get Date Display Format  <Reply> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x13')
           return self.z48.execute(comm, ())
@@ -477,7 +476,7 @@ class Systemtools:
           """Get Time Display Format <Reply> = (0=12HOUR, 1=24HOUR)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x14')
           return self.z48.execute(comm, ())
@@ -486,7 +485,7 @@ class Systemtools:
           """Get Waveform View Scale <Reply> = (0=LINEAR, 1=LOG)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x18')
           return self.z48.execute(comm, ())
@@ -495,7 +494,7 @@ class Systemtools:
           """Get Waveform View Type <Reply> = (0=RECTIFIED, 1=BIPOLAR)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x19')
           return self.z48.execute(comm, ())
@@ -504,7 +503,7 @@ class Systemtools:
           """Get Waveform View Fill <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x1A')
           return self.z48.execute(comm, ())
@@ -513,7 +512,7 @@ class Systemtools:
           """Get Item Sort Mode <Reply> = (0=ALPHABETIC, 1=MEMORY)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x1B')
           return self.z48.execute(comm, ())
@@ -522,7 +521,7 @@ class Systemtools:
           """Get Year
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x20')
           return self.z48.execute(comm, ())
@@ -531,7 +530,7 @@ class Systemtools:
           """Get Month
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x21')
           return self.z48.execute(comm, ())
@@ -540,7 +539,7 @@ class Systemtools:
           """Get Day
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x22')
           return self.z48.execute(comm, ())
@@ -549,7 +548,7 @@ class Systemtools:
           """Get Day of Week (0=SUN)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x23')
           return self.z48.execute(comm, ())
@@ -558,7 +557,7 @@ class Systemtools:
           """Get Hours
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x24')
           return self.z48.execute(comm, ())
@@ -567,7 +566,7 @@ class Systemtools:
           """Get Minutes
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x25')
           return self.z48.execute(comm, ())
@@ -576,7 +575,7 @@ class Systemtools:
           """Get Seconds
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x26')
           return self.z48.execute(comm, ())
@@ -585,7 +584,7 @@ class Systemtools:
           """Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x30')
           return self.z48.execute(comm, ())
@@ -594,7 +593,7 @@ class Systemtools:
           """Get Digital Out Sync (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x31')
           return self.z48.execute(comm, ())
@@ -603,7 +602,7 @@ class Systemtools:
           """Get Digital Format <Reply> = (0=PRO, 1=CONSUMER)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x32')
           return self.z48.execute(comm, ())
@@ -612,7 +611,7 @@ class Systemtools:
           """Get ADAT Main Out <Reply> = (0=L/R, 1=1/2)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x33')
           return self.z48.execute(comm, ())
@@ -621,7 +620,7 @@ class Systemtools:
           """Get Play Mode (0=Multi, 1=Program; 2=Sample; 3=Muted), handle of item which is the active Play Item
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x40')
           return self.z48.execute(comm, ())
@@ -630,7 +629,7 @@ class Systemtools:
           """Get Program Monitor Mode  (0=Multi, 1=Program(OMNI))
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x41')
           return self.z48.execute(comm, ())
@@ -639,7 +638,7 @@ class Systemtools:
           """Get Sample Monitor Mode (0=Multi, 1=Program; 2=Sample(OMNI))
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x42')
           return self.z48.execute(comm, ())
@@ -648,7 +647,7 @@ class Systemtools:
           """Get Play Key Note
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x48')
           return self.z48.execute(comm, ())
@@ -657,7 +656,7 @@ class Systemtools:
           """Get Play Key Velocity
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x49')
           return self.z48.execute(comm, ())
@@ -666,7 +665,7 @@ class Systemtools:
           """Get Play Key Midi Channel <Reply> = (1A=0, 2A=1, ..., 16B=31)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x4a')
           return self.z48.execute(comm, ())
@@ -675,7 +674,7 @@ class Systemtools:
           """Get Play Key Echo <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x07\x4b')
           return self.z48.execute(comm, ())
@@ -684,7 +683,7 @@ class Systemtools:
           """Get Program Change Enable <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x07\x4c')
           return self.z48.execute(comm, ())
@@ -693,7 +692,7 @@ class Systemtools:
           """Get Autoload Enable <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x07\x4d')
           return self.z48.execute(comm, ())
@@ -702,7 +701,7 @@ class Systemtools:
           """Get Global Pad Mode <Reply> = (0=DEFAULT, 1=CHROMATIC)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x50')
           return self.z48.execute(comm, ())
@@ -711,7 +710,7 @@ class Systemtools:
           """Get MIDI Channel for MPC Pad
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x07\x51')
           return self.z48.execute(comm, ())
@@ -927,7 +926,7 @@ class Systemtools:
           return self.z48.execute(comm, (arg0, ))
 
      def set_sample_monitor_mode(self, arg0):
-          """   Set Sample Monitor Mode <Data1> = (0=Multi, 1=Program; 2=Sample(OMNI))
+          """Set Sample Monitor Mode <Data1> = (0=Multi, 1=Program; 2=Sample(OMNI))
           """
           comm = self.commands.get('\x06\x42')
           return self.z48.execute(comm, (arg0, ))
@@ -981,7 +980,7 @@ class Systemtools:
           return self.z48.execute(comm, (arg0, ))
 
      def set_pad_sensitivity(self, arg0, arg1):
-          """   Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0­100 = 100%­200%)
+          """Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0­100 = 100%­200%)
           """
           comm = self.commands.get('\x06\x52')
           return self.z48.execute(comm, (arg0, arg1, ))

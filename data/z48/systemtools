@@ -6,7 +6,7 @@ BYTE
 \x04	\x04	get_sampler_model	Get Sampler Model 
 BYTE
 \x04	\x08	get_supported_filetypes	Get List of supported filetypes 
-STRING
+STRINGARRAY
 \x04	\x10	get_perc_free_wave_mem	Get the percentage free Wave memory 
 BYTE
 \x04	\x11	get_perc_free_cpu_mem	Get the percentage free CPU memory
@@ -28,7 +28,7 @@ DWORD
 \x04	\x22 	get_compact_wave_mem_progress	Get Compact Wave Memory Progress (%)
 BYTE
 \x04	\x30 	get_async_operation_state	Get State of Asynchronous Operation ERROR 'operation is pending' or DONE
-
+BYTE
 \x04	\x31 	cancel_curr_async_operation	Cancel Current Asynchronous Operation
 
 \x07	\x01	get_sampler_name	Get Sampler Name
@@ -114,11 +114,11 @@ BYTE
 \x07	\x51	get_pad_midi_channel	Get MIDI Channel for MPC Pad
 BYTE
 \x07	\x52	get_pad_sensitivity	Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
-
+BYTE
 \x07	\x53	get_def_note_assign	Get Default Note Assignment <Data1> = Pad	BYTE 
-
+BYTE
 \x07	\x54	get_chrom_start_note	Get Default Note Assignment <Data1> = Pad	BYTE
-
+BYTE
 \x06	\x01	set_sampler_name	Set Sampler Name	STRING
 
 \x06	\x02	set_scsi_id	Set SCSI ID	BYTE

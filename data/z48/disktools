@@ -16,7 +16,7 @@ STRING
 \x20	\x10	get_no_subfolders	Get number of sub-folders in the current folder.
 PAD	WORD
 \x20	\x12	get_subfolder_names	Get the names of all of the sub-folders in the current folder.
-STRING
+STRINGARRAY
 \x20	\x13	set_curr_folder	Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)	STRING
 
 \x20	\x15	load_folder	Load Folder: the selected folder, and all its contents (including subfolders)	STRING
@@ -30,7 +30,7 @@ STRING
 \x20	\x20	get_no_files	Get number of files in the current folder.
 WORD
 \x20	\x22	get_filenames	Get the names of all of the files in the current folder.
-STRING
+STRINGARRAY
 \x20	\x28	rename_file	Rename File	STRING	STRING
 
 \x20	\x29	delete_file	Delete File. <Data1> = name of file to delete.	STRING

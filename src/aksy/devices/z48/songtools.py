@@ -13,7 +13,6 @@ class Songtools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.devices.z48.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
           comm = aksy.devices.z48.sysex.Command('\x28\x01', 'get_no_items', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x01'] = comm
           comm = aksy.devices.z48.sysex.Command('\x28\x02\x00', 'get_handles', (), ())

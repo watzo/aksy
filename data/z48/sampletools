@@ -4,7 +4,7 @@ BYTE
 \x1C	\x02\x00	get_handles	Get Sample handles
 
 \x1C	\x02\x01	get_names	Get sample names
-
+STRINGARRAY
 \x1C	\x02\x02	get_handles_names	Get list of sample handles and names
 HANDLENAMEARRAY
 \x1C	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
@@ -36,7 +36,7 @@ DWORD
 \x1C	\x0F	get_tag_bitmap	Get Tag Bitmap
 
 \x1C	\x10	get_curr_modified	Get name of current item with modified/tagged info
-STRING
+STRINGARRAY
 \x1C	\x11 	get_modified	Get modified state of current item.
 BYTE
 \x1C	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
@@ -99,7 +99,7 @@ BYTE
 QWORD
 \x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
 QWORD
-\x1F	\x42	get_region_lenght	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
+\x1F	\x42	get_region_length	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
 QWORD
 \x1F	\x44	get_no_regions	Get Number of Regions
 BYTE

@@ -1,4 +1,5 @@
 from aksyxusb import Z48Sampler
+import sysex
 from sysex import Request, Reply
 import disktools, programtools, multitools, sampletools, systemtools
 from aksy import model
@@ -34,7 +35,8 @@ class Sampler(Z48Sampler):
     MEMORY = 0
     DISK = 1
 
-    def __init__(self, debug=1):
+    def __init__(self, debug=1, id=0):
+        self.id = id
         self.debug = debug
         sys.stderr.writelines("Sampler: %s\n" %repr(self))
         self.disktools = disktools.Disktools(self)
@@ -92,14 +94,17 @@ class Sampler(Z48Sampler):
         """
         Z48Sampler._put(self, path, sysex.STRING.encode(remote_name), destination)
 
-    def execute(self, command, args, z48id=None, userref=None):
+    def execute(self, command, args, userref=None):
+        """Executes a command on the sampler
+        TODO: calculate the deviceid byte together with the userref count
+        """
         request = Request(command, args)
         if self.debug:
             sys.stderr.writelines("Request: %s\n" % repr(request))
         result_bytes = self._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
         if self.debug:
             sys.stderr.writelines("Length of reply: %i\n" % len(result_bytes))
-        result = Reply(result_bytes, command.reply_spec)
+        result = Reply(result_bytes, command)
         if self.debug:
             sys.stderr.writelines("Reply: %s\n" % repr(result))
         return result.parse()

@@ -4,7 +4,7 @@ BYTE
 \x18	\x02\x00	get_handles	Get handles <Data1>: 0=list of handles
 DWORD
 \x18	\x02\x01	get_names	Get names items: <Data1>; 1=list of names; 
-STRING
+STRINGARRAY
 \x18	\x02\x02	get_handles_names	Get handles names: <Data1>; 2=list of handle+name
 HANDLENAMEARRAY
 \x18	\x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
@@ -36,7 +36,7 @@ DWORD
 \x18	\x0F	get_tag_bitmap	Get Tag Bitmap
 WORD
 \x18	\x10	get_current_modified	Get name of current item with modified/tagged info.
-STRING
+STRINGARRAY
 \x1B	\x01	get_group_id	Get Group ID
 BYTE
 \x1B	\x02	get_multi_select_method	Get Multi Select <Reply1> = (0=OFF, 1=BANK, 2=PROG CHANGE)

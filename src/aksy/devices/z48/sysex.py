@@ -151,6 +151,12 @@ class Reply:
     >>> reply.parse() 
     'Z8 Sampler'
 
+    >>> bytes = '\xf0G_\x00E\x1eJ\x00\x00\xf7'
+    >>> reply = Reply(bytes, dcmd) 
+    >>> reply.parse() 
+    Traceback (most recent call last):
+    SamplerException: code 00 (The <Section> <Item> supplied are not supported)
+ 
     """
     def __init__(self, bytes, command, z48id=None, userref=None):
         self.bytes = bytes
@@ -534,7 +540,7 @@ class BoolType(ByteType):
 class StringType(object):
     def __init__(self):
         self.id = '\x09' 
-        self.size = None # variable size
+        self.size = None # variable size, parsed length is returned in result
 
     def validate_encode(self, value):
         if not type(value) == type('') and value != '':
@@ -554,33 +560,19 @@ class StringType(object):
         r"""
         >>> s = StringType()
         >>> s.decode('test sdf\x00')
-        'test sdf'
+        (9, 'test sdf')
         """
         index = string.find(STRING_TERMINATOR)
         if index == -1: raise ValueError
-        return struct.unpack( str(index) + 's', string[:index])[0]
-
-    def decode_strings(self, string):    
-        """XXX: move this method to a string array class
-        """
-        result = []
-        index = 0
-        offset = 0
-        for char in string:
-            #sys.stderr.writelines( "c:%s i:%s\n" % (char, index) )
-            if (char == END_SYSEX):
-                break;
-            if char == STRING_TERMINATOR:
-                result.append(struct.unpack( str(index) + 's', string[offset:offset+index])[0])
-                offset += index + 1
-                index = 0
-            else:
-                index += 1
-        return result
+        return index + 1, struct.unpack( str(index) + 's', string[:index])[0]
 
 class StringArrayType(object):
     """
     """
+    def __init__(self):
+        self.id = '\x09' 
+        self.size = None # variable size, parsed length is returned in result
+
     def encode(self, value):
         raise NotImplementedError()
 
@@ -588,7 +580,7 @@ class StringArrayType(object):
         r"""
         >>> s = StringArrayType()
         >>> s.decode('test sdf\x00test ghi\x00')
-        ['test sdf', 'test ghi']
+        (18, ('test sdf', 'test ghi'))
         """
         result = []
         index = 0
@@ -603,7 +595,7 @@ class StringArrayType(object):
                 index = 0
             else:
                 index += 1
-        return result
+        return (offset + index, tuple(result))
 
 class PadType(SysexType):
     def __init__(self):
@@ -645,7 +637,7 @@ SDWORD      = SignedDoubleWordType()
 QWORD       = QWordType()
 SQWORD      = SignedQWordType() 
 STRING      = StringType()
-
+STRINGARRAY = StringArrayType()
 
 TWO_BYTES   = SysexType(2, False, '\x0a')
 THREE_BYTES = SysexType(3, False, '\x0b')
@@ -667,8 +659,18 @@ class HandleNameArrayType(object):
         raise NotImplementedError
 
     def decode(self, string):
-        return  (DWORD.decode(string[:4]),
-                STRING.decode(string[3:]),)
+        results = []
+        len_to_parse = len(string)
+        len_parsed = 0
+        index = 0
+        while len_parsed < len_to_parse:
+            results.append(DWORD.decode(string[len_parsed:len_parsed+4]))
+            len_parsed += 4
+            # XXX check: len_parsed - 1
+            len_result, result = STRING.decode(string[len_parsed-1:])
+            results.append(result) 
+            len_parsed += len_result
+        return tuple(results)
 
 HANDLENAMEARRAY = HandleNameArrayType()
 
@@ -681,7 +683,7 @@ def parse_byte_string(data, type, offset=0):
     >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 1)
     ('EST', 4)
 
-    >>> parse_byte_string('\x54\x45\x53\x54\x00\x54\x45\x53\x54\x00', STRING, 0)
+    >>> parse_byte_string('\x54\x45\x53\x54\x00\x54\x45\x53\x54\x00', STRINGARRAY, 0)
     (('TEST', 'TEST'), 10)
 
     >>> parse_byte_string('\x0f', BYTE)
@@ -711,19 +713,14 @@ def parse_byte_string(data, type, offset=0):
     """
     
     len_parsed_data = 0
-    if not isinstance(type, StringType):
+    if type.size is not None:
         result = type.decode(data[offset:offset+type.size])
-        len_parsed_data += type.size
+        len_parsed_data = type.size
     else:
         # TODO: use a factory which returns instances with a size set ?
-        result = type.decode_strings(data[offset:])
-        if len(result) == 0:
+        len_parsed_data, result = type.decode(data[offset:])
+        if len_parsed_data == 0:
             result = None
-        else:
-            for string in result:
-                len_parsed_data += (len(string) + 1)
-
-            result = len(result) > 1 and tuple(result) or result[0]
  
     return (result, len_parsed_data)
 

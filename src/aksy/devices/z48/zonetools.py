@@ -7,71 +7,70 @@ Manipulate the zones of a keygroup
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.sysex
+import aksy.devices.z48.sysex
 
 class Zonetools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
-          comm = aksy.sysex.Command('\x0F\x01', 'get_sample', (aksy.sysex.BYTE,), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x01', 'get_sample', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x0F\x01'] = comm
-          comm = aksy.sysex.Command('\x0F\x02', 'get_level', (aksy.sysex.BYTE,), (aksy.sysex.LEVEL,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x02', 'get_level', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.LEVEL,))
           self.commands['\x0F\x02'] = comm
-          comm = aksy.sysex.Command('\x0F\x03', 'get_pan', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x03', 'get_pan', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x0F\x03'] = comm
-          comm = aksy.sysex.Command('\x0F\x04', 'get_output', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x04', 'get_output', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x0F\x04'] = comm
-          comm = aksy.sysex.Command('\x0F\x05', 'get_filter', (), (aksy.sysex.SBYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x05', 'get_filter', (), (aksy.devices.z48.sysex.SBYTE,))
           self.commands['\x0F\x05'] = comm
-          comm = aksy.sysex.Command('\x0F\x06', 'get_tune', (), (aksy.sysex.SBYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x06', 'get_tune', (), (aksy.devices.z48.sysex.SBYTE,))
           self.commands['\x0F\x06'] = comm
-          comm = aksy.sysex.Command('\x0F\x07', 'get_keyboard_track', (aksy.sysex.BYTE,), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x07', 'get_keyboard_track', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x0F\x07'] = comm
-          comm = aksy.sysex.Command('\x0F\x08', 'get_playback', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x08', 'get_playback', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x0F\x08'] = comm
-          comm = aksy.sysex.Command('\x0F\x09', 'get_mod_start', (aksy.sysex.BYTE,), (aksy.sysex.SWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x09', 'get_mod_start', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.SWORD,))
           self.commands['\x0F\x09'] = comm
-          comm = aksy.sysex.Command('\x0F\x0A', 'get_low_velocity', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x0A', 'get_low_velocity', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x0F\x0A'] = comm
-          comm = aksy.sysex.Command('\x0F\x0B', 'get_high_velocity', (aksy.sysex.BYTE,), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x0B', 'get_high_velocity', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x0F\x0B'] = comm
-          comm = aksy.sysex.Command('\x0F\x0C', 'get_mute', (aksy.sysex.BYTE,), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x0C', 'get_mute', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x0F\x0C'] = comm
-          comm = aksy.sysex.Command('\x0F\x0D', 'get_solo', (aksy.sysex.BYTE,), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x0F\x0D', 'get_solo', (aksy.devices.z48.sysex.BYTE,), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x0F\x0D'] = comm
-          comm = aksy.sysex.Command('\x0E\x01', 'set_sample', (aksy.sysex.BYTE, aksy.sysex.STRING), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x01', 'set_sample', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.STRING), ())
           self.commands['\x0E\x01'] = comm
-          comm = aksy.sysex.Command('\x0E\x02', 'set_level', (aksy.sysex.BYTE, aksy.sysex.SWORD), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x02', 'set_level', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.SWORD), ())
           self.commands['\x0E\x02'] = comm
-          comm = aksy.sysex.Command('\x0E\x03', 'set_pan', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x03', 'set_pan', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x03'] = comm
-          comm = aksy.sysex.Command('\x0E\x04', 'set_output', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x04', 'set_output', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x04'] = comm
-          comm = aksy.sysex.Command('\x0E\x05', 'set_filter', (aksy.sysex.BYTE, aksy.sysex.SBYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x05', 'set_filter', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.SBYTE), ())
           self.commands['\x0E\x05'] = comm
-          comm = aksy.sysex.Command('\x0E\x06', 'set_tune', (aksy.sysex.BYTE, aksy.sysex.SWORD), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x06', 'set_tune', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.SWORD), ())
           self.commands['\x0E\x06'] = comm
-          comm = aksy.sysex.Command('\x0E\x07', 'set_keyboard_track', (aksy.sysex.BYTE, aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x07', 'set_keyboard_track', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x07'] = comm
-          comm = aksy.sysex.Command('\x0E\x08', 'set_playback', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x08', 'set_playback', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x08'] = comm
-          comm = aksy.sysex.Command('\x0E\x09', 'set_modstart', (aksy.sysex.BYTE, aksy.sysex.SWORD), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x09', 'set_modstart', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.SWORD), ())
           self.commands['\x0E\x09'] = comm
-          comm = aksy.sysex.Command('\x0E\x0A', 'set_low_vel', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x0A', 'set_low_vel', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x0A'] = comm
-          comm = aksy.sysex.Command('\x0E\x0B', 'set_high_vel', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x0B', 'set_high_vel', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x0B'] = comm
-          comm = aksy.sysex.Command('\x0E\x0C', 'set_mute', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x0C', 'set_mute', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x0C'] = comm
-          comm = aksy.sysex.Command('\x0E\x0D', 'set_solo', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x0E\x0D', 'set_solo', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x0E\x0D'] = comm
 
      def get_sample(self, arg0):
           """Get Zone Sample (Data1=zone number 1-4)
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x0F\x01')
           return self.z48.execute(comm, (arg0, ))
@@ -80,7 +79,7 @@ class Zonetools:
           """Get Zone Level <Reply> = level in 10×dB
 
           Returns:
-               aksy.sysex.LEVEL
+               aksy.devices.z48.sysex.LEVEL
           """
           comm = self.commands.get('\x0F\x02')
           return self.z48.execute(comm, (arg0, ))
@@ -89,7 +88,7 @@ class Zonetools:
           """Get Zone Pan (0-100)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x0F\x03')
           return self.z48.execute(comm, (arg0, ))
@@ -98,7 +97,7 @@ class Zonetools:
           """Get Zone Output(0-15)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x0F\x04')
           return self.z48.execute(comm, (arg0, ))
@@ -107,7 +106,7 @@ class Zonetools:
           """Get Zone Filter (0 ­ ±100)
 
           Returns:
-               aksy.sysex.SBYTE
+               aksy.devices.z48.sysex.SBYTE
           """
           comm = self.commands.get('\x0F\x05')
           return self.z48.execute(comm, ())
@@ -116,7 +115,7 @@ class Zonetools:
           """Get Zone Cents Tune(0 ­ ±3600)
 
           Returns:
-               aksy.sysex.SBYTE
+               aksy.devices.z48.sysex.SBYTE
           """
           comm = self.commands.get('\x0F\x06')
           return self.z48.execute(comm, ())
@@ -125,7 +124,7 @@ class Zonetools:
           """Get Zone Keyboard Track
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x0F\x07')
           return self.z48.execute(comm, (arg0, ))
@@ -134,7 +133,7 @@ class Zonetools:
           """Get Zone Playback
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x0F\x08')
           return self.z48.execute(comm, (arg0, ))
@@ -143,7 +142,7 @@ class Zonetools:
           """Get Zone ModStart(0 ­ ± 99 99)
 
           Returns:
-               aksy.sysex.SWORD
+               aksy.devices.z48.sysex.SWORD
           """
           comm = self.commands.get('\x0F\x09')
           return self.z48.execute(comm, (arg0, ))
@@ -152,7 +151,7 @@ class Zonetools:
           """Get Zone Low Velocity
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x0F\x0A')
           return self.z48.execute(comm, (arg0, ))
@@ -161,7 +160,7 @@ class Zonetools:
           """Get Zone High Velocity
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x0F\x0B')
           return self.z48.execute(comm, (arg0, ))
@@ -170,7 +169,7 @@ class Zonetools:
           """Get Zone Mute
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x0F\x0C')
           return self.z48.execute(comm, (arg0, ))
@@ -179,7 +178,7 @@ class Zonetools:
           """Get Zone Solo
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x0F\x0D')
           return self.z48.execute(comm, (arg0, ))

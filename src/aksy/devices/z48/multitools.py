@@ -13,12 +13,11 @@ class Multitools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.devices.z48.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
           comm = aksy.devices.z48.sysex.Command('\x18\x01', 'get_no_items', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x18\x01'] = comm
           comm = aksy.devices.z48.sysex.Command('\x18\x02\x00', 'get_handles', (), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x18\x02\x00'] = comm
-          comm = aksy.devices.z48.sysex.Command('\x18\x02\x01', 'get_names', (), (aksy.devices.z48.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x18\x02\x01', 'get_names', (), (aksy.devices.z48.sysex.STRINGARRAY,))
           self.commands['\x18\x02\x01'] = comm
           comm = aksy.devices.z48.sysex.Command('\x18\x02\x02', 'get_handles_names', (), (aksy.devices.z48.sysex.HANDLENAMEARRAY,))
           self.commands['\x18\x02\x02'] = comm
@@ -50,7 +49,7 @@ class Multitools:
           self.commands['\x18\x0E'] = comm
           comm = aksy.devices.z48.sysex.Command('\x18\x0F', 'get_tag_bitmap', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x18\x0F'] = comm
-          comm = aksy.devices.z48.sysex.Command('\x18\x10', 'get_current_modified', (), (aksy.devices.z48.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x18\x10', 'get_current_modified', (), (aksy.devices.z48.sysex.STRINGARRAY,))
           self.commands['\x18\x10'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1B\x01', 'get_group_id', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x1B\x01'] = comm
@@ -125,7 +124,7 @@ class Multitools:
           """Get names items: <Data1>; 1=list of names;
 
           Returns:
-               aksy.devices.z48.sysex.STRING
+               aksy.devices.z48.sysex.STRINGARRAY
           """
           comm = self.commands.get('\x18\x02\x01')
           return self.z48.execute(comm, ())
@@ -245,7 +244,7 @@ class Multitools:
           """Get name of current item with modified/tagged info.
 
           Returns:
-               aksy.devices.z48.sysex.STRING
+               aksy.devices.z48.sysex.STRINGARRAY
           """
           comm = self.commands.get('\x18\x10')
           return self.z48.execute(comm, ())

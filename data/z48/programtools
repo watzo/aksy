@@ -4,7 +4,7 @@ programtools	Methods to manipulate sampler programs
 \x14	\x02\x00	get_handles	Get list of info for all items: 0=list of handles;
 DWORD
 \x14	\x02\x01	get_names	Get list of info for all items: 1=list of names
-STRING
+STRINGARRAY
 \x14	\x02\x02	get_handles_names	Get list of info for all items: 2=list of handle+name;
 HANDLENAMEARRAY
 \x14	\x02\x03	get_modified	Get list of info for all items: 3=list of handle+modified/tagged name

@@ -1,92 +1,79 @@
 recordingtools	Methods to facilitate recording 
-\x30	\x01	Get Record Status
-
-\x30	\x02	Get Record Progress
-
-\x30	\x03	Get Maximum Record Time
-
-\x30	\x10	Arm Recording
-
-\x30	\x11	Start Recording
-
-\x30	\x12	Stop Recording
-
-\x30	\x13	Cancel Recording
-
-\x30	\x20	Play Recorded Sample Start
-
-\x30	\x21	Play Recorded Sample Stop
-
-\x30	\x22	Keep Recorded Sample. Sample with name assigned above, is added to the list of available samples.
- 
-\x30	\x23	Delete Recorded Sample
-
-\x30	\x01	Get Record Status
+\x30	\x01	get_status	Get Record Status
 BYTE
-\x30	\x02	Get Record Progress
+\x30	\x02	get_progress	Get Record Progress
 DWORD
-\x30	\x03	Get Maximum Record Time
+\x30	\x03	get_max_rec_time	Get Maximum Record Time
 DWORD
-\x32
-\x01	Set Input <Data1> = (0=ANALOGUE, 1=DIGITAL, 2=MAIN OUT 3=ADAT1/2, 4=ADAT3/4, 5=ADAT5/6, 6=ADAT7/8)	BYTE
+\x30	\x10	arm	Arm Recording
 
-\x02	Set Record Mode <Data1> = (0=STEREO, 1=MONO L, 2=MONO R, 3=L/R MIX)	BYTE
+\x30	\x11	start	Start Recording
 
-\x03 BYTE(0, 1) Set Record Monitor <Data1> = (0=OFF,
+\x30	\x12	stop	Stop Recording
 
-\x04 Set Record Time <Data1> = time in seconds.	If <Data1> = 0, MANUAL mode is enabled.	DWORD
+\x30	\x13	cancel	Cancel Recording
+
+\x30	\x20	start_playing	Play Recorded Sample Start
+
+\x30	\x21	stop_playing	Play Recorded Sample Stop
+
+\x30	\x22	keep	Keep Recorded Sample. Sample with name assigned above, is added to the list of available samples.
  
-\x05 Set Original Pitch 	BYTE
+\x30	\x23	delete	Delete Recorded Sample
 
-\x06 Set Threshold <Data1> = threshold in dB (-63,0)	SBYTE
+\x32	\x01	set_input	Set Input <Data1> = (0=ANALOGUE, 1=DIGITAL, 2=MAIN OUT 3=ADAT1/2, 4=ADAT3/4, 5=ADAT5/6, 6=ADAT7/8)	BYTE
 
-\x07	Set Trigger Source <Data1> = (0=OFF, 1=AUDIO, 2=MIDI)
+\x32	\x02	set_mode	Set Record Mode <Data1> = (0=STEREO, 1=MONO L, 2=MONO R, 3=L/R MIX)	BYTE
 
- BYTE(0, 1) Set Bit Depth <Data1> = (0=16-bit, 1=24-bit)
-\x08
-\x09 Set Pre-recording Time <Data1> = time in ms
- WORD
-\x0A Set Recording Detination <Data1> = (0=RAM, 1=DISK)
- BYTE
- Set Record Name
-\x10 STRING
-\x11 Set Record Name Seed
- STRING
-\x12 BYTE(0, 1) Set Auto-Record Mode <Data1> = (0=OFF, 1=ON)
+\x32	\x03	enable_monitor	Set Record Monitor	BOOL
 
- BYTE(0, 1) Set Auto-Normalise Mode <Data1> = (0=OFF, 1=ON)
-\x13
-\x32
-\x01 BYTE(0 ­ 6) Get Input <Reply> = (0=ANALOGUE, 1=DIGITAL, 2=MAIN OUT,
+\x32	\x04	set_rec_time	Set Record Time <Data1> = time in seconds. If <Data1> = 0, MANUAL mode is enabled.	DWORD
+ 
+\x32	\x05	set_orig_pitch	Set Original Pitch 	BYTE
 
- 3=ADAT1/2, 4=ADAT3/4, 5=ADAT5/6, 6=ADAT7/8.
- BYTE(0 ­ 3) Get Record Mode
-\x02
- <Reply> = (0=STEREO, 1=MONO L, 2=MONO R, 3=L/R MIX)
-\x03 BYTE(0, 1) Get Record Monitor <Reply> = (0=OFF, 1=ON)
+\x32	\x06	set_threshold	Set Threshold <Data1> = threshold in dB (-63,0)	SBYTE
 
-\x04 Get Record Time <Reply> = time in seconds.
- DWORD
- If <Reply> = 0, MANUAL mode is enabled.
- Get Original Pitch
-\x05 BYTE
- SBYTE(-63 ­0)
-\x06 Get Threshold <Reply> = threshold in dB
+\x32	\x07	set_trigger_src	Set Trigger Source (0=OFF, 1=AUDIO, 2=MIDI)	BYTE
 
-\x07 BYTE(0 ­ 2) Get Trigger Source <Reply> = (0=OFF, 1=AUDIO, 2=MIDI)
+\x32	\x08	set_bit_depth	Set Bit Depth <Data1> = (0=16-bit, 1=24-bit)	BYTE
 
- BYTE(0, 1) Get Bit Depth <Reply> = (0=16-bit, 1=24-bit)
-\x08
-\x09 Get Pre-recording Time <Reply> = time in ms
- WORD
-\x0A Get Recording Detination <Reply> = (0=RAM, 1=DISK)
- BYTE
- Get Record Name
-\x10 STRING
-\x11 Get Record Name Seed
- STRING
-\x12 BYTE(0, 1) Get Auto-Record Mode <Reply> = (0=OFF, 1=ON)
+\x32	\x09	set_prerec_time	Set Pre-recording Time <Data1> = time in ms	WORD
 
- BYTE(0, 1) Get Auto-Normalise Mode <Reply> = (0=OFF, 1=ON)
-\x13
+\x32	\x0A	set_dest	Set Recording Detination <Data1> = (0=RAM, 1=DISK)	BYTE
 
+\x32	\x10	set_name	Set Record Name	STRING
+
+\x32	\x11	set_name_seed	Set Record Name Seed	STRING
+
+\x32	\x12	set_autorec_mode	Set Auto-Record Mode <Data1> = (0=OFF, 1=ON)	BOOL
+
+\x32	\x13	set_autonormalize	Set Auto-Normalise Mode <Data1> = (0=OFF, 1=ON)	BOOL
+
+\x33	\x01	get_input	Get Input (0=ANALOGUE, 1=DIGITAL, 2=MAIN OUT, 3=ADAT1/2, 4=ADAT3/4, 5=ADAT5/6, 6=ADAT7/8)
+BYTE
+\x33	\x02	get_mode	Get Record Mode (0=STEREO, 1=MONO L, 2=MONO R, 3=L/R MIX)
+
+\x33	\x03	get_monitor	Get Record Monitor <Reply> = (0=OFF, 1=ON)
+BOOL
+\x33	\x04	get_rec_time	Get Record Time <Reply> = time in seconds.
+DWORD
+\x33	\x05	get_pitch	Get Original Pitch
+BYTE
+\x33	\x06	get_threshold	Get Threshold <Reply> = threshold in dB -63,0
+SBYTE
+\x33	\x07	get_trigger_src	Get Trigger Source <Reply> = (0=OFF, 1=AUDIO, 2=MIDI)
+BYTE
+\x33	\x08	get_bit_depth	Get Bit Depth <Reply> = (0=16-bit, 1=24-bit)
+BYTE
+\x33	\x09	get_prerec_time	Get Pre-recording Time <Reply> = time in ms
+WORD
+\x33	\x0A	get_dest	Get Recording Destination <Reply> = (0=RAM, 1=DISK)
+BYTE
+\x33	\x10	get_name	Get Record Name
+STRING
+\x33	\x11	get_name_seed	Get Record Name Seed
+STRING
+\x33	\x12	get_autorec_mode	Get Auto-Record Mode <Reply> = (0=OFF, 1=ON)
+BOOL
+\x33	\x13	get_autonormalize	Get Auto-Normalise Mode <Reply> = (0=OFF, 1=ON)
+BOOL

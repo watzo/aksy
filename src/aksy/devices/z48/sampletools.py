@@ -13,12 +13,11 @@ class Sampletools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.devices.z48.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
           comm = aksy.devices.z48.sysex.Command('\x1C\x01', 'get_no_items', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x1C\x01'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1C\x02\x00', 'get_handles', (), ())
           self.commands['\x1C\x02\x00'] = comm
-          comm = aksy.devices.z48.sysex.Command('\x1C\x02\x01', 'get_names', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x1C\x02\x01', 'get_names', (), (aksy.devices.z48.sysex.STRINGARRAY,))
           self.commands['\x1C\x02\x01'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1C\x02\x02', 'get_handles_names', (), (aksy.devices.z48.sysex.HANDLENAMEARRAY,))
           self.commands['\x1C\x02\x02'] = comm
@@ -50,7 +49,7 @@ class Sampletools:
           self.commands['\x1C\x0E'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1C\x0F', 'get_tag_bitmap', (), ())
           self.commands['\x1C\x0F'] = comm
-          comm = aksy.devices.z48.sysex.Command('\x1C\x10', 'get_curr_modified', (), (aksy.devices.z48.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x1C\x10', 'get_curr_modified', (), (aksy.devices.z48.sysex.STRINGARRAY,))
           self.commands['\x1C\x10'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1C\x11 ', 'get_modified', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x1C\x11 '] = comm
@@ -114,7 +113,7 @@ class Sampletools:
           self.commands['\x1F\x40'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1F\x41', 'get_region_end', (), (aksy.devices.z48.sysex.QWORD,))
           self.commands['\x1F\x41'] = comm
-          comm = aksy.devices.z48.sysex.Command('\x1F\x42', 'get_region_lenght', (), (aksy.devices.z48.sysex.QWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x1F\x42', 'get_region_length', (), (aksy.devices.z48.sysex.QWORD,))
           self.commands['\x1F\x42'] = comm
           comm = aksy.devices.z48.sysex.Command('\x1F\x44', 'get_no_regions', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x1F\x44'] = comm
@@ -182,6 +181,9 @@ class Sampletools:
 
      def get_names(self):
           """Get sample names
+
+          Returns:
+               aksy.devices.z48.sysex.STRINGARRAY
           """
           comm = self.commands.get('\x1C\x02\x01')
           return self.z48.execute(comm, ())
@@ -298,7 +300,7 @@ class Sampletools:
           """Get name of current item with modified/tagged info
 
           Returns:
-               aksy.devices.z48.sysex.STRING
+               aksy.devices.z48.sysex.STRINGARRAY
           """
           comm = self.commands.get('\x1C\x10')
           return self.z48.execute(comm, ())
@@ -546,7 +548,7 @@ class Sampletools:
           comm = self.commands.get('\x1F\x41')
           return self.z48.execute(comm, ())
 
-     def get_region_lenght(self):
+     def get_region_length(self):
           """Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
 
           Returns:
