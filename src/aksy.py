@@ -39,12 +39,13 @@ class Z48(Z48Sampler):
     MEMORY = 0
     DISK = 1
 
-    def __init__(self):
+    def __init__(self, debug=0):
+        self.debug = debug
         Z48Sampler.__init__(self)
         self.disktools = aksysdisktools.DiskTools(self)
-        self.program_module = program_main.ProgramMain(self)
-        self.sample_module = sample_main.SampleMain(self)
-        self.multi_module = multi_main.MultiMain(self)
+        self.programtools = program_main.ProgramMain(self)
+        self.sampletools = sample_main.SampleMain(self)
+        self.multitools = multi_main.MultiMain(self)
 
     def init(self):
         """Initializes the connection with the sampler
@@ -71,8 +72,7 @@ class Z48(Z48Sampler):
     def get(self, filename, destpath):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
-        # fix this call
-        Z48Sampler._get(self, sysex._to_byte_string(sysex.STRING, filename), destpath + '/' + filename)
+        Z48Sampler._get(self, sysex.STRING.encode(filename), destpath)
 
     def put(self, path, remote_name, destination=MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
@@ -82,11 +82,14 @@ class Z48(Z48Sampler):
 
     def execute(self, command, args, z48id=None, userref=None):
         request = Request(command, args, z48id, userref)
-        sys.stderr.writelines("Request: %s\n" % repr(request))
+        if self.debug:
+            sys.stderr.writelines("Request: %s\n" % repr(request))
         result_bytes = self._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
-        sys.stderr.writelines("Length of reply: %i\n" % len(result_bytes))
+        if self.debug:
+            sys.stderr.writelines("Length of reply: %i\n" % len(result_bytes))
         result = Reply(result_bytes, command.reply_spec, z48id, userref)
-        sys.stderr.writelines("Reply: %s\n" % repr(result))
+        if self.debug:
+            sys.stderr.writelines("Reply: %s\n" % repr(result))
         return result.parse()
 
 class MockZ48(Z48):
