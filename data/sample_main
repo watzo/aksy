@@ -1,13 +1,13 @@
 \x1C	sample_main	Sample Main
 \x01	get_no_items	Get number of items in memory
 BYTE
-\x02\x00	get_handles	Get Sample handles	BYTE
+\x02\x00	get_handles	Get Sample handles
 
-\x02\x01	get_names	Get sample names	BYTE
+\x02\x01	get_names	Get sample names
 
-\x02\x02	get_handles_names	Get list of sample handles and names	BYTE
+\x02\x02	get_handles_names	Get list of sample handles and names
 
-\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
+\x02\x03	get_handles_modified	Get a list of modified/tagged samples
 
 \x03	set_current_by_handle	Select current item by handle	DWORD
 
@@ -35,7 +35,7 @@ DWORD
 
 \x0F	get_tag_bitmap	Get Tag Bitmap
 
-\x10	get_curr_modified	Get name of current item with modified/tagged info
+\x10	get_current_modified	Get name of current item with modified/tagged info
 STRING
 \x11 	get_modified	Get modified state of current item.
 BYTE

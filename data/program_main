@@ -19,7 +19,7 @@ DWORD
 STRING
 \x07	get_name_by_handle	Get item name from handle	DWORD
 STRING
-\x08	get_handle_from_name	Get item handle from name	STRING
+\x08	get_handle_by_name	Get item handle from name	STRING
 DWORD
 \x09	delete_all	Delete ALL items from memory
 
@@ -29,13 +29,13 @@ DWORD
 
 \x0C	rename_current	Rename current item	STRING
 
-\x0D	rename__by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
 
 \x0E	tag	Set Tag Bit <Data1> = bit to set(0-7), <Data2> = (0=OFF, 1=ON), Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
 
 \x0F	get_tag_bitmap	Get Tag Bitmap
 WORD
-\x10	get_current_modified	Get name of current item with modified/tagged info.
+\x10	get_modified	Get name of current item with modified/tagged info.
 
 \x11	get_modified	Get modified state of current item.
 BYTE

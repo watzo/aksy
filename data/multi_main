@@ -9,9 +9,9 @@ STRING
 DWORD	STRING
 \x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
 DWORD	STRING
-\x03	set_current	Select by handle	DWORD
+\x03	set_current_by_handle	Select by handle	DWORD
 
-\x04	set_by_name	Select by name	STRING
+\x04	set_current_by_name	Select by name	STRING
 
 \x05	get_current_handle	Get current handle 
 DWORD
