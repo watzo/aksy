@@ -1,0 +1,25 @@
+\x17	program_get_param	Program Get Parameter
+\x 01	Get Group ID
+BYTE
+\x03	Get Program Type <Reply> = (0=KEYGROUP, 1=DRUM)
+BYTE
+\x04	Get Genre
+STRING
+\x08	Get Program Number <Reply1> = (0=OFF, 1­128)
+WORD
+\x09	Get Number of keygroups
+WORD
+\x0A	Get Keygroup Crossfade <Reply1> = (0=OFF, 1=ON)
+BYTE
+\x0B	Get Keygroup Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
+BYTE
+\x0C	Get Program Level <Reply1> = level in 10×dB
+SWORD
+\x10	Get Polyphony
+BYTE
+\x11	Get Reassignment <Reply1> = (0=QUIETEST, 1=OLDEST)
+BYTE
+\x12	Soft Pedal Loudness Reduction
+BYTE
+\x13	Soft Pedal Attack Stretch
+BYTE

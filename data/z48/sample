@@ -1,0 +1,151 @@
+\x1C	\x1C	sample	Sample
+\x1C	\x01	get_no_items	Get number of items in memory
+BYTE
+\x1C	\x02\x00	get_handles	Get Sample handles
+
+\x1C	\x02\x01	get_names	Get sample names
+
+\x1C	\x02\x02	get_handles_names	Get list of sample handles and names
+
+\x1C	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
+
+\x1C	\x03	set_current_by_handle	Select current item by handle	DWORD
+
+\x1C	\x04	set_current_by_name	Select current item by name	STRING
+
+\x1C	\x05	get_current_handle	Get handle of current item
+DWORD
+\x1C	\x06	get_current_name	Get name of current item
+STRING
+\x1C	\x07	get_name_by_handle	Get item name from handle	DWORD
+STRING
+\x1C	\x08	get_handle_by_name	Get item handle from name	STRING
+DWORD
+\x1C	\x09	delete_all	Delete ALL items from memory
+
+\x1C	\x0A	delete_current	Delete current item from memory
+
+\x1C	\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
+
+\x1C	\x0C	rename_current	Rename current item	STRING
+
+\x1C	\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+
+\x1C	\x0E	set_tag_bit	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
+
+\x1C	\x0F	get_tag_bitmap	Get Tag Bitmap
+
+\x1C	\x10	get_curr_modified	Get name of current item with modified/tagged info
+STRING
+\x1C	\x11 	get_modified	Get modified state of current item.
+BYTE
+\x1C	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
+
+\x1C	\x40	play	Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING)	BYTE	BOOL
+
+\x1C	\x41	stop	Stop playback of the current sample
+
+\x1C	\x42	play_until	Play To <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+
+\x1C	\x43 	play_from	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+
+\x1C	\x44	play_over	Play Over <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+
+\x1C	\x45	play_loop	Play Loop <Data1> = velocity, <Data2> = loop index	BYTE	BYTE
+
+\x1C	\x46	play_region	Play Region <Data1> = velocity, <Data2> = region index	BYTE	BYTE
+
+\x1C	\x48	create_loop	Create New Loop
+
+\x1C	\x49	delete_loop	Delete Loop <Data1> = index	BYTE
+
+\x1C	\x4A	create_region	Create Region
+
+\x1C	\x4B	delete_region	Delete Region <Data1> = index	BYTE
+
+\x1F	\x01	get_group_id	Get Group ID
+BYTE
+\x1F	\x20	get_trim_start	Get Trim Start
+QWORD
+\x1F	\x21	get_trim_end	Get Trim End
+QWORD
+\x1F	\x22	get_trim_length	Get Trim Length
+QWORD
+\x1F	\x24	get_orig_pitch	Get Original Pitch
+BYTE
+\x1F	\x25	get_cents_tune	Get Cents Tune (0 ­ ± 36 00)
+SWORD
+\x1F	\x26	get_playback_mode	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
+BYTE
+\x1F	\x30	get_loop_start	Get Loop Start <Data1> = loop index	BYTE
+QWORD
+\x1F	\x31	get_loop_end	Get Loop End <Data1> = loop index	BYTE
+QWORD
+\x1F	\x32	get_loop_length	Get Loop Length <Data1> = loop index	BYTE
+QWORD
+\x1F	\x33	get_loop_lock	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BOOL
+BYTE
+\x1F	\x34	get_loop_tune	Get Loop Tune (0­±50)	BYTE
+SBYTE
+\x1F	\x35	get_loop_dir	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BOOL
+BYTE
+\x1F	\x36	get_loop_type	Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE
+BYTE
+\x1F	\x37	get_no_loop_reps	Get Number of Loop Repetitions	BYTE
+BYTE
+\x1F	\x38	get_no_loops	Get Number of Loops
+BYTE
+\x1F	\x40	get_region_start	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
+QWORD
+\x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
+QWORD
+\x1F	\x42	get_region_lenght	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
+QWORD
+\x1F	\x44	get_no_regions	Get Number of Regions
+BYTE
+\x1F	\x50	get_sample_length	Get Sample Length
+QWORD
+\x1F	\x51	get_sample_rate	Get Sample Rate [Hz]
+DWORD
+\x1F	\x52	get_bit_depth	Get Sample Bit-Depth [bits]
+BYTE
+\x1F	\x54	get_sample_type	Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
+BOOL
+\x1F	\x55	get_no_channels	Get Number of Channels
+BYTE
+\x1E	\x01	Set Group ID	BYTE
+
+\x1E	\x20	Set Trim Start	QWORD
+
+\x1E	\x21	Set Trim End	QWORD
+
+\x1E	\x22	Set Trim Length	QWORD
+
+\x1E	\x24	Set Original Pitch	BYTE
+
+\x1E	\x25	Set Cents Tune	SWORD
+
+\x1E	\x26	Set Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
+
+\x1E	\x30	Set Loop Start <Data1> = loop index	BYTE	QWORD
+
+\x1E	\x31	Set Loop End	BYTE	QWORD
+
+\x1E	\x32	Set Loop Length	BYTE	QWORD
+
+\x1E	\x33	Set Loop Lock <Data1> = (0=OFF, 1=ON)	BYTE	BOOL
+
+\x1E	\x34	Set Loop Tune (0­±50)	BYTE	SBYTE
+
+\x1E	\x35	Set Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BYTE	BYTE
+
+\x1E	\x36	Set Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE	BYTE
+
+\x1E	\x37	Set Number of Loop Repetitions (0=INFINITE)	BYTE	BYTE
+
+\x1E	\x40	Set Region Start <Data1> = Region Num, <Data2> = start	BYTE	QWORD
+
+\x1E	\x41	Set Region End <Data1> = Region Num <Data2> = end	BYTE	QWORD
+
+\x1E	\x42	Set Region Length <Data1> = Region Num <Data2> = length	BYTE	QWORD
+

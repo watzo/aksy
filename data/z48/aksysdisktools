@@ -1,0 +1,44 @@
+\x10	disktools	Methods to manipulate the samplers filesystem
+\x01	update_disklist	Update the list of disks connected
+
+\x02	select_disk	Select Disk <Data1> = Disk Handle	WORD
+
+\x03	test_disk	Test if the disk is valid <Data1> = Disk Handle	WORD
+
+\x04	get_no_disks	Get the number of disks connected
+BYTE
+\x05	get_disklist	Get list of all connected disks
+WORD	BYTE	BYTE	BYTE	BYTE	STRING
+\x09	get_curr_path	Get current path of current disk
+STRING
+\x0D	eject_disk	Eject Disk <Data1> = Disk Handle	WORD
+
+\x10	get_no_subfolders	Get number of sub-folders in the current folder.
+WORD
+\x12	get_subfolder_names	Get the names of all of the sub-folders in the current folder.
+STRING
+\x13	set_curr_folder	Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)	STRING
+
+\x15	load_folder	Load Folder: the selected folder, and all its contents (including subfolders)	STRING
+
+\x16	create_subfolder	Create Folder: Creates a sub-folder in the currently selected folder.	STRING
+
+\x17	delete_subfolder	Delete Sub-Folder.	STRING
+
+\x18	rename_subfolder	Rename Folder: <Data1> = name of folder to rename	STRING	STRING
+
+\x20	get_no_files	Get number of files in the current folder.
+WORD
+\x22	get_filenames	Get the names of all of the files in the current folder.
+STRING
+\x28	rename_file	Rename File	STRING	STRING
+
+\x29	delete_file	Delete File. <Data1> = name of file to delete.	STRING
+
+\x2A	load_file	Load File <Data1> = name of file to load.	STRING
+
+\x2B	load_file_and_deps	Load File <Data1> = name of file to load. Will load the dependents as well	STRING
+
+\x2C	save	Save Memory Item to Disk <Data1> = Handle of Memory Item <Data2> = Type = (1=Multi; 2=Program; 3=Sample; 4=SMF) <Data3> = (0=Skip if file exists; 1=Overwrite existing files) <Data4> = (0=Don't save children; 1=Save Children)	DWORD	BYTE	BOOL	BYTE 
+
+\x2D	save_all	Save All Memory Items to Disk <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF) <Data2> = (0=Skip if file exists; 1=Overwrite existing files)	BYTE	BOOL 

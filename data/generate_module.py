@@ -1,5 +1,5 @@
-import sys, os, StringIO
-import sysex
+import sys, os, os.path, StringIO
+import aksy.sysex
 
 def _arglist_helper(arglist):
     """Creates correct string rep 
@@ -23,8 +23,8 @@ def classname_helper(section_name):
 
 # could use ljust etc...
 indent_block = "     "
-sysex_module_name = 'sysex'
-z48_instance_name = 'z48'
+sysex_module_name = 'aksy.sysex'
+sampler_name = 'z48'
 
 generate_methods = None
 file_in_name = sys.argv[1]
@@ -52,7 +52,7 @@ file_out.writelines( "%s\n" % preamble)
 file_out.writelines( "import %s\n\n" % sysex_module_name ) 
 file_out.writelines( "class %s:\n" % classname_helper(section_name))
 file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
-file_out.writelines( "%sself.z48 = z48\n" % (indent_block*2))
+file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, sampler_name, sampler_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 
 methods = StringIO.StringIO()
@@ -111,14 +111,14 @@ while line:
             % (indent_block*2, section_id, id))
 
         if custom_request:
-            extra_args = ', sysex.AKSYS_Z48_ID'
+            extra_args = ', ' +  sysex_module_name + "." + 'AKSYS_Z48_ID'
         else: extra_args = ''
-        methods.writelines( "%sreturn self.%s.execute(comm, %s%s)\n\n" % (indent_block*2, z48_instance_name, '('+ ', '.join(comm_args) + ')',extra_args))
+        methods.writelines( "%sreturn self.%s.execute(comm, %s%s)\n\n" % (indent_block*2, sampler_name, '('+ ', '.join(comm_args) + ')',extra_args))
 
         # put the command in a dict with tuple key (section_id, id) 
         file_out.writelines( 
-            "%scomm = sysex.Command('%s','%s', '%s', %s, %s)\n" \
-            % ((indent_block*2), section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
+            "%scomm = %s.Command('%s','%s', '%s', %s, %s)\n" \
+            % ((indent_block*2), sysex_module_name, section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
 
         file_out.writelines("%sself.commands[('%s', '%s')] = comm\n" % ((indent_block*2), section_id, id))
     except IndexError, e:
@@ -132,4 +132,4 @@ file_in.close()
 file_out.writelines("\n%s" % methods.getvalue())
 methods.close()
 file_out.close()
-os.renames(destfile, '../src/' + destfile) 
+os.renames(destfile, os.path.join('..','src', 'aksy', sampler_name, destfile))

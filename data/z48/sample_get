@@ -1,0 +1,50 @@
+\x1F	\x01	get_group_id	Get Group ID
+BYTE
+\x1F	\x20	get_trim_start	Get Trim Start
+QWORD
+\x1F	\x21	get_trim_end	Get Trim End
+QWORD
+\x1F	\x22	get_trim_length	Get Trim Length
+QWORD
+\x1F	\x24	get_orig_pitch	Get Original Pitch
+BYTE
+\x1F	\x25	get_cents_tune	Get Cents Tune (0 ­ ± 36 00)
+SWORD
+\x1F	\x26	get_playback_mode	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
+BYTE
+\x1F	\x30	get_loop_start	Get Loop Start <Data1> = loop index	BYTE
+QWORD
+\x1F	\x31	get_loop_end	Get Loop End <Data1> = loop index	BYTE
+QWORD
+\x1F	\x32	get_loop_length	Get Loop Length <Data1> = loop index	BYTE
+QWORD
+\x1F	\x33	get_loop_lock	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BOOL
+BYTE
+\x1F	\x34	get_loop_tune	Get Loop Tune (0­±50)	BYTE
+SBYTE
+\x1F	\x35	get_loop_dir	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BOOL
+BYTE
+\x1F	\x36	get_loop_type	Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE
+BYTE
+\x1F	\x37	get_no_loop_reps	Get Number of Loop Repetitions	BYTE
+BYTE
+\x1F	\x38	get_no_loops	Get Number of Loops
+BYTE
+\x1F	\x40	get_region_start	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
+QWORD
+\x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
+QWORD
+\x1F	\x42	get_region_lenght	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
+QWORD
+\x1F	\x44	get_no_regions	Get Number of Regions
+BYTE
+\x1F	\x50	get_sample_length	Get Sample Length
+QWORD
+\x1F	\x51	get_sample_rate	Get Sample Rate [Hz]
+DWORD
+\x1F	\x52	get_bit_depth	Get Sample Bit-Depth [bits]
+BYTE
+\x1F	\x54	get_sample_type	Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
+BOOL
+\x1F	\x55	get_no_channels	Get Number of Channels
+BYTE

@@ -1,0 +1,65 @@
+\x1C	sample_main	Sample Main
+\x01	get_no_items	Get number of items in memory
+BYTE
+\x02\x00	get_handles	Get Sample handles
+
+\x02\x01	get_names	Get sample names
+
+\x02\x02	get_handles_names	Get list of sample handles and names
+
+\x02\x03	get_handles_modified	Get a list of modified/tagged samples
+
+\x03	set_current_by_handle	Select current item by handle	DWORD
+
+\x04	set_current_by_name	Select current item by name	STRING
+
+\x05	get_current_handle	Get handle of current item
+DWORD
+\x06	get_current_name	Get name of current item
+STRING
+\x07	get_name_by_handle	Get item name from handle	DWORD
+STRING
+\x08	get_handle_by_name	Get item handle from name	STRING
+DWORD
+\x09	delete_all	Delete ALL items from memory
+
+\x0A	delete_current	Delete current item from memory
+
+\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
+
+\x0C	rename_current	Rename current item	STRING
+
+\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+
+\x0E	set_tag_bit	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
+
+\x0F	get_tag_bitmap	Get Tag Bitmap
+
+\x10	get_current_modified	Get name of current item with modified/tagged info
+STRING
+\x11 	get_modified	Get modified state of current item.
+BYTE
+\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
+
+\x40	play	Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING)	BYTE	BOOL
+
+\x41	stop	Stop playback of the current sample
+
+\x42	play_until	Play To <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+
+\x43 	play_from	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+
+\x44	play_over	Play Over <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+
+\x45	play_loop	Play Loop <Data1> = velocity, <Data2> = loop index	BYTE	BYTE
+
+\x46	play_region	Play Region <Data1> = velocity, <Data2> = region index	BYTE	BYTE
+
+\x48	create_loop	Create New Loop
+
+\x49	delete_loop	Delete Loop <Data1> = index	BYTE
+
+\x4A	create_region	Create Region
+
+\x4B	delete_region	Delete Region <Data1> = index	BYTE
+

@@ -8,4 +8,4 @@
 0.2:
 - extended view for multis, programs and samples
 - Editors for multis, programs and some basic functionality for samples
-
+- script window support
