@@ -1,4 +1,4 @@
-\x1C	\x1C	sample	Sample
+sampletools	Sample
 \x1C	\x01	get_no_items	Get number of items in memory
 BYTE
 \x1C	\x02\x00	get_handles	Get Sample handles
@@ -113,39 +113,39 @@ BYTE
 BOOL
 \x1F	\x55	get_no_channels	Get Number of Channels
 BYTE
-\x1E	\x01	Set Group ID	BYTE
+\x1E	\x01	set_group_id	Set Group ID	BYTE
 
-\x1E	\x20	Set Trim Start	QWORD
+\x1E	\x20	set_trim_start	Set Trim Start	QWORD
 
-\x1E	\x21	Set Trim End	QWORD
+\x1E	\x21	set_trim_end	Set Trim End	QWORD
 
-\x1E	\x22	Set Trim Length	QWORD
+\x1E	\x22	set_trim_length	Set Trim Length	QWORD
 
-\x1E	\x24	Set Original Pitch	BYTE
+\x1E	\x24	set_orig_pitch	Set Original Pitch	BYTE
 
-\x1E	\x25	Set Cents Tune	SWORD
+\x1E	\x25	set_tune	Set Cents Tune	SWORD
 
-\x1E	\x26	Set Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
+\x1E	\x26	set_playback_mode	Set Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
 
-\x1E	\x30	Set Loop Start <Data1> = loop index	BYTE	QWORD
+\x1E	\x30	set_loop_start	Set Loop Start <Data1> = loop index	BYTE	QWORD
 
-\x1E	\x31	Set Loop End	BYTE	QWORD
+\x1E	\x31	set_loop_end	Set Loop End	BYTE	QWORD
 
-\x1E	\x32	Set Loop Length	BYTE	QWORD
+\x1E	\x32	set_loop_length	Set Loop Length	BYTE	QWORD
 
-\x1E	\x33	Set Loop Lock <Data1> = (0=OFF, 1=ON)	BYTE	BOOL
+\x1E	\x33	set_loop_lock	Set Loop Lock <Data1> = (0=OFF, 1=ON)	BYTE	BOOL
 
-\x1E	\x34	Set Loop Tune (0­±50)	BYTE	SBYTE
+\x1E	\x34	set_loop_tune	Set Loop Tune (0­±50)	BYTE	SBYTE
 
-\x1E	\x35	Set Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BYTE	BYTE
+\x1E	\x35	set_loop_direction	Set Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BYTE	BYTE
 
-\x1E	\x36	Set Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE	BYTE
+\x1E	\x36	set_loop_type	Set Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE	BYTE
 
-\x1E	\x37	Set Number of Loop Repetitions (0=INFINITE)	BYTE	BYTE
+\x1E	\x37	set_no_loop_repetitions	Set Number of Loop Repetitions (0=INFINITE)	BYTE	BYTE
 
-\x1E	\x40	Set Region Start <Data1> = Region Num, <Data2> = start	BYTE	QWORD
+\x1E	\x40	set_region_start	Set Region Start <Data1> = Region Num, <Data2> = start	BYTE	QWORD
 
-\x1E	\x41	Set Region End <Data1> = Region Num <Data2> = end	BYTE	QWORD
+\x1E	\x41	set_region_end	Set Region End <Data1> = Region Num <Data2> = end	BYTE	QWORD
 
-\x1E	\x42	Set Region Length <Data1> = Region Num <Data2> = length	BYTE	QWORD
+\x1E	\x42	set_region_length	Set Region Length <Data1> = Region Num <Data2> = length	BYTE	QWORD
 

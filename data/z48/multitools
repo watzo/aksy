@@ -1,0 +1,89 @@
+multitools	Methods to manipulate multis
+\x18	\x01	get_no_items	Get number of items in memory
+BYTE
+\x18	\x02\x00	get_handles	Get handles <Data1>: 0=list of handles
+DWORD
+\x18	\x02\x01	get_names	Get names items: <Data1>; 1=list of names; 
+STRING
+\x18	\x02\x02	get_handles_names	Get handles names: <Data1>; 2=list of handle+name
+DWORD	STRING
+\x18	\x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
+DWORD	STRING
+\x18	\x03	set_current_by_handle	Select by handle	DWORD
+
+\x18	\x04	set_current_by_name	Select by name	STRING
+
+\x18	\x05	get_current_handle	Get current handle 
+DWORD
+\x18	\x06	get_current_name	Get name of current item
+STRING
+\x18	\x07	get_name_by_handle	Get item name from handle	DWORD
+STRING
+\x18	\x08	get_handle_by_name	Get item handle from name	STRING
+DWORD
+\x18	\x09	delete_all	Delete ALL items from memory
+
+\x18	\x0A	delete_current	Delete current item from memory
+
+\x18	\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
+
+\x18	\x0C	rename_current	Rename current item	STRING
+
+\x18	\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+
+\x18	\x0E	tag	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE	BYTE
+
+\x18	\x0F	get_tag_bitmap	Get Tag Bitmap
+WORD
+\x18	\x10	get_current_modified	Get name of current item with modified/tagged info.
+STRING
+\x1B	\x01	get_group_id	Get Group ID
+BYTE
+\x1B	\x02	get_multi_select_method	Get Multi Select <Reply1> = (0=OFF, 1=BANK, 2=PROG CHANGE)
+BYTE
+\x1B	\x03	get_multi_select_channel	Get Multi Select Channel <Reply1> = (1A=0, 2A=1, ..., 16B=31)
+BYTE
+\x1B	\x04	get_multi_tempo	Get Multi Tempo <Reply> = 10×bpm
+WORD
+\x1B	\x08	get_multi_program_no	Get Multi Program Number
+WORD
+\x1B	\x09	get_multi_part_handle	Get Multi Part handle. <Data1> = Part Number;<Reply> = Handle of program>	DWORD
+BYTE
+\x1B	\x0A	get_multi_part_name	Get Multi Part name. <Data1> = Part Number; <Reply> = Name of part	BYTE
+STRING
+\x1B	\x0F	get_no_parts	Get Number of Parts. <Reply> = new number of parts
+WORD
+\x1B	\x10	get_part_midi_channel	Get Part MIDI Channel, (Data1 = Part Number-1a) <Reply> = (1A=0, 2A=1, ..., 16B=31)	BYTE
+BYTE
+\x1B	\x11	get_part_mute	Get Part Mute, <Reply> = (0=OFF, 1=ON)	BYTE
+BYTE
+\x1B	\x12	get_part_solo	Get Part Solo, <Reply> = (0=OFF, 1=ON)	BYTE
+BYTE
+\x1B	\x13	get_part_level	Get Part Level, <Reply> = PartLevel in 10×dB
+SWORD
+\x1B	\x14	get_part_output	Get Part Output, <Reply> = (Output: 0	= L/R; 1­4 = op1/2­op7/8; 5­14 = L, R, op1-op8)	BYTE
+BYTE
+\x1B	\x15	get_part_pan	Get Part Pan/Balance, <Reply> = Pan/Bal (0­100 = L50­R50); centre=50	BYTE
+BYTE
+\x1B	\x16	get_part_fx_channel	Get Part Effects Channel: Reply = (0=OFF, 1=FX1, 2=FX2, 3=RV3, 4=RV4)	BYTE
+BYTE
+\x1B	\x17	get_part_fx_send_level	Get Part FX Send Level <Reply> = level in 10×dB
+SWORD
+\x1B	\x18	get_part_tune	Get Part Cents Tune	BYTE
+SWORD
+\x1B	\x1A	get_part_low_note	Get Part Low Note	BYTE
+BYTE
+\x1B	\x1B	get_part_high_note	Get Part High Note	BYTE
+BYTE
+\x1A	\x01	set_group_id	Set Group ID	BYTE
+
+\x1A	\x02	set_multi_select_method	Set Multi Select <Data1> = (0=OFF, 1=BANK, 2=PROG CHANGE)	BYTE
+
+\x1A	\x03	set_multi_select_channel	Set Multi Select Channel <Data1> = (1A=0, 2A=1, ..., 16B=31)	BYTE
+
+\x1A	\x04	set_multi_tempo	Set Multi Tempo <Data1> = 10×bpm	WORD
+
+\x1A	\x08	set_multi_program_no	Set Multi Program Number Data1: (0=OFF, 1­128)	BYTE
+
+\x1A	\x09	set_multi_part_by_handle	Set Multi Part by handle <Data1> = Part Number; <Data2> = Handle of program	BYTE	DWORD
+

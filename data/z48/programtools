@@ -1,0 +1,115 @@
+programtools	Methods to manipulate sampler programs
+\x14	\x01	get_no_items	Get number of items in memory
+
+\x14	\x02\x00	get_handles	Get list of info for all items: 0=list of handles;
+DWORD
+\x14	\x02\x01	get_names	Get list of info for all items: 1=list of names
+STRING
+\x14	\x02\x02	get_handles_names	Get list of info for all items: 2=list of handle+name;
+DWORD	STRING
+\x14	\x02\x03	get_modified	Get list of info for all items: 3=list of handle+modified/tagged name
+DWORD	STRING
+\x14	\x03	set_current_by_handle	Select current item by handle	DWORD
+
+\x14	\x04	set_current_by_name	Select current item by name	STRING
+
+\x14	\x05	get_current_handle	Get handle of current item
+DWORD
+\x14	\x06	get_current_name	Get name of current item
+STRING
+\x14	\x07	get_name_by_handle	Get item name from handle	DWORD
+STRING
+\x14	\x08	get_handle_by_name	Get item handle from name	STRING
+DWORD
+\x14	\x09	delete_all	Delete ALL items from memory
+
+\x14	\x0A	delete_current	Delete current item from memory
+
+\x14	\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
+
+\x14	\x0C	rename_current	Rename current item	STRING
+
+\x14	\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+
+\x14	\x0E	tag	Set Tag Bit <Data1> = bit to set(0-7), <Data2> = (0=OFF, 1=ON), Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
+
+\x14	\x0F	get_tag_bitmap	Get Tag Bitmap
+WORD
+\x14	\x10	get_modified	Get name of current item with modified/tagged info.
+
+\x14	\x11	get_modified	Get modified state of current item.
+BYTE
+\x14	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE
+
+\x14	\x40	create_new	Create New Program <Data1> = number of keygroups;<Data2> = name.	WORD	STRING
+
+\x14	\x41	add_keygroups_to_current	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE
+
+\x17	\x01	get_group_id	Get Group ID
+BYTE
+\x17	\x03	get_type	Get Program Type <Reply> = (0=KEYGROUP, 1=DRUM)
+BYTE
+\x17	\x04	get_genre	Get Genre
+STRING
+\x17	\x08	get_program_no	Get Program Number <Reply1> = (0=OFF, 1­128)
+WORD
+\x17	\x09	get_no_keygroups	Get Number of keygroups
+WORD
+\x17	\x0A	get_keygroup_xfade	Get Keygroup Crossfade <Reply1> = (0=OFF, 1=ON)
+BYTE
+\x17	\x0B	get_keygroup_xfade_type	Get Keygroup Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
+BYTE
+\x17	\x0C	get_level	Get Program Level <Reply1> = level in 10×dB
+SWORD
+\x17	\x10	get_polyphony	Get Polyphony
+BYTE
+\x17	\x11	get_reassignment_method	Get Reassignment <Reply1> = (0=QUIETEST, 1=OLDEST)
+BYTE
+\x17	\x12	get_softpedal_loudness_reduction	Soft Pedal Loudness Reduction
+BYTE
+\x17	\x13	get_softpedal_attack_stretch	Soft Pedal Attack Stretch
+BYTE
+\x16	\x01	set_group_id	Set Group ID	BYTE
+
+\x16	\x03	set_type	Set Program Type <Data1> = (0=KEYGROUP, 1=DRUM)	BYTE
+
+\x16	\x04	set_genre	Set Genre	STRING
+
+\x16	\x08	set_program_no	Set Program Number <Data1> = (0=OFF, 1­128)	WORD
+
+\x16	\x09	set_no_keygroups	Set Number of keygroups	WORD
+
+\x16	\x0A	set_keygroup_xfade	Set Keygroup Crossfade <Data1> = (0=OFF, 1=ON)	BYTE
+
+\x16	\x0B	set_keygroup_xfade_type	Set Keygroup Crossfade type <Data1> = (0=LIN, 1=EXP, 2=LOG)	BYTE
+
+\x16	\x0C	set_level	Set Program Level <Data1> = level in 10×dB (-600 ­ +60)	SWORD
+                       
+\x16	\x10	set_polyphony	Set Polyphony	BYTE
+
+\x16	\x11	set_reassignment_method	Set Reassignment <Data1> = (0=QUIETEST, 1=OLDEST)	BYTE
+
+\x16	\x12	set_softpedal_loudness_reduction	Soft Pedal Loudness Reduction
+
+\x16	\x13	set_softpedal_attack_stretch	Soft Pedal Attack Stretch	BYTE
+
+\x16	\x14	set_softpedal_filter_close	Soft Pedal Filter Close	BYTE
+
+\x16	\x15	set_midi_transpose	Midi Transpose (-36 ­ +36)	SBYTE
+
+\x16	\x18	set_mpc_pad_assignment	MPC pad assignment <Data1> = pad, <Data2> = note	BYTE	BYTE
+
+\x16	\x20	set_modulation_conn	Set Modulation Connection <Data1> = connection (pin) number;<Data2> = keygroup number (0=ALL, 1­128=KEYGROUP) <Data3> = source (see Table 24); <Data4> = destination (see Table 25); <Data5> = level.  If Source or Destination is zero, the connection will be cleared.	BYTE	WORD	WORD	WORD	SBYTE 
+
+\x16	\x21	set_modulation_src	Set Modulation Source (see Table 24)	BYTE	WORD
+
+\x16	\x22	set_modulation_dest	Set Modulation Destination (see Table 25)	BYTE	WORD
+
+\x16	\x23	set_modulation_level	Set Modulation Level <Data1> = pin number; <Data2> = (0=ALL, 1­128=KEYGROUP); <Data3> = level	BYTE	WORD	SBYTE
+
+\x16	\x24	set_midi_ctrl_no	Set MIDI controller number (only used if Source = CTRL)	BYTE	BYTE
+
+\x16	\x25	set_edit_keygroup	Set Edit Keygroup (used to edit level) <Data2> = Edit Keygroup	BYTE	WORD
+
+\x16	\x26	set_edit_kegyroup_modulation_level	Set Modulation Level of Edit Keygroup	BYTE	BYTE
+
