@@ -158,7 +158,6 @@ class Folder(File):
         """
         self.disktools = disktools
         self.path = path
-        self.name = path[-1]
         self.type = File.FOLDER
         self.children = []
 
@@ -187,6 +186,9 @@ class Folder(File):
         return (len(self.children) > 0 or self.disktools.get_no_files() > 0 or
             self.disktools.get_no_subfolders() > 0)
         
+    def get_name(self):
+        return self.path[-1]
+
     def set_current(self):
         print "Current folder before set_current: %s" % self.disktools.get_curr_path()
         for item in self.path:
@@ -195,21 +197,33 @@ class Folder(File):
 
     def rename(self, new_name):
         self.get_parent().set_current()
-        self.disktools.rename_subfolder(new_name)
+        self.disktools.rename_subfolder(self.get_name(), new_name)
+        self.path = self.path[:-1] + (new_name,)
 
     def load(self):
         """
         """
-        self.disktools.load_folder(self.path)
+        self.get_parent().set_current()
+        self.disktools.load_folder(self.get_name())
         return self
 
     def delete(self):
         """
         """
+        self.get_parent().set_current()
+        self.disktools.delete_subfolder(self.get_name())
+        # could be optimized by using dicts instead of lists
+        for item in self.get_parent().get_children():
+            if item.get_name() == self.get_name():
+               del item
+               break
 
-    def create_subfolder(self):
+    def create_subfolder(self, name):
         """
         """
+        self.get_parent().set_current()
+        self.disktools.create_subfolder(name)
+        self.children.append(Folder(self.disktools, self.path + (name,)))
 
     def transfer(self, path):
         """Transfer the folder to host 

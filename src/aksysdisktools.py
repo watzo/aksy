@@ -43,7 +43,7 @@ class DiskTools:
         self.commands[('\x10', '\x16')] = comm
         comm = sysex.Command('\x10','\x17', 'del_subfolder', (sysex.STRING,), ())
         self.commands[('\x10', '\x17')] = comm
-        comm = sysex.Command('\x10','\x18', 'rename_subfolder', (sysex.STRING,), ())
+        comm = sysex.Command('\x10','\x18', 'rename_subfolder', (sysex.STRING,sysex.STRING), ())
         self.commands[('\x10', '\x18')] = comm
         comm = sysex.Command('\x10','\x20', 'get_no_files', (), (sysex.WORD,))
         self.commands[('\x10', '\x20')] = comm
@@ -180,14 +180,14 @@ class DiskTools:
          comm = self.commands.get(('\x10','\x17'))
          return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def rename_subfolder(self,arg0):
+    def rename_subfolder(self,arg0, arg1):
          """Rename Folder: <Data1> = name of folder to rename
 
          Returns:
                    
          """
          comm = self.commands.get(('\x10','\x18'))
-         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         return self.z48.execute(comm, (arg0,arg1), sysex.AKSYS_Z48_ID)
 
     def get_no_files(self):
          """Get number of files in the current folder.
@@ -207,12 +207,12 @@ class DiskTools:
          comm = self.commands.get(('\x10','\x22'))
          return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def rename_file(self,arg0):
+    def rename_file(self,arg0, arg1):
          """ Rename File 
 
          """
          comm = self.commands.get(('\x10','\x28'))
-         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         return self.z48.execute(comm, (arg0,arg1), sysex.AKSYS_Z48_ID)
 
     def delete_file(self,arg0):
          """Delete File. <Data1> = name of file to delete.
