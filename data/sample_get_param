@@ -1,4 +1,4 @@
-\x1F	Sample Parameter Get
+\x1F	Sample	Parameter Get
 \x01	Get Group ID
 BYTE
 \x20	Get Trim Start
@@ -19,11 +19,33 @@ QWORD
 QWORD
 \x32	Get Loop Length <Data1> = loop index	BYTE
 QWORD
-\x33	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BYTE
+\x33	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BOOL
 BYTE
 \x34	Get Loop Tune (0­±50)	BYTE
 SBYTE
-\x35	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BYTE
+\x35	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BOOL
 BYTE
 \x36	Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE
+BYTE
+\x37	Get Number of Loop Repetitions	BYTE
+BYTE
+\x38	Get Number of Loops
+BYTE
+\x40	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
+QWORD
+\x41	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
+QWORD
+\x42	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
+QWORD
+\x44	Get Number of Regions
+BYTE
+\x50	Get Sample Length
+QWORD
+\x51	Get Sample Rate [Hz]
+DWORD
+\x52	Get Sample Bit-Depth [bits]
+BYTE
+\x54	Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
+BOOL
+\x55	Get Number of Channels
 BYTE
