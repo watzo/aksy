@@ -1,6 +1,6 @@
 sampletools	Sample
 \x1C	\x01	get_no_items	Get number of items in memory
-BYTE
+DWORD
 \x1C	\x02\x00	get_handles	Get Sample handles
 
 \x1C	\x02\x01	get_names	Get sample names
@@ -75,7 +75,7 @@ QWORD
 BYTE
 \x1F	\x25	get_cents_tune	Get Cents Tune (0 ­ ± 36 00)
 SWORD
-\x1F	\x26	get_playback_mode	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
+\x1F	\x26	get_playback_mode	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
 BYTE
 \x1F	\x30	get_loop_start	Get Loop Start <Data1> = loop index	BYTE
 QWORD
@@ -97,9 +97,9 @@ BYTE
 BYTE
 \x1F	\x40	get_region_start	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
 QWORD
-\x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end
+\x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end	BYTE
 QWORD
-\x1F	\x42	get_region_length	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length
+\x1F	\x42	get_region_length	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length BYTE
 QWORD
 \x1F	\x44	get_no_regions	Get Number of Regions
 BYTE
@@ -141,7 +141,7 @@ BYTE
 
 \x1E	\x36	set_loop_type	Set Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)	BYTE	BYTE
 
-\x1E	\x37	set_no_loop_repetitions	Set Number of Loop Repetitions (0=INFINITE)	BYTE	BYTE
+\x1E	\x37	set_no_loop_reps	Set Number of Loop Repetitions (0=INFINITE)	BYTE
 
 \x1E	\x40	set_region_start	Set Region Start <Data1> = Region Num, <Data2> = start	BYTE	QWORD
 
