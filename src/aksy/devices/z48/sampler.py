@@ -1,6 +1,6 @@
 from aksyxusb import Z48Sampler
-from aksy.sysex import Request, Reply, CommandSpec
-from aksy.devices.z48 import disktools, programtools, multitools, sampletools
+from sysex import Request, Reply
+import disktools, programtools, multitools, sampletools, systemtools
 from aksy import model
 import struct
 import sys,time
@@ -9,7 +9,7 @@ class Sampler(Z48Sampler):
     """Models a Z4 or Z8 sampler.
 
     You can use it like this:
-    >>> z = Z48()
+    >>> z = Sampler()
     >>> z.init()
     >>> z.disktools.get_disklist() 
     (512, 1, 2, 0, 1, 'Z48 & MPC4K')
@@ -34,14 +34,15 @@ class Sampler(Z48Sampler):
     MEMORY = 0
     DISK = 1
 
-    def __init__(self, debug=0):
+    def __init__(self, debug=1):
         self.debug = debug
         sys.stderr.writelines("Sampler: %s\n" %repr(self))
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
         self.sampletools = sampletools.Sampletools(self)
         self.multitools = multitools.Multitools(self)
-        self.command_spec = CommandSpec('\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
+        self.systemtools = systemtools.Systemtools(self)
+        # self.command_spec = CommandSpec('\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
         model.register_handlers({model.Disk: self.disktools,
                         model.File: self.disktools,
                         model.Program: self.programtools,
@@ -69,11 +70,11 @@ class Sampler(Z48Sampler):
         msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
         result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
         # not fool proof for multiple disks
-        disk = model.Disk(self.disktools.get_disklist())
-        self.disktools.select_disk(disk.handle)
-        rootfolder = model.Folder(("",))
-        folders = rootfolder.get_children()
-        disks.set_children(folders)
+        #disk = model.Disk(self.disktools.get_disklist())
+        #self.disktools.select_disk(disk.handle)
+        #rootfolder = model.Folder(("",))
+        #folders = rootfolder.get_children()
+        #disks.set_children(folders)
 
     def close(self):
         """Closes the connection with the sampler
@@ -92,14 +93,13 @@ class Sampler(Z48Sampler):
         Z48Sampler._put(self, path, sysex.STRING.encode(remote_name), destination)
 
     def execute(self, command, args, z48id=None, userref=None):
-        # fix these args, should be keyword args
-        request = Request(command, args, z48id, userref)
+        request = Request(command, args)
         if self.debug:
             sys.stderr.writelines("Request: %s\n" % repr(request))
         result_bytes = self._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
         if self.debug:
             sys.stderr.writelines("Length of reply: %i\n" % len(result_bytes))
-        result = Reply(result_bytes, command.reply_spec, z48id, userref)
+        result = Reply(result_bytes, command.reply_spec)
         if self.debug:
             sys.stderr.writelines("Reply: %s\n" % repr(result))
         return result.parse()

@@ -4,8 +4,7 @@ class Command:
     """Represents a system exclusive command.
     """
 
-    def __init__(self, section_id, id, name, arg_types, reply_spec=None):
-        self.section_id = section_id
+    def __init__(self, id, name, arg_types, reply_spec=None):
         self.id = id
         self.name = name
         self.arg_types = []
@@ -32,21 +31,25 @@ class Request:
 
     Select disk:
     >>> arg = 256 
-    >>> command = Command('\x20', '\x02', 'select_disk', (WORD,None), ()) 
+    >>> command = Command('\x20\x02', 'select_disk', (WORD,), ()) 
     >>> Request(command, (arg,))
     ['f0', '47', '5f', '00', '20', '02', '00', '02', 'f7']
 
     Select root folder:
     >>> folder = ''
-    >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
+    >>> command = Command('\x20\x13', 'set_curr_folder', (STRING,), ()) 
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
 
     Select autoload folder:
     >>> folder = 'autoload'
-    >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
+    >>> command = Command('\x20\x13', 'set_curr_folder', (STRING,), ()) 
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '61', '75', '74', '6f', '6c', '6f', '61', '64', '00', 'f7']
+
+    >>> command = Command('\x07\x01', 'get_sampler_name', (),(STRING,))
+    >>> Request(command, ())
+    ['f0', '47', '5f', '00', '07', '01', 'f7']
 
     """
 
@@ -63,7 +66,6 @@ class Request:
         else:
             bytes.append(DEFAULT_USERREF) 
 
-        bytes.append(command.section_id) 
         bytes.append(command.id) 
         data = command.create_arg_bytes(args)
         if data is not None:
@@ -81,7 +83,7 @@ class Request:
 class Reply:
     r""" Encapsulates a sysex reply
 
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20','\x05', '\x01', END_SYSEX)
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
     >>> reply = Reply(''.join(bytes), (BYTE,)) 
     >>> reply.parse()
     1
@@ -99,7 +101,7 @@ class Reply:
     Exception: System exclusive error, code 180, message: Unknown disk error
 
     # using pad type if we encounter bytes not according to specification
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20', '\x10', '\x02', '\x15', '\x00', '\xf7')
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x10', '\x02', '\x15', '\x00', '\xf7')
     >>> reply = Reply(''.join(bytes),(PAD, WORD)) 
     >>> reply.parse() 
     21
@@ -113,21 +115,17 @@ class Reply:
 
     # reply on 'bulk command 10 05' 10 0a 00 f0 47 5e 20 00 00 10 05 15 f7
     # popped 2 0 bytes after header 5f  and here we discover how ak.sys gets its disk list! (but what about the 15? arg checksum?)
-    >>> bytes = _transform_hexstring('f0 47 5f 00 52 10 05 00 02 01 02 00 01 5a 34 38 20 26 20 4d 50 43 34 4b 00 f7')
+    >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x05\x00\x02\x01\x02\x00\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b\x00\xf7'
     >>> reply = Reply(bytes, (WORD, BYTE, BYTE, BYTE, BYTE, STRING)) 
     >>> reply.parse() 
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
-    # select_disk 10 0c 00 f0 47 5e 20 00 00 10 02 00 02 14 f7
-    # 10 0a 00 f0 47 5e 20 00 00 10 10 20 f7
-    # f0 47 5f 20 00 00 52 10 10 15 00 f7
-    # 10 0a 00 f0 47 5e 20 00 00 10 12 22 f7
-    >>> bytes = _transform_hexstring( 'f0 47 5f 00 52 10 22 4d 65 6c 6c 20 53 74 72 69 6e 67 20 41 32 2e 77 61 76 00 f7')
+    >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x20\x53\x74\x72\x69\x6e\x67\x20\x41\x32\x2e\x77\x61\x76\x00\xf7'
     >>> reply = Reply(bytes, (STRING,)) 
     >>> reply.parse() 
     'Mell String A2.wav'
 
-    >>> bytes = _transform_hexstring( 'f0 47 5f 00 52 10 22 4d 65 6c 6c 6f 74 72 6f 6e 20 53 74 72 69 6e 67 73 2e 61 6b 70 00 f7')
+    >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x6f\x74\x72\x6f\x6e\x20\x53\x74\x72\x69\x6e\x67\x73\x2e\x61\x6b\x70\x00\xf7'
     >>> reply = Reply(bytes, (STRING,)) 
     >>> reply.parse() 
     'Mellotron Strings.akp'
@@ -174,6 +172,8 @@ class Reply:
         return self.parse_untyped_bytes(self.bytes, i)
 
     def parse_typed_bytes(self, bytes, offset):
+        # deprecated. although mentioned in the sysex docs,
+        # I never saw it used.
         raise NotImplementedError
 
         result = []
@@ -681,13 +681,6 @@ def _to_string(ordvalues):
     'Z48 & MPC4K'
     """
     return ''.join([chr(value) for value in ordvalues])
-
-def _transform_hexstring(value):
-    result = []
-    for char in value.split(' '):
-        result.append(struct.pack('B', int(char, 16)))
-    return ''.join(result)
-    
 
 errors = {
     0x00:"The <Section> <Item> supplied are not supported",
