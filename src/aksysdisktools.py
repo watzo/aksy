@@ -56,23 +56,23 @@ class DiskTools:
         comm = sysex.Command('\x10','\x2A', 'load_file', (sysex.STRING,), ())
         self.commands[('\x10', '\x2A')] = comm
 
-    def update_disklist(z48):
+    def update_disklist(self):
      """Update the list of disks connected
 
      Returns:
                
      """
-     comm =  commands.get(('\x10','\x01'))
-     return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+     comm = self.commands.get(('\x10','\x01'))
+     return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def select_disk(arg0):
+    def select_disk(self,arg0):
          """Select Disk <Data1> = Disk Handle
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x02'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x02'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
     def test_disk(z48, arg0):
          """Test if the disk is valid <Data1> = Disk Handle
@@ -80,20 +80,20 @@ class DiskTools:
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x03'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x03'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def get_no_disks():
+    def get_no_disks(self):
          """Get the number of disks connected
 
          Returns:
               sysex.PAD
               sysex.BYTE     
          """
-         comm =  commands.get(('\x10','\x04'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x04'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def get_disklist():
+    def get_disklist(self):
          """Get list of all connected disks
 
          Returns:
@@ -104,133 +104,127 @@ class DiskTools:
               sysex.BYTE
               sysex.STRING     
          """
-         comm =  commands.get(('\x10','\x05'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x05'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def get_curr_path():
+    def get_curr_path(self):
          """Get current path of current disk
 
          Returns:
               sysex.STRING     
          """
-         comm =  commands.get(('\x10','\x09'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x09'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def eject_disk(arg0):
+    def eject_disk(self,arg0):
          """Eject Disk <Data1> = Disk Handle
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x0D'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x0D'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def get_no_subfolders():
+    def get_no_subfolders(self):
          """Get number of sub-folders in the current folder.
 
          Returns:
               sysex.PAD
               sysex.WORD     
          """
-         comm =  commands.get(('\x10','\x10'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x10'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def get_subfolder_names():
+    def get_subfolder_names(self):
          """Get the names of all of the sub-folders in the current folder.
 
          Returns:
               sysex.STRING     
          """
-         comm =  commands.get(('\x10','\x12'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x12'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def set_curr_folder(arg0):
+    def set_curr_folder(self,arg0):
          """Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x13'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x13'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def load_folder(arg0):
+    def load_folder(self,arg0):
          """Load Folder: the selected folder, and all its contents (including sub- 
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x15'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x15'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def create_subfolder(arg0):
+    def create_subfolder(self,arg0):
          """Create Folder: Creates a sub-folder in the currently selected folder.
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x16'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x16'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def del_subfolder(arg0):
+    def del_subfolder(self,arg0):
          """Delete Sub-Folder.
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x17'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x17'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def rename_subfolder(arg0):
+    def rename_subfolder(self,arg0):
          """Rename Folder: <Data1> = name of folder to rename
 
          Returns:
                    
          """
-         comm =  commands.get(('\x10','\x18'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x18'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def get_no_files():
+    def get_no_files(self):
          """Get number of files in the current folder.
 
          Returns:
               sysex.WORD     
          """
-         comm =  commands.get(('\x10','\x20'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x20'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def get_filenames():
+    def get_filenames(self):
          """Get the names of all of the files in the current folder.
 
          Returns:
               sysex.STRING     
          """
-         comm =  commands.get(('\x10','\x22'))
-         return z48.execute(comm, (), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x22'))
+         return self.z48.execute(comm, (), sysex.AKSYS_Z48_ID)
 
-    def rename_file(arg0):
+    def rename_file(self,arg0):
          """ Rename File 
 
-         Returns:
-                   
          """
-         comm =  commands.get(('\x10','\x28'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x28'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def delete_file(arg0):
+    def delete_file(self,arg0):
          """Delete File. <Data1> = name of file to delete.
 
-         Returns:
-                   
          """
-         comm =  commands.get(('\x10','\x29'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x29'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
-    def load_file(arg0):
+    def load_file(self,arg0):
          """Load File <Data1> = name of file to load.
 
-         Returns:
-                   
          """
-         comm =  commands.get(('\x10','\x2A'))
-         return z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
+         comm = self.commands.get(('\x10','\x2A'))
+         return self.z48.execute(comm, (arg0, ), sysex.AKSYS_Z48_ID)
 
