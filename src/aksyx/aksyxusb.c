@@ -4,7 +4,10 @@
 #include <assert.h>
 #include <time.h>
 #include "aksyxusb.h"
+#include "akaiusb.h"
 static struct usb_dev_handle *akai_sampler = 0;
+
+extern int z48_sysex_reply_ok(char* sysex_reply);
 
 static PyObject* 
 Z48Sampler_init(PyObject *self, PyObject* args)
@@ -62,7 +65,10 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
         char* msg = "\x10\x08\x00\xf0\x47\x5f\x00\x00\x01\x00\xf7";
 		rc = usb_bulk_write(akai_sampler, EP_OUT, msg, 11, USB_TIMEOUT);  
 		rc = usb_bulk_read(akai_sampler, EP_IN, buf, 8, 100);  
-		rc = usb_bulk_read(akai_sampler, EP_IN, buf, 8, 100);  
+        if (z48_sysex_reply_ok(buf))
+        {
+		    rc = usb_bulk_read(akai_sampler, EP_IN, buf, 8, 100);  
+        }
 
     	Py_INCREF(Py_None);
 	    return Py_None;

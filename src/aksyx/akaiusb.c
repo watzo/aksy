@@ -22,6 +22,12 @@ z48_reply_ok(unsigned char* buffer)
 	return 1;
 }
 
+inline int
+z48_sysex_reply_ok(unsigned char* sysex_reply)
+{
+    return sysex_reply[4] == SYSEX_OK;
+}
+
 #ifdef _POSIX_SOURCE
 void
 print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred)
@@ -135,8 +141,8 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     /* request: \x10\x08\x00\xf0\x47 <device> <section, command, name, \xf7 */
-    sysex = (unsigned char*) calloc(name_length+11, sizeof(unsigned char));
-    int sysex_length = name_length+11;
+    int sysex_length = name_length+7;
+    sysex = (unsigned char*) calloc(sysex_length, sizeof(unsigned char));
     memcpy(sysex, "\x10", 5 * sizeof(unsigned char));
     memcpy(sysex+1, &sysex_length, 1 * sizeof(unsigned char));
     memcpy(sysex+2, "\x00\xf0\x47", 5 * sizeof(unsigned char));
@@ -144,15 +150,15 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     memcpy(sysex+6, "\x00", 1 * sizeof(unsigned char));
     memcpy(sysex+7, &section, 1 * sizeof(unsigned char));
     memcpy(sysex+8, "\x08", 1 * sizeof(unsigned char));
-    memcpy(sysex+9, name, name_length * sizeof(unsigned char));
-    memcpy(sysex+9 + name_length, "\x00\xf7", 2 * sizeof(unsigned char));
+    memcpy(sysex+9, name, (name_length -4) * sizeof(unsigned char)); // strip extension
+    memcpy(sysex+9 + name_length - 4, "\x00\xf7", 2 * sizeof(unsigned char));
 		int i = 0;
-		for (; i < name_length+11 ; i++)
+		for (; i < sysex_length ; i++)
 			printf("%02x ", sysex[i]);
 		printf("\n");
     /* success reply: \xf0\x47 <device> userref <section, command, <reply_ok> <4 byte handle>, \xf7 */
     /* error reply: \xf0\x47 <device> userref <section, command, <reply_error>, \xf7 */
-    if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, name_length + 11, USB_TIMEOUT))
+    if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, sysex_length, USB_TIMEOUT))
     {
         retval = AKAI_TRANSMISSION_ERROR;
     }
