@@ -15,13 +15,13 @@ class SampleMain:
           self.commands = {}
           comm = sysex.Command('\x1C','\x01', 'get_no_items', (), (sysex.BYTE,))
           self.commands[('\x1C', '\x01')] = comm
-          comm = sysex.Command('\x1C','\x02\x00', 'get_handles', (sysex.BYTE,), ())
+          comm = sysex.Command('\x1C','\x02\x00', 'get_handles', (), ())
           self.commands[('\x1C', '\x02\x00')] = comm
-          comm = sysex.Command('\x1C','\x02\x01', 'get_names', (sysex.BYTE,), ())
+          comm = sysex.Command('\x1C','\x02\x01', 'get_names', (), ())
           self.commands[('\x1C', '\x02\x01')] = comm
-          comm = sysex.Command('\x1C','\x02\x02', 'get_handles_names', (sysex.BYTE,), ())
+          comm = sysex.Command('\x1C','\x02\x02', 'get_handles_names', (), ())
           self.commands[('\x1C', '\x02\x02')] = comm
-          comm = sysex.Command('\x1C','\x02\x03', 'get_handles_modified', (sysex.BYTE,), ())
+          comm = sysex.Command('\x1C','\x02\x03', 'get_handles_modified', (), ())
           self.commands[('\x1C', '\x02\x03')] = comm
           comm = sysex.Command('\x1C','\x03', 'set_current_by_handle', (sysex.DWORD,), ())
           self.commands[('\x1C', '\x03')] = comm
@@ -49,7 +49,7 @@ class SampleMain:
           self.commands[('\x1C', '\x0E')] = comm
           comm = sysex.Command('\x1C','\x0F', 'get_tag_bitmap', (), ())
           self.commands[('\x1C', '\x0F')] = comm
-          comm = sysex.Command('\x1C','\x10', 'get_curr_modified', (), (sysex.STRING,))
+          comm = sysex.Command('\x1C','\x10', 'get_current_modified', (), (sysex.STRING,))
           self.commands[('\x1C', '\x10')] = comm
           comm = sysex.Command('\x1C','\x11 ', 'get_modified', (), (sysex.BYTE,))
           self.commands[('\x1C', '\x11 ')] = comm
@@ -87,29 +87,29 @@ class SampleMain:
           comm =  self.commands.get(('\x1C','\x01'))
           return self.z48.execute(comm, ())
 
-     def get_handles(self, arg0):
+     def get_handles(self):
           """Get Sample handles
           """
           comm =  self.commands.get(('\x1C','\x02\x00'))
-          return self.z48.execute(comm, (arg0, ))
+          return self.z48.execute(comm, ())
 
-     def get_names(self, arg0):
+     def get_names(self):
           """Get sample names
           """
           comm =  self.commands.get(('\x1C','\x02\x01'))
-          return self.z48.execute(comm, (arg0, ))
+          return self.z48.execute(comm, ())
 
-     def get_handles_names(self, arg0):
+     def get_handles_names(self):
           """Get list of sample handles and names
           """
           comm =  self.commands.get(('\x1C','\x02\x02'))
-          return self.z48.execute(comm, (arg0, ))
+          return self.z48.execute(comm, ())
 
-     def get_handles_modified(self, arg0):
+     def get_handles_modified(self):
           """Get a list of modified/tagged samples
           """
           comm =  self.commands.get(('\x1C','\x02\x03'))
-          return self.z48.execute(comm, (arg0, ))
+          return self.z48.execute(comm, ())
 
      def set_current_by_handle(self, arg0):
           """Select current item by handle
@@ -201,7 +201,7 @@ class SampleMain:
           comm =  self.commands.get(('\x1C','\x0F'))
           return self.z48.execute(comm, ())
 
-     def get_curr_modified(self):
+     def get_current_modified(self):
           """Get name of current item with modified/tagged info
 
           Returns:

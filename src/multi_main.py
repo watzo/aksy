@@ -23,9 +23,9 @@ class MultiMain:
           self.commands[('\x18', '\x02\x02')] = comm
           comm = sysex.Command('\x18','\x02\x03', 'get_handles_tagged', (), (sysex.DWORD, sysex.STRING))
           self.commands[('\x18', '\x02\x03')] = comm
-          comm = sysex.Command('\x18','\x03', 'set_current', (sysex.DWORD,), ())
+          comm = sysex.Command('\x18','\x03', 'set_current_by_handle', (sysex.DWORD,), ())
           self.commands[('\x18', '\x03')] = comm
-          comm = sysex.Command('\x18','\x04', 'set_by_name', (sysex.STRING,), ())
+          comm = sysex.Command('\x18','\x04', 'set_current_by_name', (sysex.STRING,), ())
           self.commands[('\x18', '\x04')] = comm
           comm = sysex.Command('\x18','\x05', 'get_current_handle', (), (sysex.DWORD,))
           self.commands[('\x18', '\x05')] = comm
@@ -99,13 +99,13 @@ class MultiMain:
           comm =  self.commands.get(('\x18','\x02\x03'))
           return self.z48.execute(comm, ())
 
-     def set_current(self, arg0):
+     def set_current_by_handle(self, arg0):
           """Select by handle
           """
           comm =  self.commands.get(('\x18','\x03'))
           return self.z48.execute(comm, (arg0, ))
 
-     def set_by_name(self, arg0):
+     def set_current_by_name(self, arg0):
           """Select by name
           """
           comm =  self.commands.get(('\x18','\x04'))

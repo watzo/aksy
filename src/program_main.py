@@ -33,7 +33,7 @@ class ProgramMain:
           self.commands[('\x14', '\x06')] = comm
           comm = sysex.Command('\x14','\x07', 'get_name_by_handle', (sysex.DWORD,), (sysex.STRING,))
           self.commands[('\x14', '\x07')] = comm
-          comm = sysex.Command('\x14','\x08', 'get_handle_from_name', (sysex.STRING,), (sysex.DWORD,))
+          comm = sysex.Command('\x14','\x08', 'get_handle_by_name', (sysex.STRING,), (sysex.DWORD,))
           self.commands[('\x14', '\x08')] = comm
           comm = sysex.Command('\x14','\x09', 'delete_all', (), ())
           self.commands[('\x14', '\x09')] = comm
@@ -43,13 +43,13 @@ class ProgramMain:
           self.commands[('\x14', '\x0B')] = comm
           comm = sysex.Command('\x14','\x0C', 'rename_current', (sysex.STRING,), ())
           self.commands[('\x14', '\x0C')] = comm
-          comm = sysex.Command('\x14','\x0D', 'rename__by_handle', (sysex.DWORD, sysex.STRING), ())
+          comm = sysex.Command('\x14','\x0D', 'rename_by_handle', (sysex.DWORD, sysex.STRING), ())
           self.commands[('\x14', '\x0D')] = comm
           comm = sysex.Command('\x14','\x0E', 'tag', (sysex.BYTE, sysex.BYTE), ())
           self.commands[('\x14', '\x0E')] = comm
           comm = sysex.Command('\x14','\x0F', 'get_tag_bitmap', (), (sysex.WORD,))
           self.commands[('\x14', '\x0F')] = comm
-          comm = sysex.Command('\x14','\x10', 'get_current_modified', (), ())
+          comm = sysex.Command('\x14','\x10', 'get_modified', (), ())
           self.commands[('\x14', '\x10')] = comm
           comm = sysex.Command('\x14','\x11', 'get_modified', (), (sysex.BYTE,))
           self.commands[('\x14', '\x11')] = comm
@@ -143,7 +143,7 @@ class ProgramMain:
           comm =  self.commands.get(('\x14','\x07'))
           return self.z48.execute(comm, (arg0, ))
 
-     def get_handle_from_name(self, arg0):
+     def get_handle_by_name(self, arg0):
           """Get item handle from name
 
           Returns:
@@ -176,7 +176,7 @@ class ProgramMain:
           comm =  self.commands.get(('\x14','\x0C'))
           return self.z48.execute(comm, (arg0, ))
 
-     def rename__by_handle(self, arg0, arg1):
+     def rename_by_handle(self, arg0, arg1):
           """Rename item represented by handle <Data1>
           """
           comm =  self.commands.get(('\x14','\x0D'))
@@ -197,7 +197,7 @@ class ProgramMain:
           comm =  self.commands.get(('\x14','\x0F'))
           return self.z48.execute(comm, ())
 
-     def get_current_modified(self):
+     def get_modified(self):
           """Get name of current item with modified/tagged info.
           """
           comm =  self.commands.get(('\x14','\x10'))
