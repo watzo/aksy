@@ -1,4 +1,13 @@
-import sys, StringIO
+import sys, os, StringIO
+import sysex
+
+def _arglist_helper(arglist):
+    """Creates correct string rep 
+    """
+    if len(arglist) == 1:
+         return '(' + arglist[0] + ',)' 
+    else:
+         return '(' + ', '.join(arglist) + ')'
 
 # could use ljust etc...
 indent_block = "     "
@@ -6,6 +15,7 @@ sysex_module_name = 'sysex'
 z48_instance_name = 'z48'
 
 file_in_name = sys.argv[1]
+    
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
 preamble = "".join(file_preamble.readlines())
@@ -14,7 +24,8 @@ line = file_in.readline()
 
 # Section data
 section_id, section_name, section_desc = line[:-1].split('\t')
-file_out = open(section_name + '.py', 'w')
+destfile = section_name + '.py'
+file_out = open(destfile, 'w')
 file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\"\n\n" % (section_name,section_desc)) 
 file_out.writelines( "%s\n" % preamble) 
 file_out.writelines( "import %s\n" % sysex_module_name ) 
@@ -26,24 +37,23 @@ register_commands.writelines("def register_%s(%s):\n" % (section_name, z48_insta
 line = file_in.readline()
 while line:
     try:
-        id, name, desc, data1, data2 = line[:-1].split('\t')
-        reply_spec = file_in.readline()[:-1].split('\t')
+        elems = line[:-1].split('\t')
+        id = elems[0]
+        name = elems[1]
+        desc = elems[2]
+        args = []
+        data = []
+        for i in range(3, len(elems)-1):
+            if elems[i] != 'NA':
+                data.append( sysex_module_name + '.' + elems[i])
+                args.append('arg' + str(i-3))
 
-        if data1 == 'NA':
-            data1 = None
-        else:
-            data1 = sysex_module_name + '.' + data1
-        if data2 == 'NA':
-            data2 = None
-        else:
-            data2 = sysex_module_name + '.' + data2
-
-        if data1 and data2:
-            args = (z48_instance_name, 'arg1', 'arg2')
-        elif data1 or data2:
-            args = (z48_instance_name, 'arg')
-        else:
-            args = (z48_instance_name,)
+        reply_spec_line = file_in.readline()[:-1].split('\t')
+        #reply_spec = reply_spec_line[0:len(reply_spec_line)]
+        #reply_spec_desc = reply_spec_line[len(reply_spec_line):]
+        reply_spec = reply_spec_line
+        args.insert(0, z48_instance_name)
+        args = tuple(args)
             
         if len(reply_spec) > 0:
             if reply_spec[0]:
@@ -69,15 +79,10 @@ while line:
 
         file_out.writelines( "%sreturn %s.execute(comm, %s)\n\n" % (indent_block, z48_instance_name, '('+ ', '.join(comm_args) + ')'))
 
-        if len(reply_spec) == 1:
-            reply_spec = '(' + reply_spec[0] + ',)' 
-        else:
-            reply_spec = '(' + ', '.join(reply_spec) + ')'
-
         # put the command in a dict with tuple key (section_id, id) 
         register_commands.writelines( 
-            "%scomm = sysex.Command('%s','%s', '%s', (%s,%s), %s)\n" \
-            % (indent_block, section_id, id, name, data1, data2, reply_spec))
+            "%scomm = sysex.Command('%s','%s', '%s', %s, %s)\n" \
+            % (indent_block, section_id, id, name, _arglist_helper(data), _arglist_helper(reply_spec)))
 
         register_commands.writelines("%s%s.commands[('%s', '%s')] = comm\n" % (indent_block, z48_instance_name, section_id, id))
     except ValueError, e:
@@ -89,3 +94,4 @@ file_in.close()
 file_out.writelines(register_commands.getvalue())
 register_commands.close()
 file_out.close()
+os.renames(destfile, '../src/' + destfile) 
