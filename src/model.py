@@ -95,8 +95,9 @@ class File(object):
         """Copies a file
         """
         item = self.load()
-        # new_parent = Folder(dest_path)
-        # add item to dest_path
+        new_parent = Folder(dest_path)
+        
+        return new_parent.append_child(item)
     
     def load(self):
         """Load the file into memory 
@@ -129,13 +130,14 @@ class File(object):
     def delete(self):
         """
         """
-        handlers[Disk].delete_file(self.path)
+        self.get_parent().set_current()
+        handlers[Disk].delete_file(self.get_name())
 
     def rename(self, new_name):
         """
         """
         self.get_parent().set_current()
-        handlers[Disk].rename_file(new_name)
+        handlers[Disk].rename_file(self.get_name(), new_name)
         self.path = self.path[:-1] + (new_name,)
 
     def get_actions(self):
@@ -220,7 +222,7 @@ class Folder(File):
         self.children.append(folder)
         return folder
 
-    def add_child(self, item):
+    def append_child(self, item):
         """Adds a child item to this folder
         Returns the added item
         """
@@ -243,9 +245,25 @@ class Folder(File):
                 item.transfer(os.path.join(path, item.get_name()))
 
 class InMemoryFile(File):
+    def get_instance(name):
+        if self.type == File.MULTI:
+            return Multi(name)
+        elif self.type == File.PROGRAM:
+            return Multi(name)
+        elif self.type == File.SAMPLE:
+            return Multi(name)
+        elif self.type == File.SONG:
+            return Song(name)
+        else:
+            print "Unknown file type:", repr(name)
+            return InMemoryFile(name)
+
+    get_instance = staticmethod(get_instance)
+
     def __init__(self, name, handle=None):
         self.name = name
         self.handle = handle
+        File.__init__(self, (name,))
 
     def get_size(self):
         return 'Unknown'
@@ -260,7 +278,9 @@ class InMemoryFile(File):
         """Returns the handle
         XXX: Should be set on init
         """
-        return handlers[self.__class__].get_handle_by_name(self.get_name())
+        self.set_current()
+        return handlers[self.__class__].get_current_handle()
+        # return handlers[self.__class__].get_handle_by_name(self.get_name())
 
     def set_current(self):
         handlers[self.__class__].set_current_by_name(self.get_name())
@@ -271,16 +291,23 @@ class InMemoryFile(File):
         self.set_current()
         handlers[self.__class__].delete_current()
 
-    def save(self, overwrite, dependents=False):
-        handlers[Disk].save_file(self.get_handle(), self.type, overwrite, dependents) 
+    def save(self, overwrite, children=False):
+        handlers[Disk].save_file(self.get_handle(), self.type, overwrite, children) 
 
-    def tranfer(self, dest_path):
+    def set_current(self):
+        handlers[self.__class__].set_current_by_name(self.get_name())
+    
+    def transfer(self, dest_path):
         pass
 
     def rename(self, new_name):
         pass
 
 class Multi(InMemoryFile):
+    def __init__(self, name):
+        InMemoryFile.__init__(self, name)
+        self.type = File.MULTI
+
     def get_used_by(self):
         return None
 
@@ -289,6 +316,10 @@ class Multi(InMemoryFile):
         """
 
 class Program(InMemoryFile):
+    def __init__(self, name):
+        InMemoryFile.__init__(self, name)
+        self.type = File.PROGRAM
+
     def get_used_by(self):
         """Returns the multi(s) using this program
         """
@@ -298,6 +329,10 @@ class Program(InMemoryFile):
         """
 
 class Sample(InMemoryFile):
+    def __init__(self, name):
+        InMemoryFile.__init__(self, name)
+        self.type = File.SAMPLE
+
     def get_used_by(self):
         """Returns the pogram(s) using this file
         """
@@ -339,15 +374,42 @@ class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
 
-    def add_child(self, path):
-        self.handlers[Disk].z48.put(path)
+    def upload(self, path):
+        if name == '':
+            raise ValueError
+        name = os.path.basename(path)
+        self.handlers[Disk].z48.put(path, name)
+        item = InMemoryFile.get_instance(name)
+        self.append_child(item)
+
+    def append_child(self, item):
+        self.children.append(item)
+        return item
+
+    def has_children(self):
+        return (
+            handlers[Program].get_no_items() > 0 or
+            handlers[Sample].get_no_items() > 0 or
+            handlers[Multi].get_no_items() > 0)
+
     def get_children(self):
         if len(self._children) > 0:
             return self._children
         else:
-            programs = [Program(name) for name in handlers[Program].get_names()]
-            multi = [Multi(name) for name in handlers[Multi].get_names()]
-            sample = [Sample(name) for name in handlers[Sampler].get_names()]
+            pnames = handlers[Program].get_names()
+            if not isinstance(pnames, tuple):
+                pnames = (pnames,)
+            programs = [Program(name) for name in pnames ]
+            mnames = handlers[Multi].get_names()
+            if not isinstance(mnames, tuple):
+                mnames = (mnames,)
+            multis = [Multi(name) for name in mnames ]
+            snames = handlers[Sample].get_names()
+            if not isinstance(snames, tuple):
+                snames = (snames,)
+
+            samples = [Sample(name) for name in snames ]
             self._children.extend(programs)
-            self._children.extend(multi)
-            self._children.extend(sample)
+            self._children.extend(multis)
+            self._children.extend(samples)
+            return self._children
