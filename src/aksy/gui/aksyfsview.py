@@ -9,7 +9,7 @@ from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wx
 from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME,wxDialog,wxDataObject, wxConfig, wxFileConfig, wxCONFIG_USE_LOCAL_FILE
 
 from aksy import model
-from aksy.sampler import Sampler
+from aksy.device import Device
 import os.path, traceback, sys, copy
 
 ID_ABOUT=wxNewId()
@@ -43,10 +43,11 @@ class Frame(wxFrame):
 
         EVT_CLOSE(self, self.OnExit)
 
+        # values hardcoded for now
         if not USE_MOCK_OBJECTS:
-            self.sampler = Sampler.get_instance('z48', 0)
+            self.sampler = Device.get_instance('z48', 0)
         else:
-            self.sampler = Sampler.get_instance('mock_z48',1)
+            self.sampler = Device.get_instance(('mock_z48', None),1)
             print self.sampler
 
         try:
@@ -263,6 +264,7 @@ class TreePanel(wxPanel):
         self.actions = {}
         self._action_item = None
         self._action = None
+        self.recordedActions = []
         self.register_menu_actions(model.File.actions)
 
         for action in ( model.Action('cut','Cut\tCtrl+X', wxID_CUT),
@@ -483,6 +485,8 @@ class TreePanel(wxPanel):
                 action.epilog(item)
             else:
                 action.epilog(item, result)
+
+        self.recordedActions.append((action, args)
 
     def select_directory(self, item):
         dir_dialog = wxDirDialog(self, "Choose a destination for %s" %item.get_name(), 
