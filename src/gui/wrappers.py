@@ -39,22 +39,22 @@ class Folder(object):
 
 class File(object):
 
-    def __init__(self, disktools, name=None):
+    def __init__(self, module, name=None):
         """Initializes a file object - should not be called directly, use 
         getInstance instead.
         """
         self.disktools = disktools
         self.name = name
 
-    def getInstance(disktools, name=None):
+    def getInstance(module, name=None):
         """Initializes a program from a  name
         """
         if RE_MULTI.search(name) is not None:
-            return Multi(disktools, name)
+            return Multi(module, name)
         elif RE_PROGRAM.search(name) is not None:
-            return Program(disktools, name)
+            return Program(module, name)
         elif RE_SAMPLE.search(name) is not None:
-            return Sample(disktools, name)
+            return Sample(module, name)
         else:
             raise NotImplementedError("No support for file type: ", name) 
 
@@ -76,12 +76,46 @@ class File(object):
         """
         raise NotImplementedError
 
+    def delete(self):
+        """
+        """
+        raise NotImplementedError
+
+    def rename(self, new_name):
+        """
+        """
+        raise NotImplementedError
+
+    def get_actions(self):
+        """Returns the actions defined by this file type
+        """
+        raise NotImplementedError
+
+    def get_list_repr(self):
+        """Returns a representation of the file for display
+        in a list
+        """
+        raise NotImplementedError
+
+
 class Multi(File):
+    def __init__(self, multi_main, name=None):
+        
     def get_used_by(self):
         return None
 
     def get_children(self):
         """Returns the programs used by this multi
+        """
+
+    def get_actions(self):
+        """Returns the actions defined by this file type
+        """
+        return ("delete", "rename", "transfer")
+
+    def get_list_repr(self):
+        """Returns a representation of the file for display
+        in a list
         """
 
 class Program(File):
@@ -93,6 +127,11 @@ class Program(File):
         """Returns the samples used by this program
         """
 
+    def get_list_repr(self):
+        """Returns a representation of the file for display
+        in a list
+        """
+
 class Sample(File):
     def get_used_by(self):
         """Returns the pogram(s) using this file
@@ -102,3 +141,8 @@ class Sample(File):
         """Returns the samples used by this program
         """
         return None
+
+    def get_list_repr(self):
+        """Returns a representation of the file for display
+        in a list
+        """

@@ -87,6 +87,16 @@ class Z48(Z48Sampler):
         sys.stderr.writelines("Reply: %s\n" % repr(result))
         return result.parse()
 
+class MockZ48(Z48):
+    def init(self):
+        pass
+
+    def execute(self, command, args, z48id=None, userref=None):
+        return ''
+
+    def close(self):
+        pass
+
 if __name__ == "__main__":
     import doctest, sys
     doctest.testmod(sys.modules[__name__])

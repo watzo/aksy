@@ -5,9 +5,10 @@ from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY
 from wxPython.wx import EVT_CLOSE 
 
-import images
 
 import wrappers
+import aksysdisktools
+import aksy
 ID_ABOUT=1001
 ID_EXIT=1002
 ID_TEST=1003
@@ -34,9 +35,11 @@ class Frame(wxFrame):
         EVT_CLOSE(self, self.OnExit)
 
         if not USE_MOCK_OBJECTS:
-            import aksy
             self.z = aksy.Z48()
-            self.z.init()
+        else:
+            self.z = aksy.MockZ48()
+
+        self.z.init()
 
     def OnAbout(self,e):
         d= wxMessageDialog( self, " Aksy, controlling your Z48 sampler\n", "About Aksy", wxOK)
@@ -54,6 +57,7 @@ class Frame(wxFrame):
 class TestPanel(wxPanel):
     def __init__(self, parent):
         wxPanel.__init__(self, parent, -1)
+        self.z = parent.z
         EVT_SIZE(self, self.OnSize)
 
         self.tree = wxTreeListCtrl(self, 5001, style = wxTR_DEFAULT_STYLE
@@ -92,8 +96,11 @@ class TestPanel(wxPanel):
         else:
             
             # Add some items
+            disktools = aksysdisktools.DiskTools(self.z)
             storage = [ "disk", "memory"]
-            children = { "disk": (Folder('Autoload'), 'Mellotron', 'Songs')}
+            children = { "disk": (wrappers.Folder(disktools,'Autoload'),
+                wrappers.Folder(disktools, 'Mellotron'),
+                wrappers.Folder(disktools, 'Songs'))}
             files = { "Autoload": ('Drums.AKP', 'Sample.wav', 'Songs')}
             
 
@@ -109,12 +116,12 @@ class TestPanel(wxPanel):
             self.tree.SetItemImage(child, fldridx, which = wxTreeItemIcon_Normal)
             self.tree.SetItemImage(child, fldropenidx, which = wxTreeItemIcon_Expanded)
 
-            if folders.has_key(item):
-                subfolders = folders[item]
+            if children.has_key(item):
+                subfolders = children[item]
                 for folder in subfolders:
-                    last = self.tree.AppendItem(child, folder)
-                    self.tree.SetItemText(last, folder, 1)
-                    self.tree.SetItemText(last, folder, 2)
+                    last = self.tree.AppendItem(child, folder.name)
+                    self.tree.SetItemText(last, folder.name, 1)
+                    self.tree.SetItemText(last, folder.name, 2)
                     self.tree.SetItemImage(last, fldridx, which = wxTreeItemIcon_Normal)
                     self.tree.SetItemImage(last, fldropenidx, which = wxTreeItemIcon_Expanded)
 
@@ -131,15 +138,19 @@ class TestPanel(wxPanel):
         self.tree.SetSize(self.GetSize())
 
 class FileMenu(wxMenu):
-  def __init__(self, parent, style):
-        wxMenu.__init__(self)
-        self.Append(wxID_CUT, 'Cut', 'Cut to the clipboard')
-        self.Append(wxID_COPY, 'Copy', 'Copy to the clipboard')
+      def __init__(self, parent, style):
+            wxMenu.__init__(self)
+            self.Append(wxID_CUT, 'Rename', 'Rename')
+            self.Append(wxID_COPY, 'Transfer', 'Transfer to pc')
 
-        EVT_MENU(parent, wxID_CUT, self.OnSelect)
-        EVT_MENU(parent, wxID_COPY, self.OnSelect)
-  def OnSelect(self, evt):
-        print "EVENT"
+            EVT_MENU(parent, wxID_CUT, self.OnSelect)
+            EVT_MENU(parent, wxID_COPY, self.OnSelect)
+      def OnSelect(self, evt):
+            print "EVENT"
+
+    def setActions(self, actions):
+        for action in actions:
+            self.Append(hash(actions), action, action)
          
 
 if __name__ == '__main__':
