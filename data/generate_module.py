@@ -45,7 +45,7 @@ file_out = open(destfile, 'w')
 file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\"\n\n" % (section_name,section_desc)) 
 file_out.writelines( "%s\n" % preamble) 
 file_out.writelines( "import %s\n\n" % sysex_module_name ) 
-file_out.writelines( "def %s:\n" % classname_helper(section_name))
+file_out.writelines( "class %s:\n" % classname_helper(section_name))
 
 methods = StringIO.StringIO()
 
