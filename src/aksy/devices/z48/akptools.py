@@ -93,7 +93,7 @@ class Loop:
         self.count = 0
 
     def get_riff_wavechunk(self, cue_id):
-        """ Returns the 24 byte chunk for the wave file
+        """ Returns the 24 byte loop chunk for the wave file
         """
         return struct.pack('<6l', cue_id, 0, self.start, self.end,
                            self.fraction, self.count)
@@ -249,10 +249,13 @@ class Program(Base):
         self.pitchbend_down = self.read_byte(48)
         self.bend_mode = self.read_byte(49)
         self.aftertouch = self.read_byte(50)
+        self.lfos = (LFO1(chunk=self._chunk[0x4a:]), 
+                     LFO2(chunk=self._chunk[0x4a:]),)
     
     def setdefaults(self):
+        self.keygroups = [Keygroup()]
         self.midi_prog_no = 0
-        self.no_keygrps = 1
+        self.no_keygrps = 1 
         self.loudness = 0
         self.amp_mod1 = 0
         self.amp_mod2 = 0
@@ -278,9 +281,12 @@ class Program(Base):
         self.pitchbend_down = 2
         self.bend_mode = 0 # 1: held
         self.aftertouch = 0
+        self.lfos = (LFO1(), LFO2(),)
+        self.mod = Modulation()
 
     def create_chunk(self):
-        return struct.pack('4sl8sl6B4sl8B4sl22B',
+        chunk = StringIO()
+        chunk.write(struct.pack('4sl8sl6B4sl8B4sl22B',
             'RIFF',
             0, # length
             'APRG'
@@ -288,7 +294,7 @@ class Program(Base):
             6, 
             0, 
             self.midi_prog_no,
-            self.no_keygrps,
+            len(self.keygroups),
             0, 
             0,
             0,
@@ -325,7 +331,10 @@ class Program(Base):
             self.aftertouch,
             0,
             0,
-            0)
+            0))
+        chunk.write(''.join([lfo.create_chunk() for lfo in self.lfos]))
+        chunk.write(self.mod.create_chunk())
+        return chunk.getvalue()
 
     def writefile(self):
         file = open(self.filename, 'wb')
@@ -335,11 +344,12 @@ class Program(Base):
         file.close()
 
     def __repr__(self):
-        string_repr = ['<Akai Program']
-        string_repr.extend(['property: %s, val %s\n' % (item, val) 
-                                for item,val in self.__dict__.iteritems()])
-        string_repr.append('>')
-        return ' '.join(string_repr)
+        string_repr = StringIO(
+        string_repr.write('<Akai Program'))
+        string_repr.write(''.join(['property: %s, val %s\n' % (item, val) 
+                                for item,val in self.__dict__.iteritems()]))
+        string_repr.write('>')
+        return string_repr.getvalue()
 
 class LFO(Base):
     """ 
@@ -382,13 +392,16 @@ class LFO1(LFO):
     def setdefaults(self):
         LFO.setdefaults(self)
         self.lfo_sync = 0
+        self.phase = 0 # from sysex docs 
+        self.lfo_shift   = 0 # from sysex docs 
+        self.lfo_mid_clock_div = 0 # from sysex docs
         self.modwheel = 15
         self.aftertouch = 0
 
     def create_chunk(self):
-        return struct.pack('4sl12B',
+        return struct.pack('4sl14B',
             'lfo ',
-            12,
+            14,
             0,
             self.waveform,
             self.rate,
@@ -400,7 +413,9 @@ class LFO1(LFO):
             self.aftertouch,
             self.rate_mod,
             self.delay_mod,
-            self.depth_mod)
+            self.depth_mod,
+            0,
+            0)
 
 
 class LFO2(LFO):
@@ -418,9 +433,9 @@ class LFO2(LFO):
         self.lfo_retrigger = 0
         
     def create_chunk(self):
-        return struct.pack('4sl12B',
+        return struct.pack('4sl14B',
             'lfo ',
-            12,
+            14,
             0,
             self.waveform,
             self.rate,
@@ -432,7 +447,9 @@ class LFO2(LFO):
             0,
             self.rate_mod,
             self.delay_mod,
-            self.depth_mod)
+            self.depth_mod,
+            0,
+            0)
 
 
 class Keygroup(Base):
@@ -464,35 +481,41 @@ class Keygroup(Base):
         self.zones= (Zone(), Zone(), Zone(), Zone(),)
 
     def create_chunk(self):
-        chunk = StringIO(struct.pack('4sl4sl16B',
-        'kgrp',
-        336,        
-        'kloc',
-        16,
-        0,
-        0,
-        0,
-        0,
-        self.low_note, 
-        self.high_note, 
-        self.semi,
-        self.fine, 
-        self.override_fx,
-        self.fx_send,
-        self.pitch_mod1,
-        self.pitch_mod2,
-        self.amp_mod,
-        self.zone_xfade,
-        self.mute_group,
-        0))
-        chunk.write([env.create_chunk() for env in self.envelopes])
+        chunk = StringIO()
+        chunk.write(struct.pack('4sl4sl16B',
+            'kgrp',
+            336,        
+            'kloc',
+            16,
+            0,
+            0,
+            0,
+            0,
+            self.low_note, 
+            self.high_note, 
+            self.semi,
+            self.fine, 
+            self.override_fx,
+            self.fx_send,
+            self.pitch_mod1,
+            self.pitch_mod2,
+            self.amp_mod,
+            self.zone_xfade,
+            self.mute_group,
+            0))
+        chunk.write(''.join([env.create_chunk() for env in self.envelopes]))
         chunk.write(self.filter.create_chunk()) 
-        chunk.write([zone.create_chunk() for zone in self.zones])
+        chunk.write(''.join([zone.create_chunk() for zone in self.zones]))
         return chunk.getvalue()
 
 
 class Zone(Base):
+    """
+    >>> z = Zone()
+    >>> len(z.create_chunk())
+    """
     def setdefaults(self):
+        # XXX: 2 bytes missing from description
         self.samplename = '' # no sample assigned 
         self.low_vel = 0
         self.high_vel = 127
@@ -507,9 +530,9 @@ class Zone(Base):
         self.velo_start = 0
 
     def create_chunk(self):
-        return struct.pack('4sl2B20s10Bh',
+        return struct.pack('4sl2B20s10Bh14B',
             'zone',
-            46,
+            48,
             0,
             len(self.samplename),
             self.samplename,
@@ -523,7 +546,21 @@ class Zone(Base):
             self.output,
             self.level,
             self.kb_track,
-            self.velo_start)
+            self.velo_start,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0)
 
            
 
