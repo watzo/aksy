@@ -3,9 +3,7 @@ import struct, sys
 class Command:
     """Represents a system exclusive command.
     """
-
-    def __init__(self, section_id, id, name, arg_types, reply_spec=None):
-        self.section_id = section_id
+    def __init__(self, id, name, arg_types, reply_spec=None):
         self.id = id
         self.name = name
         self.arg_types = []
@@ -27,51 +25,65 @@ class Command:
         else:
             return bytes
 
+class CommandSpec:
+    """Represents the format of system exclusive command.
+    where ID is one id byte, IDS a list of ids, 
+    EG GX700:
+    (sysex.Command.HEADER, sysex.Command.ARG, sysex.Command.ID, sysex.Command.ARGS)
+    EG Z48:
+    (sysex.Command.HEADER, sysex.Command.ID, sysex.Command.ARGS)
+    """
+    ID = "id" 
+    ID = "ids" 
+    ARG = "arg" 
+    ARGS = "args"
+    EXTRA_ID = 5
+    def __init__(self, header, *args):
+        self.header = header
+        self.items = args
+
 class Request:
-    """ Encapsulates a sysex request
+    r""" Encapsulates a sysex request
 
     Select disk:
-    >>> arg = 256 
-    >>> command = Command('\x20', '\x02', 'select_disk', (WORD,None), ()) 
-    >>> Request(command, (arg,))
+    >>> arg = 256
+    >>> command_spec = CommandSpec('\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
+    >>> command = Command('\x20\x02', 'select_disk', (WORD,None), ())
+    >>> Request(command, command_spec, (arg,))
     ['f0', '47', '5f', '00', '20', '02', '00', '02', 'f7']
-
-    Select root folder:
-    >>> folder = ''
-    >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
-    >>> Request(command, (folder,))
-    ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
-
-    Select autoload folder:
-    >>> folder = 'autoload'
-    >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
-    >>> Request(command, (folder,))
-    ['f0', '47', '5f', '00', '20', '13', '61', '75', '74', '6f', '6c', '6f', '61', '64', '00', 'f7']
-
     """
 
-    def __init__(self, command, args, z48id=None, userref=None):
-        bytes = [START_SYSEX, AKAI_ID]
+    def __init__(self, command, command_spec, args=(), ids=()):
+        bytes = [START_SYSEX, command_spec.header,]
 
-        if z48id is not None:
-            bytes.append(z48id) 
-        else:
-            bytes.append(Z48_ID) 
+        ids = [command.id, ] + list(ids)
+        for item in command_spec.items:
+            if item == CommandSpec.ARG:
+                data = self._create_byte_fragment(args, command, True)
+            elif item == CommandSpec.ARGS:
+                data = self._create_byte_fragment(args, command, False)
+            elif item == CommandSpec.ID:
+                data = ids.pop(0)
+            elif item == CommandSpec.IDS:
+                data = ids
+            else:
+                raise Exception("Unknown command specification %s\n" % item)
 
-        if userref is not None:
-            bytes.append(userref) 
-        else:
-            bytes.append(DEFAULT_USERREF) 
-
-        bytes.append(command.section_id) 
-        bytes.append(command.id) 
-        data = command.create_arg_bytes(args)
-        if data is not None:
-            bytes.extend(data)
+            if data is not None:
+                bytes.extend(data)
+            
         bytes.append(END_SYSEX)
 
         self.bytes = ''.join(bytes)
 
+    def _create_byte_fragment(self, list, command, one_item):
+        if len(list) == 0:
+            return None
+        if one_item:
+            return command.create_arg_bytes(list.pop(0)) 
+        else:
+            return command.create_arg_bytes(list) 
+        
     def get_bytes(self):
         return self.bytes;
 
@@ -81,62 +93,13 @@ class Request:
 class Reply:
     r""" Encapsulates a sysex reply
 
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20','\x05', '\x01', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), (BYTE,)) 
-    >>> reply.parse()
-    1
-
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x00','\x02\x01\x02', '\x00', '\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b', '\x00', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), (WORD, BYTE, BYTE, BYTE, BYTE, STRING)) 
-    >>> reply.parse() 
-    (256, 1, 2, 0, 1, 'Z48 & MPC4K')
-
-    # Future: should raise unknown disk error 
-    >>> bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
-    >>> reply = Reply(bytes,()) 
-    >>> reply.parse() 
-    Traceback (most recent call last):
-    Exception: System exclusive error, code 180, message: Unknown disk error
-
-    # using pad type if we encounter bytes not according to specification
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20', '\x10', '\x02', '\x15', '\x00', '\xf7')
-    >>> reply = Reply(''.join(bytes),(PAD, WORD)) 
-    >>> reply.parse() 
-    21
-
-    # not possible yet how to deal with the dump request replies
-    >>> reply = Reply('\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7',()) 
-    >>> reply.parse() 
-    Traceback (most recent call last):
-        ParseException("Unknown reply type: %02x" % struct.unpack('B', reply_id))
-    ParseException: Unknown reply type: 00
-
-    # reply on 'bulk command 10 05' 10 0a 00 f0 47 5e 20 00 00 10 05 15 f7
-    # popped 2 0 bytes after header 5f  and here we discover how ak.sys gets its disk list! (but what about the 15? arg checksum?)
-    >>> bytes = _transform_hexstring('f0 47 5f 00 52 10 05 00 02 01 02 00 01 5a 34 38 20 26 20 4d 50 43 34 4b 00 f7')
-    >>> reply = Reply(bytes, (WORD, BYTE, BYTE, BYTE, BYTE, STRING)) 
-    >>> reply.parse() 
-    (256, 1, 2, 0, 1, 'Z48 & MPC4K')
-
-    # select_disk 10 0c 00 f0 47 5e 20 00 00 10 02 00 02 14 f7
-    # 10 0a 00 f0 47 5e 20 00 00 10 10 20 f7
-    # f0 47 5f 20 00 00 52 10 10 15 00 f7
-    # 10 0a 00 f0 47 5e 20 00 00 10 12 22 f7
-    >>> bytes = _transform_hexstring( 'f0 47 5f 00 52 10 22 4d 65 6c 6c 20 53 74 72 69 6e 67 20 41 32 2e 77 61 76 00 f7')
-    >>> reply = Reply(bytes, (STRING,)) 
-    >>> reply.parse() 
-    'Mell String A2.wav'
-
-    >>> bytes = _transform_hexstring( 'f0 47 5f 00 52 10 22 4d 65 6c 6c 6f 74 72 6f 6e 20 53 74 72 69 6e 67 73 2e 61 6b 70 00 f7')
-    >>> reply = Reply(bytes, (STRING,)) 
-    >>> reply.parse() 
-    'Mellotron Strings.akp'
     """
-    def __init__(self, bytes, reply_spec=(), z48id=None, userref=None):
+    def __init__(self, command, bytes, vendor_id, device_id, extra_id=None):
         self.bytes = bytes
         self.reply_spec = reply_spec
-        self.z48id = z48id
-        self.userref = userref
+        self.vendor_id = vendor_id
+        self.device_id = device_id
+        self.extra_id = extra_id
 
     def parse(self):
         """ Parses the command sequence
@@ -145,7 +108,6 @@ class Reply:
         if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
             raise ParseException("Invalid system exclusive string received")
 
-        # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
         if self.z48id is not None:
             i += len(self.z48id)
@@ -565,40 +527,6 @@ class PadType(SysexType):
     def decode(self, value):
         return None
 
-class HandleNameType(object):
-    """Experimental mixed data type, 
-    wrapping handle(DoubleWord) and name (StringType)
-    """
-    def encode(self, value):
-        raise NotImplementedError
-
-    def decode(self, string):
-        return  (DoubleWord.decode(string[:4]),
-                StringType.decode(string[4:]),)
-
-class SoundLevelType(SignedWordType):
-    r"""Represents soundlevels in dB
-    >>> sl = SoundLevelType()
-    >>> sl.decode(sl.encode(-34.0))
-    -34.0
-    """
-    def __init__(self):
-        SignedWordType.__init__(self)
-        self.set_min_val(-600)
-        self.set_max_val(60)
-
-    def encode(self, value):
-        return super(SoundLevelType, self).encode(int(value*10))
-
-    def decode(self, string):
-        """XXX: reconsider conversion here
-        """
-        return super(SoundLevelType, self).decode(string)/10.0
-
-class PanningType(ByteType):
-    """Represents panning levels in -50->L, 50->R 
-    """
-
 # Sysex type ids
 BYTE        = ByteType()
 SBYTE       = SignedByteType()
@@ -609,15 +537,10 @@ SDWORD      = SignedDoubleWordType()
 QWORD       = QWordType()
 SQWORD      = SignedQWordType() 
 STRING      = StringType()
-TWO_BYTES   = SysexType(2, False, '\x0a')
-THREE_BYTES = SysexType(3, False, '\x0b')
 
 # aksy type extensions
 PAD         = PadType()
 BOOL        = BoolType()
-CENTS       = '\x23' # SWORD(+- 3600)
-PAN         = PanningType()
-LEVEL       = SoundLevelType() 
 
 def parse_byte_string(data, type, offset=0):
     r""" Parses a byte string
@@ -688,41 +611,6 @@ def _transform_hexstring(value):
         result.append(struct.pack('B', int(char, 16)))
     return ''.join(result)
     
-
-errors = {
-    0x00:"The <Section> <Item> supplied are not supported",
-    0x01:"Checksum invalid",
-    0x02:"Unknown error",
-    0x03:"Invalid message format",
-    0x04:"Parameter out of range",
-    0x05:"Operation is pending",
-    0x80:"Unknown system error",
-    0x81:"Operation had no effect",
-    0x82:"Fatal error",
-    0x83:"CPU memory is full",
-    0x84:"WAVE memory is full",
-    0x100:"Unknown item error",
-    0x101:"Item not found",
-    0x102:"Item in use",
-    0x103:"Invalid item handle",
-    0x104:"Invalid item name",
-    0x105:"Maximum number of items of a particular type reached",
-    0x120:"Keygroup not found",
-    0x180:"Unknown disk error",
-    0x181:"No Disks",
-    0x182:"Disk is invalid",
-    0x183:"Load error",
-    0x184:"Create error",
-    0x185:"Directory not empty",
-    0x186:"Delete error",
-    0x187:"Disk is write-protected",
-    0x188:"Disk is not writable",
-    0x189:"Disk full",
-    0x18A:"Disk abort",
-    0x200:"Unknown file error",
-    0x201:"File format is not supported",
-}
-
 if __name__ == "__main__":
     import doctest, sys
     doctest.testmod(sys.modules[__name__])
