@@ -38,7 +38,7 @@ class Sampler(Z48Sampler):
         self.debug = debug
         sys.stderr.writelines("Sampler: %s\n" %repr(self))
         self.disktools = disktools.Disktools(self)
-        self.programtools = program.Programtools(self)
+        self.programtools = programtools.Programtools(self)
         self.sampletools = sampletools.Sampletools(self)
         self.multitools = multitools.Multitools(self)
         self.command_spec = CommandSpec('\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
@@ -69,8 +69,8 @@ class Sampler(Z48Sampler):
         msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
         result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
         # not fool proof for multiple disks
-        disk = model.Disk(self.sampler.disktools.get_disklist())
-        self.sampler.disktools.select_disk(disk.handle)
+        disk = model.Disk(self.disktools.get_disklist())
+        self.disktools.select_disk(disk.handle)
         rootfolder = model.Folder(("",))
         folders = rootfolder.get_children()
         disks.set_children(folders)
@@ -91,7 +91,7 @@ class Sampler(Z48Sampler):
         """
         Z48Sampler._put(self, path, sysex.STRING.encode(remote_name), destination)
 
-    def execute(self, command, command_spec, args, z48id=None, userref=None):
+    def execute(self, command, args, z48id=None, userref=None):
         # fix these args, should be keyword args
         request = Request(command, args, z48id, userref)
         if self.debug:
