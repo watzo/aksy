@@ -1,6 +1,6 @@
 systemtools	Methods to manipulate system parameters
 \x04	\x00	get_os_software_version	Get Operating System Software Version 
-2BYTES
+BYTE	BYTE
 \x04	\x01	get_os_subversion	Get the Sub-Version of the Operating System 
 BYTE
 \x04	\x04	get_sampler_model	Get Sampler Model 
@@ -31,57 +31,57 @@ BYTE
 
 \x04	\x31 	cancel_curr_async_operation	Cancel Current Asynchronous Operation
 
-\x07	\x01	Get Sampler Name
+\x07	\x01	get_sampler_name	Get Sampler Name
 STRING
-\x07	\x02	Get SCSI self ID
+\x07	\x02	get_scsi_id	Get SCSI self ID
 BYTE
-\x07	\x03	Get Master Tune
+\x07	\x03	get_master_tune	Get Master Tune
 SWORD
-\x07	\x04	Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
+\x07	\x04	get_master_level	Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
 BYTE
-\x07	\x05	Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)	BYTE
+\x07	\x05	get_midi_mode	Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)	BYTE
 BYTE
-\x07	\x06	Get Qlink Local Control <Reply> = (0=OFF, 1=ON)
+\x07	\x06	is_qlink_local_ctrl_enabled	Get Qlink Local Control <Reply> = (0=OFF, 1=ON)
 BYTE
-\x07	\x07	Get Create Default Items at Startup <Reply> = (0=OFF, 1=ON)
+\x07	\x07	is_default_items_enabled	Get Create Default Items at Startup <Reply> = (0=OFF, 1=ON)
 BYTE
-\x07	\x08	Get MIDI file save format
+\x07	\x08	get_midi_file_save_format	Get MIDI file save format
 BYTE
-\x07	\x09	Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
+\x07	\x09	get_cdr_write_speed	Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
 BYTE
-\x07	\x0A	Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
+\x07	\x0A	get_cdr_write_mode	Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
 BYTE
-\x07	\x10	Get Front panel lock-out state
+\x07	\x10	is_front_panel_locked	Get Front panel lock-out state
 BYTE
-\x07	\x11	Get Display Contrast
+\x07	\x11	get_display_contrast	Get Display Contrast
 BYTE
-\x07	\x12	Get Note Display <Reply> = (0=NUMBER, 1=NAME)
+\x07	\x12	get_note_display	Get Note Display <Reply> = (0=NUMBER, 1=NAME)
 BYTE
-\x07	\x13	Get Date Display Format  <Reply> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
+\x07	\x13	get_date_format	Get Date Display Format  <Reply> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
 BYTE
-\x07	\x14	Get Time Display Format <Reply> = (0=12HOUR, 1=24HOUR)
+\x07	\x14	get_time_format	Get Time Display Format <Reply> = (0=12HOUR, 1=24HOUR)
 BYTE
-\x07	\x18	Get Waveform View Scale <Reply> = (0=LINEAR, 1=LOG)
+\x07	\x18	get_waveform_view_scale	Get Waveform View Scale <Reply> = (0=LINEAR, 1=LOG)
 BYTE
-\x07	\x19	Get Waveform View Type <Reply> = (0=RECTIFIED, 1=BIPOLAR)
+\x07	\x19	get_waveform_view_type	Get Waveform View Type <Reply> = (0=RECTIFIED, 1=BIPOLAR)
 BYTE
-\x07	\x1A	Get Waveform View Fill <Reply> = (0=OFF, 1=ON)
+\x07	\x1A	get_waveform_view_fill	Get Waveform View Fill <Reply> = (0=OFF, 1=ON)
 BYTE
-\x07	\x1B	Get Item Sort Mode <Reply> = (0=ALPHABETIC, 1=MEMORY)
+\x07	\x1B	get_item_sort_mode	Get Item Sort Mode <Reply> = (0=ALPHABETIC, 1=MEMORY)
 BYTE
-\x07	\x20	Get Year
+\x07	\x20	get_year	Get Year
 BYTE
-\x07	\x21	Get Month
+\x07	\x21	get_month	Get Month
 BYTE
-\x07	\x22	Get Day
+\x07	\x22	get_day	Get Day
 BYTE
-\x07	\x23	Get Day of Week (0=SUN)
+\x07	\x23	get_day_of_week	Get Day of Week (0=SUN)
 BYTE
-\x07	\x24	Get Hours
+\x07	\x24	get_hours	Get Hours
 BYTE
-\x07	\x25	Get Minutes
+\x07	\x25	get_mins	Get Minutes
 BYTE
-\x07	\x26	Get Seconds
+\x07	\x26	get_secs	Get Seconds
 BYTE
-\x07	\x30	Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
+\x07	\x30	get_system_clock	Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
 BYTE

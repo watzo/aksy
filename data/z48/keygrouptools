@@ -111,7 +111,7 @@ BYTE
 
 \x12	\x1A 	set_play_toggle_note	Set Play Toggle Note <Data1> = (0=OFF, 1=ON)	BYTE
 
-\x12	\x20	set_filter_mode	Set Filter Mode	(0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type	BYTE	BYTE
+\x12	\x20	set_filter_mode	Set Filter Mode (0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type	BYTE	BYTE
 
 \x12	\x21	set_filter_cutoff	Set Filter Cutoff Frequency	BYTE	BYTE
 
@@ -137,7 +137,7 @@ BYTE
 
 \x12	\x42	set_env_ref	Set Envelope Reference (FILTER and AUX only)	BYTE	BYTE
 
-\x12	\x43	set_attack_hold	Set Attack Hold <Data1> = (0=OFF, 1=ON) (AMP only)
+\x12	\x43	set_attack_hold	Set Attack Hold <Data1> = (0=OFF, 1=ON) (AMP only)	BYTE
 
 \x12	\x50	set_lfo_rate	Set LFO Rate (0: LFO1 1: LFO2), rate	BYTE	BYTE
 

@@ -61,7 +61,7 @@ BYTE
 BYTE
 \x1B	\x13	get_part_level	Get Part Level, <Reply> = PartLevel in 10×dB
 SWORD
-\x1B	\x14	get_part_output	Get Part Output, <Reply> = (Output: 0	= L/R; 1­4 = op1/2­op7/8; 5­14 = L, R, op1-op8)	BYTE
+\x1B	\x14	get_part_output	Get Part Output, <Reply> = (Output: 0 = L/R; 1­4 = op1/2­op7/8; 5­14 = L, R, op1-op8)	BYTE
 BYTE
 \x1B	\x15	get_part_pan	Get Part Pan/Balance, <Reply> = Pan/Bal (0­100 = L50­R50); centre=50	BYTE
 BYTE

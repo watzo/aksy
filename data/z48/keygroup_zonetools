@@ -7,7 +7,7 @@ LEVEL
 BYTE
 \x0F	\x04	get_output	Get Zone Output(0-15)	BYTE
 BYTE
-\x0F	\x05	get_filter		Get Zone Filter (0 ­ ±100)
+\x0F	\x05	get_filter	Get Zone Filter (0 ­ ±100)
 SBYTE
 \x0F	\x06	get_tune	Get Zone Cents Tune(0 ­ ±3600)
 SBYTE
@@ -15,7 +15,7 @@ SBYTE
 BOOL
 \x0F	\x08	get_playback	Get Zone Playback	BYTE
 BYTE
-\x0F	\x09	get_mod_start		Get Zone ModStart(0 ­ ± 99 99)	BYTE
+\x0F	\x09	get_mod_start	Get Zone ModStart(0 ­ ± 99 99)	BYTE
 SWORD
 \x0F	\x0A	get_low_velocity	Get Zone Low Velocity	BYTE
 BYTE

@@ -35,9 +35,9 @@ DWORD
 
 \x14	\x0F	get_tag_bitmap	Get Tag Bitmap
 WORD
-\x14	\x10	get_modified	Get name of current item with modified/tagged info.
+\x14	\x10	get_modified_name	Get name of current item with modified/tagged info.
 
-\x14	\x11	get_modified	Get modified state of current item.
+\x14	\x11	get_modified_state	Get modified state of current item.
 BYTE
 \x14	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE
 

@@ -1,46 +1,49 @@
 multifxtools	Multi FX
-\x24	\x01	Get FX card installed
+\x24	\x01	is_fxcard_installed	Get FX card installed
 BYTE
-\x24	\x10	Get Number of FX channels
+\x24	\x10	get_no_channels	Get Number of FX channels
 BYTE
-\x24	\x11	Get Maximum Number of FX modules on given channel <Data1=channel>	BYTE
+\x24	\x11	get_max_modules	Get Maximum Number of FX modules on given channel <Data1=channel>	BYTE
 BYTE
-\x24	\x20	Get Number of effects available
+\x24	\x20	get_no	Get Number of effects available
 WORD
-\x24	\x21	Get effect name <Data1> = index of effect	WORD
+\x24	\x21	get_name	Get effect name <Data1> = index of effect	WORD
 STRING
-\x24	\x22	Get Unique ID of effect <Data1> = index of effect	WORD
+\x24	\x22	get_id	Get Unique ID of effect <Data1> = index of effect	WORD
 DWORD
-\x24	\x24	Get Parameter Index for Output Control <Data1> = index of effect	WORD
+\x24	\x24	get_param_index_output_ctrl	Get Parameter Index for Output Control <Data1> = index of effect	WORD
 BYTE
-\x27	\x20	Get	Mute Status of Channel <Reply> = (0=ON, 1=MUTE) BYTE	NONE
+\x27	\x20	is_channel_muted	Get Mute Status of Channel <Reply> = (0=ON, 1=MUTE) BYTE
 BYTE
-\x27	\x21	Get Channel Input <Reply> = input	BYTE	NONE
+\x27	\x21	get_channel_input	Get Channel Input <Reply> = input	BYTE
 BYTE
-\x27	\x22	Get Channel Output <Reply> = output	BYTE	NONE
+\x27	\x22	get_channel_output	Get Channel Output <Reply> = output	BYTE
 BYTE	
-\x27	\x30	Get effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Reply> = effect	BYTE	NONE
+\x27	\x30	get_by_name	Get effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Reply> = effect	BYTE
 BYTE	STRING
-\x27	\x31	Get	effect in module on given channel (by index)<Data1>	=	channel;	<Data2>	=	module;	<Reply>	=	effect	BYTE	BYTE
+\x27	\x31	get_by_index	Get effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Reply> = effect	BYTE	BYTE
 WORD
-\x27	\x40	Get	Enabled/Disabled State of FX module <Data1> = channel; <Data2> = module; (0=disabled, 1=enabled)	BYTE	BYTE
+\x27	\x40	is_module_enabled	Get Enabled/Disabled State of FX module <Data1> = channel; <Data2> = module; (0=disabled, 1=enabled)	BYTE	BYTE
 BYTE	
-\x27	\x50	Get parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE
+\x27	\x50	get_param_value	Get parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE
 SDWORD 
-\x27	\x51	Get parameter string of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE	BYTE
+\x27	\x51	get_param_string	Get parameter string of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE	BYTE
 STRING
-\x27	\x52	Get Qlink control used to control the parameter	<Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1要 = Qlink 1要)	BYTE	BYTE	BYTE
+\x27	\x52	get_param_qlinkctrl	Get Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1要 = Qlink 1要)	BYTE	BYTE	BYTE
 BYTE
-\x26	\x20	Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)	BYTE	BYTE
+\x26	\x20	set_channel_mute	Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)	BYTE	BYTE
 
-\x26	\x21	Set Channel Input <Data2> = input	BYTE	BYTE
+\x26	\x21	set_channel_input	Set Channel Input <Data2> = input	BYTE	BYTE
 
-\x26	\x22	Set Channel Output <Data2> = output	BYTE	BYTE
+\x26	\x22	set_channel_output	Set Channel Output <Data2> = output	BYTE	BYTE
 
-\x26	\x30	Set effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Data3> = effect.	BYTE	BYTE	STRING
+\x26	\x30	set_fx_by_id	Set effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Data3> = effect.	BYTE	BYTE	STRING
 
-\x26	\x31	Set effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Data3> = effect	BYTE	BYTE	WORD
+\x26	\x31	set_fx_by_name	Set effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Data3> = effect	BYTE	BYTE	WORD
 
-\x26	\x40	Set Enabled/Disabled State of FX module. <Data1> = channel; <Data2> = module; <Data3> =0 (disable) or 1 (enable) parameter values	BYTE	BYTESDWORD
-\x26	\x50	Set parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = parameter value	BYTE	BYTE	BYTE	BYTE
-\x26	\x52	Set Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = Qlink control (0=NONE, 1要 = Qlink 1要)	BYTE	BYTE	BYTE	BYTE
+\x26	\x40	enable_module	Set Enabled/Disabled State of FX module. <Data1> = channel; <Data2> = module; <Data3> =0 (disable) or 1 (enable) parameter values	BYTE	BYTES	DWORD
+
+\x26	\x50	set_param_value	Set parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = parameter value	BYTE	BYTE	BYTE	BYTE
+
+\x26	\x52	set_param_qlinkctrl	Set Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = Qlink control (0=NONE, 1要 = Qlink 1要)	BYTE	BYTE	BYTE	BYTE
+
