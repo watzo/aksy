@@ -1,6 +1,6 @@
 
 from wxPython.wx import wxPySimpleApp, wxFrame, wxPanel, wxID_ANY, wxDEFAULT_FRAME_STYLE, wxNO_FULL_REPAINT_ON_RESIZE, wxTR_DEFAULT_STYLE, wxART_FOLDER, wxART_FILE_OPEN, wxART_OTHER, EVT_SIZE, wxImageList, wxArtProvider_GetBitmap, wxTreeItemIcon_Normal, wxTreeItemIcon_Expanded, wxART_REPORT_VIEW, wxTreeItemIcon_Selected, wxMenu, wxMenuBar, EVT_MENU, wxMessageDialog, wxOK, wxPopupWindow, EVT_RIGHT_DOWN, EVT_RIGHT_UP, wxSIMPLE_BORDER, wxPopupTransientWindow, wxStaticText
-
+from wxPython.wx import wxImage, wxBITMAP_TYPE_PNG,wxDF_TEXT
 from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY, wxID_PASTE, wxNewId, wxID_OK, wxPyDataObjectSimple, wxTextDataObject, wxFileDropTarget
 from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT, EVT_TREE_ITEM_EXPANDING, EVT_TREE_ITEM_ACTIVATED
@@ -15,7 +15,7 @@ import os.path, traceback, sys, copy
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = True
+USE_MOCK_OBJECTS = False
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -92,13 +92,19 @@ class AksyFSTree(wxTreeListCtrl):
         il = wxImageList(isz[0], isz[1])
         # add icons for programs, multis, samples
 
-        self.fldridx     = il.Add(wxArtProvider_GetBitmap(wxART_FOLDER,      wxART_OTHER, isz))
-        self.fldropenidx = il.Add(wxArtProvider_GetBitmap(wxART_FILE_OPEN,   wxART_OTHER, isz))
+        # self.fldridx     = il.Add(wxArtProvider_GetBitmap(wxART_FOLDER,      wxART_OTHER, isz))
+        #self.fldropenidx = il.Add(wxArtProvider_GetBitmap(wxART_FILE_OPEN,   wxART_OTHER, isz))
         self.fileidx     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
         
-        self.program_icon     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
-        self.multi_icon     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
-        self.sample_icon     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
+        self.diskidx = il.Add(wxImage('src/gui/img/harddisk.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.memidx = il.Add(wxImage('src/gui/img/memory.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.fldridx = il.Add(wxImage('src/gui/img/folder.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.fldropenidx = il.Add(wxImage('src/gui/img/folder-open.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+
+        #self.program_icon     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
+        self.program_icon     = il.Add(wxImage('src/gui/img/program.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.multi_icon     = il.Add(wxImage('src/gui/img/multi.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.sample_icon     = il.Add(wxImage('src/gui/img/sample.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
         self.SetImageList(il)
         self.il = il
 
@@ -113,7 +119,8 @@ class AksyFSTree(wxTreeListCtrl):
         self.root = self.AddRoot("Z48")
         self.SetItemImage(self.root, self.fldridx, which = wxTreeItemIcon_Normal)
         self.SetItemImage(self.root, self.fldropenidx, which = wxTreeItemIcon_Expanded)
-        self._index = {}
+        self._id_to_item = {}
+        self._item_to_id = {}
 
         EVT_TREE_ITEM_EXPANDING(self, id, self.OnItemExpanding)
         EVT_TREE_ITEM_ACTIVATED(self, id, self.OnItemActivate)
@@ -172,6 +179,13 @@ class AksyFSTree(wxTreeListCtrl):
             else:
                 self.SetItemImage(child, self.fileidx, which = wxTreeItemIcon_Normal)
                 self.SetItemImage(child, self.fileidx, which = wxTreeItemIcon_Expanded)
+        elif isinstance(item, model.Storage):
+            if isinstance(item, model.Memory):
+                self.SetItemImage(child, self.memidx, which = wxTreeItemIcon_Normal)
+                self.SetItemImage(child, self.memidx, which = wxTreeItemIcon_Expanded)
+            else:
+                self.SetItemImage(child, self.diskidx, which = wxTreeItemIcon_Normal)
+                self.SetItemImage(child, self.diskidx, which = wxTreeItemIcon_Expanded)
         else:
             self.SetItemImage(child, self.fldridx, which = wxTreeItemIcon_Normal)
             self.SetItemImage(child, self.fldridx, which = wxTreeItemIcon_Expanded)
@@ -179,10 +193,10 @@ class AksyFSTree(wxTreeListCtrl):
         return child
 
     def AddItemIndex(self, handle, wx_id):
-        self._index[handle] = wx_id
+        self._item_to_id[handle] = wx_id
 
-    def GetItemByName(self, name):
-        return self._index[name]
+    def get_item_by_name(self, name):
+        return self._item_to_id[name]
 
     def OnSelChanged(self, evt):
         id = evt.GetItem()
@@ -214,8 +228,9 @@ class AksyFSTree(wxTreeListCtrl):
         id = evt.GetItem()
         item = self.GetPyData(id)
 
+        print "OnItemExpanding %s" % repr(item.get_name())
         for item in item.get_children():
-            if item.path not in self._index:
+            if item.get_handle() not in self._id_to_item:
                 self.AppendAksyItem(id, item)
 
     def OnItemActivate(self, evt):
@@ -223,7 +238,7 @@ class AksyFSTree(wxTreeListCtrl):
         id = evt.GetItem()
         item = self.GetPyData(id)
 
-class TestPanel(wxPanel):
+class TreePanel(wxPanel):
     def __init__(self, parent):
         # TODO:config item!
 
@@ -235,8 +250,10 @@ class TestPanel(wxPanel):
         self.z = parent.z
         EVT_SIZE(self, self.OnSize)
 
-        self.tree = AksyFSTree(self, 5001, style=wxTR_EDIT_LABELS|wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE|wxTR_MULTIPLE)
+        self.tree = AksyFSTree(self, wxNewId(), style=wxTR_EDIT_LABELS|wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE|wxTR_MULTIPLE)
         self.actions = {}
+        self._action_item = None
+        self._action = None
         self.register_menu_actions(model.File.actions)
 
         for action in ( model.Action('cut','Cut\tCtrl+X', wxID_CUT),
@@ -258,8 +275,8 @@ class TestPanel(wxPanel):
 
         storage = [disks, mem]
 
-        disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disks)
         mem_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), mem)
+        disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disks)
 
         programtools = self.z.programtools
         sampletools = self.z.sampletools
@@ -291,7 +308,8 @@ class TestPanel(wxPanel):
             mellotron_folder = model.Folder(('', 'Mellotron',))
             choir_folder = model.Folder(('', 'Choir',))
             choir_folder.children.extend(
-                (model.File(('', 'Mellotron', 'Choir', 'Choir.AKP',)),
+                (model.File(('', 'Mellotron', 'Choir', 'Choir.AKM',)),
+                model.File(('', 'Mellotron', 'Choir', 'Choir.AKP',)),
                 model.File(('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
 
             mellotron_folder.children.extend(
@@ -311,49 +329,62 @@ class TestPanel(wxPanel):
         -copy/paste aksy items in the tree
         -copy/paste filenames between aksy 
     """
-
     def OnCopy(self, evt):
         # this is always a node to be copied.
         id = self.tree.GetSelection()
 
         item = self.tree.GetPyData(id)
-        print "OnCopy ", repr(item.get_name())
-        if wxTheClipboard.Open():
-            data = wxTextDataObject("\\".join(item.path))
-            if wxTheClipboard.SetData(data):
-                print "Clipboard data ", repr(data)
-            wxTheClipboard.Close()
+        assert hasattr(item, "copy")
+        self.prepare_edit_action(item, 'copy')
+
+    def undo_action(self):
+        """XXX: make generic by adding it to the action class
+        """
+        item = self._item
+        id = self.tree.get_item_by_name(item)
+        if self._action == "cut":
+            # XXX: retain position within leaf
+            self.tree.AppendAksyItem(self.Tree.GetItemParent(id), item)
+        self._action_item = None
+        self._action = None
+
+    def prepare_edit_action(self, item, action):
+        self._action_item = item
+        self._action = action
+    
+    def complete_edit_action(self, dest_id, dest_item):
+        if self._action is None or self._action_item is None:
+            return False
+        
+        new_item = self._action_item.copy(dest_item.path)
+        self.tree.AppendAksyItem(dest_id, new_item)
+
+        if self._action == "cut":
+            self._action_item.delete()
 
     def OnCut(self, evt):
         # this is always a node
         # hide it
         id = self.tree.GetSelection()
         item = self.tree.GetPyData(id)
-        print "OnCut ", repr(item.get_name())
-        if wxTheClipboard.Open():
-            data = AksyData()
-            if wxTheClipboard.SetData(data):
-                # get the filenames 
-                pass
-            wxTheClipboard.Close()
+        self.prepare_edit_action(item, 'cut')
+        # XXX: check if this removes the pyData as well
+        self.tree.Delete(id)
         
     def OnPaste(self, evt):
-        parent_id = self.tree.GetSelection()
-        print "Clipboard data "
-        if wxTheClipboard.Open():
-            wxTheClipboard.UsePrimarySelection(False) # char selection in x
-            data = wxTextDataObject()
-            data = wxFileDataObject()
-            if wxTheClipboard.GetData(data):
-                print "Clipboard data ", repr(data.GetText())
-                #item = self.tree.GetPyData(data.getId())
-                print "OnPaste ", repr(item.get_name())
-                #self.tree.AppendAksyItem(id, data.getId())
-            # or a cut/copied node
-            wxTheClipboard.Close()
-            # if cut -> paste the node to the new location
-            # and remove the old node
-            # otherwise create the new node
+        dest_id = self.tree.GetSelection()
+        dest_item = self.tree.GetPyData(dest_id)
+        # internal copy/paste
+        if not self.complete_edit_action(dest_id, dest_item):
+            if wxTheClipboard.Open():
+                # assume a path is pasted
+                data = wxTextDataObject()
+                if wxTheClipboard.GetData(data):
+                    print "Clipboard data ", repr(data.GetText())
+                    data = wxFileDataObject()
+                elif wxTheClipboard.GetData(data):
+                     print "Clipboard data ", repr(data.GetFilenames())
+                wxTheClipboard.Close()
 
     def register_menu_actions(self, actions):
 
@@ -483,7 +514,7 @@ class TestPanel(wxPanel):
     def add_to_memory_branch(self, item, result):
         """Updates the memory branch when an item has been loaded
         """
-        memory_folder = self.tree.GetItemByName('memory')
+        memory_folder = self.tree.get_item_by_name('memory')
         if not isinstance(result, list):
             self.tree.AppendAksyItem(memory_folder, result)
         else:
@@ -493,7 +524,7 @@ class TestPanel(wxPanel):
         self.tree.Expand(memory_folder)
 
     def remove_from_memory_branch(self, item):
-        memory_folder = self.tree.GetItemByName('memory')
+        memory_folder = self.tree.get_item_by_name('memory')
         self.tree.Delete(item.id)
 
     def OnSize(self, e):
@@ -509,16 +540,6 @@ class ActionMenu(wxMenu):
         for index, action in enumerate(actions):
             self.Append(action.id, action.display_name, action.display_name)
          
-class AksyItem(wxPyDataObjectSimple):
-    pass
-
-class AksyData(wxFileDataObject):
-    def setId(self, id):
-        self.id = id
-
-    def getId(self):
-        return self.id
-
 class AksyFileDropTarget(wxFileDropTarget):
     def __init__(self, window):
         wxFileDropTarget.__init__(self)
@@ -528,7 +549,7 @@ class AksyFileDropTarget(wxFileDropTarget):
         id, flag1, flag2 = self.tree.HitTest((x,y))
         print repr(id)
         item = self.tree.GetPyData(id)
-        if item is None or not hasattr(item, "add_child"): 
+        if item is None or not hasattr(item, "append_child"): 
             return
 
         sys.stderr.writelines("\n%d file(s) dropped on %s:\n" % (len(filenames), item.get_name()))
@@ -541,5 +562,5 @@ class AksyFileDropTarget(wxFileDropTarget):
 if __name__ == '__main__':
     app = wxPySimpleApp()
     frame = Frame(None, "Aksy")
-    win = TestPanel(frame)
+    win = TreePanel(frame)
     app.MainLoop()
