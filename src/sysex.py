@@ -171,8 +171,6 @@ class Reply:
         else:
             raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
-        assert(len(self.reply_spec) > 0)
-
         return self.parse_untyped_bytes(self.bytes, i)
 
     def parse_typed_bytes(self, bytes, offset):
