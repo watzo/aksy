@@ -1,0 +1,15 @@
+\x24	multifx_main	Multi FX Main
+\x01	Get FX card installed
+BYTE
+\x10	Get Number of FX channels
+BYTE
+\x11	Get Maximum Number of FX modules on given channel <Data1=channel>	BYTE
+BYTE
+\x20	Get Number of effects available
+WORD
+\x21	Get effect name <Data1> = index of effect	WORD
+STRING
+\x22	Get Unique ID of effect <Data1> = index of effect	WORD
+DWORD
+\x24	Get Parameter Index for Output Control <Data1> = index of effect	WORD
+BYTE
