@@ -55,14 +55,28 @@ class SampleMain:
           self.commands[('\x1C', '\x11 ')] = comm
           comm = sysex.Command('\x1C','\x18', 'delete_tagged', (sysex.BYTE ,), ())
           self.commands[('\x1C', '\x18')] = comm
-          comm = sysex.Command('\x1C','\x40 ', 'play', (), ())
-          self.commands[('\x1C', '\x40 ')] = comm
-          comm = sysex.Command('\x1C','\x41 ', 'stop', (), ())
-          self.commands[('\x1C', '\x41 ')] = comm
-          comm = sysex.Command('\x1C','\x42', 'play_until', (sysex.QWORD,), ())
+          comm = sysex.Command('\x1C','\x40', 'play', (sysex.BYTE, sysex.BOOL), ())
+          self.commands[('\x1C', '\x40')] = comm
+          comm = sysex.Command('\x1C','\x41', 'stop', (), ())
+          self.commands[('\x1C', '\x41')] = comm
+          comm = sysex.Command('\x1C','\x42', 'play_until', (sysex.BYTE, sysex.QWORD), ())
           self.commands[('\x1C', '\x42')] = comm
           comm = sysex.Command('\x1C','\x43 ', 'play_from', (sysex.BYTE, sysex.QWORD), ())
           self.commands[('\x1C', '\x43 ')] = comm
+          comm = sysex.Command('\x1C','\x44', 'play_over', (sysex.BYTE, sysex.QWORD), ())
+          self.commands[('\x1C', '\x44')] = comm
+          comm = sysex.Command('\x1C','\x45', 'play_loop', (sysex.BYTE, sysex.BYTE), ())
+          self.commands[('\x1C', '\x45')] = comm
+          comm = sysex.Command('\x1C','\x46', 'play_region', (sysex.BYTE, sysex.BYTE), ())
+          self.commands[('\x1C', '\x46')] = comm
+          comm = sysex.Command('\x1C','\x48', 'create_loop', (), ())
+          self.commands[('\x1C', '\x48')] = comm
+          comm = sysex.Command('\x1C','\x49', 'delete_loop', (sysex.BYTE,), ())
+          self.commands[('\x1C', '\x49')] = comm
+          comm = sysex.Command('\x1C','\x4A', 'create_region', (), ())
+          self.commands[('\x1C', '\x4A')] = comm
+          comm = sysex.Command('\x1C','\x4B', 'delete_region', (sysex.BYTE,), ())
+          self.commands[('\x1C', '\x4B')] = comm
 
      def get_no_items(self):
           """Get number of items in memory
@@ -211,27 +225,69 @@ class SampleMain:
           comm =  self.commands.get(('\x1C','\x18'))
           return self.z48.execute(comm, (arg0, ))
 
-     def play(self):
-          """Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING) BYTE BYTE
+     def play(self, arg0, arg1):
+          """Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING)
           """
-          comm =  self.commands.get(('\x1C','\x40 '))
-          return self.z48.execute(comm, ())
+          comm =  self.commands.get(('\x1C','\x40'))
+          return self.z48.execute(comm, (arg0, arg1, ))
 
      def stop(self):
           """Stop playback of the current sample
           """
-          comm =  self.commands.get(('\x1C','\x41 '))
+          comm =  self.commands.get(('\x1C','\x41'))
           return self.z48.execute(comm, ())
 
-     def play_until(self, arg0):
-          """Play To <Data1> = velocity, <Data2> = sample position BYTE
+     def play_until(self, arg0, arg1):
+          """Play To <Data1> = velocity, <Data2> = sample position
           """
           comm =  self.commands.get(('\x1C','\x42'))
-          return self.z48.execute(comm, (arg0, ))
+          return self.z48.execute(comm, (arg0, arg1, ))
 
      def play_from(self, arg0, arg1):
           """Play From <Data1> = velocity, <Data2> = sample position
           """
           comm =  self.commands.get(('\x1C','\x43 '))
           return self.z48.execute(comm, (arg0, arg1, ))
+
+     def play_over(self, arg0, arg1):
+          """Play Over <Data1> = velocity, <Data2> = sample position
+          """
+          comm =  self.commands.get(('\x1C','\x44'))
+          return self.z48.execute(comm, (arg0, arg1, ))
+
+     def play_loop(self, arg0, arg1):
+          """Play Loop <Data1> = velocity, <Data2> = loop index
+          """
+          comm =  self.commands.get(('\x1C','\x45'))
+          return self.z48.execute(comm, (arg0, arg1, ))
+
+     def play_region(self, arg0, arg1):
+          """Play Region <Data1> = velocity, <Data2> = region index
+          """
+          comm =  self.commands.get(('\x1C','\x46'))
+          return self.z48.execute(comm, (arg0, arg1, ))
+
+     def create_loop(self):
+          """Create New Loop
+          """
+          comm =  self.commands.get(('\x1C','\x48'))
+          return self.z48.execute(comm, ())
+
+     def delete_loop(self, arg0):
+          """Delete Loop <Data1> = index
+          """
+          comm =  self.commands.get(('\x1C','\x49'))
+          return self.z48.execute(comm, (arg0, ))
+
+     def create_region(self):
+          """Create Region
+          """
+          comm =  self.commands.get(('\x1C','\x4A'))
+          return self.z48.execute(comm, ())
+
+     def delete_region(self, arg0):
+          """Delete Region <Data1> = index
+          """
+          comm =  self.commands.get(('\x1C','\x4B'))
+          return self.z48.execute(comm, (arg0, ))
 

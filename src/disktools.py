@@ -51,6 +51,12 @@ class Disktools:
           self.commands[('\x20', '\x29')] = comm
           comm = sysex.Command('\x20','\x2A', 'load_file', (sysex.STRING,), ())
           self.commands[('\x20', '\x2A')] = comm
+          comm = sysex.Command('\x20','\x2B', 'load_file_and_deps', (sysex.STRING,), ())
+          self.commands[('\x20', '\x2B')] = comm
+          comm = sysex.Command('\x20','\x2C', 'save', (sysex.DWORD, sysex.BYTE, sysex.BOOL, sysex.BYTE ), ())
+          self.commands[('\x20', '\x2C')] = comm
+          comm = sysex.Command('\x20','\x2D', 'save_all', (sysex.BYTE, sysex.BOOL ), ())
+          self.commands[('\x20', '\x2D')] = comm
 
      def update_disklist(self):
           """Update the list of disks connected
@@ -135,7 +141,7 @@ class Disktools:
           return self.z48.execute(comm, (arg0, ))
 
      def load_folder(self, arg0):
-          """Load Folder: the selected folder, and all its contents (including sub- 
+          """Load Folder: the selected folder, and all its contents (including subfolders)
           """
           comm =  self.commands.get(('\x20','\x15'))
           return self.z48.execute(comm, (arg0, ))
@@ -177,7 +183,7 @@ class Disktools:
           return self.z48.execute(comm, ())
 
      def rename_file(self, arg0, arg1):
-          """ Rename File 
+          """Rename File
           """
           comm =  self.commands.get(('\x20','\x28'))
           return self.z48.execute(comm, (arg0, arg1, ))
@@ -193,4 +199,22 @@ class Disktools:
           """
           comm =  self.commands.get(('\x20','\x2A'))
           return self.z48.execute(comm, (arg0, ))
+
+     def load_file_and_deps(self, arg0):
+          """Load File <Data1> = name of file to load. Will load the dependents as well
+          """
+          comm =  self.commands.get(('\x20','\x2B'))
+          return self.z48.execute(comm, (arg0, ))
+
+     def save(self, arg0, arg1, arg2, arg3):
+          """Save Memory Item to Disk <Data1> = Handle of Memory Item <Data2> = Type = (1=Multi; 2=Program; 3=Sample; 4=SMF) <Data3> = (0=Skip if file exists; 1=Overwrite existing files) <Data4> = (0=Don't save children; 1=Save Children)
+          """
+          comm =  self.commands.get(('\x20','\x2C'))
+          return self.z48.execute(comm, (arg0, arg1, arg2, arg3, ))
+
+     def save_all(self, arg0, arg1):
+          """Save All Memory Items to Disk <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF) <Data2> = (0=Skip if file exists; 1=Overwrite existing files)
+          """
+          comm =  self.commands.get(('\x20','\x2D'))
+          return self.z48.execute(comm, (arg0, arg1, ))
 
