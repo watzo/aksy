@@ -17,6 +17,9 @@ class Disk(object):
         self.writable = writable
         self.name = name
 
+    def get_name(self):
+        return self.name
+
 class Action:
     """Wraps an action for a file, adapting an interface action to
     a function call
@@ -50,19 +53,21 @@ class File(object):
 
         self.disktools = disktools
         self.path = path
-        self.name = path[-1]
 
-        if RE_MULTI.search(self.name) is not None:
+        if RE_MULTI.search(self.get_name()) is not None:
             self.type = self.MULTI
-        elif RE_PROGRAM.search(self.name) is not None:
+        elif RE_PROGRAM.search(self.get_name()) is not None:
             self.type = self.PROGRAM
-        elif RE_SAMPLE.search(self.name) is not None:
+        elif RE_SAMPLE.search(self.get_name()) is not None:
             self.type = self.SAMPLE
         else:
-            #raise NotImplementedError("No support for file type: ", self.name) 
+            #raise NotImplementedError("No support for file type: ", self.get_name()) 
             self.type = self.SAMPLE
 
         self.module = self.modules[self.type]
+
+    def get_name(self):
+        return self.path[-1]
 
     def get_size(self):
         return 'Unknown' 
@@ -84,7 +89,7 @@ class File(object):
         """Load the file into memory 
         """
         self.get_parent().set_current()
-        self.disktools.load_file(self.name)
+        self.disktools.load_file(self.get_name())
 
         if self.type == self.MULTI:
             return Multi(self.module, self.path)
@@ -96,8 +101,8 @@ class File(object):
     def transfer(self, path):
         """Transfer the file to host 
         """
-        print "Transfer of file %s to %s" % (self.name, repr(path))
-        self.disktools.z48.get(self.name, path)
+        print "Transfer of file %s to %s" % (self._get_name(), repr(path))
+        self.disktools.z48.get(self.get_name(), path)
 
     def get_children(self):
         """
@@ -135,7 +140,7 @@ File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete,
 
 class InMemoryFile(File):
     def set_current(self):
-        self.module.set_current_by_name(self.name)
+        self.module.set_current_by_name(self.get_name())
 
     def delete(self):
         print "InMemoryFile.delete() %s" % repr(self.module)
@@ -161,8 +166,6 @@ class Folder(File):
         self.type = File.FOLDER
         self.children = []
 
-        print "Initializing folder %s" % repr(path)
-
     def get_children(self):
         """Gets the children of this folder
         or returns a cached version when already retrieved.
@@ -178,8 +181,6 @@ class Folder(File):
             self.disktools.get_filenames() ]
 
         self.children.extend(files)
-        print "Returning children %s of folder %s" % (repr(self.children),
-        repr(self.path))
         return self.children
 
     def has_children(self):
@@ -299,12 +300,16 @@ Sample.actions.update(InMemoryFile.actions)
 class Storage:
     def __init__(self, name):
         self.name = name
+        self.path = name
         self.actions = None 
         self.type = File.FOLDER
         self._children = []
     
     def has_children(self):
-        return len(self._children) > 0 
+        return (len(self._children) > 0)
+
+    def get_name(self):
+        return self.name
 
     def get_children(self):
         return self._children    
