@@ -264,15 +264,13 @@ ZERO        = '\x00'
 PAD         = '\x21' # unspecified return code
 
 def _to_byte_string(src_type, value):
-    """
-    doc-tests don't handle x-escaped values too well, so we unwrap the encoded
-    value again:
+    r"""
 
     TODO: raise value errors if value out of range 
-    >>> struct.unpack('2b', _to_byte_string(WORD, 512))
-    (0, 2)
+    >>> _to_byte_string(WORD, 512)
+    '\x00\x02'
 
-    >>> # _to_byte_string(STRING, '')
+    >>> _to_byte_string(STRING, '')
     '\x00'
     >>> _to_byte_string(STRING, 'test')
     >>> _to_byte_string(STRING, 'test sdf')
