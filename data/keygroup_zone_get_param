@@ -1,0 +1,13 @@
+\x0F	keygroup_zone_get_param	Keygroup Zone Get Parameter
+\x01	Get Zone Sample (Data1=zone number 1-4)	BYTE
+STRING
+\x02	Get Zone Level <Reply> = level in 10×dB	BYTE
+SWORD
+\x03	Get Zone Pan (0-100)	BYTE
+BYTE
+\x04	Get Zone Output(0-15)	BYTE
+BYTE
+\x05		Get Zone Filter	(0 ­ ±100)
+SBYTE
+\x06	Get Zone Cents Tune(0 ­ ±3600)
+SBYTE

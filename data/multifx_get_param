@@ -1,4 +1,4 @@
-\x27	--	Multi	FX	Parameter	Get
+\x27	multifx_get_param	Multi FX Parameter Get
 \x20	Get	Mute Status of Channel <Reply> = (0=ON, 1=MUTE) BYTE	NONE
 BYTE
 \x21	Get Channel Input <Reply> = input	BYTE	NONE
