@@ -111,7 +111,7 @@ class Base:
                 setattr(self, kw, value)
 
     def read_byte(self, index):
-        return struct.unpack('B', self._chunk[index])
+        return struct.unpack('<b', self._chunk[index])
 
     def read_string(self, index):
         return struct.unpack('20s', self._chunk[index, index + 20])
@@ -162,7 +162,7 @@ class Modulation(Base):
         self.filter_input3 = 9 
 
     def create_chunk(self):
-        return struct.pack('4sl38B',
+        return struct.pack('<4sl38b',
             'mods',
             38,
             0,
@@ -257,7 +257,7 @@ class Program(Base):
         self.keygroups = [Keygroup()]
         self.midi_prog_no = 0
         self.no_keygrps = 1 
-        self.loudness = 0
+        self.loudness = 85
         self.amp_mod1 = 0
         self.amp_mod2 = 0
         self.pan_mod1 = 0
@@ -287,9 +287,11 @@ class Program(Base):
 
     def create_chunk(self):
         chunk = StringIO()
-        chunk.write(struct.pack('4sl8sl6B4sl8B4sl22B',
+        # explicitly setting little endian 
+        # native mode aligns the longs. eek!
+        chunk.write(struct.pack('<4sl8sl6b 4sl8b 4sl24b',
             'RIFF',
-            0, # length
+            0,
             'APRG'
             'prg ',
             6, 
@@ -300,7 +302,7 @@ class Program(Base):
             0,
             0,
             'out ',
-            8, #length
+            8,
             0,
             self.loudness,
             self.amp_mod1,
@@ -310,7 +312,7 @@ class Program(Base):
             self.pan_mod3,
             self.velo_sens,
             'tune',
-            22, #length
+            24,
             0,
             self.semi,
             self.fine,
@@ -330,6 +332,8 @@ class Program(Base):
             self.pitchbend_down,
             self.bend_mode,
             self.aftertouch,
+            0,
+            0,
             0,
             0,
             0))
@@ -388,7 +392,7 @@ class LFO1(LFO):
     """
     >>> lfo = LFO1(lfo_sync=1)
     >>> len(lfo.create_chunk())
-    20
+    22
     """
     def setdefaults(self):
         LFO.setdefaults(self)
@@ -400,7 +404,7 @@ class LFO1(LFO):
         self.aftertouch = 0
 
     def create_chunk(self):
-        return struct.pack('4sl14B',
+        return struct.pack('<4sl14b',
             'lfo ',
             14,
             0,
@@ -426,7 +430,7 @@ class LFO2(LFO):
     Exception: Unknown property: lfo_sync
     >>> lfo = LFO2(lfo_retrigger=1)
     >>> len(lfo.create_chunk())
-    20
+    22
     """
 
     def setdefaults(self):
@@ -434,7 +438,7 @@ class LFO2(LFO):
         self.lfo_retrigger = 0
         
     def create_chunk(self):
-        return struct.pack('4sl14B',
+        return struct.pack('<4sl14b',
             'lfo ',
             14,
             0,
@@ -483,7 +487,7 @@ class Keygroup(Base):
 
     def create_chunk(self):
         chunk = StringIO()
-        chunk.write(struct.pack('4sl4sl16B',
+        chunk.write(struct.pack('<4sl4sl16b',
             'kgrp',
             336,        
             'kloc',
@@ -513,9 +517,8 @@ class Keygroup(Base):
 class Zone(Base):
     """
     >>> z = Zone()
-    48 + 8
     >>> len(z.create_chunk())
-    56 
+    56
     """
     def setdefaults(self):
         # XXX: 2 bytes missing from description
@@ -533,8 +536,7 @@ class Zone(Base):
         self.velo_start = 0
 
     def create_chunk(self):
-        print self.samplename
-        return struct.pack('4sl2B20s10Bh14B',
+        return struct.pack('<4sl2b20s10bh14b',
             'zone',
             48,
             0,
@@ -617,7 +619,7 @@ class Filter(Base):
         self.headroom = 0
 
     def create_chunk(self):
-        return struct.pack('4sl10B',
+        return struct.pack('<4sl10b',
             'filt',
             10,
             0,
@@ -644,8 +646,13 @@ class Envelope(Base):
 
 
 class AmpEnvelope(Envelope):
+    """
+    >>> amp = AmpEnvelope()
+    >>> len(amp.create_chunk()) 
+    26
+    """
     def create_chunk(self):
-        return struct.pack('4sl18B',
+        return struct.pack('<4sl18b',
             'env ',
             18,
             0,
@@ -669,13 +676,18 @@ class AmpEnvelope(Envelope):
 
 
 class FilterEnvelope(Envelope):
+    """
+    >>> filt_env = FilterEnvelope()
+    >>> len(filt_env.create_chunk()) 
+    26
+    """
     def setdefaults(self):
         Envelope.setdefaults(self)
         self.filter_env_depth = 0
         
     def create_chunk(self):
-        return struct.pack('4sl18B',
-            'env',
+        return struct.pack('<4sl18b',
+            'env ',
             18,
             0,
             self.attack,
@@ -697,6 +709,11 @@ class FilterEnvelope(Envelope):
             0)
 
 class AuxEnvelope(Base):
+    """
+    >>> aux_env = AuxEnvelope()
+    >>> len(aux_env.create_chunk()) 
+    26
+    """
     def setdefaults(self):
         self.rate1 = 0
         self.rate2 = 50
@@ -713,7 +730,7 @@ class AuxEnvelope(Base):
         self.velo_to_out_level = 0
 
     def create_chunk(self):
-        return struct.pack('4sl18B',
+        return struct.pack('<4sl18b',
             'env ',
             18,
             0,
