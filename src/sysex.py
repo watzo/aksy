@@ -274,7 +274,8 @@ def _to_byte_string(src_type, value):
 
     >>> # _to_byte_string(STRING, '')
     '\x00'
-    >>> #_to_byte_string(STRING, 'test')
+    >>> _to_byte_string(STRING, 'test')
+    >>> _to_byte_string(STRING, 'test sdf')
     """
     if (src_type == BYTE or src_type == ZERO):
        byte_string = struct.pack('<b', value)
