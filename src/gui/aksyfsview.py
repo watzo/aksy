@@ -16,7 +16,7 @@ import os.path, traceback, sys
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = False
+USE_MOCK_OBJECTS = True
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -117,7 +117,7 @@ class AksyFSTree(wxTreeListCtrl):
     def OnItemBeginDrag(self, evt):
         id = evt.GetItem()
         self.draggedItem = self.GetPyData(id)
-        print "BeginDrag ", self.draggedItem.name
+        print "BeginDrag ", self.draggedItem.get_name()
         evt.Allow()
 
     def OnItemEndDrag(self, evt):
@@ -128,24 +128,20 @@ class AksyFSTree(wxTreeListCtrl):
             return
         self.AppendAksyItem(dest, self.draggedItem)
 
-    def AppendAksyItem(self, parent, item, depth=1):
+    def AppendAksyItem(self, parent, item):
 
         """Appends an item to the tree. default is root
         """
         if parent is None:  
             parent = self.root
 
-        child = wxTreeListCtrl.AppendItem(self, parent, item.name)
-        if depth == 1 and item.has_children():
-        
-            print "Child %s.Name: %s Aksy children: " % (repr(child), item.name)
-            for grandchild in item.get_children():
-                print "Child %s.Name: %s Aksy children: " % (repr(child), grandchild.name)
-                wx_grandchild = self.AppendAksyItem(child, grandchild, 0)
-                self.SetPyData(wx_grandchild, grandchild)
+        print "AppendAksyItem: Child name: %s has children: %s" % (item.get_name(), item.has_children())
+        child = wxTreeListCtrl.AppendItem(self, parent, item.get_name())
+        if item.has_children():
+            self.SetItemHasChildren(child)
 
         self.SetPyData(child, item)
-        self.AddItemIndex(item.name, child)
+        self.AddItemIndex(item.path, child)
 
         if isinstance(item, wrappers.File):
             if item.type == wrappers.File.MULTI:
@@ -166,8 +162,8 @@ class AksyFSTree(wxTreeListCtrl):
 
         return child
 
-    def AddItemIndex(self, name, wx_id):
-        self._index[name] = wx_id
+    def AddItemIndex(self, path, wx_id):
+        self._index[path] = wx_id
 
     def GetItemByName(self, name):
         return self._index[name]
@@ -180,7 +176,7 @@ class AksyFSTree(wxTreeListCtrl):
         item = self.GetPyData(id)
         print  repr(item)
         if evt.GetKeyCode() == WXK_DELETE:
-            print "OnKeyDown delete: %s" % item.name
+            print "OnKeyDown delete: %s" % item.get_name()
             self.Delete(id)
         else:
             evt.Skip()
@@ -188,30 +184,17 @@ class AksyFSTree(wxTreeListCtrl):
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
-        print "OnItemExpanding: %s" % item.name
+        print "OnItemExpanding: %s" % item.get_name()
 
-        cookie = 1
-        """
-        """
-        wx_child, cookie = self.GetFirstChild(id, cookie)
-        last_child = self.GetLastChild(id) 
-            
-        while 1:
-            child_item = self.GetPyData(wx_child)
-            if not self.ItemHasChildren(wx_child) and child_item.has_children():
-                for child in child_item.get_children():
-                    print "Appending Child %s.Name: %s Aksy children: %s" % (repr(wx_child), child_item.name, repr(child_item.get_children()))
-                    # subfolders
-                    self.AppendAksyItem(wx_child, child) 
-
-            wx_child,cookie = self.GetNextChild(id, cookie)
-            if wx_child == last_child: break
+        for item in item.get_children():
+            if item.path not in self._index:
+                self.AppendAksyItem(id, item)
 
     def OnItemActivate(self, evt):
         # TODO: hookup the edit views here
         id = evt.GetItem()
         item = self.GetPyData(id)
-        print "Item activated for item %s" % item.name
+        print "Item activated for item %s" % item.get_name()
 
 class TestPanel(wxPanel):
     def __init__(self, parent):
@@ -311,7 +294,7 @@ class TestPanel(wxPanel):
         id = self.tree.GetSelection()
 
         item = self.tree.GetPyData(id)
-        print "OnCopy ", repr(item.name)
+        print "OnCopy ", repr(item.get_name())
         if wxTheClipboard.Open():
             data = wxTextDataObject("\\".join(item.path))
             if wxTheClipboard.SetData(data):
@@ -323,7 +306,7 @@ class TestPanel(wxPanel):
         # hide it
         id = self.tree.GetSelection()
         item = self.tree.GetPyData(id)
-        print "OnCut ", repr(item.name)
+        print "OnCut ", repr(item.get_name())
         if wxTheClipboard.Open():
             data = AksyData()
             if wxTheClipboard.SetData(data):
@@ -338,7 +321,7 @@ class TestPanel(wxPanel):
             if wxTheClipboard.GetData(data):
                 print "Clipboard data ", repr(data.GetText())
                 #item = self.tree.GetPyData(data.getId())
-                print "OnPaste ", repr(item.name)
+                print "OnPaste ", repr(item.get_name())
                 #self.tree.AppendAksyItem(id, data.getId())
             # or a cut/copied node
             # if cut -> paste the node to the new location
@@ -416,7 +399,7 @@ class TestPanel(wxPanel):
                 action.epilog(item, result)
 
     def select_directory(self, item):
-        dir_dialog = wxDirDialog(self, "Choose a destination for %s" %item.name, 
+        dir_dialog = wxDirDialog(self, "Choose a destination for %s" %item.get_name(), 
             style=wxDD_DEFAULT_STYLE|wxDD_NEW_DIR_BUTTON)
         dir_dialog.SetPath(self.lastdir)
         if dir_dialog.ShowModal() == wxID_OK:
@@ -430,10 +413,10 @@ class TestPanel(wxPanel):
         
     def select_file(self, item):
         # TODO: cache this dialog as it is heavy...
-        filedialog = wxFileDialog(self, "Choose a destination for %s" %item.name, 
+        filedialog = wxFileDialog(self, "Choose a destination for %s" %item.get_name(), 
             style=wxDD_DEFAULT_STYLE)
         filedialog.SetDirectory(self.lastdir)
-        filedialog.SetFilename(item.name)
+        filedialog.SetFilename(item.get_name())
         if filedialog.ShowModal() == wxID_OK:
             path = filedialog.GetPath() 
         else:
