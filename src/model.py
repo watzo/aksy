@@ -339,6 +339,8 @@ class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
 
+    def add_child(self, path):
+        self.handlers[Disk].z48.put(path)
     def get_children(self):
         if len(self._children) > 0:
             return self._children

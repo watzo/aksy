@@ -339,10 +339,11 @@ class TestPanel(wxPanel):
         
     def OnPaste(self, evt):
         parent_id = self.tree.GetSelection()
+        print "Clipboard data "
         if wxTheClipboard.Open():
-            data = wxDataObject()
-            if wxTheClipboard.GetData(data):
-                print "Clipboard data ", repr(data)
+            wxTheClipboard.UsePrimarySelection(False) # char selection in x
+            data = wxTextDataObject()
+            data = wxFileDataObject()
             if wxTheClipboard.GetData(data):
                 print "Clipboard data ", repr(data.GetText())
                 #item = self.tree.GetPyData(data.getId())
@@ -524,12 +525,16 @@ class AksyFileDropTarget(wxFileDropTarget):
         self.tree = window
                                                                                                                                                             
     def OnDropFiles(self, x, y, filenames):
-        print "Location: ", repr(self.tree.HitTest((x,y)))
-        sys.stderr.writelines("\n%d file(s) dropped at %d,%d:\n" %
-                              (len(filenames), x, y))
+        id, flag1, flag2 = self.tree.HitTest((x,y))
+        print repr(id)
+        item = self.tree.GetPyData(id)
+        if item is None or not hasattr(item, "add_child"): 
+            return
+
+        sys.stderr.writelines("\n%d file(s) dropped on %s:\n" % (len(filenames), item.get_name()))
         # start upload
         for file in filenames:
-            sys.stderr.writelines(file + '\n')
+            item.append_child(file, 'file_element_of_path')
 
         # append items
 
