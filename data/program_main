@@ -1,0 +1,47 @@
+\x14	program_main	Program Main
+\x01 	get_no_programs	Get number of items in memory	NA	NA
+
+\x02\x00	program_get_handles	Get list of info for all items: 0=list of handles;	NA	NA
+DWORD
+\x02\x01	program_get_names	Get list of info for all items: 1=list of names	NA	NA
+STRING
+\x02\x02	program_get_handles_names	Get list of info for all items: 2=list of handle+name;	NA	NA
+DWORD	STRING
+\x02\x03	program_get_modified	Get list of info for all items: 3=list of handle+modified/tagged name	NA	NA
+DWORD	STRING
+\x03	curr_program_select_by_handle	Select current item by handle	DWORD	NA
+
+\x04	curr_program_select_by_name	Select current item by name	STRING	NA
+
+\x05	curr_program_get_handle	Get handle of current item NA	NA
+DWORD
+\x06	curr_program_get_name	Get name of current item	NA	NA
+STRING
+\x07	program_get_item_name_by_handle	Get item name from handle	DWORD	NA
+STRING
+\x08	program_get_item_handle_from_name	Get item handle from name	STRING
+DWORD
+\x09	delete_all_programs	Delete ALL items from memory	NA	NA
+
+\x0A	curr_program_delete	Delete current item from memory	NA	NA
+
+\x0B	delete_program_by_handle	Delete item represented by handle <Data1> DWORD	NA
+
+\x0C	curr_program_rename	Rename current item STRING	NA
+
+\x0D	rename_program_by_handle	Rename item represented by handle <Data1> DWORD	STRING
+
+\x0E	tag_program	Set Tag Bit <Data1> = bit to set(0-7), <Data2> = (0=OFF, 1=ON), Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
+
+\x0F	program_get_tag_bitmap	Get Tag Bitmap	NA	NA
+WORD
+\x10	curr_program_get_mod_tagged	Get name of current item with modified/tagged info.	NA	NA
+
+\x11	curr_program_get_modified	Get modified state of current item.  NA	NA
+BYTE
+\x18	delete_tagged_programs	BYTE(0 ­ 7)	Delete tagged items <Data1> = tag bit NA
+
+\x40	create_program	Create New Program <Data1> = number of keygroups;<Data2> = name.	WORD	STRING
+
+\x41	curr_program_add_keygroups	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE	NA
+
