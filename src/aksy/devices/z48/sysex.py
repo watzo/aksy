@@ -107,7 +107,7 @@ class Reply:
 
     # using pad type if we encounter bytes not according to specification
     >>> dcmd.id = '\x20\x10'
-    >>> dcmd.reply_spec = (PAD, WORD)
+    >>> dcmd.reply_spec = None
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x10', '\x02', '\x15', '\x00', '\xf7')
     >>> reply = Reply(''.join(bytes), dcmd) 
     >>> reply.parse() 
@@ -146,7 +146,7 @@ class Reply:
 
     >>> dcmd.id = '\x07\x01'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'
-    >>> dcmd.reply_spec = (PAD, STRING,)
+    >>> dcmd.reply_spec = (STRING,)
     >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     'Z8 Sampler'
@@ -205,39 +205,42 @@ class Reply:
             raise ParseException(
                 'Parsing the wrong reply for command %02x %02x' 
                     % struct.unpack('2B', self.command.id[:2]))
- 
-        return self.parse_untyped_bytes(self.bytes, i)
-
-    def parse_typed_bytes(self, bytes, offset):
-        result = []
-        while offset < (len(bytes) - 1):
-            type = bytes[offset]
-            part, len_parsed = parse_byte_string(bytes, type, offset)
-            if part is not None:
-                result.append(part)
-            offset += len_parsed
-        if len(result) == 1:
-            return result[0]
+        if self.command.reply_spec is None:
+            return parse_typed_bytes(self.bytes, i)
         else:
-            return tuple(result)
-
-
-    def parse_untyped_bytes(self, bytes, offset):
-        """Parses a byte string without type information
-        """
-        result = []
-        for type in self.command.reply_spec:
-            part, len_parsed = parse_byte_string(bytes, type, offset) 
-            if part is not None:
-                result.append(part)
-            offset += len_parsed
-        if len(result) == 1:
-            return result[0]
-        else:
-            return tuple(result)
+            return parse_untyped_bytes(self.bytes, self.command.reply_spec, i)
 
     def __repr__(self):
          return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
+
+def parse_typed_bytes(bytes, offset):
+    result = []
+    while offset < (len(bytes) - 1):
+        type = _types[bytes[offset]]
+        offset += 1
+        part, len_parsed = parse_byte_string(bytes, type, offset)
+        if part is not None:
+            result.append(part)
+        offset += len_parsed
+    if len(result) == 1:
+        return result[0]
+    else:
+        return tuple(result)
+
+def parse_untyped_bytes(bytes, reply_spec, offset):
+    """Parses a byte string without type information
+    """
+    result = []
+    for type in reply_spec:
+        part, len_parsed = parse_byte_string(bytes, type, offset) 
+        if part is not None:
+            result.append(part)
+        offset += len_parsed
+    if len(result) == 1:
+        return result[0]
+    else:
+        return tuple(result)
+
 
 class ParseException(Exception):
     """ Exception raised when parsing system exclusive fails
@@ -273,7 +276,6 @@ REPLY_ID_OK = '\x4f'
 REPLY_ID_DONE = '\x44'
 REPLY_ID_REPLY = '\x52'
 REPLY_ID_ERROR = '\x45'
-
 
 class SysexType(object):
     def __init__(self, size, signed=False, id=None, min_val=None, max_val=None):
@@ -345,7 +347,7 @@ class ByteType(SysexType):
 
 class SignedByteType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 2, True, 'x01')
+        SysexType.__init__(self, 2, True, '\x01')
 
     def _encode(self, value):
         """
@@ -370,7 +372,7 @@ class SignedByteType(SysexType):
 
 class WordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 2, False, 'x02')
+        SysexType.__init__(self, 2, False, '\x02')
 
     def _encode(self, value):
         """
@@ -386,7 +388,7 @@ class WordType(SysexType):
 
 class SignedWordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 3, True, 'x03')
+        SysexType.__init__(self, 3, True, '\x03')
 
     def _encode(self, value):
         r"""
