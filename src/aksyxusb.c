@@ -57,6 +57,13 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 			return PyErr_Format(PyExc_Exception, "USB initialization failed. Check permissions on device. rc: %i.", rc);
 		}
 
+        // disable confirmation messages
+		unsigned char buf[8];
+        char* msg = "\x10\x08\x00\xf0\x47\x5f\x00\x00\x01\x00\xf7";
+		rc = usb_bulk_write(akai_z48, EP_OUT, msg, 11, USB_TIMEOUT);  
+		rc = usb_bulk_read(akai_z48, EP_IN, buf, 8, USB_TIMEOUT);  
+		rc = usb_bulk_read(akai_z48, EP_IN, buf, 8, USB_TIMEOUT);  
+
     	Py_INCREF(Py_None);
 	    return Py_None;
 	}
@@ -104,7 +111,7 @@ Z48Sampler_clear_remote_buf(PyObject *self, PyObject *args)
 }
 
 /* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49). Caller must ensure buffer points to an array with 4 elements */
-int 
+inline int 
 z48_reply_ok(unsigned char* buffer)
 {
 	if (buffer[0] != 0x41) return 0;
@@ -147,9 +154,10 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 	}
 	else
 	{
+		/* Z48_MEMORY_GET + ITEM HANDLE */
 		/* create get request */
 		command = (unsigned char*) PyMem_Malloc((src_len+1) * sizeof(unsigned char));
-		command[0] = Z48_GET;
+		command[0] = Z48_DISK_GET;
 		memcpy(command+1, src, src_len * sizeof(unsigned char));
 
 		usb_bulk_write(akai_z48, EP_OUT, command, src_len+1, USB_TIMEOUT);
@@ -364,8 +372,8 @@ Z48Sampler_execute(PyObject* self, PyObject* args)
 	else
 	{
 		usb_bulk_write(akai_z48, EP_OUT, sysex_command, string_length, USB_TIMEOUT);
-		buffer = (unsigned char*)PyMem_Malloc( 1024 * sizeof(unsigned char));
-		rc = usb_bulk_read(akai_z48, EP_IN, buffer, 1024, USB_TIMEOUT);  
+		buffer = (unsigned char*)PyMem_Malloc( 4096 * sizeof(unsigned char));
+		rc = usb_bulk_read(akai_z48, EP_IN, buffer, 4096, USB_TIMEOUT);  
 
 		if (rc < 0)
 		{
