@@ -45,6 +45,11 @@ class Request:
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
 
+    # select autoload folder:
+    >>> folder = 'autoload'
+    >>> command = Command('\x20', '\x13', 'set_curr_folder', (STRING,None), ()) 
+    >>> Request(command, (folder,))
+    ['f0', '47', '5f', '00', '20', '13', '61', '75', '74', '6f', '6c', '6f', '61', '64', '00', 'f7']
 
     """
 
@@ -93,11 +98,11 @@ class Reply:
         raise Exception("System exclusive error, code %02x" % code)
     Exception: System exclusive error, code 180
 
-    # not sure yet what to do with this reply (get_no_subfolders()...
+    # using pad type if we encounter bytes not according to specification
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, USERREF, REPLY_ID_REPLY, '\x20', '\x10', '\x02', '\x15', ZERO, '\xf7')
-    >>> reply = Reply(''.join(bytes),(BYTE,BYTE,BYTE)) 
+    >>> reply = Reply(''.join(bytes),(PAD, WORD)) 
     >>> reply.parse() 
-    [2, 21, 0]
+    21
 
     # not possible yet how to deal with the dump request replies
     >>> reply = Reply('\xf0G_ ' + ZERO * 2 + 'R\x10 i\x01\xf7',()) 
@@ -118,12 +123,12 @@ class Reply:
     # f0 47 5f 20 00 00 52 10 10 15 00 f7
     # 10 0a 00 f0 47 5e 20 00 00 10 12 22 f7
     >>> bytes = _transform_hexstring( 'f0 47 5f 00 52 10 22 4d 65 6c 6c 20 53 74 72 69 6e 67 20 41 32 2e 77 61 76 00 f7')
-    >>> reply = Reply(bytes, (STRING + ARRAY,)) 
+    >>> reply = Reply(bytes, (STRING,)) 
     >>> reply.parse() 
     'Mell String A2.wav'
 
     >>> bytes = _transform_hexstring( 'f0 47 5f 00 52 10 22 4d 65 6c 6c 6f 74 72 6f 6e 20 53 74 72 69 6e 67 73 2e 61 6b 70 00 f7')
-    >>> reply = Reply(bytes, (STRING + ARRAY,)) 
+    >>> reply = Reply(bytes, (STRING,)) 
     >>> reply.parse() 
     'Mellotron Strings.akp'
     """
@@ -173,7 +178,8 @@ class Reply:
         result = []
         while offset < (len(bytes) - 1):
             part, len_parsed = parse_byte_string(bytes, offset)
-            result.append(part)
+            if part is not None:
+                result.append(part)
             offset += len_parsed
         if len(result) == 1:
             return result[0]
@@ -186,7 +192,8 @@ class Reply:
         result = []
         for type in self.reply_spec:
             part, len_parsed = parse_byte_string(bytes, offset, type) 
-            result.append(part)
+            if part is not None:
+                result.append(part)
             offset += len_parsed
         if len(result) == 1:
             return result[0]
@@ -241,14 +248,14 @@ REPLY_ID_ERROR = '\x45'
 
 # aksy type extensions
 ZERO        = '\x00'
-# arrays TODO: think of something smarter!
-ARRAY       = '\x21'
+PAD         = '\x21' # unspecified return code
 
 def _to_byte_string(src_type, value):
     """
     doc-tests don't handle x-escaped values too well, so we unwrap the encoded
     value again:
 
+    TODO: raise value errors if value out of range 
     >>> struct.unpack('2b', _to_byte_string(WORD, 512))
     (0, 2)
 
@@ -256,7 +263,6 @@ def _to_byte_string(src_type, value):
     '\x00'
     >>> #_to_byte_string(STRING, 'test')
     """
-    # TODO: raise value errors if value out of range 
     if (src_type == BYTE or src_type == ZERO):
        byte_string = struct.pack('<b', value)
     elif (src_type == SBYTE):
@@ -283,7 +289,7 @@ def parse_byte_string(data, offset=0, type=None):
     >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, 0, STRING)
     ('TEST', 5)
 
-    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR + '\x54\x45\x53\x54' + STRING_TERMINATOR, 0, STRING + ARRAY)
+    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR + '\x54\x45\x53\x54' + STRING_TERMINATOR, 0, STRING)
     (('TEST', 'TEST'), 10)
 
     Type info in the data: 
@@ -297,8 +303,8 @@ def parse_byte_string(data, offset=0, type=None):
     >>> parse_byte_string(SBYTE + '\x01\x0f')
     (-15, 3)
 
-    >>> parse_byte_string(WORD + '\x0f\x0f')
-    (3855, 3)
+    >>> parse_byte_string(WORD + _transform_hexstring('15 00'))
+    (21, 3)
 
     >>> parse_byte_string(SWORD + '\x01\x0f\x0f')
     (-3855, 4)
@@ -316,13 +322,14 @@ def parse_byte_string(data, offset=0, type=None):
         type = data[offset]
         offset += 1
         len_parsed_data += 1 
-        
-    if (type == BYTE or type == ZERO):
-        result = struct.unpack('b', data[offset])[0]
+    if (type == PAD):
+        return (None, 1)
+    if (type == BYTE ):
+        result = struct.unpack('B', data[offset])[0]
         len_parsed_data += 1
 
     elif (type == SBYTE):
-        result = struct.unpack('b', data[offset+1])[0]
+        result = struct.unpack('B', data[offset+1])[0]
 
         if data[offset] == NEGATIVE:
             result *= -1 
@@ -351,18 +358,17 @@ def parse_byte_string(data, offset=0, type=None):
             result *= -1 
 
         len_parsed_data += 5;
-    elif (type == STRING or type == STRING + ARRAY):
+    elif (type == STRING):
         index = 0
         strings = []
         for char in data[offset:]:
             #sys.stderr.writelines( "c:%s i:%s\n" % (char, index) )
+            if (char == END_SYSEX):
+                break;
             if char == STRING_TERMINATOR:
                 strings.append(struct.unpack( str(index) + 's', data[offset:offset+index])[0])
-                if (type == STRING):
-                    break;
-                else:
-                    offset += index + 1
-                    index = 0
+                offset += index + 1
+                index = 0
             else:
                 index += 1
 
