@@ -53,15 +53,25 @@ class Request:
 
     """
 
-    def __init__(self, command, args):
-        bytes = ['\xf0']
-        bytes.extend(SYSEX_HEADER) 
+    def __init__(self, command, args, z48id=None, userref=None):
+        bytes = [START_SYSEX, AKAI_ID]
+
+        if z48id is not None:
+            bytes.append(z48id) 
+        else:
+            bytes.append(Z48_ID) 
+
+        if userref is not None:
+            bytes.append(userref) 
+        else:
+            bytes.append(DEFAULT_USERREF) 
+
         bytes.append(command.section_id) 
         bytes.append(command.id) 
         data = command.create_arg_bytes(args)
         if data is not None:
             bytes.extend(data)
-        bytes.append('\xf7')
+        bytes.append(END_SYSEX)
 
         self.bytes = ''.join(bytes)
 
@@ -70,21 +80,21 @@ class Request:
 
     def __repr__(self):
         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
-        
+
 class Reply:
     """ Encapsulates a sysex reply
 
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, USERREF, REPLY_ID_REPLY, '\x20','\x05', BYTE, '\x01', END_SYSEX)
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20','\x05', BYTE, '\x01', END_SYSEX)
     >>> reply = Reply(''.join(bytes)) 
     >>> reply.parse()
     1
 
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, USERREF, REPLY_ID_REPLY, '\x20','\x05', '\x01', END_SYSEX)
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20','\x05', '\x01', END_SYSEX)
     >>> reply = Reply(''.join(bytes), (BYTE)) 
     >>> reply.parse()
     1
 
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, USERREF, REPLY_ID_REPLY,\
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY,\
     '\x20\x05', ZERO,'\x02\x01\x02', ZERO, '\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b', ZERO, END_SYSEX)
     >>> reply = Reply(''.join(bytes), (WORD, BYTE, BYTE, BYTE, BYTE, STRING)) 
     >>> reply.parse() 
@@ -99,7 +109,7 @@ class Reply:
     Exception: System exclusive error, code 180
 
     # using pad type if we encounter bytes not according to specification
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, USERREF, REPLY_ID_REPLY, '\x20', '\x10', '\x02', '\x15', ZERO, '\xf7')
+    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20', '\x10', '\x02', '\x15', ZERO, '\xf7')
     >>> reply = Reply(''.join(bytes),(PAD, WORD)) 
     >>> reply.parse() 
     21
@@ -132,9 +142,11 @@ class Reply:
     >>> reply.parse() 
     'Mellotron Strings.akp'
     """
-    def __init__(self, bytes, reply_spec=()):
+    def __init__(self, bytes, reply_spec=(), z48id=None, userref=None):
         self.bytes = bytes
         self.reply_spec = reply_spec
+        self.z48id = z48id
+        self.userref = userref
 
     def parse(self):
         """ Parses the command sequence
@@ -143,17 +155,17 @@ class Reply:
         if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
             raise ParseException("Invalid system exclusive string received")
 
-        # ugly hack to work around malformatted replies with duplicate headers TODO: figure out what the real problem is!
-        start_index = self.bytes.find(START_SYSEX, 1)
-        if  start_index > 0:
-            i = start_index 
+        # TODO: dispatching on z48id, userref and command
+        i = 2   # skip start sysex, vendor id
+        if self.z48id is not None:
+            i += len(self.z48id)
         else:
-            i = 0
+            i += 1
 
-        i += 4 # skip start, vendor id, z8 id, userref (TODO:consider the user ref)
+        i += 1 # userref 
         reply_id = self.bytes[i]
 
-        i +=  3 # skip past the reply, section and command (TODO: reconsider)
+        i +=  3 # skip past the reply, section and command
         if reply_id == REPLY_ID_OK:
             return None 
         elif reply_id == REPLY_ID_DONE:
@@ -198,7 +210,7 @@ class Reply:
         if len(result) == 1:
             return result[0]
         else:
-            return result
+            return tuple(result)
 
     def __repr__(self):
          return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
@@ -217,9 +229,10 @@ class Error(Exception):
 
 START_SYSEX = '\xf0'
 AKAI_ID = '\x47'
-Z48_ID = '\x5f'
-USERREF = '\x00'
-SYSEX_HEADER = (AKAI_ID, Z48_ID, USERREF ) # TODO: Shouldn't have this hard coded
+Z48_ID = '\x5f' 
+AKSYS_Z48_ID = '\x5e\x20\x00' # used by ak.Sys for some requests
+
+DEFAULT_USERREF = '\x00'
 END_SYSEX = '\xf7'
 
 # Sysex type ids
@@ -375,7 +388,10 @@ def parse_byte_string(data, offset=0, type=None):
         for string in strings:
             len_parsed_data += (len(string) + 1)
 
-        result = len (strings) > 1 and tuple(strings) or strings[0]
+        if len(strings) == 0:
+            result = None
+        else:
+            result = len(strings) > 1 and tuple(strings) or strings[0]
     else: 
         raise ValueError("unsupported type %s" % repr(type))
         
