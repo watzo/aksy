@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <time.h>
 #include "aksyxusb.h"
-static struct usb_dev_handle *akai_z48 = 0;
+static struct usb_dev_handle *akai_sampler = 0;
 
 static PyObject* 
 Z48Sampler_init(PyObject *self, PyObject* args)
@@ -19,7 +19,7 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 	struct usb_bus *bus;
 	struct usb_device *dev;
 
-	if (akai_z48) 
+	if (akai_sampler) 
 	{
 		return PyErr_Format(PyExc_Exception, "USB is already initialized");
 	}
@@ -37,31 +37,32 @@ Z48Sampler_init_usb(PyObject *self, PyObject *args)
 		  // found the akai z4 or z8
 		  if (dev->descriptor.idVendor == VENDOR_ID && dev->descriptor.idProduct == PRODUCT_ID)
 		  {
-			akai_z48 = usb_open(dev);
+			akai_sampler = usb_open(dev);
 			break;
 		  }
 		}
 	}
 
-	if (!akai_z48) 
+	if (!akai_sampler) 
 	{
 		return PyErr_Format(PyExc_Exception, "No sampler found");
 	}
 	else
 	{
-		int rc = usb_claim_interface(akai_z48, 0);
+		int rc = usb_claim_interface(akai_sampler, 0);
 
 		if (rc)
 		{
 			return PyErr_Format(PyExc_Exception, "USB initialization failed. Check permissions on device. rc: %i.", rc);
 		}
 
+        rc = usb_bulk_write(akai_sampler, 0x82, "\x03\x01", 2, 5000);
         // disable confirmation messages
 		unsigned char buf[8];
         char* msg = "\x10\x08\x00\xf0\x47\x5f\x00\x00\x01\x00\xf7";
-		rc = usb_bulk_write(akai_z48, EP_OUT, msg, 11, USB_TIMEOUT);  
-		rc = usb_bulk_read(akai_z48, EP_IN, buf, 8, 100);  
-		rc = usb_bulk_read(akai_z48, EP_IN, buf, 8, 100);  
+		rc = usb_bulk_write(akai_sampler, EP_OUT, msg, 11, USB_TIMEOUT);  
+		rc = usb_bulk_read(akai_sampler, EP_IN, buf, 8, 100);  
+		rc = usb_bulk_read(akai_sampler, EP_IN, buf, 8, 100);  
 
     	Py_INCREF(Py_None);
 	    return Py_None;
@@ -74,14 +75,14 @@ Z48Sampler_close_usb(PyObject *self, PyObject *args)
 {
 	int rc;
 
-	if (!akai_z48)
+	if (!akai_sampler)
 	{
 		return PyErr_Format(PyExc_Exception, "USB was not initialized so could not be closed");
 	}
 
-	rc = usb_release_interface(akai_z48, 0);
-	rc = usb_close (akai_z48)|rc;
-	akai_z48 = 0;
+	rc = usb_release_interface(akai_sampler, 0);
+	rc = usb_close (akai_sampler)|rc;
+	akai_sampler = 0;
 
 	if (rc)
 	{
@@ -97,10 +98,10 @@ Z48Sampler_clear_remote_buf(PyObject *self, PyObject *args)
 {
 	int rc = 1, read = 0;
 	unsigned char buf[1];
-	usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, USB_TIMEOUT);  
+	usb_bulk_write(akai_sampler, EP_OUT, "\x00", 1, USB_TIMEOUT);  
 	while (rc > 0)
 	{
-		rc = usb_bulk_read(akai_z48, EP_IN, buf, 1, USB_TIMEOUT);  
+		rc = usb_bulk_read(akai_sampler, EP_IN, buf, 1, USB_TIMEOUT);  
 		read += rc;
 	}
 
@@ -109,7 +110,7 @@ Z48Sampler_clear_remote_buf(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-/* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49). Caller must ensure buffer points to an array with 4 elements */
+/* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49) */
 inline int 
 z48_reply_ok(unsigned char* buffer)
 {
@@ -159,7 +160,7 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 		command[0] = Z48_DISK_GET;
 		memcpy(command+1, src, src_len * sizeof(unsigned char));
 
-		usb_bulk_write(akai_z48, EP_OUT, command, src_len+1, USB_TIMEOUT);
+		usb_bulk_write(akai_sampler, EP_OUT, command, src_len+1, USB_TIMEOUT);
 		PyMem_Free(command);
 
 		fp = fopen(dest, "w+"); 
@@ -172,7 +173,7 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 
 		do
 		{
-			rc = usb_bulk_read(akai_z48, EP_IN, data, block_size, USB_TIMEOUT);  
+			rc = usb_bulk_read(akai_sampler, EP_IN, data, block_size, USB_TIMEOUT);  
 
 			if (rc == block_size)
 			{
@@ -182,7 +183,7 @@ Z48Sampler_get(PyObject* self, PyObject* args)
 				fwrite(data, sizeof(unsigned char), rc, fp);
 
 				/* sent continue request */
-				usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, USB_TIMEOUT);  
+				usb_bulk_write(akai_sampler, EP_OUT, "\x00", 1, USB_TIMEOUT);  
 			}	
 			else if (rc == 8)
 			{
@@ -279,7 +280,7 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 
 		memcpy(command+5, dest, dest_len * sizeof(unsigned char));
 
-		rc = usb_bulk_write(akai_z48, EP_OUT, command, dest_len+5, 1000); 
+		rc = usb_bulk_write(akai_sampler, EP_OUT, command, dest_len+5, 1000); 
 
 		reply_buf = (unsigned char*) PyMem_Malloc(64 * sizeof(unsigned char));
 
@@ -289,8 +290,12 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 
 		do 
 		{
-			rc = usb_bulk_read(akai_z48, EP_IN, reply_buf, 64, 1000); 
+			rc = usb_bulk_read(akai_sampler, EP_IN, reply_buf, 64, 2000); 
 
+#ifdef _DEBUG
+            printf("rc %i\n", rc);
+
+#endif
 			if (rc == 4 && z48_reply_ok(reply_buf))	
 			{
 				continue;
@@ -298,16 +303,18 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 			else if (rc == 8)
 			{
 	
+				blocksize = GET_BLOCK_SIZE(reply_buf);	
 #ifdef _DEBUG
 				int i = 0;
 				for (; i < rc; i++)
 					printf("%02x ", reply_buf[i]);
 				printf("\n");
+                printf("blocksize %i\n", blocksize);
 #endif
-				blocksize = GET_BLOCK_SIZE(reply_buf);	
 				if (GET_BYTES_TRANSFERRED(reply_buf) == filesize) 
 				{
-					continue;
+                    printf("done but???\n");
+					continue; // done but??
 				}
 			}
 			else if (rc == 5)
@@ -320,18 +327,15 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 			{
 				bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
 
-				usb_bulk_write(akai_z48, EP_OUT, buf, bytes_read, 1000); 
+                printf("writing %i bytes\n", blocksize);
+				usb_bulk_write(akai_sampler, EP_OUT, buf, bytes_read, 2000); 
 				bytes_transferred += bytes_read;
-
 			}
 
 			/* continue */
-			usb_bulk_write(akai_z48, EP_OUT, "\x00", 1, 1000); 
+			usb_bulk_write(akai_sampler, EP_OUT, "\x00", 1, 2000); 
 		} while(rc > 0);
 
-#ifdef _POSIX_SOURCE
-		print_transfer_stats(t1, t2, bytes_transferred);
-#endif
 		fclose(fp);
 
 		PyMem_Free(reply_buf);
@@ -343,6 +347,10 @@ Z48Sampler_put(PyObject* self, PyObject* args)
 		}
 		else
 		{
+
+#ifdef _POSIX_SOURCE
+	    	print_transfer_stats(t1, t2, bytes_transferred);
+#endif
 			Py_INCREF(Py_None);
 			return Py_None;
 		}
@@ -359,7 +367,7 @@ Z48Sampler_execute(PyObject* self, PyObject* args)
 
 	unsigned char* buffer;
 
-	if (!akai_z48)
+	if (!akai_sampler)
 	{
 		return PyErr_Format(PyExc_Exception, "USB not initialized. Call init_usb first");
 	}
@@ -370,9 +378,9 @@ Z48Sampler_execute(PyObject* self, PyObject* args)
 	}
 	else
 	{
-		usb_bulk_write(akai_z48, EP_OUT, sysex_command, string_length, USB_TIMEOUT);
+		usb_bulk_write(akai_sampler, EP_OUT, sysex_command, string_length, USB_TIMEOUT);
 		buffer = (unsigned char*)PyMem_Malloc( 4096 * sizeof(unsigned char));
-		rc = usb_bulk_read(akai_z48, EP_IN, buffer, 4096, USB_TIMEOUT);  
+		rc = usb_bulk_read(akai_sampler, EP_IN, buffer, 4096, USB_TIMEOUT);  
 
 		if (rc < 0)
 		{

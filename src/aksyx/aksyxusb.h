@@ -1,4 +1,5 @@
 #define VENDOR_ID 0x9E8 
+#define S56K_PRODUCT_ID 0x05E
 #define PRODUCT_ID 0x05F
 #define EP_OUT 0x82
 #define EP_IN 0x02
