@@ -29,7 +29,12 @@ z48_instance_name = 'z48'
 generate_methods = None
 file_in_name = sys.argv[1]
 if len(sys.argv)== 3:
-    generate_methods = sys.argv[2]
+    generate_methods = bool(sys.argv[2])
+
+if len(sys.argv)== 4:
+    custom_request = bool(sys.argv[3])
+else:
+    custom_request = False 
     
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
@@ -105,7 +110,10 @@ while line:
             "%scomm =  self.commands.get(('%s','%s'))\n" \
             % (indent_block*2, section_id, id))
 
-        methods.writelines( "%sreturn self.%s.execute(comm, %s)\n\n" % (indent_block*2, z48_instance_name, '('+ ', '.join(comm_args) + ')'))
+        if custom_request:
+            extra_args = ', sysex.AKSYS_Z48_ID'
+        else: extra_args = ''
+        methods.writelines( "%sreturn self.%s.execute(comm, %s%s)\n\n" % (indent_block*2, z48_instance_name, '('+ ', '.join(comm_args) + ')',extra_args))
 
         # put the command in a dict with tuple key (section_id, id) 
         file_out.writelines( 
