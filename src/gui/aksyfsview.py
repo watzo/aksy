@@ -3,19 +3,19 @@ from wxPython.wx import wxPySimpleApp, wxFrame, wxPanel, wxID_ANY, wxDEFAULT_FRA
 
 from wxPython.gizmos import wxTreeListCtrl
 from wxPython.wx import wxID_CUT, wxID_COPY, wxNewId, wxID_OK
-from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT
+from wxPython.wx import EVT_CLOSE,EVT_TREE_BEGIN_LABEL_EDIT, EVT_TREE_END_LABEL_EDIT, EVT_TREE_ITEM_EXPANDING, EVT_TREE_ITEM_ACTIVATED
 from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wxTR_MULTIPLE,wxTR_EDIT_LABELS, wxTR_HIDE_ROOT 
 from wxPython.wx import wxFileDialog 
 
 import wrappers
 import aksysdisktools, program_main, multi_main, sample_main
 import aksy
-import os.path
+import os.path, traceback
 
 ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 
-USE_MOCK_OBJECTS = True
+USE_MOCK_OBJECTS = False
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -23,7 +23,7 @@ class Frame(wxFrame):
                          style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE) 
        
         filemenu= wxMenu()
-        filemenu.Append(ID_ABOUT, "&About"," Information about this nrogram")
+        filemenu.Append(ID_ABOUT, "&About"," Information about this program")
         filemenu.AppendSeparator()
         filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
 
@@ -55,12 +55,11 @@ class Frame(wxFrame):
     def OnExitMenu(self,e):
         self.Close(True) 
     def OnExit(self,e):
+        self.z.close()
         self.Destroy() 
-
-        if not USE_MOCK_OBJECTS:
-            self.z.close()
             
     def reportException(self, exception):
+        traceback.print_exc()
         d= wxMessageDialog( self, "%s\n" % exception[0], "An error occurred", wxOK)
         d.ShowModal() 
         d.Destroy() 
@@ -96,6 +95,9 @@ class AksyFSTree(wxTreeListCtrl):
         self.SetItemImage(self.root, self.fldropenidx, which = wxTreeItemIcon_Expanded)
         self._index = {}
 
+        EVT_TREE_ITEM_EXPANDING(self, id, self.OnItemExpanding)
+        EVT_TREE_ITEM_ACTIVATED(self, id, self.OnItemActivate)
+
     def AppendAksyItem(self, parent, item):
 
         """Appends an item to the tree. default is root
@@ -105,6 +107,7 @@ class AksyFSTree(wxTreeListCtrl):
 
         child = wxTreeListCtrl.AppendItem(self, parent, item.name)
         self.SetPyData(child, item)
+        self.AddItemIndex(item.name, child)
 
         if isinstance(item, wrappers.File):
             if item.type == wrappers.File.MULTI:
@@ -131,6 +134,31 @@ class AksyFSTree(wxTreeListCtrl):
     def GetItemByName(self, name):
         return self._index[name]
 
+    def OnItemExpanding(self, evt):
+        id = evt.GetItem()
+        item = self.GetPyData(id)
+        print "OnItemExpanding: %s" % item.name
+
+        cookie = 1
+        wx_child, cookie = self.GetFirstChild(id, cookie)
+            
+        while wx_child.IsOk():
+
+            print "FirstChild %s" % repr(wx_child)
+            for child in item.get_children():
+                if child.has_children():
+                    grandchildren = child.get_children()
+                    for grandchild in grandchildren:
+                        self.AppendAksyItem(wx_child, grandchild) 
+
+            wx_child, cookie = self.GetNextChild(wx_child, cookie)
+
+    def OnItemActivate(self, evt):
+        # TODO: hookup the edit views here
+        id = evt.GetItem()
+        item = self.GetPyData(id)
+        print "Item activated for item %s" % item.name
+
 class TestPanel(wxPanel):
     def __init__(self, parent):
         # TODO:config item!
@@ -144,43 +172,6 @@ class TestPanel(wxPanel):
         EVT_SIZE(self, self.OnSize)
 
         self.tree = AksyFSTree(self, 5001, style=wxTR_EDIT_LABELS|wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE|wxTR_MULTIPLE)
-
-        EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
-
-        # Move this stuff somewhere else...
-        if not USE_MOCK_OBJECTS:
-            try:  
-                # not fool proof for multiple disks   
-                disk = wrappers.Disk(self.z.disktools.get_disklist())
-                self.z.disktools.select_disk(disk.handle)
-                rootfolder = wrappers.Folder(self.z.disktools, ("",))
-                rootfolder.get_children()
-
-                programs = self.z.program_main.get__names()
-                multis = self.z.multi_main.get_names()
-                samples = self.z.sample_main.get_names()
-            except Exception, e:
-                parent.reportException(e)
-                return
-        else:
-            
-            # Setup some items
-            disktools = self.z.disktools
-            program_module = self.z.program_module
-            sample_module = self.z.sample_module
-            multi_module = self.z.multi_module
-            wrappers.File.init_modules(
-                {wrappers.File.MULTI: multi_module,
-                wrappers.File.PROGRAM: program_module,
-                wrappers.File.SAMPLE: sample_module, })
-
-            children = { "disk": (wrappers.Folder(disktools,('', 'Autoload',)),
-            wrappers.Folder(disktools, ('', 'Mellotron',)),
-            wrappers.Folder(disktools, ('', 'Songs',)) ),}
-            files = { "Mellotron": (
-            wrappers.File(disktools, ('', 'Mellotron', 'Sample.AKP',)),
-            wrappers.File(disktools, ('', 'Mellotron', 'Sample.wav',))), }
-            
         self.actions = {}
         self.register_menu_actions(wrappers.Folder.actions)
         self.register_menu_actions(wrappers.File.actions)
@@ -190,26 +181,64 @@ class TestPanel(wxPanel):
 
         EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
+        EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
 
-        class Storage:
-            def __init__(self, name):
-                self.name = name
-                self.actions = None 
-                self.type = wrappers.File.FOLDER
+        disks = wrappers.Storage("disk")
+        mem = wrappers.Storage("memory")
 
-        storage = [Storage("disk"), Storage("memory")]
-        for item in storage: 
-            child = self.tree.AppendAksyItem(self.tree.GetRootItem(), item)
-            self.tree.AddItemIndex(item.name, child)
+        storage = [disks, mem]
 
-            if children.has_key(item.name):
-                subfolders = children[item.name]
-                for folder in subfolders:
-                    item = self.tree.AppendAksyItem(child, folder)
-                    if files.has_key(folder.name):
-                        file_list = files[folder.name]
-                        for file in file_list:
-                            self.tree.AppendAksyItem(item, file)
+        disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disks)
+        mem_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), mem)
+
+        program_module = self.z.program_module
+        sample_module = self.z.sample_module
+        multi_module = self.z.multi_module
+        wrappers.File.init_modules(
+            {wrappers.File.MULTI: multi_module,
+             wrappers.File.PROGRAM: program_module,
+             wrappers.File.SAMPLE: sample_module, })
+
+        # Move this stuff somewhere else...
+        if not USE_MOCK_OBJECTS:
+            try:  
+                # not fool proof for multiple disks   
+                disk = wrappers.Disk(self.z.disktools.get_disklist())
+                self.z.disktools.select_disk(disk.handle)
+                rootfolder = wrappers.Folder(self.z.disktools, ("",))
+                folders = rootfolder.get_children()
+                disks.set_children(folders)
+                for folder in folders:
+                    self.tree.AppendAksyItem(disks_id, folder)
+
+                # programs = self.z.program_main.get__names()
+                # multis = self.z.multi_main.get_names()
+                # samples = self.z.sample_main.get_names()
+            except Exception, e:
+                parent.reportException(e)
+                return
+        else:
+            
+            # Setup some items
+            disktools = self.z.disktools
+
+            children = { "disk": (wrappers.Folder(disktools,('', 'Autoload',)),
+            wrappers.Folder(disktools, ('', 'Mellotron',)),
+            wrappers.Folder(disktools, ('', 'Songs',)) ),}
+            files = { "Mellotron": (
+            wrappers.File(disktools, ('', 'Mellotron', 'Sample.AKP',)),
+            wrappers.File(disktools, ('', 'Mellotron', 'Sample.wav',))), }
+            
+
+            for item in storage: 
+                if children.has_key(item.name):
+                    subfolders = children[item.name]
+                    for folder in subfolders:
+                        item = self.tree.AppendAksyItem(disks_id, folder)
+                        if files.has_key(folder.name):
+                            file_list = files[folder.name]
+                            for file in file_list:
+                                self.tree.AppendAksyItem(item, file)
 
 
         self.tree.Expand(self.tree.root)
@@ -285,22 +314,22 @@ class TestPanel(wxPanel):
             style=wxDD_DEFAULT_STYLE|wxDD_NEW_DIR_BUTTON)
         dir_dialog.SetPath(self.lastdir)
         if dir_dialog.ShowModal() == wxID_OK:
-            retval = (dir_dialog.GetPath(),)
+            self.lastdir = dir_dialog.GetPath()
+            retval = (self.lastdir,)
         else:
             retval = None
 
         dir_dialog.Destroy()
-        self.lastdir = retval
         return retval
         
     def select_file(self, item):
         # TODO: cache this dialog as it is heavy...
         filedialog = wxFileDialog(self, "Choose a destination for %s" %item.name, 
             style=wxDD_DEFAULT_STYLE)
-        filedialog.SetPath(self.lastdir)
+        filedialog.SetDirectory(self.lastdir)
         filedialog.SetFilename(item.name)
         if filedialog.ShowModal() == wxID_OK:
-            path = filedialog.GetFilename() 
+            path = filedialog.GetPath() 
         else:
             path = None
 
