@@ -90,32 +90,42 @@ class Request:
     def __repr__(self):
         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
 
-class Reply:
+class ReplySpec:
+    """Represents the format of system exclusive reply.
+    EG GX700:
+    vendor_id, device_id, model_id, command id, patch addresses, data
+    EG Z48:
+    vendor_id, device_id, model_id, command ids, reply_id, data
+    """
+    def __init__(self, spec): 
+        self.spec = ('vendor_id', 'device_id', 'model_id')
+        self.spec.extend(spec) 
+
+class ReplyParser:
     r""" Encapsulates a sysex reply
 
     """
-    def __init__(self, command, bytes, vendor_id, device_id, extra_id=None):
-        self.bytes = bytes
+    def __init__(self, reply_spec, types):
         self.reply_spec = reply_spec
-        self.vendor_id = vendor_id
-        self.device_id = device_id
-        self.extra_id = extra_id
+        self.types = types
 
-    def parse(self):
+    def parse(self, command, bytes):
         """ Parses the command sequence
         """
 
-        if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
+        if bytes[0] != START_SYSEX or bytes[-1] != END_SYSEX:
             raise ParseException("Invalid system exclusive string received")
+        bytes = bytes[1:-1]
+        reply_spec = command.reply_spec
+        i = 1   # skip vendor id
+#        if self.model_id is not None:
+#            i += len(self.model_id)
+#        else:
+        i += 1
 
-        i = 2   # skip start sysex, vendor id
-        if self.z48id is not None:
-            i += len(self.z48id)
-        else:
-            i += 1
-
+        # XXX: These akai z48 specifix should go
         i += 1 # userref 
-        reply_id = self.bytes[i]
+        reply_id = bytes[i]
 
         i +=  3 # skip past the reply, section and command
         if reply_id == REPLY_ID_OK:
@@ -133,7 +143,7 @@ class Reply:
         else:
             raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
-        return self.parse_untyped_bytes(self.bytes, i)
+        return self.parse_untyped_bytes(bytes, i)
 
     def parse_typed_bytes(self, bytes, offset):
         raise NotImplementedError
@@ -191,6 +201,7 @@ NEGATIVE    = '\x01'
 
 STRING_TERMINATOR = '\x00'
 
+# Need to move this into an enum type
 REPLY_ID_OK = '\x4f'
 REPLY_ID_DONE = '\x44'
 REPLY_ID_REPLY = '\x52'
