@@ -80,11 +80,15 @@ class TestPanel(wxPanel):
 
         # Move this stuff somewhere else...
         if not USE_MOCK_OBJECTS:
-            disk_handle = z.disktools.get_disklist()[0]   # not fool proof for multiple
+            disk = Disk(z.disktools.get_disklist())   # not fool proof for multiple
                                                          # disks
-            z.disktools.select_disk(disk_handle)    # TODO: handle exceptions
+            z.disktools.select_disk(disk.handle)    # TODO: handle exceptions
             rootfolder = wrappers.Folder(z.disktools, "")
             rootfolder.get_children()
+
+            programs = z.program_main.get_program_names()
+            multis = z.multi_main.get_multi_names()
+            samples = z.sample_main.get_sample_names()
         else:
             
             # Add some items
