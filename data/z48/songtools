@@ -1,0 +1,83 @@
+songtools	Song
+\x28	\x01	get_no_items	Get number of items in memory
+BYTE
+\x28	\x02\x00	get_handles	Get Sample handles
+
+\x28	\x02\x01	get_names	Get sample names
+
+\x28	\x02\x02	get_handles_names	Get list of sample handles and names
+
+\x28	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
+
+\x28	\x03	set_current_by_handle	Select current item by handle	DWORD
+
+\x28	\x04	set_current_by_name	Select current item by name	STRING
+
+\x28	\x05	get_current_handle	Get handle of current item
+DWORD
+\x28	\x06	get_current_name	Get name of current item
+STRING
+\x28	\x07	get_name_by_handle	Get item name from handle	DWORD
+STRING
+\x28	\x08	get_handle_by_name	Get item handle from name	STRING
+DWORD
+\x28	\x09	delete_all	Delete ALL items from memory
+
+\x28	\x0A	delete_current	Delete current item from memory
+
+\x28	\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
+
+\x28	\x0C	rename_current	Rename current item	STRING
+
+\x28	\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
+
+\x28	\x0E	set_tag_bit	Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)	BYTE	BYTE
+
+\x28	\x0F	get_tag_bitmap	Get Tag Bitmap
+
+\x28	\x10	get_curr_modified	Get name of current item with modified/tagged info
+STRING
+\x28	\x11 	get_modified	Get modified state of current item.
+BYTE
+\x28	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
+
+\x28	\x40	play_song   Play Song
+
+\x28	\x41	pause_song   Pause Song
+
+\x28	\x42	stop_song   Stop Song
+
+\x28	\x01	set_group_id	Set Group ID	BYTE
+
+\x28	\x10	set_from_bar	Set From Bar	WORD
+
+\x28	\x10	set_to_bar	Set To Bar	WORD
+
+\x28	\x12	set_tempo_mode	Set Tempo Mode <Data1> = (0=FILE, 1=MANUAL, 2=MULTI)	BYTE
+
+\x28	\x13	set_manual_tempo  Set Manual Tempo <Data1> = (tempo×10)bpm	WORD
+
+\x28	\x18	set_midi_output	Set MIDI output port <Data1> = (0=NONE, 1=MIDI A, 2=MIDI B)	BOOL
+
+\x28	\x01	get_group_id	Get Group ID
+BYTE
+\x28	\x10	get_from_bar	Get From Bar
+WORD
+\x28	\x11	get_to_bar	Get To Bar
+WORD
+\x28	\x12	get_tempo_mode	Get Tempo Mode <Reply> = (0=FILE, 1=MANUAL, 2=MULTI)
+BYTE
+\x28	\x13	get_manual_tempo	Get Manual Tempo
+WORD
+\x28	\x18	get_midi_output_port	Get MIDI output port <Reply> = (0=NONE, 1=MIDI A, 2=MIDI B
+BOOL
+\x28	\x20	get_time_signature_beat	Get (Time Signature) Beat Value 
+BYTE
+\x28	\x21	get_time_sig_beat_no	Get (Time Signature) Beats-per-Bar
+BYTE
+\x28	\x22	get_curr_beat	Get Current Beat
+WORD
+\x28	\x23	get_curr_bar	Get Current Bar
+WORD
+\x28	\x24	Get Current Tempo <Reply> = (tempo×10)bpm 
+WORD
