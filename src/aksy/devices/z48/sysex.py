@@ -85,7 +85,7 @@ class Reply:
     r""" Encapsulates a sysex reply
 
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
-    >>> dcmd = Command('\x01\x01', 'dummy', (),(BYTE,))
+    >>> dcmd = Command('\x20\x05', 'dummy', (),(BYTE,))
     >>> reply = Reply(''.join(bytes), dcmd) 
     >>> reply.parse()
     1
@@ -97,14 +97,16 @@ class Reply:
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
     # Future: should raise unknown disk error 
+    >>> dcmd.id = '\x20\x05'
     >>> dcmd.reply_spec = ()
     >>> bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
     >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     Traceback (most recent call last):
-    Exception: System exclusive error, code 180, message: Unknown disk error
+    SamplerException: code 180 (Unknown disk error)
 
     # using pad type if we encounter bytes not according to specification
+    >>> dcmd.id = '\x20\x10'
     >>> dcmd.reply_spec = (PAD, WORD)
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x10', '\x02', '\x15', '\x00', '\xf7')
     >>> reply = Reply(''.join(bytes), dcmd) 
@@ -121,24 +123,28 @@ class Reply:
 
     # reply on 'bulk command 10 05' 10 0a 00 f0 47 5e 20 00 00 10 05 15 f7
     # popped 2 0 bytes after header 5f  and here we discover how ak.sys gets its disk list! (but what about the 15? arg checksum?)
+    >>> dcmd.id = '\x10\x05'
     >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x05\x00\x02\x01\x02\x00\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b\x00\xf7'
     >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
+    >>> dcmd.id = '\x10\x22'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x20\x53\x74\x72\x69\x6e\x67\x20\x41\x32\x2e\x77\x61\x76\x00\xf7'
     >>> dcmd.reply_spec = (STRING,)
     >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     'Mell String A2.wav'
 
+    >>> dcmd.id = '\x10\x22'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x6f\x74\x72\x6f\x6e\x20\x53\x74\x72\x69\x6e\x67\x73\x2e\x61\x6b\x70\x00\xf7'
     >>> dcmd.reply_spec = (STRING,)
     >>> reply = Reply(bytes, dcmd) 
     >>> reply.parse() 
     'Mellotron Strings.akp'
 
+    >>> dcmd.id = '\x07\x01'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'
     >>> dcmd.reply_spec = (PAD, STRING,)
     >>> reply = Reply(bytes, dcmd) 
@@ -154,6 +160,8 @@ class Reply:
 
     def parse(self):
         """ Parses the command sequence
+        TODO: split it up in two parts, heading and data
+        so parsing can be 
         """
 
         if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
@@ -162,15 +170,15 @@ class Reply:
         # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
         if self.userref is not None:
-            i += len(self.z48id)
+            i += len(self.userref)
         else:
             i += 1
 
         i += 1 # userref 
         reply_id = self.bytes[i]
-
         i +=  1 # skip past the reply
-        i += len(self.command.id) # skip past the command id (section, item)
+        command =  self.bytes[i:i+2]
+        i += 2 # skip past the command id (section, item)
         if reply_id == REPLY_ID_OK:
             return None 
         elif reply_id == REPLY_ID_DONE:
@@ -179,13 +187,19 @@ class Reply:
             b1, b2 = struct.unpack('2B', self.bytes[i:i+2])
             code = (b2 << 7) + b1
 
-            raise Exception("System exclusive error, code %02x, message: %s " % (code, errors.get(code, "Unknown")))
+            raise SamplerException(
+                "code %02x (%s)" % (code, errors.get(code, "Unknown")))
         elif reply_id == REPLY_ID_REPLY:
             # continue
             pass
         else:
             raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
+        if self.command.id[:2] != command:
+            raise ParseException(
+                'Parsing the wrong reply for command %02x %02x' 
+                    % struct.unpack('2B', self.command.id[:2]))
+ 
         return self.parse_untyped_bytes(self.bytes, i)
 
     def parse_untyped_bytes(self, bytes, offset):
@@ -207,6 +221,11 @@ class Reply:
 
 class ParseException(Exception):
     """ Exception raised when parsing system exclusive fails
+    """
+    pass
+
+class SamplerException(Exception):
+    """ Exception raised by the sampler
     """
     pass
 
@@ -651,7 +670,7 @@ class HandleNameArrayType(object):
         return  (DWORD.decode(string[:4]),
                 STRING.decode(string[3:]),)
 
-HANDLESNAMES  = HandleNameArrayType()
+HANDLENAMEARRAY = HandleNameArrayType()
 
 def parse_byte_string(data, type, offset=0):
     r""" Parses a byte string
