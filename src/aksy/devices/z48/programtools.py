@@ -7,126 +7,126 @@ Methods to manipulate sampler programs
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.sysex
+import aksy.devices.z48.sysex
 
 class Programtools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
-          comm = aksy.sysex.Command('\x14\x01', 'get_no_items', (), ())
+          self.command_spec = aksy.devices.z48.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
+          comm = aksy.devices.z48.sysex.Command('\x14\x01', 'get_no_items', (), ())
           self.commands['\x14\x01'] = comm
-          comm = aksy.sysex.Command('\x14\x02\x00', 'get_handles', (), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x02\x00', 'get_handles', (), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x14\x02\x00'] = comm
-          comm = aksy.sysex.Command('\x14\x02\x01', 'get_names', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x02\x01', 'get_names', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x14\x02\x01'] = comm
-          comm = aksy.sysex.Command('\x14\x02\x02', 'get_handles_names', (), (aksy.sysex.DWORD, aksy.sysex.STRING))
+          comm = aksy.devices.z48.sysex.Command('\x14\x02\x02', 'get_handles_names', (), (aksy.devices.z48.sysex.HANDLENAMEARRAY,))
           self.commands['\x14\x02\x02'] = comm
-          comm = aksy.sysex.Command('\x14\x02\x03', 'get_modified', (), (aksy.sysex.DWORD, aksy.sysex.STRING))
+          comm = aksy.devices.z48.sysex.Command('\x14\x02\x03', 'get_modified', (), (aksy.devices.z48.sysex.HANDLENAMEARRAY,))
           self.commands['\x14\x02\x03'] = comm
-          comm = aksy.sysex.Command('\x14\x03', 'set_current_by_handle', (aksy.sysex.DWORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x03', 'set_current_by_handle', (aksy.devices.z48.sysex.DWORD,), ())
           self.commands['\x14\x03'] = comm
-          comm = aksy.sysex.Command('\x14\x04', 'set_current_by_name', (aksy.sysex.STRING,), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x04', 'set_current_by_name', (aksy.devices.z48.sysex.STRING,), ())
           self.commands['\x14\x04'] = comm
-          comm = aksy.sysex.Command('\x14\x05', 'get_current_handle', (), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x05', 'get_current_handle', (), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x14\x05'] = comm
-          comm = aksy.sysex.Command('\x14\x06', 'get_current_name', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x06', 'get_current_name', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x14\x06'] = comm
-          comm = aksy.sysex.Command('\x14\x07', 'get_name_by_handle', (aksy.sysex.DWORD,), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x07', 'get_name_by_handle', (aksy.devices.z48.sysex.DWORD,), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x14\x07'] = comm
-          comm = aksy.sysex.Command('\x14\x08', 'get_handle_by_name', (aksy.sysex.STRING,), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x08', 'get_handle_by_name', (aksy.devices.z48.sysex.STRING,), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x14\x08'] = comm
-          comm = aksy.sysex.Command('\x14\x09', 'delete_all', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x09', 'delete_all', (), ())
           self.commands['\x14\x09'] = comm
-          comm = aksy.sysex.Command('\x14\x0A', 'delete_current', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x0A', 'delete_current', (), ())
           self.commands['\x14\x0A'] = comm
-          comm = aksy.sysex.Command('\x14\x0B', 'delete_by_handle', (aksy.sysex.DWORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x0B', 'delete_by_handle', (aksy.devices.z48.sysex.DWORD,), ())
           self.commands['\x14\x0B'] = comm
-          comm = aksy.sysex.Command('\x14\x0C', 'rename_current', (aksy.sysex.STRING,), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x0C', 'rename_current', (aksy.devices.z48.sysex.STRING,), ())
           self.commands['\x14\x0C'] = comm
-          comm = aksy.sysex.Command('\x14\x0D', 'rename_by_handle', (aksy.sysex.DWORD, aksy.sysex.STRING), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x0D', 'rename_by_handle', (aksy.devices.z48.sysex.DWORD, aksy.devices.z48.sysex.STRING), ())
           self.commands['\x14\x0D'] = comm
-          comm = aksy.sysex.Command('\x14\x0E', 'tag', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x0E', 'tag', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x14\x0E'] = comm
-          comm = aksy.sysex.Command('\x14\x0F', 'get_tag_bitmap', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x0F', 'get_tag_bitmap', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x14\x0F'] = comm
-          comm = aksy.sysex.Command('\x14\x10', 'get_modified_name', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x10', 'get_modified_name', (), ())
           self.commands['\x14\x10'] = comm
-          comm = aksy.sysex.Command('\x14\x11', 'get_modified_state', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x14\x11', 'get_modified_state', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x14\x11'] = comm
-          comm = aksy.sysex.Command('\x14\x18', 'delete_tagged', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x18', 'delete_tagged', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x14\x18'] = comm
-          comm = aksy.sysex.Command('\x14\x40', 'create_new', (aksy.sysex.WORD, aksy.sysex.STRING), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x40', 'create_new', (aksy.devices.z48.sysex.WORD, aksy.devices.z48.sysex.STRING), ())
           self.commands['\x14\x40'] = comm
-          comm = aksy.sysex.Command('\x14\x41', 'add_keygroups_to_current', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x14\x41', 'add_keygroups_to_current', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x14\x41'] = comm
-          comm = aksy.sysex.Command('\x17\x01', 'get_group_id', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x01', 'get_group_id', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x01'] = comm
-          comm = aksy.sysex.Command('\x17\x03', 'get_type', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x03', 'get_type', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x03'] = comm
-          comm = aksy.sysex.Command('\x17\x04', 'get_genre', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x04', 'get_genre', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x17\x04'] = comm
-          comm = aksy.sysex.Command('\x17\x08', 'get_program_no', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x08', 'get_program_no', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x17\x08'] = comm
-          comm = aksy.sysex.Command('\x17\x09', 'get_no_keygroups', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x09', 'get_no_keygroups', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x17\x09'] = comm
-          comm = aksy.sysex.Command('\x17\x0A', 'get_keygroup_xfade', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x0A', 'get_keygroup_xfade', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x0A'] = comm
-          comm = aksy.sysex.Command('\x17\x0B', 'get_keygroup_xfade_type', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x0B', 'get_keygroup_xfade_type', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x0B'] = comm
-          comm = aksy.sysex.Command('\x17\x0C', 'get_level', (), (aksy.sysex.SWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x0C', 'get_level', (), (aksy.devices.z48.sysex.SWORD,))
           self.commands['\x17\x0C'] = comm
-          comm = aksy.sysex.Command('\x17\x10', 'get_polyphony', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x10', 'get_polyphony', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x10'] = comm
-          comm = aksy.sysex.Command('\x17\x11', 'get_reassignment_method', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x11', 'get_reassignment_method', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x11'] = comm
-          comm = aksy.sysex.Command('\x17\x12', 'get_softpedal_loudness_reduction', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x12', 'get_softpedal_loudness_reduction', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x12'] = comm
-          comm = aksy.sysex.Command('\x17\x13', 'get_softpedal_attack_stretch', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x17\x13', 'get_softpedal_attack_stretch', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x17\x13'] = comm
-          comm = aksy.sysex.Command('\x16\x01', 'set_group_id', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x01', 'set_group_id', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x01'] = comm
-          comm = aksy.sysex.Command('\x16\x03', 'set_type', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x03', 'set_type', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x03'] = comm
-          comm = aksy.sysex.Command('\x16\x04', 'set_genre', (aksy.sysex.STRING,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x04', 'set_genre', (aksy.devices.z48.sysex.STRING,), ())
           self.commands['\x16\x04'] = comm
-          comm = aksy.sysex.Command('\x16\x08', 'set_program_no', (aksy.sysex.WORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x08', 'set_program_no', (aksy.devices.z48.sysex.WORD,), ())
           self.commands['\x16\x08'] = comm
-          comm = aksy.sysex.Command('\x16\x09', 'set_no_keygroups', (aksy.sysex.WORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x09', 'set_no_keygroups', (aksy.devices.z48.sysex.WORD,), ())
           self.commands['\x16\x09'] = comm
-          comm = aksy.sysex.Command('\x16\x0A', 'set_keygroup_xfade', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x0A', 'set_keygroup_xfade', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x0A'] = comm
-          comm = aksy.sysex.Command('\x16\x0B', 'set_keygroup_xfade_type', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x0B', 'set_keygroup_xfade_type', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x0B'] = comm
-          comm = aksy.sysex.Command('\x16\x0C', 'set_level', (aksy.sysex.SWORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x0C', 'set_level', (aksy.devices.z48.sysex.SWORD,), ())
           self.commands['\x16\x0C'] = comm
-          comm = aksy.sysex.Command('\x16\x10', 'set_polyphony', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x10', 'set_polyphony', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x10'] = comm
-          comm = aksy.sysex.Command('\x16\x11', 'set_reassignment_method', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x11', 'set_reassignment_method', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x11'] = comm
-          comm = aksy.sysex.Command('\x16\x12', 'set_softpedal_loudness_reduction', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x12', 'set_softpedal_loudness_reduction', (), ())
           self.commands['\x16\x12'] = comm
-          comm = aksy.sysex.Command('\x16\x13', 'set_softpedal_attack_stretch', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x13', 'set_softpedal_attack_stretch', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x13'] = comm
-          comm = aksy.sysex.Command('\x16\x14', 'set_softpedal_filter_close', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x14', 'set_softpedal_filter_close', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x16\x14'] = comm
-          comm = aksy.sysex.Command('\x16\x15', 'set_midi_transpose', (aksy.sysex.SBYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x15', 'set_midi_transpose', (aksy.devices.z48.sysex.SBYTE,), ())
           self.commands['\x16\x15'] = comm
-          comm = aksy.sysex.Command('\x16\x18', 'set_mpc_pad_assignment', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x18', 'set_mpc_pad_assignment', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x16\x18'] = comm
-          comm = aksy.sysex.Command('\x16\x20', 'set_modulation_conn', (aksy.sysex.BYTE, aksy.sysex.WORD, aksy.sysex.WORD, aksy.sysex.WORD, aksy.sysex.SBYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x20', 'set_modulation_conn', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.WORD, aksy.devices.z48.sysex.WORD, aksy.devices.z48.sysex.WORD, aksy.devices.z48.sysex.SBYTE), ())
           self.commands['\x16\x20'] = comm
-          comm = aksy.sysex.Command('\x16\x21', 'set_modulation_src', (aksy.sysex.BYTE, aksy.sysex.WORD), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x21', 'set_modulation_src', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.WORD), ())
           self.commands['\x16\x21'] = comm
-          comm = aksy.sysex.Command('\x16\x22', 'set_modulation_dest', (aksy.sysex.BYTE, aksy.sysex.WORD), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x22', 'set_modulation_dest', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.WORD), ())
           self.commands['\x16\x22'] = comm
-          comm = aksy.sysex.Command('\x16\x23', 'set_modulation_level', (aksy.sysex.BYTE, aksy.sysex.WORD, aksy.sysex.SBYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x23', 'set_modulation_level', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.WORD, aksy.devices.z48.sysex.SBYTE), ())
           self.commands['\x16\x23'] = comm
-          comm = aksy.sysex.Command('\x16\x24', 'set_midi_ctrl_no', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x24', 'set_midi_ctrl_no', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x16\x24'] = comm
-          comm = aksy.sysex.Command('\x16\x25', 'set_edit_keygroup', (aksy.sysex.BYTE, aksy.sysex.WORD), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x25', 'set_edit_keygroup', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.WORD), ())
           self.commands['\x16\x25'] = comm
-          comm = aksy.sysex.Command('\x16\x26', 'set_edit_kegyroup_modulation_level', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x16\x26', 'set_edit_kegyroup_modulation_level', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x16\x26'] = comm
 
      def get_no_items(self):
@@ -139,7 +139,7 @@ class Programtools:
           """Get list of info for all items: 0=list of handles;
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x14\x02\x00')
           return self.z48.execute(comm, ())
@@ -148,7 +148,7 @@ class Programtools:
           """Get list of info for all items: 1=list of names
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x14\x02\x01')
           return self.z48.execute(comm, ())
@@ -157,8 +157,7 @@ class Programtools:
           """Get list of info for all items: 2=list of handle+name;
 
           Returns:
-               aksy.sysex.DWORD
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.HANDLENAMEARRAY
           """
           comm = self.commands.get('\x14\x02\x02')
           return self.z48.execute(comm, ())
@@ -167,8 +166,7 @@ class Programtools:
           """Get list of info for all items: 3=list of handle+modified/tagged name
 
           Returns:
-               aksy.sysex.DWORD
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.HANDLENAMEARRAY
           """
           comm = self.commands.get('\x14\x02\x03')
           return self.z48.execute(comm, ())
@@ -189,7 +187,7 @@ class Programtools:
           """Get handle of current item
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x14\x05')
           return self.z48.execute(comm, ())
@@ -198,7 +196,7 @@ class Programtools:
           """Get name of current item
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x14\x06')
           return self.z48.execute(comm, ())
@@ -207,7 +205,7 @@ class Programtools:
           """Get item name from handle
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x14\x07')
           return self.z48.execute(comm, (arg0, ))
@@ -216,7 +214,7 @@ class Programtools:
           """Get item handle from name
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x14\x08')
           return self.z48.execute(comm, (arg0, ))
@@ -261,7 +259,7 @@ class Programtools:
           """Get Tag Bitmap
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x14\x0F')
           return self.z48.execute(comm, ())
@@ -276,7 +274,7 @@ class Programtools:
           """Get modified state of current item.
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x14\x11')
           return self.z48.execute(comm, ())
@@ -303,7 +301,7 @@ class Programtools:
           """Get Group ID
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x01')
           return self.z48.execute(comm, ())
@@ -312,7 +310,7 @@ class Programtools:
           """Get Program Type <Reply> = (0=KEYGROUP, 1=DRUM)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x03')
           return self.z48.execute(comm, ())
@@ -321,7 +319,7 @@ class Programtools:
           """Get Genre
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x17\x04')
           return self.z48.execute(comm, ())
@@ -330,7 +328,7 @@ class Programtools:
           """Get Program Number <Reply1> = (0=OFF, 1­128)
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x17\x08')
           return self.z48.execute(comm, ())
@@ -339,7 +337,7 @@ class Programtools:
           """Get Number of keygroups
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x17\x09')
           return self.z48.execute(comm, ())
@@ -348,7 +346,7 @@ class Programtools:
           """Get Keygroup Crossfade <Reply1> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x0A')
           return self.z48.execute(comm, ())
@@ -357,7 +355,7 @@ class Programtools:
           """Get Keygroup Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x0B')
           return self.z48.execute(comm, ())
@@ -366,7 +364,7 @@ class Programtools:
           """Get Program Level <Reply1> = level in 10×dB
 
           Returns:
-               aksy.sysex.SWORD
+               aksy.devices.z48.sysex.SWORD
           """
           comm = self.commands.get('\x17\x0C')
           return self.z48.execute(comm, ())
@@ -375,7 +373,7 @@ class Programtools:
           """Get Polyphony
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x10')
           return self.z48.execute(comm, ())
@@ -384,7 +382,7 @@ class Programtools:
           """Get Reassignment <Reply1> = (0=QUIETEST, 1=OLDEST)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x11')
           return self.z48.execute(comm, ())
@@ -393,7 +391,7 @@ class Programtools:
           """Soft Pedal Loudness Reduction
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x12')
           return self.z48.execute(comm, ())
@@ -402,7 +400,7 @@ class Programtools:
           """Soft Pedal Attack Stretch
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x17\x13')
           return self.z48.execute(comm, ())

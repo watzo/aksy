@@ -7,101 +7,101 @@ Song
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.sysex
+import aksy.devices.z48.sysex
 
 class Songtools:
      def __init__(self, z48):
           self.z48 = z48
           self.commands = {}
-          self.command_spec = aksy.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
-          comm = aksy.sysex.Command('\x28\x01', 'get_no_items', (), (aksy.sysex.BYTE,))
+          self.command_spec = aksy.devices.z48.sysex.CommandSpec('\x47\x5f\x00', aksy.sysex.CommandSpec.ID, aksy.sysex.CommandSpec.ARGS)
+          comm = aksy.devices.z48.sysex.Command('\x28\x01', 'get_no_items', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x01'] = comm
-          comm = aksy.sysex.Command('\x28\x02\x00', 'get_handles', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x02\x00', 'get_handles', (), ())
           self.commands['\x28\x02\x00'] = comm
-          comm = aksy.sysex.Command('\x28\x02\x01', 'get_names', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x02\x01', 'get_names', (), ())
           self.commands['\x28\x02\x01'] = comm
-          comm = aksy.sysex.Command('\x28\x02\x02', 'get_handles_names', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x02\x02', 'get_handles_names', (), (aksy.devices.z48.sysex.HANDLENAMEARRAY,))
           self.commands['\x28\x02\x02'] = comm
-          comm = aksy.sysex.Command('\x28\x02\x03', 'get_handles_modified', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x02\x03', 'get_handles_modified', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x28\x02\x03'] = comm
-          comm = aksy.sysex.Command('\x28\x03', 'set_current_by_handle', (aksy.sysex.DWORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x03', 'set_current_by_handle', (aksy.devices.z48.sysex.DWORD,), ())
           self.commands['\x28\x03'] = comm
-          comm = aksy.sysex.Command('\x28\x04', 'set_current_by_name', (aksy.sysex.STRING,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x04', 'set_current_by_name', (aksy.devices.z48.sysex.STRING,), ())
           self.commands['\x28\x04'] = comm
-          comm = aksy.sysex.Command('\x28\x05', 'get_current_handle', (), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x05', 'get_current_handle', (), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x28\x05'] = comm
-          comm = aksy.sysex.Command('\x28\x06', 'get_current_name', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x06', 'get_current_name', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x28\x06'] = comm
-          comm = aksy.sysex.Command('\x28\x07', 'get_name_by_handle', (aksy.sysex.DWORD,), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x07', 'get_name_by_handle', (aksy.devices.z48.sysex.DWORD,), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x28\x07'] = comm
-          comm = aksy.sysex.Command('\x28\x08', 'get_handle_by_name', (aksy.sysex.STRING,), (aksy.sysex.DWORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x08', 'get_handle_by_name', (aksy.devices.z48.sysex.STRING,), (aksy.devices.z48.sysex.DWORD,))
           self.commands['\x28\x08'] = comm
-          comm = aksy.sysex.Command('\x28\x09', 'delete_all', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x09', 'delete_all', (), ())
           self.commands['\x28\x09'] = comm
-          comm = aksy.sysex.Command('\x28\x0A', 'delete_current', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x0A', 'delete_current', (), ())
           self.commands['\x28\x0A'] = comm
-          comm = aksy.sysex.Command('\x28\x0B', 'delete_by_handle', (aksy.sysex.DWORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x0B', 'delete_by_handle', (aksy.devices.z48.sysex.DWORD,), ())
           self.commands['\x28\x0B'] = comm
-          comm = aksy.sysex.Command('\x28\x0C', 'rename_current', (aksy.sysex.STRING,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x0C', 'rename_current', (aksy.devices.z48.sysex.STRING,), ())
           self.commands['\x28\x0C'] = comm
-          comm = aksy.sysex.Command('\x28\x0D', 'rename_by_handle', (aksy.sysex.DWORD, aksy.sysex.STRING), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x0D', 'rename_by_handle', (aksy.devices.z48.sysex.DWORD, aksy.devices.z48.sysex.STRING), ())
           self.commands['\x28\x0D'] = comm
-          comm = aksy.sysex.Command('\x28\x0E', 'set_tag_bit', (aksy.sysex.BYTE, aksy.sysex.BYTE), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x0E', 'set_tag_bit', (aksy.devices.z48.sysex.BYTE, aksy.devices.z48.sysex.BYTE), ())
           self.commands['\x28\x0E'] = comm
-          comm = aksy.sysex.Command('\x28\x0F', 'get_tag_bitmap', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x0F', 'get_tag_bitmap', (), ())
           self.commands['\x28\x0F'] = comm
-          comm = aksy.sysex.Command('\x28\x10', 'get_curr_modified', (), (aksy.sysex.STRING,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x10', 'get_curr_modified', (), (aksy.devices.z48.sysex.STRING,))
           self.commands['\x28\x10'] = comm
-          comm = aksy.sysex.Command('\x28\x11 ', 'get_modified', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x11 ', 'get_modified', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x11 '] = comm
-          comm = aksy.sysex.Command('\x28\x18', 'delete_tagged', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x18', 'delete_tagged', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x28\x18'] = comm
-          comm = aksy.sysex.Command('\x28\x40', 'play_song', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x40', 'play_song', (), ())
           self.commands['\x28\x40'] = comm
-          comm = aksy.sysex.Command('\x28\x41', 'pause_song', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x41', 'pause_song', (), ())
           self.commands['\x28\x41'] = comm
-          comm = aksy.sysex.Command('\x28\x42', 'stop_song', (), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x42', 'stop_song', (), ())
           self.commands['\x28\x42'] = comm
-          comm = aksy.sysex.Command('\x28\x01', 'set_group_id', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x01', 'set_group_id', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x28\x01'] = comm
-          comm = aksy.sysex.Command('\x28\x10', 'set_from_bar', (aksy.sysex.WORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x10', 'set_from_bar', (aksy.devices.z48.sysex.WORD,), ())
           self.commands['\x28\x10'] = comm
-          comm = aksy.sysex.Command('\x28\x10', 'set_to_bar', (aksy.sysex.WORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x10', 'set_to_bar', (aksy.devices.z48.sysex.WORD,), ())
           self.commands['\x28\x10'] = comm
-          comm = aksy.sysex.Command('\x28\x12', 'set_tempo_mode', (aksy.sysex.BYTE,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x12', 'set_tempo_mode', (aksy.devices.z48.sysex.BYTE,), ())
           self.commands['\x28\x12'] = comm
-          comm = aksy.sysex.Command('\x28\x13', 'set_manual_tempo', (aksy.sysex.WORD,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x13', 'set_manual_tempo', (aksy.devices.z48.sysex.WORD,), ())
           self.commands['\x28\x13'] = comm
-          comm = aksy.sysex.Command('\x28\x18', 'set_midi_output', (aksy.sysex.BOOL,), ())
+          comm = aksy.devices.z48.sysex.Command('\x28\x18', 'set_midi_output', (aksy.devices.z48.sysex.BOOL,), ())
           self.commands['\x28\x18'] = comm
-          comm = aksy.sysex.Command('\x28\x01', 'get_group_id', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x01', 'get_group_id', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x01'] = comm
-          comm = aksy.sysex.Command('\x28\x10', 'get_from_bar', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x10', 'get_from_bar', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x28\x10'] = comm
-          comm = aksy.sysex.Command('\x28\x11', 'get_to_bar', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x11', 'get_to_bar', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x28\x11'] = comm
-          comm = aksy.sysex.Command('\x28\x12', 'get_tempo_mode', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x12', 'get_tempo_mode', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x12'] = comm
-          comm = aksy.sysex.Command('\x28\x13', 'get_manual_tempo', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x13', 'get_manual_tempo', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x28\x13'] = comm
-          comm = aksy.sysex.Command('\x28\x18', 'get_midi_output_port', (), (aksy.sysex.BOOL,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x18', 'get_midi_output_port', (), (aksy.devices.z48.sysex.BOOL,))
           self.commands['\x28\x18'] = comm
-          comm = aksy.sysex.Command('\x28\x20', 'get_time_signature_beat', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x20', 'get_time_signature_beat', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x20'] = comm
-          comm = aksy.sysex.Command('\x28\x21', 'get_time_sig_beat_no', (), (aksy.sysex.BYTE,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x21', 'get_time_sig_beat_no', (), (aksy.devices.z48.sysex.BYTE,))
           self.commands['\x28\x21'] = comm
-          comm = aksy.sysex.Command('\x28\x22', 'get_curr_beat', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x22', 'get_curr_beat', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x28\x22'] = comm
-          comm = aksy.sysex.Command('\x28\x23', 'get_curr_bar', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x23', 'get_curr_bar', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x28\x23'] = comm
-          comm = aksy.sysex.Command('\x28\x24', 'get_curr_tempo', (), (aksy.sysex.WORD,))
+          comm = aksy.devices.z48.sysex.Command('\x28\x24', 'get_curr_tempo', (), (aksy.devices.z48.sysex.WORD,))
           self.commands['\x28\x24'] = comm
 
      def get_no_items(self):
           """Get number of items in memory
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x28\x01')
           return self.z48.execute(comm, ())
@@ -120,6 +120,9 @@ class Songtools:
 
      def get_handles_names(self):
           """Get list of sample handles and names
+
+          Returns:
+               aksy.devices.z48.sysex.HANDLENAMEARRAY
           """
           comm = self.commands.get('\x28\x02\x02')
           return self.z48.execute(comm, ())
@@ -146,7 +149,7 @@ class Songtools:
           """Get handle of current item
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x28\x05')
           return self.z48.execute(comm, ())
@@ -155,7 +158,7 @@ class Songtools:
           """Get name of current item
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x28\x06')
           return self.z48.execute(comm, ())
@@ -164,7 +167,7 @@ class Songtools:
           """Get item name from handle
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x28\x07')
           return self.z48.execute(comm, (arg0, ))
@@ -173,7 +176,7 @@ class Songtools:
           """Get item handle from name
 
           Returns:
-               aksy.sysex.DWORD
+               aksy.devices.z48.sysex.DWORD
           """
           comm = self.commands.get('\x28\x08')
           return self.z48.execute(comm, (arg0, ))
@@ -224,7 +227,7 @@ class Songtools:
           """Get name of current item with modified/tagged info
 
           Returns:
-               aksy.sysex.STRING
+               aksy.devices.z48.sysex.STRING
           """
           comm = self.commands.get('\x28\x10')
           return self.z48.execute(comm, ())
@@ -233,7 +236,7 @@ class Songtools:
           """Get modified state of current item.
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x28\x11 ')
           return self.z48.execute(comm, ())
@@ -302,7 +305,7 @@ class Songtools:
           """Get Group ID
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x28\x01')
           return self.z48.execute(comm, ())
@@ -311,7 +314,7 @@ class Songtools:
           """Get From Bar
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x28\x10')
           return self.z48.execute(comm, ())
@@ -320,7 +323,7 @@ class Songtools:
           """Get To Bar
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x28\x11')
           return self.z48.execute(comm, ())
@@ -329,7 +332,7 @@ class Songtools:
           """Get Tempo Mode <Reply> = (0=FILE, 1=MANUAL, 2=MULTI)
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x28\x12')
           return self.z48.execute(comm, ())
@@ -338,7 +341,7 @@ class Songtools:
           """Get Manual Tempo
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x28\x13')
           return self.z48.execute(comm, ())
@@ -347,7 +350,7 @@ class Songtools:
           """Get MIDI output port <Reply> = (0=NONE, 1=MIDI A, 2=MIDI B
 
           Returns:
-               aksy.sysex.BOOL
+               aksy.devices.z48.sysex.BOOL
           """
           comm = self.commands.get('\x28\x18')
           return self.z48.execute(comm, ())
@@ -356,7 +359,7 @@ class Songtools:
           """Get (Time Signature) Beat Value
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x28\x20')
           return self.z48.execute(comm, ())
@@ -365,7 +368,7 @@ class Songtools:
           """Get (Time Signature) Beats-per-Bar
 
           Returns:
-               aksy.sysex.BYTE
+               aksy.devices.z48.sysex.BYTE
           """
           comm = self.commands.get('\x28\x21')
           return self.z48.execute(comm, ())
@@ -374,7 +377,7 @@ class Songtools:
           """Get Current Beat
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x28\x22')
           return self.z48.execute(comm, ())
@@ -383,7 +386,7 @@ class Songtools:
           """Get Current Bar
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x28\x23')
           return self.z48.execute(comm, ())
@@ -392,7 +395,7 @@ class Songtools:
           """Get Current Tempo <Reply> = (tempo×10)bpm
 
           Returns:
-               aksy.sysex.WORD
+               aksy.devices.z48.sysex.WORD
           """
           comm = self.commands.get('\x28\x24')
           return self.z48.execute(comm, ())

@@ -129,6 +129,11 @@ class Reply:
     >>> reply = Reply(bytes, (STRING,)) 
     >>> reply.parse() 
     'Mellotron Strings.akp'
+
+    >>> bytes = '\xf0\x47\x5f\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'
+    >>> reply = Reply(bytes, (STRING,)) 
+    >>> reply.parse() 
+     '\x08Z8 Sampler'
     """
     def __init__(self, bytes, reply_spec=(), z48id=None, userref=None):
         self.bytes = bytes
@@ -170,22 +175,6 @@ class Reply:
             raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
         return self.parse_untyped_bytes(self.bytes, i)
-
-    def parse_typed_bytes(self, bytes, offset):
-        # deprecated. although mentioned in the sysex docs,
-        # I never saw it used.
-        raise NotImplementedError
-
-        result = []
-        while offset < (len(bytes) - 1):
-            part, len_parsed = parse_byte_string(bytes, offset)
-            if part is not None:
-                result.append(part)
-            offset += len_parsed
-        if len(result) == 1:
-            return result[0]
-        else:
-            return tuple(result)
 
     def parse_untyped_bytes(self, bytes, offset):
         """Parses a byte string without type information
@@ -558,23 +547,39 @@ class StringType(object):
                 index += 1
         return result
 
+class StringArrayType(object):
+    """
+    """
+    def encode(self, value):
+        raise NotImplementedError()
+
+    def decode(self, string):    
+        r"""
+        >>> s = StringArrayType()
+        >>> s.decode('test sdf\x00test ghi\x00')
+        ['test sdf', 'test ghi']
+        """
+        result = []
+        index = 0
+        offset = 0
+        for char in string:
+            #sys.stderr.writelines( "c:%s i:%s\n" % (char, index) )
+            if (char == END_SYSEX):
+                break;
+            if char == STRING_TERMINATOR:
+                result.append(struct.unpack( str(index) + 's', string[offset:offset+index])[0])
+                offset += index + 1
+                index = 0
+            else:
+                index += 1
+        return result
+
 class PadType(SysexType):
     def __init__(self):
         SysexType.__init__(self, 1, False)
 
     def decode(self, value):
         return None
-
-class HandleNameType(object):
-    """Experimental mixed data type, 
-    wrapping handle(DoubleWord) and name (StringType)
-    """
-    def encode(self, value):
-        raise NotImplementedError
-
-    def decode(self, string):
-        return  (DoubleWord.decode(string[:4]),
-                StringType.decode(string[4:]),)
 
 class SoundLevelType(SignedWordType):
     r"""Represents soundlevels in dB
@@ -609,6 +614,8 @@ SDWORD      = SignedDoubleWordType()
 QWORD       = QWordType()
 SQWORD      = SignedQWordType() 
 STRING      = StringType()
+
+
 TWO_BYTES   = SysexType(2, False, '\x0a')
 THREE_BYTES = SysexType(3, False, '\x0b')
 
@@ -619,6 +626,21 @@ CENTS       = '\x23' # SWORD(+- 3600)
 PAN         = PanningType()
 LEVEL       = SoundLevelType() 
 
+class HandleNameArrayType(object):
+    r"""Mixed data type, wrapping handle(DoubleWord) and name (StringType)
+    >>> handle_name_type = HandleNameArrayType() 
+    >>> handle_name_type.decode('\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
+    (174194692, 'SynthTest')
+    """
+    def encode(self, value):
+        raise NotImplementedError
+
+    def decode(self, string):
+        return  (DWORD.decode(string[:4]),
+                STRING.decode(string[3:]),)
+
+HANDLESNAMES  = HandleNameArrayType()
+
 def parse_byte_string(data, type, offset=0):
     r""" Parses a byte string
 
@@ -628,7 +650,7 @@ def parse_byte_string(data, type, offset=0):
     >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 1)
     ('EST', 4)
 
-    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR + '\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 0)
+    >>> parse_byte_string('\x54\x45\x53\x54\x00\x54\x45\x53\x54\x00', STRING, 0)
     (('TEST', 'TEST'), 10)
 
     >>> parse_byte_string('\x0f', BYTE)
