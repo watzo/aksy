@@ -9,7 +9,7 @@ from wxPython.wx import wxDirDialog, wxDD_NEW_DIR_BUTTON, wxDD_DEFAULT_STYLE, wx
 from wxPython.wx import wxFileDialog, wxTheClipboard, wxFileDataObject,wxDF_FILENAME,wxDialog,wxDataObject, wxConfig, wxFileConfig, wxCONFIG_USE_LOCAL_FILE
 
 from aksy import model
-from aksy.device import Device
+from aksy.device import Device, Devices
 import os.path, traceback, sys, copy
 
 ID_ABOUT=wxNewId()
@@ -45,9 +45,9 @@ class Frame(wxFrame):
 
         # values hardcoded for now
         if not USE_MOCK_OBJECTS:
-            self.sampler = Device.get_instance('z48', 0)
+            self.sampler = Devices.get_instance('z48', 0)
         else:
-            self.sampler = Device.get_instance(('mock_z48', None),1)
+            self.sampler = Devices.get_instance('mock_z48', None, 1)
             print self.sampler
 
         try:
@@ -99,15 +99,16 @@ class AksyFSTree(wxTreeListCtrl):
         #self.fldropenidx = il.Add(wxArtProvider_GetBitmap(wxART_FILE_OPEN,   wxART_OTHER, isz))
         self.fileidx     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
         
-        self.diskidx = il.Add(wxImage('src/gui/img/harddisk.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
-        self.memidx = il.Add(wxImage('src/gui/img/memory.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
-        self.fldridx = il.Add(wxImage('src/gui/img/folder.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
-        self.fldropenidx = il.Add(wxImage('src/gui/img/folder-open.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        img_path = test_dir = os.path.join(os.path.split(__file__)[0], 'img')
+        self.diskidx = il.Add(wxImage(os.path.join(img_path, 'harddisk.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.memidx = il.Add(wxImage(os.path.join(img_path, 'memory.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.fldridx = il.Add(wxImage(os.path.join(img_path, 'folder.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.fldropenidx = il.Add(wxImage(os.path.join(img_path, 'folder-open.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
 
         #self.program_icon     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
-        self.program_icon     = il.Add(wxImage('src/gui/img/program.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
-        self.multi_icon     = il.Add(wxImage('src/gui/img/multi.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
-        self.sample_icon     = il.Add(wxImage('src/gui/img/sample.png', wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.program_icon     = il.Add(wxImage(os.path.join(img_path, 'program.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.multi_icon     = il.Add(wxImage(os.path.join(img_path, 'multi.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
+        self.sample_icon     = il.Add(wxImage(os.path.join(img_path, 'sample.png'), wxBITMAP_TYPE_PNG).ConvertToBitmap())
         self.SetImageList(il)
         self.il = il
 
@@ -282,6 +283,7 @@ class TreePanel(wxPanel):
         EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
         EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
 
+        # replace by get_system_objects
         disks = self.sampler.disks
         mem = self.sampler.memory
 
@@ -289,50 +291,6 @@ class TreePanel(wxPanel):
 
         mem_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), mem)
         disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disks)
-
-        programtools = self.sampler.programtools
-        sampletools = self.sampler.sampletools
-        multitools = self.sampler.multitools
-
-        # Move this stuff somewhere else...
-        if not USE_MOCK_OBJECTS:
-            try:  
-                # not fool proof for multiple disks   
-                disk = model.Disk(self.sampler.disktools.get_disklist())
-                self.sampler.disktools.select_disk(disk.handle)
-                rootfolder = model.Folder(("",))
-                folders = rootfolder.get_children()
-                disks.set_children(folders)
-                for folder in folders:
-                    self.tree.AppendAksyItem(disks_id, folder)
-
-            except Exception, e:
-                parent.reportException(e)
-                return
-        else:
-            
-            # Setup some items
-            disktools = self.sampler.disktools
-
-            rootfolder = model.Folder(("",))
-            rootfolder.children.append(model.Folder(('', 'Autoload',)))
-            rootfolder.children.append(model.Folder(('', 'Songs',)))
-            mellotron_folder = model.Folder(('', 'Mellotron',))
-            choir_folder = model.Folder(('', 'Choir',))
-            choir_folder.children.extend(
-                (model.File(('', 'Mellotron', 'Choir', 'Choir.AKM',)),
-                model.File(('', 'Mellotron', 'Choir', 'Choir.AKP',)),
-                model.File(('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
-
-            mellotron_folder.children.extend(
-                (choir_folder,
-                model.File(('', 'Mellotron', 'Sample.AKP',)),
-                model.File(('', 'Mellotron', 'Sample.wav',)),))
-            rootfolder.children.append(mellotron_folder)
-            disks.set_children(rootfolder.get_children())
-
-            for folder in rootfolder.get_children():
-                 item = self.tree.AppendAksyItem(disks_id, folder)
 
         self.tree.Expand(self.tree.root)
 
@@ -486,7 +444,7 @@ class TreePanel(wxPanel):
             else:
                 action.epilog(item, result)
 
-        self.recordedActions.append((action, args)
+        self.recordedActions.append(action, args)
 
     def select_directory(self, item):
         dir_dialog = wxDirDialog(self, "Choose a destination for %s" %item.get_name(), 
