@@ -12,6 +12,8 @@ class Z48(Z48Sampler):
     >>> z.init_usb()
     >>> z.get_no_disks()
     1
+    >>> z.get_disklist() 
+    [512, 1, 2, 256, 'Z48 & MPC4K']
     >>> z.close_usb()
     """
 
@@ -28,10 +30,24 @@ class Z48(Z48Sampler):
         return Z48.__dict__.get(cls.__name__) 
 
     """
+
+    def init(self):
+        """Initializes the connection with the sampler
+        """
+        Z48Sampler.init_usb(self)
+
+    def close(self):
+        """Closes the connection with the sampler
+        """
+        Z48Sampler.close_usb(self)
+
     def execute(self, command):
         request = Request(command)
-        print request.get_bytes()
         result_bytes = self._execute('\x10\x08\x00' + request.get_bytes())
-        print "Python: len: %i data: %s" %(len(result_bytes), repr(struct.unpack(str(len(result_bytes)) + 'b', result_bytes)))
-        result = Reply(result_bytes)
+        sys.stderr.writelines("Python: len: %i data: %s\n" %(len(result_bytes), repr(struct.unpack(str(len(result_bytes)) + 'b', result_bytes))))
+        result = Reply(result_bytes, command.reply_spec)
         return result.parse()
+
+if __name__ == "__main__":
+    import doctest, sys
+    doctest.testmod(sys.modules[__name__])
