@@ -9,12 +9,21 @@ def _arglist_helper(arglist):
     else:
          return '(' + ', '.join(arglist) + ')'
 
+def method_name_helper(desc):
+    """ Creates a method based on the description
+    """
+    desc = desc.split(' ')
+    return '_'.join([word.lower() for word in desc[0:3]])
+
 # could use ljust etc...
 indent_block = "     "
 sysex_module_name = 'sysex'
 z48_instance_name = 'z48'
 
+generate_methods = None
 file_in_name = sys.argv[1]
+if len(sys.argv)== 3:
+    generate_methods = sys.argv[2]
     
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
@@ -39,8 +48,12 @@ while line:
     try:
         elems = line[:-1].split('\t')
         id = elems[0]
+        if generate_methods is not None:
+            elems.insert(1, method_name_helper(elems[1])) 
+
         name = elems[1]
         desc = elems[2]
+
         args = []
         data = []
         for i in range(3, len(elems)-1):
