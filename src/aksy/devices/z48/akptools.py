@@ -214,7 +214,11 @@ class Program(Base):
     >>> p = Program('sooper strings.akp')
     >>> len(p.create_chunk())
     74
-    >>> p.keygroups[0].zones[0].samplename = 'sooper A1.wav'
+    
+    Note the lack of file extension with sample assigning:
+    >>> p.keygroups[0].zones[0].samplename = 'test'
+    >>> p.keygroups[0].zones[0].low_vel = 33
+    >>> p.keygroups[0].zones[0].high_vel = 35 
     >>> p.writefile()
     """
     def __init__(self, filename, chunk=None, **kwargs):
@@ -348,7 +352,13 @@ class Program(Base):
             file.write(kg.create_chunk())
         file.close()
 
-    def __repr__(self):
+    def readfile(self):
+        """Move to constructor?
+        """
+        file = open(self.filename, 'rb')
+        file.close()
+
+   def __repr__(self):
         string_repr = StringIO(
         string_repr.write('<Akai Program'))
         string_repr.write(''.join(['property: %s, val %s\n' % (item, val) 
@@ -380,13 +390,13 @@ class LFO(Base):
         self.depth_mod = 0
 
     def setvalues(self):
-        self.waveform = LFO.TRIANGLE 
-        self.rate = 43
-        self.delay = 0
-        self.depth = 0
-        self.rate_mod = 0
-        self.delay_mod = 0
-        self.depth_mod = 0
+        self.waveform = self.read_byte(1) 
+        self.rate = self.read_byte(1) 
+        self.delay = self.read_byte(1) 
+        self.depth = self.read_byte(1) 
+        self.rate_mod = self.read_byte(1) 
+        self.delay_mod = self.read_byte(1) 
+        self.depth_mod = self.read_byte(1) 
  
 class LFO1(LFO):
     """
@@ -489,7 +499,7 @@ class Keygroup(Base):
         chunk = StringIO()
         chunk.write(struct.pack('<4sl4sl16b',
             'kgrp',
-            336,        
+            344,
             'kloc',
             16,
             0,
