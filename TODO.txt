@@ -1,1 +1,11 @@
-- GUI
+0.1:
+
+- debug load/delete/rename operations
+- copy/paste, drag-n-drop (80% done)
+- key bindings for load(Ctrl-L), delete (DEL), rename (F2) 
+- transfer from host to disk (may be a hack with saving will do)
+
+0.2:
+- extended view for multis, programs and samples
+- Editors for multis, programs and some basic functionality for samples
+
