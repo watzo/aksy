@@ -24,19 +24,129 @@ class Action:
     def __init__(self, function, display_name, external_id=None):
         self.execute = function 
         self.display_name = display_name
-        self.external_id = external_id
+        # The function to be executed before the function
+        self.prolog = None
+        # The function to be executed after the function
+        self.epilog = None
+        self.id = None
 
-    def set_external_id(self, external_id):
-        self.external_id = external_id
+class File(object):
+    FOLDER = 0
+    MULTI = 1
+    PROGRAM = 2
+    SAMPLE = 3
 
-class Folder(object):
+    def init_modules(modules):
+        File.modules = modules
+
+    init_modules = staticmethod(init_modules)
+
+    def __init__(self, disktools, path):
+        """Initializes a file object - A multi, program or sample before it
+        is loaded into memory
+        """
+
+        assert isinstance(path, tuple) 
+
+        self.disktools = disktools
+        self.path = path
+        self.name = path[-1]
+
+        if RE_MULTI.search(self.name) is not None:
+            self.type = self.MULTI
+        elif RE_PROGRAM.search(self.name) is not None:
+            self.type = self.PROGRAM
+        elif RE_SAMPLE.search(self.name) is not None:
+            self.type = self.SAMPLE
+        else:
+            raise NotImplementedError("No support for file type: ", self.name) 
+
+        self.module = self.modules[self.type]
+
+    def get_size(self):
+        return 'Unknown' 
+
+    def get_modified(self):
+        """Returns True if this file has been modified
+        """
+        return None
+
+    def get_used_by(self):
+        """Returns the parent using this file
+        """
+        return None
+
+    def load(self):
+        """Load the file into memory 
+        """
+        parent_folder = Folder(self.disktools, self.path[:-1])
+        parent_folder.set_current()
+        self.disktools.load_file(self.name)
+
+        if self.type == self.MULTI:
+            return Multi(self.module, self.path)
+        if self.type == self.PROGRAM:
+            return Program(self.module, self.path)
+        if self.type == self.SAMPLE:
+            return Sample(self.module, self.path)
+
+    def transfer(self, path):
+        """Transfer the file to host 
+        """
+
+    def get_children(self):
+        """
+        """
+        raise NotImplementedError
+
+    def delete(self):
+        """
+        """
+        self.disktools.delete_file(self.path)
+
+    def rename(self, new_name):
+        """
+        """
+        self.disktools.rename_file(new_name)
+        self.path = self.path[:-1] + (new_name,)
+
+    def get_actions(self):
+        """Returns the actions defined by this file type
+        """
+        return File.actions
+
+    def get_list_repr(self):
+        """Returns a representation of the file for display
+        in a list
+        """
+        raise NotImplementedError
+
+#TODO: how to do this within the class definition...
+File.actions = {"load": Action(File.load, "Load"), "delete": Action(File.delete, "Delete"),}
+
+class InMemoryFile(File):
+    def set_current(self):
+        self.module.set_current_by_name(self.name)
+
+    def delete(self):
+        print "InMemoryFile.delete() %s" % repr(self.module)
+        self.module.get_no_items()
+        self.set_current()
+        self.module.delete_current()
+
+    def rename(self, new_name):
+        pass
+
+InMemoryFile.actions = {"delete": Action(InMemoryFile.delete, "Delete"),}
+
+class Folder(File):
     def __init__(self, disktools, path):
         """ TODO: find a nice solution for the primitive folder selection
-        Consider extending File
         """
         self.disktools = disktools
         self.path = path
         self.name = path[-1]
+        self.type = File.FOLDER
 
         print "Initializing folder %s" % repr(path)
 
@@ -70,87 +180,16 @@ class Folder(object):
         """
         """
 
-Folder.actions = {"folder_load": Action(Folder.load, "Load"),
-        "folder_delete": Action(Folder.delete, "Delete"), "folder_rename": Action(Folder.rename, "Rename")}
-
-class File(object):
-    MULTI = 0
-    PROGRAM = 1
-    SAMPLE = 2
-
-    def __init__(self, disktools, path):
-        """Initializes a file object - A multi, program or sample before it
-        is loaded into memory
+    def transfer(self, path):
+        """Transfer the folder to host 
         """
-        self.disktools = disktools
-        self.path = path
-        self.name = path[-1]
-        if RE_MULTI.search(name) is not None:
-            self.type = self.MULTI
-            # self.module = multi_main
-        elif RE_PROGRAM.search(name) is not None:
-            self.type = self.PROGRAM
-            # self.module = program_main
-        elif RE_SAMPLE.search(name) is not None:
-            self.type = self.SAMPLE
-            # self.module = sample_main
-        else:
-            raise NotImplementedError("No support for file type: ", name) 
+        print "Transfer of folder not supported yet"
 
-    def get_modified(self):
-        """Returns True if this program has has been modified
-        """
+Folder.actions = {}
+Folder.actions.update(File.actions)
+Folder.actions.update({"transfer": Action(Folder.transfer, "Transfer"),})
 
-    def get_used_by(self):
-        """Returns the parent using this file
-        """
-
-    def load(self):
-        """Load the file into memory 
-        """
-        parent_folder = Folder(self.disktools, self.path[:-1])
-        parent_folder.set_current()
-        self.disktools.load_file(self.name)
-
-        if self.type == self.MULTI:
-            return Multi(self.module, self.name)
-        if self.type == self.PROGRAM:
-            return Program(self.module, self.name)
-        if self.type == self.SAMPLE:
-            return Sample(self.module, self.name)
-
-    def get_children(self):
-        """
-        """
-        raise NotImplementedError
-
-    def delete(self):
-        """
-        """
-        self.disktools.delete_file(self.path)
-
-    def rename(self, new_name):
-        """
-        """
-        self.disktools.rename_file(self.path, new_name)
-
-    def get_actions(self):
-        """Returns the actions defined by this file type
-        """
-        return File.actions
-
-    def get_list_repr(self):
-        """Returns a representation of the file for display
-        in a list
-        """
-        raise NotImplementedError
-
-#TODO: how to do this within the class definition...
-File.actions = {"load": Action(File.load, "Load"),
-        "delete": Action(File.delete, "Delete"), "rename": Action(File.rename, "Rename")}
-
-
-class Multi(File):
+class Multi(InMemoryFile):
     def __init__(self, multi_main, name=None):
         """
         """
@@ -175,9 +214,9 @@ class Multi(File):
 #TODO: possible inheritance issues, any subclass implementation
 #will not be used
 Multi.actions = {}
-Multi.actions.update(File.actions)
+Multi.actions.update(InMemoryFile.actions)
 
-class Program(File):
+class Program(InMemoryFile):
     def get_used_by(self):
         """Returns the multi(s) using this program
         """
@@ -192,9 +231,9 @@ class Program(File):
         """
 
 Program.actions = {}
-Program.actions.update(File.actions)
+Program.actions.update(InMemoryFile.actions)
 
-class Sample(File):
+class Sample(InMemoryFile):
     def get_used_by(self):
         """Returns the pogram(s) using this file
         """
@@ -210,4 +249,4 @@ class Sample(File):
         """
 
 Sample.actions = {}
-Sample.actions.update(File.actions)
+Sample.actions.update(InMemoryFile.actions)
