@@ -12,7 +12,7 @@ import aksy
 ID_ABOUT=1001
 ID_EXIT=1002
 ID_TEST=1003
-USE_MOCK_OBJECTS = False
+USE_MOCK_OBJECTS = True
 
 class Frame(wxFrame):
     def __init__(self,parent,title):
@@ -53,6 +53,10 @@ class Frame(wxFrame):
         if not USE_MOCK_OBJECTS:
             self.z.close()
             
+    def reportException(self, exception):
+        d= wxMessageDialog( self, "%s\n" % repr(exception), "An error occurred", wxOK)
+        d.ShowModal() 
+        d.Destroy() 
 
 class TestPanel(wxPanel):
     def __init__(self, parent):
@@ -70,9 +74,21 @@ class TestPanel(wxPanel):
         fldropenidx = il.Add(wxArtProvider_GetBitmap(wxART_FILE_OPEN,   wxART_OTHER, isz))
         fileidx     = il.Add(wxArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
 
+        # add icons for programs, multis, samples
+        program_icon = il.Add(wxArtProvider_GetBitmap(wxART_FOLDER, wxART_OTHER, isz))
+        multi_icon = il.Add(wxArtProvider_GetBitmap(wxART_FOLDER, wxART_OTHER, isz))
+        sample_icon = il.Add(wxArtProvider_GetBitmap(wxART_FOLDER, wxART_OTHER, isz))
+
         self.tree.SetImageList(il)
         self.il = il
 
+        # setup the actions
+
+        self.actions = {}
+        self.actions.update(wrappers.Multi.actions)
+        self.actions.update(wrappers.Program.actions)
+        self.actions.update(wrappers.Sample.actions)
+        self.actions.update(wrappers.Folder.actions)
         # create some columns
         self.tree.AddColumn("")
         self.tree.AddColumn("Name")
@@ -84,15 +100,18 @@ class TestPanel(wxPanel):
 
         # Move this stuff somewhere else...
         if not USE_MOCK_OBJECTS:
-            disk = wrappers.Disk(self.z.disktools.get_disklist())   # not fool proof for multiple
-                                                         # disks
-            self.z.disktools.select_disk(disk.handle)    # TODO: handle exceptions
-            rootfolder = wrappers.Folder(self.z.disktools, [""])
-            rootfolder.get_children()
+            try:
+                disk = wrappers.Disk(self.z.disktools.get_disklist())   # not fool proof for multiple
+                                                             # disks
+                self.z.disktools.select_disk(disk.handle)    # TODO: handle exceptions
+                rootfolder = wrappers.Folder(self.z.disktools, [""])
+                rootfolder.get_children()
 
-            programs = self.z.program_main.get_program_names()
-            multis = self.z.multi_main.get_multi_names()
-            samples = self.z.sample_main.get_sample_names()
+                programs = self.z.program_main.get_program_names()
+                multis = self.z.multi_main.get_multi_names()
+                samples = self.z.sample_main.get_sample_names()
+            except e:
+                reportException(e)
         else:
             
             # Add some items
@@ -113,8 +132,25 @@ class TestPanel(wxPanel):
 
         for item in storage: 
             child = self.tree.AppendItem(self.root, item)
-            self.tree.SetItemImage(child, fldridx, which = wxTreeItemIcon_Normal)
-            self.tree.SetItemImage(child, fldropenidx, which = wxTreeItemIcon_Expanded)
+            if isinstance(item, wrappers.Folder):
+                self.tree.SetItemImage(child, fldridx, which = wxTreeItemIcon_Normal)
+                self.tree.SetItemImage(child, fldropenidx, which = wxTreeItemIcon_Expanded)
+            elif isinstance(item, wrappers.File):
+                if item.type == wrappers.File.MULTI:
+                    self.tree.SetItemImage(child, multi_icon, which = wxTreeItemIcon_Normal)
+                elif item.type == wrappers.File.PROGRAM:
+                    self.tree.SetItemImage(child, program_icon, which = wxTreeItemIcon_Normal)
+                elif item.type == wrappers.File.SAMPLE:
+                    self.tree.SetItemImage(child, sample_icon, which = wxTreeItemIcon_Normal)
+            elif isinstance(item, wrappers.Multi):
+                self.tree.SetItemImage(child, multi_icon, which = wxTreeItemIcon_Normal)
+            elif isinstance(item, wrappers.Program):
+                self.tree.SetItemImage(child, program_icon, which = wxTreeItemIcon_Normal)
+            elif isinstance(item, wrappers.Sample):
+                self.tree.SetItemImage(child, sample_icon, which = wxTreeItemIcon_Normal)
+            else:
+                self.tree.SetItemImage(child, fldridx, which = wxTreeItemIcon_Normal)
+                self.tree.SetItemImage(child, fldropenidx, which = wxTreeItemIcon_Expanded)
 
             if children.has_key(item):
                 subfolders = children[item]

@@ -17,25 +17,37 @@ class Disk(object):
         self.writable = writable
         self.name = name
 
+class Action:
+    """Wraps an action for a file, adapting an interface action to
+    a function call
+    """ 
+    def __init__(self, function, display_name, external_id=None):
+        self.execute = function 
+        self.display_name = display_name
+        self.external_id = external_id
+
+    def set_external_id(self, external_id):
+        self.external_id = external_id
+
 class Folder(object):
     def __init__(self, disktools, path):
         """ TODO: find a nice solution for the primitive folder selection
+        Consider extending File
         """
         self.disktools = disktools
         self.path = path
+        self.name = path[-1]
 
         print "Initializing folder %s" % repr(path)
-        self.set_current()
 
     def get_children(self):
         """
         """
-        children = []
-        for subfolder in self.disktools.get_subfolder_names():
-            children.append(Folder(self.disktools, self.path + [subfolder]))
+        self.set_current()
+        children = [Folder(self.disktools, self.path + [subfolder])
+            for subfolder in self.disktools.get_subfolder_names()]
 
         # TODO: check this! this currently does not work
-        # Should stay a 'string item' unless loaded
         files = [ File(self.disktools, name) for name in 
             self.disktools.get_filenames() ]
 
@@ -46,24 +58,42 @@ class Folder(object):
         for item in self.path:
             self.disktools.set_curr_folder(item)
 
+    def load(self):
+        """
+        """
+
+    def delete(self):
+        """
+        """
+
+    def create_subfolder(self):
+        """
+        """
+
+Folder.actions = {"folder_load": Action(Folder.load, "Load"),
+        "folder_delete": Action(Folder.delete, "Delete"), "folder_rename": Action(Folder.rename, "Rename")}
+
 class File(object):
+    MULTI = 0
+    PROGRAM = 1
+    SAMPLE = 2
 
-    def __init__(self, module, name=None):
-        """Initializes a file object - should not be called directly, use 
-        getInstance instead.
+    def __init__(self, disktools, path):
+        """Initializes a file object - A multi, program or sample before it
+        is loaded into memory
         """
-        self.module = module
-        self.name = name
-
-    def getInstance(module, name=None):
-        """Initializes a program from a  name
-        """
+        self.disktools = disktools
+        self.path = path
+        self.name = path[-1]
         if RE_MULTI.search(name) is not None:
-            return Multi(module, name)
+            self.type = self.MULTI
+            # self.module = multi_main
         elif RE_PROGRAM.search(name) is not None:
-            return Program(module, name)
+            self.type = self.PROGRAM
+            # self.module = program_main
         elif RE_SAMPLE.search(name) is not None:
-            return Sample(module, name)
+            self.type = self.SAMPLE
+            # self.module = sample_main
         else:
             raise NotImplementedError("No support for file type: ", name) 
 
@@ -75,10 +105,19 @@ class File(object):
         """Returns the parent using this file
         """
 
-    def get_children(self):
+    def load(self):
+        """Load the file into memory 
         """
-        """
-        raise NotImplementedError
+        parent_folder = Folder(self.disktools, self.path[:-1])
+        parent_folder.set_current()
+        self.disktools.load_file(self.name)
+
+        if self.type == self.MULTI:
+            return Multi(self.module, self.name)
+        if self.type == self.PROGRAM:
+            return Program(self.module, self.name)
+        if self.type == self.SAMPLE:
+            return Sample(self.module, self.name)
 
     def get_children(self):
         """
@@ -88,23 +127,27 @@ class File(object):
     def delete(self):
         """
         """
-        raise NotImplementedError
+        self.disktools.delete_file(self.path)
 
     def rename(self, new_name):
         """
         """
-        raise NotImplementedError
+        self.disktools.rename_file(self.path, new_name)
 
     def get_actions(self):
         """Returns the actions defined by this file type
         """
-        raise NotImplementedError
+        return File.actions
 
     def get_list_repr(self):
         """Returns a representation of the file for display
         in a list
         """
         raise NotImplementedError
+
+#TODO: how to do this within the class definition...
+File.actions = {"load": Action(File.load, "Load"),
+        "delete": Action(File.delete, "Delete"), "rename": Action(File.rename, "Rename")}
 
 
 class Multi(File):
@@ -129,6 +172,11 @@ class Multi(File):
         in a list
         """
 
+#TODO: possible inheritance issues, any subclass implementation
+#will not be used
+Multi.actions = {}
+Multi.actions.update(File.actions)
+
 class Program(File):
     def get_used_by(self):
         """Returns the multi(s) using this program
@@ -142,6 +190,9 @@ class Program(File):
         """Returns a representation of the file for display
         in a list
         """
+
+Program.actions = {}
+Program.actions.update(File.actions)
 
 class Sample(File):
     def get_used_by(self):
@@ -157,3 +208,6 @@ class Sample(File):
         """Returns a representation of the file for display
         in a list
         """
+
+Sample.actions = {}
+Sample.actions.update(File.actions)
