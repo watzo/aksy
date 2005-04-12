@@ -4,6 +4,7 @@
 * script window support
   * script loading, session save/restore
 * offline Z48 AKP write support
+* make python c code use libakai
 * bug fixing:
   * type conversions - 80%
   * transfer to disk
