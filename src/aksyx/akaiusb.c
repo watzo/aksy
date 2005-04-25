@@ -87,8 +87,7 @@ int akai_usb_device_close(akai_usb_device akai_dev)
 {
     int rc;
     rc = usb_release_interface(akai_dev->dev, 0);
-    rc = usb_close (akai_dev->dev)|rc;
-    free (akai_dev);
+    rc = usb_close(akai_dev->dev)|rc;
     return rc;
 }
 
@@ -101,8 +100,20 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
 
 }
 
+int akai_usb_device_send_bytes(akai_usb_device akai_dev, char* bytes, 
+    int byte_length, int timeout) 
+{
+    return usb_bulk_write(akai_dev->dev, EP_OUT, bytes, byte_length, timeout);
+}
+
+int akai_usb_device_recv_bytes(akai_usb_device akai_dev, char* buff, 
+    int buff_length, int timeout)
+{
+    return usb_bulk_read(akai_dev->dev, EP_IN, buff, buff_length, timeout);
+}
+
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
-    char* name, char* handle)
+    char* name, char* handle, int timeout)
 {
     printf("GETHANDLE\n");
     unsigned char section;
@@ -158,7 +169,7 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
 		printf("\n");
     /* success reply: \xf0\x47 <device> userref <section, command, <reply_ok> <4 byte handle>, \xf7 */
     /* error reply: \xf0\x47 <device> userref <section, command, <reply_error>, \xf7 */
-    if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, sysex_length, USB_TIMEOUT))
+    if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, sysex_length, timeout))
     {
         retval = AKAI_TRANSMISSION_ERROR;
     }
@@ -167,7 +178,7 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
         data = (unsigned char*) calloc(12, sizeof(unsigned char));
         int ret;
 read_sysex:
-        if ((ret = usb_bulk_read(akai_dev->dev, EP_IN, data, 12, USB_TIMEOUT)) < 0)
+        if ((ret = usb_bulk_read(akai_dev->dev, EP_IN, data, 12, timeout)) < 0)
         {
             retval = AKAI_TRANSMISSION_ERROR;
         }
@@ -226,7 +237,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     if (location == Z48_MEMORY)
     {
         handle = (unsigned char*) calloc(4, sizeof(unsigned char));
-        if (!akai_usb_device_get_handle_by_name(akai_dev, src_filename, handle)) 
+        if (!akai_usb_device_get_handle_by_name(akai_dev, src_filename, handle, timeout)) 
         {
             retval = errno;
             free(handle);
@@ -272,7 +283,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
             fwrite(data, sizeof(unsigned char), rc, dest_file);
 
             /* sent continue request */
-            usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, USB_TIMEOUT);  
+            usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);  
         }	
         else if (rc == 8)
         {

@@ -3,8 +3,9 @@
 #include <usb.h>
 #include <assert.h>
 #include <time.h>
-#include "aksyxusb.h"
 #include "akaiusb.h"
+#include "aksyxusb.h"
+
 static akai_usb_device sampler = NULL;
 
 extern int z48_sysex_reply_ok(char* sysex_reply);
