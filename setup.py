@@ -12,6 +12,6 @@ setup(name = "aksyx usb extension",
          Extension("aksyxusb",
                 sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c" ],
                 define_macros=[('_DEBUG', '1'),],
-                libraries = [ "akaiusb" ],
+                libraries = [ "usb" ],
             ),
        ])
