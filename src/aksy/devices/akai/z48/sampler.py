@@ -1,4 +1,4 @@
-from aksyxusb import Z48Sampler
+from aksyxusb import AkaiSampler
 from aksy.devices.akai import sysex
 from aksy.devices.akai.sysex import Request, Reply
 import disktools, programtools, multitools, sampletools, systemtools, recordingtools
@@ -6,7 +6,7 @@ from aksy import model
 import struct
 import sys,time
 
-class Sampler(Z48Sampler):
+class Sampler(AkaiSampler):
     """Models a Z4 or Z8 sampler.
 
     You can use it like this:
@@ -35,7 +35,7 @@ class Sampler(Z48Sampler):
     MEMORY = 0
     DISK = 1
 
-    def __init__(self, debug=1, id=0):
+    def __init__(self, confirmation_msgs=False, debug=1, id=0):
         self.id = id
         self.debug = debug
         sys.stderr.writelines("Sampler: %s\n" %repr(self))
@@ -54,24 +54,22 @@ class Sampler(Z48Sampler):
 
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
-        Z48Sampler.__init__(self)
+        AkaiSampler.__init__(self)
 
     def init(self):
         """Initializes the connection with the sampler
         """
-        Z48Sampler.init_usb(self)
+        AkaiSampler.init_usb(self)
 
         # disable checksums (not enabled per default)
         # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
         # result_bytes = self._execute('\x10' + struct.pack('B', len(msg) + '\x00' + msg)
-
-        # disable confirmation messages
-        # msg = "\xf0\x47\x5f\x00\x00\x01\x00\xf7";
-        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
-                                                                                                                                                           
+        # disable confirmation
+        msg = "\xf0\x47\x5f\x00\x00\x01\x00\xf7";
+        self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
         # disable sync
-        msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
-        result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
+        # msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
+        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
         # not fool proof for multiple disks
         #disk = model.Disk(self.disktools.get_disklist())
         #self.disktools.select_disk(disk.handle)
@@ -82,13 +80,13 @@ class Sampler(Z48Sampler):
     def close(self):
         """Closes the connection with the sampler
         """
-        Z48Sampler.close_usb(self)
+        AkaiSampler.close_usb(self)
 
     def get(self, filename, destpath, source=MEMORY):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
         if source == self.DISK:
-            Z48Sampler._get(self, sysex.STRING.encode(filename), destpath)
+            AkaiSampler._get(self, sysex.STRING.encode(filename), destpath)
         if source == self.MEMORY:
             print filename[:-4]
             if filename.lower().endswith('akp'):
@@ -102,7 +100,7 @@ class Sampler(Z48Sampler):
             else:
                 raise Exception("%s has an unknown extension.", filename)
                 
-            Z48Sampler._get(self, sysex.DWORD.encode(handle), destpath)
+            AkaiSampler._get(self, sysex.DWORD.encode(handle), destpath)
         else:
             raise Exception("Unknown source: %s", source)
 
@@ -110,7 +108,7 @@ class Sampler(Z48Sampler):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """
-        Z48Sampler._put(self, path, sysex.STRING.encode(remote_name), destination)
+        AkaiSampler._put(self, path, sysex.STRING.encode(remote_name), destination)
 
     def execute(self, command, args, userref=None):
         """Executes a command on the sampler
