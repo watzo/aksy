@@ -1,6 +1,7 @@
 1. REQUIREMENTS/DEPENDENCIES
 
 Python > 2.2
+wxPython
 
 The aksy usb extension depends on libusb:
 libusb.sourceforge.net
