@@ -10,6 +10,13 @@ static akai_usb_device sampler = NULL;
 
 extern int z48_sysex_reply_ok(char* sysex_reply);
 
+static PyObject*
+AkaiSampler_init(PyObject *self, PyObject* args)
+{
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject* 
 AkaiSampler_init_usb(PyObject *self, PyObject *args)
 {
@@ -24,6 +31,16 @@ AkaiSampler_init_usb(PyObject *self, PyObject *args)
 	if (rc == AKAI_NO_SAMPLER_FOUND) 
 	{
 		return PyErr_Format(PyExc_Exception, "No sampler found");
+	}
+
+	if (rc == AKAI_USB_INIT_ERROR) 
+	{
+		return PyErr_Format(PyExc_Exception, "USB device init failed");
+	}
+
+	if (rc == AKAI_TRANSMISSION_ERROR) 
+	{
+		return PyErr_Format(PyExc_Exception, "Akai setup sequence failed");
 	}
 
   	Py_INCREF(Py_None);
@@ -158,6 +175,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
 
 static PyMethodDef AkaiSamplerMethods[] = 
 {
+    {"__init__", AkaiSampler_init, METH_O, ""},
     {"init_usb", AkaiSampler_init_usb, METH_O, "Initializes USB device and interface."},
     {"close_usb", AkaiSampler_close_usb, METH_O, "Closes USB device and interface."},
     {"_get", AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},

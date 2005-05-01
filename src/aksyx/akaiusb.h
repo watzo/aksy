@@ -2,9 +2,9 @@
 #include <usb.h>
 #include <stdio.h>
 
-#define VENDOR_ID 0x9E8 
-#define S56K 0x05E
-#define Z48 0x05F
+#define VENDOR_ID 0x9e8 
+#define S56K 0x05e
+#define Z48 0x05f
 #define EP_OUT 0x82
 #define EP_IN 0x02
 #define Z48_DISK 0
@@ -22,8 +22,7 @@
 #define Z48_ABORT 0xff
 #define GET_BLOCK_SIZE(buffer) (buffer[7] | buffer[6] << 8 | buffer[5] << 16 | buffer[4] << 24)
 #define GET_BYTES_TRANSFERRED(buffer) (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24)
-#define AKAI_SUCCESS 1 
-#define AKAI_NO_USB_HANDLE 5000
+#define AKAI_USB_INIT_ERROR 5000
 #define AKAI_NO_SAMPLER_FOUND 5001
 #define AKAI_UNSUPPORTED_DEVICE 5002
 #define AKAI_TRANSMISSION_ERROR 5003
