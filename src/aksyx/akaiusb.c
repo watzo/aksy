@@ -25,6 +25,7 @@ akai_usb_reply_ok(unsigned char* buffer)
 inline int
 akai_usb_sysex_reply_ok(unsigned char* sysex_reply)
 {
+	printf("REPLY TYPE for %02x %02x\n", sysex_reply[6], sysex_reply[4]);
     return sysex_reply[4] == SYSEX_OK;
 }
 
@@ -115,23 +116,26 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
 	printf("\n");
 
     int rc = usb_bulk_write(akai_dev->dev, EP_OUT, sysex, sysex_length, timeout);
-    printf("RC %i\n", rc);
+
     if (rc < 0)
     {
         return rc;
     }
 
-    if (akai_usb_sysex_reply_ok(sysex))
+    rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
+
+    if (rc < 0)
+    {
+        return rc;
+    }
+ 
+    if (akai_usb_sysex_reply_ok(result_buff))
     {
         printf("reply ok!\n");
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
-        if (rc < 0)
-        {
-            return rc;
-        }
+        return usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
     }
 
-    return usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
+    return rc;
 }
 
 int akai_usb_device_send_bytes(akai_usb_device akai_dev, char* bytes, 
