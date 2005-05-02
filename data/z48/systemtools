@@ -3,9 +3,9 @@ systemtools	Methods to manipulate system parameters
 BYTE	BYTE
 \x04	\x01	get_os_subversion	Get the Sub-Version of the Operating System 
 BYTE
-\x04	\x04	get_sampler_model	Get Sampler Model 
+\x04	\x04	get_sampler_model	Get Sampler Model  (0=Z4, 1=Z8, 2=MPC4000)
 BYTE
-\x04	\x08	get_supported_filetypes	Get List of supported filetypes 
+\x04	\x08	get_supported_filetypes	Get List of supported filetypes [returns DONE message]
 STRINGARRAY
 \x04	\x10	get_perc_free_wave_mem	Get the percentage free Wave memory 
 BYTE
