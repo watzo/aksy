@@ -323,7 +323,7 @@ class SysexType(object):
 
 class ByteType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 1, False, 'x00')
+        SysexType.__init__(self, 1, False, '\x00')
 
     def _encode(self, value):
         """
