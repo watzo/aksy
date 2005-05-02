@@ -20,13 +20,13 @@ AkaiSampler_init(PyObject *self, PyObject* args)
 static PyObject* 
 AkaiSampler_init_usb(PyObject *self, PyObject *args)
 {
+	if (sampler) 
+	{
+		return PyErr_Format(PyExc_Exception, "Sampler USB is already initialized");
+	}
+
     sampler = malloc(sizeof(struct _akai_usb_device));
     int rc = akai_usb_device_init(sampler);
-
-	if (rc == 1) 
-	{
-		return PyErr_Format(PyExc_Exception, "USB is already initialized");
-	}
 
 	if (rc == AKAI_NO_SAMPLER_FOUND) 
 	{
@@ -159,7 +159,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
         rc = akai_usb_device_exec_sysex(
             sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
 
-		if (rc)
+		if (rc < 0)
 		{
 			ret = PyErr_Format(PyExc_Exception, "Error reading sysex reply, rc: %i.", rc);
 		}

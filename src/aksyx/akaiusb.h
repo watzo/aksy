@@ -31,7 +31,7 @@
 
 typedef struct _akai_usb_device {
     usb_dev_handle *dev;
-    unsigned char id;
+    int id;
 } *akai_usb_device;
 
 /* opens a akai usb device. allocated memory is freed in case the

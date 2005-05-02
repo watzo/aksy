@@ -28,6 +28,12 @@ akai_usb_sysex_reply_ok(unsigned char* sysex_reply)
     return sysex_reply[4] == SYSEX_OK;
 }
 
+inline int
+eos(unsigned char* sysex_reply, int sysex_length)
+{
+    return sysex_reply[sysex_length-1] == 0xf7;
+}
+
 #ifdef _POSIX_SOURCE
 void
 print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred)
@@ -45,7 +51,7 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 {
     struct usb_bus *bus;
     struct usb_device *dev;
-    char usb_product_id;
+    int usb_product_id;
     int rc;
 
     usb_init();
@@ -59,7 +65,7 @@ int akai_usb_device_init(akai_usb_device akai_dev)
        {
          if (dev->descriptor.idVendor == VENDOR_ID)
          {
-             usb_product_id =  (unsigned char)dev->descriptor.idProduct;
+             usb_product_id = dev->descriptor.idProduct;
 
              if (usb_product_id != Z48 && usb_product_id != S56K)
              {
@@ -82,6 +88,8 @@ int akai_usb_device_init(akai_usb_device akai_dev)
              /* setup sequence, snooped from ak.Sys */
              rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x01", 2, 1000);
              if (rc < 0) return AKAI_TRANSMISSION_ERROR;
+			 
+             return 0;
           }
        }
     }
@@ -116,14 +124,14 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
     if (akai_usb_sysex_reply_ok(sysex))
     {
         printf("reply ok!\n");
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout)|rc;
+        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
         if (rc < 0)
         {
             return rc;
         }
     }
 
-    return usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout)|rc;
+    return usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
 }
 
 int akai_usb_device_send_bytes(akai_usb_device akai_dev, char* bytes, 
