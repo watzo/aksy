@@ -1,13 +1,12 @@
 from aksyxusb import AkaiSampler
 from aksy.devices.akai import sysex
 from aksy.devices.akai.sysex import Request, Reply
-import disktools, programtools, multitools, sampletools, systemtools, recordingtools
 from aksy import model
 import struct
 import sys,time
 
 class Sampler(AkaiSampler):
-    """Models a Z4 or Z8 sampler.
+    """Models an Akai sampler.
 
     You can use it like this:
     >>> z = Sampler()
@@ -39,6 +38,35 @@ class Sampler(AkaiSampler):
         self.id = id
         self.debug = debug
         sys.stderr.writelines("Sampler: %s\n" %repr(self))
+
+        AkaiSampler.__init__(self)
+
+    def init(self):
+        """Initializes the connection with the sampler
+        """
+        self.init_usb()
+        self.sysex_id = self.get_sysex_id()
+
+        # disable checksums (not enabled per default)
+        # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
+        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg) + '\x00' + msg)
+        # disable confirmation
+        msg = "\xf0\x47%s\x00\x00\x01\x00\xf7" % self.sysex_id
+        self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
+        # disable sync
+        # msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
+        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
+        # not fool proof for multiple disks
+        #disk = model.Disk(self.disktools.get_disklist())
+        #self.disktools.select_disk(disk.handle)
+        #rootfolder = model.Folder(("",))
+        #folders = rootfolder.get_children()
+        #disks.set_children(folders)
+        if self.sysex_id == 0x5e:
+            from s56k import disktools, programtools, multitools, sampletools, systemtools, recordingtools
+        elif self.sysex_id == 0x5f:
+            from z48 import disktools, programtools, multitools, sampletools, systemtools, recordingtools
+
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
         self.sampletools = sampletools.Sampletools(self)
@@ -54,39 +82,17 @@ class Sampler(AkaiSampler):
 
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
-        AkaiSampler.__init__(self)
-
-    def init(self):
-        """Initializes the connection with the sampler
-        """
-        AkaiSampler.init_usb(self)
-
-        # disable checksums (not enabled per default)
-        # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
-        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg) + '\x00' + msg)
-        # disable confirmation
-        msg = "\xf0\x47\x5f\x00\x00\x01\x00\xf7";
-        self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
-        # disable sync
-        # msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
-        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
-        # not fool proof for multiple disks
-        #disk = model.Disk(self.disktools.get_disklist())
-        #self.disktools.select_disk(disk.handle)
-        #rootfolder = model.Folder(("",))
-        #folders = rootfolder.get_children()
-        #disks.set_children(folders)
-
+ 
     def close(self):
         """Closes the connection with the sampler
         """
-        AkaiSampler.close_usb(self)
+        self.close_usb()
 
     def get(self, filename, destpath, source=MEMORY):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
         if source == self.DISK:
-            AkaiSampler._get(self, sysex.STRING.encode(filename), destpath)
+            self._get(sysex.STRING.encode(filename), destpath)
         if source == self.MEMORY:
             print filename[:-4]
             if filename.lower().endswith('akp'):
@@ -108,7 +114,7 @@ class Sampler(AkaiSampler):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """
-        AkaiSampler._put(self, path, sysex.STRING.encode(remote_name), destination)
+        self._put(path, sysex.STRING.encode(remote_name), destination)
 
     def execute(self, command, args, userref=None):
         """Executes a command on the sampler

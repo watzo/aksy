@@ -1,6 +1,5 @@
 import struct, sys 
 
-Z48_ID = '\x5f' 
 class Command:
     """Represents a system exclusive command.
     """
@@ -56,10 +55,10 @@ class Request:
 
     """
 
-    def __init__(self, command, args, device_id=Z48_ID, userref=None):
+    def __init__(self, command, args, userref=None):
         bytes = [START_SYSEX, AKAI_ID]
 
-        bytes.append(device_id) 
+        bytes.append(command.device_id) 
 
         if userref is not None:
             bytes.append(userref) 
