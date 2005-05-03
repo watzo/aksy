@@ -17,6 +17,18 @@ AkaiSampler_init(PyObject *self, PyObject* args)
     return Py_None;
 }
 
+static PyObject*
+AkaiSampler_get_sysex_id(PyObject *self, PyObject *args)
+{
+	if (!sampler) 
+	{
+		return PyErr_Format(PyExc_Exception, "No sampler initialized");
+	}
+
+    PyObject* ret = Py_BuildValue("i", sampler->id);
+    return ret;
+}
+
 static PyObject* 
 AkaiSampler_init_usb(PyObject *self, PyObject *args)
 {
@@ -184,6 +196,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
 static PyMethodDef AkaiSamplerMethods[] = 
 {
     {"__init__", AkaiSampler_init, METH_O, ""},
+    {"get_sysex_id", AkaiSampler_get_sysex_id, METH_O, "Gets the sysex id of the device"},
     {"init_usb", AkaiSampler_init_usb, METH_O, "Initializes USB device and interface."},
     {"close_usb", AkaiSampler_close_usb, METH_O, "Closes USB device and interface."},
     {"_get", AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
