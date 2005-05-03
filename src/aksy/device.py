@@ -1,10 +1,9 @@
 import sys, aksy
 from aksy.devices import config
-import imp
 
 class Devices:
     """
-    >>> Devices.get_instance('z48', 'usb')
+    >>> Devices.get_instance('akai', 'usb')
     1
     >>> Devices.get_instance('mock_z48', None)
     """
