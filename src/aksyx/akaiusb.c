@@ -300,7 +300,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 
     free(command);
 
-    if (retval)
+    if (retval < 0)
     {
        return retval;
     }
