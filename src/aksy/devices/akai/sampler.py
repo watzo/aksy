@@ -46,6 +46,7 @@ class Sampler(AkaiSampler):
         """
         self.init_usb()
         self.sysex_id = self.get_sysex_id()
+	print repr(self.sysex_id)
 
         # disable checksums (not enabled per default)
         # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
@@ -98,7 +99,7 @@ class Sampler(AkaiSampler):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
         if source == self.DISK:
-            self._get(sysex.STRING.encode(filename), destpath, self.DISK)
+            self._get(filename, destpath, self.DISK)
         if source == self.MEMORY:
             print filename[:-4]
             if filename.lower().endswith('akp'):
@@ -112,8 +113,8 @@ class Sampler(AkaiSampler):
             else:
                 raise Exception("%s has an unknown extension.", filename)
                 
-            AkaiSampler._get(
-                self, sysex.DWORD.encode(handle), destpath, self.MEMORY)
+            print repr(sysex.DWORD.encode(handle))
+            self._get(sysex.DWORD.encode(handle), destpath, self.MEMORY)
         else:
             raise Exception("Unknown source: %s", source)
 
@@ -121,7 +122,7 @@ class Sampler(AkaiSampler):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """
-        self._put(path, sysex.STRING.encode(remote_name), destination)
+        self._put(path, remote_name, destination)
 
     def execute(self, command, args, userref=None):
         """Executes a command on the sampler
