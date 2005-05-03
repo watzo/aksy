@@ -31,8 +31,8 @@ class Sampler(AkaiSampler):
     ()
     >>> z.close_usb()
     """
-    MEMORY = 0
-    DISK = 1
+    DISK = 0
+    MEMORY = 1
 
     def __init__(self, confirmation_msgs=False, debug=1, id=0):
         self.id = id
@@ -92,7 +92,7 @@ class Sampler(AkaiSampler):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
         if source == self.DISK:
-            self._get(sysex.STRING.encode(filename), destpath)
+            self._get(sysex.STRING.encode(filename), destpath, self.DISK)
         if source == self.MEMORY:
             print filename[:-4]
             if filename.lower().endswith('akp'):
@@ -106,7 +106,8 @@ class Sampler(AkaiSampler):
             else:
                 raise Exception("%s has an unknown extension.", filename)
                 
-            AkaiSampler._get(self, sysex.DWORD.encode(handle), destpath)
+            AkaiSampler._get(
+                self, sysex.DWORD.encode(handle), destpath, self.MEMORY)
         else:
             raise Exception("Unknown source: %s", source)
 
