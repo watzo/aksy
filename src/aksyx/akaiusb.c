@@ -70,7 +70,6 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 
              if (usb_product_id != Z48 && usb_product_id != S56K)
              {
-                free(akai_dev);
                 return AKAI_UNSUPPORTED_DEVICE;
              }
 
@@ -79,12 +78,15 @@ int akai_usb_device_init(akai_usb_device akai_dev)
              akai_dev->id = usb_product_id;
              if (! akai_dev->dev)
              {
-                free(akai_dev);
                 return AKAI_USB_INIT_ERROR;
              }
 
              rc = usb_claim_interface(akai_dev->dev, 0);
-             if (rc < 0) return AKAI_USB_INIT_ERROR;
+             if (rc < 0) 
+             {
+                 usb_close(akai_dev->dev);
+                 return AKAI_USB_INIT_ERROR;
+             }
 
              /* setup sequence, snooped from ak.Sys */
              rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x01", 2, 1000);

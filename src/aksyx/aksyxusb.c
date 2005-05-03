@@ -25,22 +25,27 @@ AkaiSampler_init_usb(PyObject *self, PyObject *args)
 		return PyErr_Format(PyExc_Exception, "Sampler USB is already initialized");
 	}
 
-    // sampler = malloc(sizeof(struct _akai_usb_device));
 	sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct _akai_usb_device));
     int rc = akai_usb_device_init(sampler);
 
 	if (rc == AKAI_NO_SAMPLER_FOUND) 
 	{
+        PyMem_Free(sampler);
+        sampler = NULL;
 		return PyErr_Format(PyExc_Exception, "No sampler found");
 	}
 
 	if (rc == AKAI_USB_INIT_ERROR) 
 	{
+        PyMem_Free(sampler);
+        sampler = NULL;
 		return PyErr_Format(PyExc_Exception, "USB device init failed");
 	}
 
 	if (rc == AKAI_TRANSMISSION_ERROR) 
 	{
+        PyMem_Free(sampler);
+        sampler = NULL;
 		return PyErr_Format(PyExc_Exception, "Akai setup sequence failed");
 	}
 
@@ -60,6 +65,7 @@ AkaiSampler_close_usb(PyObject *self, PyObject *args)
 
     rc = akai_usb_device_close(sampler);
     PyMem_Free(sampler);
+    sampler = NULL;
 
 	if (rc)
 	{
@@ -157,6 +163,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
 	else
 	{
 		buffer = (unsigned char*)PyMem_Malloc( 4096 * sizeof(unsigned char));
+        memset(buffer, 128, sizeof(unsigned char));
         rc = akai_usb_device_exec_sysex(
             sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
 
