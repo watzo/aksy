@@ -51,8 +51,14 @@ class Sampler(AkaiSampler):
         # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
         # result_bytes = self._execute('\x10' + struct.pack('B', len(msg) + '\x00' + msg)
         # disable confirmation
-        msg = "\xf0\x47%s\x00\x00\x01\x00\xf7" % struct.pack('B', self.sysex_id)
-        self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
+        try:
+            msg = "\xf0\x47%s\x00\x00\x01\x00\xf7" % struct.pack('B', self.sysex_id)
+            self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
+        except Exception, e:
+            # if confirmation msgs are already disabled, the sampler sometimes
+            # doesn't respond.
+            pass
+            
         # disable sync
         # msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
         # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
