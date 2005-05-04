@@ -263,17 +263,20 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 #ifdef _POSIX_SOURCE
 	struct timeval t1, t2;
 #endif
-    FILE *dest_file;
+    FILE *dest_file, *tmp_file;
 
-	dest_file = fopen(dest_filename, "w+"); 
+    /* XXX: make temp file */
+    umask((mode_t)"600");
+	// dest_file = fopen(dest_filename, "w+"); 
+    tmp_file = tmpfile();
 
-    if (!dest_file)
+    if (!tmp_file)
     {
         return errno;
     }
 
     /* create get request */
-    if (location == Z48_MEMORY)
+    if (location == LOC_MEMORY)
     {
         handle = (unsigned char*) calloc(4, sizeof(unsigned char));
         if (!akai_usb_device_get_handle_by_name(akai_dev, src_filename, handle, timeout)) 
@@ -288,6 +291,13 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
             command[0] = Z48_MEMORY_GET;
             memcpy(command+1, handle, 5 * sizeof(unsigned char));
             retval = usb_bulk_write(akai_dev->dev, EP_OUT, command, 5, timeout);
+
+            if (retval < 0)
+            {
+                free(handle);
+                printf("Command send failed\n");
+                return AKAI_TRANSMISSION_ERROR;
+            }
         }
     }
     else
@@ -296,6 +306,12 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
         command[0] = Z48_DISK_GET;
         memcpy(command+1, src_filename, src_filename_length * sizeof(unsigned char));
         retval = usb_bulk_write(akai_dev->dev, EP_OUT, command, src_filename_length+1, timeout);
+        if (retval < 0)
+        {
+            free(handle);
+            printf("Command send failed\n");
+            return AKAI_TRANSMISSION_ERROR;
+        }
     }
 
     free(command);

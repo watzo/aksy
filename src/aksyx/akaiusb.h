@@ -7,8 +7,8 @@
 #define Z48 0x05f
 #define EP_OUT 0x82
 #define EP_IN 0x02
-#define Z48_DISK 0
-#define Z48_MEMORY 1
+#define LOC_DISK 0
+#define LOC_MEMORY 1
 /* commands */
 #define Z48_DISK_GET 0x41
 #define Z48_MEMORY_GET 0x22
@@ -22,12 +22,15 @@
 #define Z48_ABORT 0xff
 #define GET_BLOCK_SIZE(buffer) (buffer[7] | buffer[6] << 8 | buffer[5] << 16 | buffer[4] << 24)
 #define GET_BYTES_TRANSFERRED(buffer) (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24)
+
+/* error codes */
 #define AKAI_USB_INIT_ERROR 5000
 #define AKAI_NO_SAMPLER_FOUND 5001
 #define AKAI_UNSUPPORTED_DEVICE 5002
 #define AKAI_TRANSMISSION_ERROR 5003
 #define AKAI_SYSEX_ERROR 5004
 #define AKAI_SYSEX_UNEXPECTED 5005
+#define AKAI_FILE_ERROR 5006
 
 typedef struct _akai_usb_device {
     usb_dev_handle *dev;
@@ -69,9 +72,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     char *src_filename, char *dest_filename, int timeout);
 
 /* transfers a file from the current path from the sampler. 
- * Location can be either Z48_MEMORY or Z48_DISK.
- * The current path must be set explicitly if the file is transferred from
- * disk
+ * Location can be either LOC_MEMORY or LOC_DISK.
+ * The current path must be set to the folder where the file is
+ * located before calling this function in case of disk transfers
  */
 int akai_usb_device_get(akai_usb_device akai_dev, 
     char *src_filename, char *dest_filename, int location, int timeout);
