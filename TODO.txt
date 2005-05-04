@@ -4,21 +4,18 @@
 * script window support
   * script loading, session save/restore
 * offline Z48 AKP write support
-* make python c code use libakai
+* make python c code use libakai - done
 * bug fixing:
-  * type conversions - 80%
+  * type conversions - 90%
   * transfer to disk
   * transfer from memory
 * investigating:
   * loop/region creation support - done
   * usb connection reliability - done
 * basic doctest in tool modules?
-
-0.2 
----
-
-* OSC
-* command loop implementation with userref support 
+* OSC - 10%
+* command loop implementation with userref support -> this will be done
+  using OSC
 
 future
 ------
