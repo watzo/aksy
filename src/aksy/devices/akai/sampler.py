@@ -3,7 +3,7 @@ from aksy.devices.akai import sysex
 from aksy.devices.akai.sysex import Request, Reply
 from aksy import model
 import struct
-import sys,time
+import sys
 
 class Sampler(AkaiSampler):
     """Models an Akai sampler.
@@ -31,9 +31,6 @@ class Sampler(AkaiSampler):
     ()
     >>> z.close_usb()
     """
-    DISK = 0
-    MEMORY = 1
-
     def __init__(self, confirmation_msgs=False, debug=1, id=0):
         self.id = id
         self.debug = debug
@@ -45,8 +42,6 @@ class Sampler(AkaiSampler):
         """Initializes the connection with the sampler
         """
         self.init_usb()
-        self.sysex_id = self.get_sysex_id()
-	print repr(self.sysex_id)
 
         # disable checksums (not enabled per default)
         # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
@@ -70,9 +65,11 @@ class Sampler(AkaiSampler):
         #folders = rootfolder.get_children()
         #disks.set_children(folders)
         if self.sysex_id == 0x5e:
-            from s56k import disktools, programtools, multitools, sampletools, systemtools, recordingtools
+            # s56k imports should be done here
+            pass
+            # from s56k import disktools, programtools, multitools, sampletools, systemtools, recordingtools
         elif self.sysex_id == 0x5f:
-            from z48 import disktools, programtools, multitools, sampletools, systemtools, recordingtools
+            from aksy.devices.akai.z48 import disktools, programtools, multitools, sampletools, systemtools, recordingtools
 
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
@@ -140,5 +137,5 @@ class Sampler(AkaiSampler):
         return result.parse()
 
 if __name__ == "__main__":
-    import doctest, sys
+    import doctest
     doctest.testmod(sys.modules[__name__])
