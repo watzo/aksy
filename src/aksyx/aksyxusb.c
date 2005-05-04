@@ -114,11 +114,20 @@ AkaiSampler_get(PyObject* self, PyObject* args)
 		/* create get request */
         rc = akai_usb_device_get(sampler, src, dest, location, USB_TIMEOUT);
 
-        if (rc)
-		{
-
-		    return PyErr_Format(PyExc_Exception, "Exception during transfer");
-		}
+        if (rc) 
+        {
+            switch(rc)
+            {
+                case AKAI_INVALID_FILENAME:
+                    return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
+                case AKAI_TRANSMISSION_ERROR:
+                    return PyErr_Format(PyExc_Exception, "Exception during transfer: transmission error");
+                case AKAI_SYSEX_ERROR:
+                    return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
+                default:
+                    return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
+            }
+        }
 		else
 		{
 			Py_INCREF(Py_None);
@@ -142,19 +151,27 @@ AkaiSampler_put(PyObject* self, PyObject* args)
 	}
 	else
 	{
-
         rc = akai_usb_device_put(sampler, src, dest, USB_TIMEOUT);
-		if (rc)
-		{
-			return PyErr_Format(PyExc_Exception, "File transfer failed.");
-		}
+        if (rc) 
+        {
+            switch(rc)
+            {
+                case AKAI_INVALID_FILENAME:
+                    return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
+                case AKAI_TRANSMISSION_ERROR:
+                    return PyErr_Format(PyExc_Exception, "Exception during transfer: transmission error");
+                case AKAI_SYSEX_ERROR:
+                    return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
+                default:
+                    return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
+            }
+        }
 		else
 		{
 			Py_INCREF(Py_None);
 			return Py_None;
 		}
 	}
-
 }
 
 static PyObject*
