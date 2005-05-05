@@ -69,7 +69,7 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
  * disk
  */
 int akai_usb_device_put(akai_usb_device akai_dev, 
-    char *src_filename, char *dest_filename, int timeout);
+    char *src_filename, char *dest_filename, int location, int timeout);
 
 /* transfers a file from the current path from the sampler. 
  * Location can be either LOC_MEMORY or LOC_DISK.

@@ -394,11 +394,10 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 
 /* uploads a file to the sampler. */
 int akai_usb_device_put(akai_usb_device akai_dev, 
-    char *src_filename, char *dest_filename, int timeout)
+    char *src_filename, char *dest_filename, int location, int timeout)
 {
 	unsigned char *buf, *command, *reply_buf;
     struct stat* st;
-	char destination = LOC_MEMORY;
 	int filesize, rc, blocksize = 4096 * 4, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1; 
 	FILE* fp;
@@ -432,7 +431,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     printf("File name to upload %s, Size of file: %i bytes\n", dest_filename, filesize);
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
     command = (unsigned char*) calloc(dest_filename_length+5,  sizeof(unsigned char));
-    command[0] = (destination)?Z48_DISK_PUT:Z48_MEMORY_PUT;
+    command[0] = (location)?Z48_MEMORY_PUT:Z48_DISK_PUT;
     command[1] = filesize >> 24;
     command[2] = filesize >> 16;
     command[3] = filesize >> 8;

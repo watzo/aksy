@@ -142,16 +142,16 @@ AkaiSampler_put(PyObject* self, PyObject* args)
 {
 	PyObject *self_arg;
 	unsigned char *src, *dest;
-	char destination = 0x0;
+	char location;
 	int rc;
 			
-	if(!PyArg_ParseTuple(args, "Ossb", &self_arg, &src, &dest, &destination))
+	if(!PyArg_ParseTuple(args, "Ossb", &self_arg, &src, &dest, &location))
 	{
 		return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
 	}
 	else
 	{
-        rc = akai_usb_device_put(sampler, src, dest, USB_TIMEOUT);
+        rc = akai_usb_device_put(sampler, src, dest, location, USB_TIMEOUT);
         if (rc) 
         {
             switch(rc)
