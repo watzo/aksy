@@ -92,7 +92,7 @@ class Sampler(AkaiSampler):
         """
         self.close_usb()
 
-    def get(self, filename, destpath, source=MEMORY):
+    def get(self, filename, destpath, source=AkaiSampler.MEMORY):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
         if source == self.DISK:
@@ -115,7 +115,7 @@ class Sampler(AkaiSampler):
         else:
             raise Exception("Unknown source: %s", source)
 
-    def put(self, path, remote_name, destination=MEMORY):
+    def put(self, path, remote_name, destination=AkaiSampler.MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """

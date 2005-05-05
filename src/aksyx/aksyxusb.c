@@ -216,7 +216,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
 static PyMethodDef AkaiSamplerMethods[] = 
 {
     {"__init__", AkaiSampler_init, METH_O, ""},
-    {"init_usb", AkaiSampler_init_usb, METH_O, "Initializes USB device and interface."},
+    {"init_usb", AkaiSampler_init_usb, METH_VARARGS, "Initializes USB device and interface."},
     {"close_usb", AkaiSampler_close_usb, METH_O, "Closes USB device and interface."},
     {"_get", AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
