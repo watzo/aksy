@@ -354,6 +354,16 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
         {
             /* get the number of bytes to read */
 #ifdef _DEBUG
+            int i;
+            printf("Reply block: ");
+            for(i=0;i<8;i++)
+                printf("%02X ", data[i]);
+            printf("\n");
+            if (GET_BYTES_TRANSFERRED(data) == 1) 
+            {
+                retval =  AKAI_FILE_NOT_FOUND;
+                break;
+            }
             printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Advertised: %i\n", 
                 block_size, rc, bytes_transferred, GET_BYTES_TRANSFERRED(data));
 #endif
@@ -363,6 +373,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
                 if (block_size == 0)
                 {
                     /* file transfer completed */
+                    retval = 0;
                     break;
                 }
             }

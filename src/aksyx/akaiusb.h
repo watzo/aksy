@@ -31,6 +31,7 @@
 #define AKAI_SYSEX_ERROR 5004
 #define AKAI_SYSEX_UNEXPECTED 5005
 #define AKAI_INVALID_FILENAME 5006
+#define AKAI_FILE_NOT_FOUND 5007
 
 typedef struct _akai_usb_device {
     usb_dev_handle *dev;

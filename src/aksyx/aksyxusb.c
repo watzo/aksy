@@ -127,7 +127,6 @@ AkaiSampler_get(PyObject* self, PyObject* args)
 	}
 	else
 	{
-		/* Z48_MEMORY_GET + ITEM HANDLE */
 		/* create get request */
         rc = akai_usb_device_get(sampler, src, dest, location, USB_TIMEOUT);
 
@@ -135,6 +134,8 @@ AkaiSampler_get(PyObject* self, PyObject* args)
         {
             switch(rc)
             {
+                case AKAI_FILE_NOT_FOUND:
+                    return PyErr_Format(PyExc_Exception, "File not found");
                 case AKAI_INVALID_FILENAME:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
                 case AKAI_TRANSMISSION_ERROR:
