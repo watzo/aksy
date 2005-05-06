@@ -429,9 +429,12 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 
     if (rc == -1)
     {
-        rc = errno;
+        int err = errno;
         free(st);
-        return rc;
+        if (err == ENOENT)
+            return AKAI_FILE_NOT_FOUND;
+        else
+            return AKAI_FILE_STAT_ERROR;
     }
 
     filesize = st->st_size;

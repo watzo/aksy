@@ -174,6 +174,10 @@ AkaiSampler_put(PyObject* self, PyObject* args)
         {
             switch(rc)
             {
+                case AKAI_FILE_NOT_FOUND:
+                    return PyErr_Format(PyExc_Exception, "Exception before transfer: file not found");
+                case AKAI_FILE_STAT_ERROR:
+                    return PyErr_Format(PyExc_Exception, "Exception before transfer: could not stat file");
                 case AKAI_INVALID_FILENAME:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
                 case AKAI_TRANSMISSION_ERROR:
