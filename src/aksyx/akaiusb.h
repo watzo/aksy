@@ -42,6 +42,9 @@ typedef struct _akai_usb_device {
  */
 int akai_usb_device_init(akai_usb_device akai_dev);
 
+/* resets a akai usb device */
+int akai_usb_device_reset(akai_usb_device akai_dev);
+
 /* closes a akai usb device */
 int akai_usb_device_close(akai_usb_device akai_dev);
 

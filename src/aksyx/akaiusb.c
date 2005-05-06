@@ -113,6 +113,11 @@ int akai_usb_device_close(akai_usb_device akai_dev)
     return rc;
 }
 
+int akai_usb_device_reset(akai_usb_device akai_dev)
+{
+   return usb_reset(akai_dev->dev);
+}
+
 int akai_usb_device_exec_sysex(akai_usb_device akai_dev,  
     char *sysex, int sysex_length, 
     char *result_buff, int result_buff_length, int timeout) 

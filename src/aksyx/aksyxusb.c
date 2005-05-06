@@ -89,6 +89,23 @@ AkaiSampler_close_usb(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject* 
+AkaiSampler_reset_usb(PyObject *self, PyObject *args)
+{	
+	int rc;
+
+	if (!sampler)
+	{
+		return PyErr_Format(PyExc_Exception, "Device was not initialized so could not be reset");
+	}
+
+	rc = akai_usb_device_reset(sampler);
+	if (rc < 0)
+		return PyErr_Format(PyExc_Exception, "Exeption during USB reset");
+
+    return AkaiSampler_close_usb(self, args);
+}
+
 /* Gets a file from the sampler. Any existing file with the same name will be overwritten */
 static PyObject*
 AkaiSampler_get(PyObject* self, PyObject* args)
@@ -217,6 +234,7 @@ static PyMethodDef AkaiSamplerMethods[] =
 {
     {"__init__", AkaiSampler_init, METH_O, ""},
     {"init_usb", AkaiSampler_init_usb, METH_VARARGS, "Initializes USB device and interface."},
+    {"reset_usb", AkaiSampler_reset_usb, METH_VARARGS, "Resets USB device and interface."},
     {"close_usb", AkaiSampler_close_usb, METH_O, "Closes USB device and interface."},
     {"_get", AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
