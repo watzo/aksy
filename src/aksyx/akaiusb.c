@@ -246,20 +246,7 @@ read_sysex:
             }
             else if (data[4] == SYSEX_REPLY)
             {
-                unsigned char t_handle[4];
-                /* 
-                    Warning: possible voodoo cult code ahead
-                    I couldn't get my head around the fact that the handles
-                    used for the transfer request are 2 bits shifted right,
-                    but it works.
-                */
-
-                t_handle[3] = data[8] >> 2; 
-                t_handle[2] = data[9] >> 2; 
-                t_handle[1] = data[10] >> 2; 
-                t_handle[0] = data[11] >> 2; 
-
-                memcpy(handle, &t_handle, 4*sizeof(unsigned char));
+                memcpy(handle, data+8, 4*sizeof(unsigned char));
 
                 retval = 0;
             }
@@ -272,8 +259,10 @@ read_sysex:
                 retval = AKAI_SYSEX_UNEXPECTED;
             }
         }
+
         free(data);
     }
+
     free(sysex);
     return retval;
 }
@@ -306,7 +295,21 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
         {
             command = (unsigned char*) calloc(5, sizeof(unsigned char));
             command[0] = cmd_id;
-            memcpy(command+1, handle, 4 * sizeof(unsigned char));
+            /* 
+                the handle we retrieved uses 7 bits bytes but for the
+                transfer request uses 8 bit values so we swap back and forth:
+                check this for ppc
+            */
+            int j = 0;
+		for (; j < 4; j++)
+			printf("%02x ", handle[j]);
+		printf("\n");
+            int le_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]); 
+            int be_handle = ENDSWAP_INT(le_handle);
+            printf("HANDLE VALUE %i\n", le_handle);
+            memcpy(command+1, &be_handle, 1 * sizeof(int));
+
+            free(handle);
             retval = usb_bulk_write(akai_dev->dev, EP_OUT, command, 5, timeout);
             int i =0;
 		for (; i < 5; i++)
@@ -315,7 +318,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 
             if (retval < 0)
             {
-                free(handle);
                 free(command);
                 return AKAI_TRANSMISSION_ERROR;
             }
@@ -357,7 +359,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     do
     {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, data, block_size, timeout);  
-        printf("RC: %i\n", rc);
 
         if (rc == block_size && !read_transfer_status)
         {
