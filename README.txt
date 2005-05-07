@@ -20,13 +20,24 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 3. Known issues and limitations in this release
 
-* Multiple instances of Aksy are currently not supported - nor peaceful
-co-existence with Ak.Sys.
+* Win32 has not been tested yet (it compiles, but I have to figure
+  mingw/python related linking problems out first)
 
-* Aksy can't recover from certain USB error conditions, like broken pipes (USB stall, visible as return code
--32). Replug or reboot the sampler. 
+* Mac OS X has not been tested yet (it's working with PPC/Linux though).
+  It compiles and links but all usb writes fail.
+  This could be caused by the fact that the sampler is accessed by another
+  process (USB debug messages) or the fact that one of the arguments passed
+  into WritePipeAsyncTo is invalid (the other USB debug message)
 
-* File transfer code could be more robust 
+* Multiple instances of Aksy are currently not supported.
+
+* Aksy can't always recover from certain USB error conditions, like broken
+  pipes (USB stall, visible as return code -32). If the sampler's reset_usb()
+  method doesn't work, replug the usb cable or reboot the sampler. 
+
+* Not all sampler methods have been tested extensively. Some are known to
+  not be implemented on the sampler itself, but there could be more methods
+  that are not supported by the sampler.
 
 4. Debugging and troubleshooting
 
