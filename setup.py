@@ -9,11 +9,11 @@ setup(name = "aksy",
       # scripts=['scripts/checkout.py'],
       ext_modules=[
           Extension("aksyxusb",
-                sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c" ],
-                define_macros=[
-   		    ('_DEBUG', '1'),
-   		    # ('BIG_ENDIAN', '1'),
-		],
-                libraries = [ "usb" ],
+              sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c" ],
+              define_macros=[
+                  ('_DEBUG', '1'),
+                  ('_BIG_ENDIAN', 0),
+              ],
+              libraries = [ "usb" ],
           ),
        ])

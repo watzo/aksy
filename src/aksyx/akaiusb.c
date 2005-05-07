@@ -307,14 +307,9 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
                 transfer request uses 8 bit values so we swap back and forth:
                 check this for ppc
             */
-            int j = 0;
-		for (; j < 4; j++)
-			printf("%02x ", handle[j]);
-		printf("\n");
             int native_int_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]); 
 
-            printf("HANDLE VALUE %i\n", native_int_handle);
-#ifdef BIG_ENDIAN 
+#if (_BIG_ENDIAN == 1)
             int be_handle = native_int_handle;
 #else
             int be_handle = ENDSWAP_INT(native_int_handle);
@@ -324,10 +319,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 
             free(handle);
             retval = usb_bulk_write(akai_dev->dev, EP_OUT, command, 5, timeout);
-            int i =0;
-		for (; i < 5; i++)
-			printf("%02x ", command[i]);
-		printf("\n");
 
             if (retval < 0)
             {
