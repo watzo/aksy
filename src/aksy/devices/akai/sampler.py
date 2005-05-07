@@ -92,34 +92,22 @@ class Sampler(AkaiSampler):
         """
         self.close_usb()
 
-    def get(self, filename, destpath, source=AkaiSampler.MEMORY):
+    def get(self, filename, destpath=None, source=AkaiSampler.MEMORY):
         """Gets a file from the sampler, overwriting it if it already exists.
         """
-        if source == self.DISK:
-            self._get(filename, destpath, self.DISK)
-        if source == self.MEMORY:
-            print filename[:-4]
-            if filename.lower().endswith('akp'):
-                handle = self.programtools.get_handle_by_name(filename[:-4])
-            elif filename.lower().endswith('wav'):
-                handle = self.sampletools.get_handle_by_name(filename[:-4])
-            elif filename.lower().endswith('akm'):
-                handle = self.multitools.get_handle_by_name(filename[:-4])
-            elif filename.lower().endswith('mid'):
-                handle = self.songtools.get_handle_by_name(filename[:-4])
-            else:
-                raise Exception("%s has an unknown extension.", filename)
-                
-            print repr(sysex.DWORD.encode(handle))
-            self._get(sysex.DWORD.encode(handle), destpath, self.MEMORY)
-        else:
-            raise Exception("Unknown source: %s", source)
+        if destpath is None:
+            destpath = filename
 
-    def put(self, path, remote_name, destination=AkaiSampler.MEMORY):
+        self._get(filename, destpath, source)
+
+    def put(self, sourcepath, remote_name=None, destination=AkaiSampler.MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """
-        self._put(path, remote_name, destination)
+        if remote_name is None:
+            remote_name = os.path.basename(sourcepath)
+
+        self._put(sourcepath, remote_name, destination)
 
     def execute(self, command, args, userref=None):
         """Executes a command on the sampler
