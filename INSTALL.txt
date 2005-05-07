@@ -1,17 +1,25 @@
 1. REQUIREMENTS/DEPENDENCIES
 
-Python > 2.2
-wxPython
+Aksy has the following dependencies:
 
-The aksy usb extension depends on libusb:
-libusb.sourceforge.net
+* Python: version > 2.2
 
-A windows port is available at:
-libusb-win32.sourceforge.net
+* libusb: libusb.sourceforge.net
+  (win32 port is available at libusb-win32.sourceforge.net)
 
-The extension has been tested with libusb 0.1.8
+optional dependencies
+---------------------
 
-To run aksy as normal user, install hotplug.
+To run some of the scripts, some more packages are needed.
+
+* wxPython
+
+* aubio
+
+The extension has been tested with python 2.3.5, libusb 0.1.8 and libusb-0.1.10
+
+If you're running linux and want to be able to run aksy as normal user
+(recommended), install hotplug.
 
 2. INSTALLATION
 
@@ -19,4 +27,10 @@ To install the aksyxusb extension, run:
 
 python setup.py build
 python setup.py install (as root)
+
+On big endian machines, set _BIG_ENDIAN to 1 in the setup.py file. This will
+probably go away soon.
+
+Currently the python code will not be installed by distutils, so you have to
+extend your PYTHONPATH with the aksy/src directory.
 
