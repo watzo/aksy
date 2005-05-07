@@ -176,8 +176,8 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
         return AKAI_INVALID_FILENAME;
     }
 
-    extension = (unsigned char*) calloc(3, sizeof(unsigned char));
-    strncpy(extension, name + name_length-3, 3);
+    extension = (unsigned char*) calloc(4, sizeof(unsigned char));
+    strncpy(extension, name + name_length-3, 4);
     if (strcasecmp(extension, "akm") == 0)
     {
         section = '\x18';
@@ -246,7 +246,20 @@ read_sysex:
             }
             else if (data[4] == SYSEX_REPLY)
             {
-                memcpy(handle, data+8, 4*sizeof(unsigned char));
+                unsigned char t_handle[4];
+                /* 
+                    Warning: possible voodoo cult code ahead
+                    I couldn't get my head around the fact that the handles
+                    used for the transfer request are 2 bits shifted right,
+                    but it works.
+                */
+
+                t_handle[3] = data[8] >> 2; 
+                t_handle[2] = data[9] >> 2; 
+                t_handle[1] = data[10] >> 2; 
+                t_handle[0] = data[11] >> 2; 
+
+                memcpy(handle, &t_handle, 4*sizeof(unsigned char));
 
                 retval = 0;
             }
@@ -293,10 +306,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
         {
             command = (unsigned char*) calloc(5, sizeof(unsigned char));
             command[0] = cmd_id;
-            handle[0] = 0;
-            handle[1] = 1;
-            handle[2] = 0;
-            handle[3] = 1;
             memcpy(command+1, handle, 4 * sizeof(unsigned char));
             int i = 0;
     	    for (; i < 5 ; i++)
@@ -309,7 +318,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
             {
                 free(handle);
                 free(command);
-                printf("Command send failed\n");
                 return AKAI_TRANSMISSION_ERROR;
             }
         }
@@ -378,7 +386,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
             printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Advertised: %i\n", 
                 block_size, rc, bytes_transferred, GET_BYTES_TRANSFERRED(data));
 #endif
-            if (bytes_transferred > 0) 
+            /* if (bytes_transferred > 0)  */
             {
                 block_size = GET_BLOCK_SIZE(data);
                 if (block_size == 0)
@@ -389,7 +397,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
                 }
             }
         }
-        // check this for PPC!
         else if (rc == 4 && akai_usb_reply_ok(data))	
         {
             continue;

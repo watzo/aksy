@@ -38,6 +38,7 @@ AkaiSampler_init_usb(PyObject *self, PyObject *args)
 
 	if (rc == AKAI_NO_SAMPLER_FOUND) 
 	{
+        // valgrind complaint: invalid read
         PyMem_Free(sampler);
         sampler = NULL;
 		return PyErr_Format(PyExc_Exception, "No sampler found");
@@ -77,6 +78,7 @@ AkaiSampler_close_usb(PyObject *self, PyObject *args)
 	}
 
     rc = akai_usb_device_close(sampler);
+    // valgrind: invalid read
     PyMem_Free(sampler);
     sampler = NULL;
 
@@ -216,8 +218,8 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
 	}
 	else
 	{
-		buffer = (unsigned char*)PyMem_Malloc( 4096 * sizeof(unsigned char));
-        memset(buffer, 128, sizeof(unsigned char));
+		buffer = (unsigned char*)PyMem_Malloc( BUFF_SIZE * sizeof(unsigned char));
+        buffer = memset(buffer, 128, sizeof(unsigned char));
         rc = akai_usb_device_exec_sysex(
             sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
 
@@ -230,6 +232,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
 			ret = Py_BuildValue("s#", buffer, rc); 
 		}
 
+        // valgr: val unitialized?
 		PyMem_Free(buffer);
 		return ret;
 	}
