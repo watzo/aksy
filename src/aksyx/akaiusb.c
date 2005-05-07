@@ -282,7 +282,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     char *dest_filename, int location, int timeout)
 {
     unsigned char *command, *data, *handle, cmd_id;
-	int block_size = 4096*4, bytes_transferred = 0, rc = 0, retval = 0;
+	int block_size = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0, retval = 0;
     int src_filename_length = strlen(src_filename) + 1;
 #ifdef _POSIX_SOURCE
 	struct timeval t1, t2;
@@ -307,12 +307,11 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
             command = (unsigned char*) calloc(5, sizeof(unsigned char));
             command[0] = cmd_id;
             memcpy(command+1, handle, 4 * sizeof(unsigned char));
-            int i = 0;
-    	    for (; i < 5 ; i++)
-    	    	printf("%02x ", command[i]);
-    	    printf("\n");
- 
             retval = usb_bulk_write(akai_dev->dev, EP_OUT, command, 5, timeout);
+            int i =0;
+		for (; i < 5; i++)
+			printf("%02x ", command[i]);
+		printf("\n");
 
             if (retval < 0)
             {
@@ -342,7 +341,6 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
        return retval;
     }
 
-    umask((mode_t)"600");
 	dest_file = fopen(dest_filename, "w+"); 
 
     if (!dest_file)
@@ -355,19 +353,26 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
 
+    int read_transfer_status = 1;
     do
     {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, data, block_size, timeout);  
+        printf("RC: %i\n", rc);
 
-        if (rc == block_size)
+        if (rc == block_size && !read_transfer_status)
         {
             bytes_transferred+= rc;
+
+            fseek(dest_file, actually_transferred, 0);
 
             /* write to file */
             fwrite(data, sizeof(unsigned char), rc, dest_file);
 
             /* sent continue request */
             usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);  
+            block_size = 8;
+            read_transfer_status = 1;
+            continue;
         }	
         else if (rc == 8)
         {
@@ -378,28 +383,31 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
             for(i=0;i<8;i++)
                 printf("%02X ", data[i]);
             printf("\n");
-            if (GET_BYTES_TRANSFERRED(data) == 1) 
+            actually_transferred = GET_BYTES_TRANSFERRED(data);
+            if (actually_transferred == 1) 
             {
                 retval =  AKAI_FILE_NOT_FOUND;
                 break;
             }
-            printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Advertised: %i\n", 
-                block_size, rc, bytes_transferred, GET_BYTES_TRANSFERRED(data));
+            printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n", 
+                block_size, rc, bytes_transferred, actually_transferred);
 #endif
-            /* if (bytes_transferred > 0)  */
+            
+            block_size = GET_BLOCK_SIZE(data);
+
+            if (block_size == 0)
             {
-                block_size = GET_BLOCK_SIZE(data);
-                if (block_size == 0)
-                {
-                    /* file transfer completed */
-                    retval = 0;
-                    break;
-                }
+                /* file transfer completed */
+                retval = 0;
+                break;
             }
+
+            read_transfer_status = 0;
+            continue;
         }
         else if (rc == 4 && akai_usb_reply_ok(data))	
         {
-            continue;
+             continue;
         }
         else
         {
@@ -421,7 +429,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     }
     else
     {
-        remove(dest_filename);
+        // remove(dest_filename);
         return retval;
     }
 }
