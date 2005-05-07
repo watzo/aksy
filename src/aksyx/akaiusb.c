@@ -205,18 +205,25 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     /* request: \x10\x08\x00\xf0\x47 <device> <section, command, name, \xf7 */
-    int sysex_length = name_length+7; // 5 + 
+    char sysex_length = (unsigned char)name_length+7; // 5 + 
+    char sysex_id = akai_dev->id;
     sysex = (unsigned char*) calloc(sysex_length, sizeof(unsigned char));
     memcpy(sysex, "\x10", 5 * sizeof(unsigned char));
     memcpy(sysex+1, &sysex_length, 1 * sizeof(unsigned char));
     memcpy(sysex+2, "\x00\xf0\x47", 5 * sizeof(unsigned char));
-    memcpy(sysex+5, (unsigned char*)&akai_dev->id, 1 * sizeof(unsigned char));
+    memcpy(sysex+5, &sysex_id, 1 * sizeof(unsigned char));
     memcpy(sysex+6, "\x00", 1 * sizeof(unsigned char));
     memcpy(sysex+7, &section, 1 * sizeof(unsigned char));
     memcpy(sysex+8, "\x08", 1 * sizeof(unsigned char));
     memcpy(sysex+9, name, (name_length -4) * sizeof(unsigned char)); // strip extension
     memcpy(sysex+9 + name_length - 4, "\x00\xf7", 2 * sizeof(unsigned char));
 
+	int i = 0;
+    for (; i < sysex_length ; i++)
+		printf("%02x ", sysex[i]);
+	printf("\n");
+
+    
     /* success reply: \xf0\x47 <device> userref <section, command, <reply_ok> <4 byte handle>, \xf7 */
     /* error reply: \xf0\x47 <device> userref <section, command, <reply_error>, \xf7 */
     if (!usb_bulk_write(akai_dev->dev, EP_OUT, sysex, sysex_length, timeout))
@@ -304,9 +311,15 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 		for (; j < 4; j++)
 			printf("%02x ", handle[j]);
 		printf("\n");
-            int le_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]); 
-            int be_handle = ENDSWAP_INT(le_handle);
-            printf("HANDLE VALUE %i\n", le_handle);
+            int native_int_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]); 
+
+            printf("HANDLE VALUE %i\n", native_int_handle);
+#ifdef BIG_ENDIAN 
+            int be_handle = native_int_handle;
+#else
+            int be_handle = ENDSWAP_INT(native_int_handle);
+#endif
+
             memcpy(command+1, &be_handle, 1 * sizeof(int));
 
             free(handle);

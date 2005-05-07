@@ -1,17 +1,19 @@
-#!/usr/bin/env python
 """Aksy setup module
 """
 from distutils.core import setup, Extension
-from distutils.command import bdist_wininst
-setup(name = "aksyx usb extension",
-      version = "0.01",
+setup(name = "aksy",
+      version = "0.1",
       author = "Walco van Loon",
       author_email = "walco at n--tree.net",
       url='http://walco.n--tree.net/projects/aksy',
-	  ext_modules=[
-         Extension("aksyxusb",
+      # scripts=['scripts/checkout.py'],
+      ext_modules=[
+          Extension("aksyxusb",
                 sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c" ],
-                define_macros=[('_DEBUG', '1'),],
+                define_macros=[
+   		    ('_DEBUG', '1'),
+   		    # ('BIG_ENDIAN', '1'),
+		],
                 libraries = [ "usb" ],
-            ),
+          ),
        ])
