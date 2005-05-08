@@ -3,6 +3,7 @@ from aksy.devices.akai import sysex
 from aksy.devices.akai.sysex import Request, Reply
 from aksy import model
 import struct
+import os.path
 import sys
 
 class Sampler(AkaiSampler):
