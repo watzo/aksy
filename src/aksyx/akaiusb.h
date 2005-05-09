@@ -36,6 +36,7 @@
 #define AKAI_INVALID_FILENAME 5006
 #define AKAI_FILE_NOT_FOUND 5007
 #define AKAI_FILE_STAT_ERROR 5008
+#define AKAI_FILE_READ_ERROR 5009
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 

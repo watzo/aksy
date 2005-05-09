@@ -11,6 +11,11 @@
     #include <time.h>
 #endif
 
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#endif 
+
 /* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49) */
 inline int 
 akai_usb_reply_ok(unsigned char* buffer)
@@ -278,7 +283,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     char *dest_filename, int location, int timeout)
 {
     unsigned char *command, *data, *handle, cmd_id;
-	int block_size = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0, retval = 0;
+	int blocksize = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0, retval = 0;
     int src_filename_length = strlen(src_filename) + 1;
 #ifdef _POSIX_SOURCE
 	struct timeval t1, t2;
@@ -354,7 +359,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
         return errno;
     }
 
-    data = calloc(block_size, sizeof(unsigned char));
+    data = calloc(blocksize, sizeof(unsigned char));
 #ifdef _POSIX_SOURCE
     gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
@@ -362,9 +367,9 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     int read_transfer_status = 1;
     do
     {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, data, block_size, timeout);  
+        rc = usb_bulk_read(akai_dev->dev, EP_IN, data, blocksize, timeout);  
 
-        if (rc == block_size && !read_transfer_status)
+        if (rc == blocksize && !read_transfer_status)
         {
             bytes_transferred+= rc;
 
@@ -375,7 +380,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
 
             /* sent continue request */
             usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);  
-            block_size = 8;
+            blocksize = 8;
             read_transfer_status = 1;
             continue;
         }	
@@ -395,12 +400,12 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
                 break;
             }
             printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n", 
-                block_size, rc, bytes_transferred, actually_transferred);
+                blocksize, rc, bytes_transferred, actually_transferred);
 #endif
             
-            block_size = GET_BLOCK_SIZE(data);
+            blocksize = GET_BLOCK_SIZE(data);
 
-            if (block_size == 0)
+            if (blocksize == 0)
             {
                 /* file transfer completed */
                 retval = 0;
@@ -445,7 +450,8 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 {
 	unsigned char *buf, *command, *reply_buf;
     struct stat* st;
-	int filesize, rc, blocksize = 4096 * 4, transferred = 0, bytes_read = 0;
+	unsigned long filesize = 0;
+    int rc, retval = 0, blocksize = 4096 * 4, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1; 
 	FILE* fp;
 			
@@ -469,14 +475,16 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     }
 
     filesize = st->st_size;
+    free(st);
 #endif
 #ifdef _WIN32
-    filesize = win32.GetFileSize(fp);
-#endif 
+    DWORD rc = GetFileSize(fp, &filesize);
 
-    //  read in st->st_blksize ???
-    free(st);
-    buf = calloc(filesize, sizeof(unsigned char));
+    if (rc)
+    {
+        return AKAI_FILE_STAT_ERROR;
+    }
+#endif 
 
     printf("File name to upload %s, Size of file: %i bytes\n", dest_filename, filesize);
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
@@ -507,6 +515,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     {
         return errno; 
     }
+
+    buf = calloc(blocksize, sizeof(unsigned char));
+
 	do 
 	{
 		rc = usb_bulk_read(akai_dev->dev, EP_IN, reply_buf, 64, 1000); 
@@ -545,20 +556,21 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 			break; // finished TODO: check contents of buffer...
 		}
 
-		/* check is probably not necessary */
-		if (! feof(fp))
-		{
-            fseek(fp, transferred, 0);
-			bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
+        fseek(fp, transferred, 0);
+		bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
 #ifdef _DEBUG
-            printf("writing %i bytes\n", bytes_read);
+        printf("writing %i bytes\n", bytes_read);
 #endif
-			usb_bulk_write(akai_dev->dev, EP_OUT, buf, bytes_read, 1000); 
-		}
+		usb_bulk_write(akai_dev->dev, EP_OUT, buf, bytes_read, 1000); 
 
 		/* continue */
 		usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, 1000); 
-	} while(rc > 0);
+	} while(bytes_read > 0 && rc > 0);
+
+    if (!feof(fp))
+    {
+        retval = AKAI_FILE_READ_ERROR;
+    }
 
 	fclose(fp);
 	free(reply_buf);
@@ -567,7 +579,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 #ifdef _POSIX_SOURCE
 	print_transfer_stats(t1, t2, transferred);
 #endif
-	return 0;
+	return retval;
 }
 
 
