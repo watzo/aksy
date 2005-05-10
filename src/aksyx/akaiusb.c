@@ -466,9 +466,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         FILE_ATTRIBUTE_NORMAL,
         NULL);
     
-    if (!fp)
+    if (fp == INVALID_HANDLE_VALUE)
     {
-        return AKAI_FILE_NOT_FOUND;
+        return AKAI_FILE_STAT_ERROR;
     }
 
     filesize = GetFileSize(fp, NULL);
