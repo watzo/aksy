@@ -326,7 +326,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
        return retval;
     }
 
-	dest_file = fopen(dest_filename, "w+"); 
+	dest_file = fopen(dest_filename, "w+b"); 
 
     if (!dest_file)
     {
@@ -457,7 +457,23 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     free(st);
 #endif
 #ifdef _WIN32
+    HANDLE fp =  CreateFile(
+        src_filename, 
+        GENERIC_READ,
+        FILE_SHARE_READ, 
+        NULL, 
+        OPEN_EXISTING, 
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+    
+    if (!fp)
+    {
+        return AKAI_FILE_NOT_FOUND;
+    }
+
     filesize = GetFileSize(fp, NULL);
+
+    CloseHandle(fp);
 
     if (filesize == -1)
     {
@@ -488,7 +504,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
   	gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
 
-    fp = fopen(src_filename, "r");
+    fp = fopen(src_filename, "rb");
 
     if (!fp)
     {
