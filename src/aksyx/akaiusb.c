@@ -33,12 +33,6 @@ akai_usb_sysex_reply_ok(char* sysex_reply)
     return sysex_reply[4] == SYSEX_OK;
 }
 
-inline int
-eos(char* sysex_reply, int sysex_length)
-{
-    return sysex_reply[sysex_length-1] == 0xf7;
-}
-
 #ifdef _POSIX_SOURCE
 void
 print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred)
