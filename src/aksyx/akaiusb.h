@@ -56,18 +56,18 @@ int akai_usb_device_reset(akai_usb_device akai_dev);
 /* closes a akai usb device */
 int akai_usb_device_close(akai_usb_device akai_dev);
 
-int akai_usb_device_send_bytes(akai_usb_device akai_dev, char* bytes, 
+int akai_usb_device_send_bytes(akai_usb_device akai_dev, unsigned char* bytes, 
     int byte_length, int timeout);
 
-int akai_usb_device_recv_bytes(akai_usb_device akai_dev, char* buff, 
+int akai_usb_device_recv_bytes(akai_usb_device akai_dev, unsigned char* buff, 
     int buff_length, int timeout);
 
 /* executes a system exclusive string on the sampler.
  * the return code is the return code of the underlying usb reads/writes 
  */
 int akai_usb_device_exec_sysex(akai_usb_device akai_dev,  
-    char *sysex, int sysex_length, 
-    char *result_buff, int result_buff_length, int timeout);
+    unsigned char *sysex, int sysex_length, 
+    unsigned char *result_buff, int result_buff_length, int timeout);
 
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated 4 byte value
@@ -75,14 +75,14 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
  * by file transfers from the sampler
  */
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
-    char* name, char* handle, char* cmd_id, int timeout);
+    unsigned char* name, unsigned char* handle, unsigned char* cmd_id, int timeout);
 
 /* uploads a file to the sampler. location is Z48_MEMORY or Z48_DISK
  * The current path must be set explicitly if the file is transferred to
  * disk
  */
 int akai_usb_device_put(akai_usb_device akai_dev, 
-    char *src_filename, char *dest_filename, int location, int timeout);
+    unsigned char *src_filename, unsigned char *dest_filename, int location, int timeout);
 
 /* transfers a file from the current path from the sampler. 
  * Location can be either LOC_MEMORY or LOC_DISK.
@@ -90,4 +90,4 @@ int akai_usb_device_put(akai_usb_device akai_dev,
  * located before calling this function in case of disk transfers
  */
 int akai_usb_device_get(akai_usb_device akai_dev, 
-    char *src_filename, char *dest_filename, int location, int timeout);
+    unsigned char *src_filename, unsigned char *dest_filename, int location, int timeout);
