@@ -5,8 +5,8 @@
 #define VENDOR_ID 0x9e8 
 #define S56K 0x05e
 #define Z48 0x05f
-#define EP_OUT 0x82
-#define EP_IN 0x02
+#define EP_IN 0x82
+#define EP_OUT 0x02
 #define LOC_DISK 0
 #define LOC_MEMORY 1
 /* commands */
