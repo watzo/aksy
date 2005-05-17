@@ -3,6 +3,17 @@ import sys, os, os.path, StringIO
 import aksy.sysex
 import sysex_info
 
+"""This hairy piece of code generates python modules from command
+specifications (that once were extracted from the Akai sysex documentation
+pdf)
+Usage: generate_module.py command_spec_file skip_replyspec device_name
+
+command_spec_file: see data/z48 for examples.
+skip_replyspec: do not use the information in the command_spec_file for
+return types (but use typed parsing, see the z48 manual 'data types' for
+more details.
+device_name: the name for the device
+"""
 def _arglist_helper(arglist):
     """Creates correct string rep 
     """
@@ -33,7 +44,8 @@ skip_replyspec = True
 if len(sys.argv)== 3:
     skip_replyspec = bool(sys.argv[2])
 if len(sys.argv)== 4:
-    device_name = bool(sys.argv[3])
+    device_name = sys.argv[3]
+else:
 
 device_id = sysex_info.devices[device_name]['device_id']
 file_in = open( file_in_name, 'r')
