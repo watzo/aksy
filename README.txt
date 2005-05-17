@@ -20,14 +20,10 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 3. Known issues and limitations in this release
 
-* Win32 has not been tested yet (it compiles, but I have to figure
-  mingw/python related linking problems out first)
+* Win32 has not seen much testing yet and the build sequence is crude.
 
-* Mac OS X has not been tested yet (it's working with PPC/Linux though).
-  It compiles and links but all usb writes fail.
-  This could be caused by the fact that the sampler is accessed by another
-  process (USB debug messages) or the fact that one of the arguments passed
-  into WritePipeAsyncTo is invalid (the other USB debug message)
+* Mac OS X has not seen much testing yet and setup.py does not contain the
+  commands to build it.
 
 * Multiple instances of Aksy are currently not supported.
 
@@ -66,5 +62,13 @@ src/aksy/
 
     z48/mpc4000 specific code
 
+data
+
     The *tools.py modules are generated from the data directory, which contains tab
     delimited system exclusive descriptions from which they are generated.
+
+    The script which takes care of this is generate_module.py
+
+data/z48
+
+    Contains the command specifications for the z48/mpc4000
