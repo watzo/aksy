@@ -430,13 +430,13 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     unsigned char *src_filename, unsigned char *dest_filename, int location, int timeout)
 {
     unsigned char *buf, *command, *reply_buf;
-    struct stat* st;
     unsigned long int filesize = 0;
     int rc, retval = 0, blocksize = 4096 * 4, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1; 
     FILE* fp;
             
 #ifdef _POSIX_SOURCE
+    struct stat* st;
     struct timeval t1, t2;
     /* Get file info */
     st = (struct stat*)malloc(sizeof(struct stat));
@@ -507,7 +507,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 
     if (!fp)
     {
-        return errno; 
+        return AKAI_FILE_READ_ERROR;; 
     }
 
     buf = calloc(blocksize, sizeof(unsigned char));
