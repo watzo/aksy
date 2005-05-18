@@ -68,7 +68,7 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 
              if (usb_product_id != Z48 && usb_product_id != S56K)
              {
-                return AKAI_UNSUPPORTED_DEVICE;
+                 continue;
              }
 
              /* found the akai z48 or s56k */
@@ -438,9 +438,6 @@ int akai_usb_device_put(akai_usb_device akai_dev,
             
 #ifdef _POSIX_SOURCE
     struct timeval t1, t2;
-#endif
-
-#ifdef _POSIX_SOURCE
     /* Get file info */
     st = (struct stat*)malloc(sizeof(struct stat));
     rc = stat(src_filename, st);
@@ -459,7 +456,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     free(st);
 #endif
 #ifdef _WIN32
-    HANDLE fp =  CreateFile(
+    HANDLE tmp_fp =  CreateFile(
         src_filename, 
         GENERIC_READ,
         FILE_SHARE_READ, 
@@ -468,14 +465,14 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         FILE_ATTRIBUTE_NORMAL,
         NULL);
     
-    if (fp == INVALID_HANDLE_VALUE)
+    if (tmp_fp == INVALID_HANDLE_VALUE)
     {
         return AKAI_FILE_STAT_ERROR;
     }
 
-    filesize = GetFileSize(fp, NULL);
+    filesize = GetFileSize(tmp_fp, NULL);
 
-    CloseHandle(fp);
+    CloseHandle(tmp_fp);
 
     if (filesize == INVALID_FILE_SIZE)
     {
@@ -526,7 +523,6 @@ int akai_usb_device_put(akai_usb_device akai_dev,
             printf("%02x ", reply_buf[i]);
         printf("\n");
 #endif
-
         if (rc == 1) continue;
 
         if (rc == 4 && akai_usb_reply_ok(reply_buf))    
