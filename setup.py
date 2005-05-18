@@ -7,7 +7,6 @@ extra_link_args = []
 if platform.system() == "Darwin":
     extra_link_args = ['-framework CoreFoundation IOKit']
 
-print os.name
 setup(name = "aksy",
       version = "0.1.1",
       author = "Walco van Loon",
@@ -17,7 +16,7 @@ setup(name = "aksy",
       ext_modules=[
           Extension("aksyxusb",
               sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c" ],
-              define_macros=[('_DEBUG', '1')],
+              define_macros=[('_DEBUG', '0')],
               extra_link_args = extra_link_args,
               libraries = ["usb"],
           ),
