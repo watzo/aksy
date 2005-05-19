@@ -431,7 +431,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 {
     unsigned char *buf, *command, *reply_buf;
     unsigned long int filesize = 0;
-    int rc, retval = 0, blocksize = 4096 * 4, transferred = 0, bytes_read = 0;
+    int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1; 
     FILE* fp;
             
@@ -482,7 +482,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 
     printf("File name to upload %s, Size of file: %li bytes\n", dest_filename, filesize);
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
-    command = (unsigned char*) calloc(dest_filename_length+5,  sizeof(unsigned char));
+    command = (unsigned char*) calloc(dest_filename_length+6,  sizeof(unsigned char));
     command[0] = (location)?Z48_MEMORY_PUT:Z48_DISK_PUT;
     command[1] = filesize >> 24;
     command[2] = filesize >> 16;
@@ -490,7 +490,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     command[4] = filesize;
     memcpy(command+5, dest_filename, dest_filename_length * sizeof(unsigned char));
 
-    rc = usb_bulk_write(akai_dev->dev, EP_OUT, command, dest_filename_length+5, 1000); 
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, command, dest_filename_length+6, 1000); 
 
     if (rc < 0)
     {
@@ -510,7 +510,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         return AKAI_FILE_READ_ERROR;; 
     }
 
-    buf = calloc(blocksize, sizeof(unsigned char));
+    buf = calloc(init_blocksize, sizeof(unsigned char));
 
     do 
     {
@@ -533,6 +533,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         {
 
             blocksize = GET_BLOCK_SIZE(reply_buf);    
+            assert (blocksize <= init_blocksize);
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
 #if (_DEBUG == 1)
             printf("blocksize: %i\n", blocksize);
