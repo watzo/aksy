@@ -21,7 +21,11 @@ class Disktools:
           self.commands['\x20\x03'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x04', 'get_no_disks', (), None)
           self.commands['\x20\x04'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x05', 'get_disklist', (), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x05', 'get_disklist', (), 
+              ( aksy.devices.akai.sysex.WORD,
+                aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE,
+                aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE,
+                aksy.devices.akai.sysex.STRING,))
           self.commands['\x20\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x09', 'get_curr_path', (), None)
           self.commands['\x20\x09'] = comm
