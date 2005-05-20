@@ -6,12 +6,38 @@ Ak.Sys, focussing on batch functionality and scripting.
 
 2. Usage
 
-A simple example:
+Some simple examples:
 
 from aksy.device import Devices
-z = Devices.get_instance('z48','usb')
-z.init()
-z.disktools.get_no_disks()
+# initializes the sampler 
+akaisampler = Devices.get_instance('akai','usb')
+
+# initialize the device (set up the USB connection)
+akaisampler.init()
+
+# returns the number of disks 
+akaisampler.disktools.get_no_disks()
+
+Besides disktools, the following modules are available for the Z-series:
+
+multitools
+songtools
+programtools
+keygrouptools
+zonetools
+sampletools
+recordingtools
+systemtools
+multifxtools
+
+# gets a file called "Noise.wav" from the sampler's memory
+akaisampler.get("Noise.wav") 
+
+# puts a file called "Pulse.wav" in the sampler's memory
+akaisampler.put("Pulse.wav") 
+
+# close the USB connection
+akaisampler.close()
 
 See the scripts/ directory for more interesting examples.
 For an overview of the functions in a module, run pydoc:
@@ -20,10 +46,7 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 3. Known issues and limitations in this release
 
-* Win32 has not seen much testing yet and the build sequence is crude.
-
-* Mac OS X has not seen much testing yet and setup.py does not contain the
-  commands to build it.
+* Win32 and Mac OS X have not seen much testing yet.
 
 * Multiple instances of Aksy are currently not supported.
 
@@ -41,7 +64,7 @@ Setting the USB_DEBUG environment variable can help to obtain more info from
 the low level usb communication. 
 
 Common reasons for not being able to set up a USB connection are: device
-permissions are set to restrictive (read-only, root permissions)
+permissions are set too restrictive (read-only, root permissions)
 
 5. Developing
 
