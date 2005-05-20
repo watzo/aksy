@@ -179,7 +179,9 @@ AkaiSampler_put(PyObject* self, PyObject* args)
                 case AKAI_FILE_NOT_FOUND:
                     return PyErr_Format(PyExc_Exception, "Exception before transfer: file not found");
                 case AKAI_FILE_STAT_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception before transfer: could not stat file");
+                    return PyErr_Format(PyExc_Exception, "Exception before transfer: could not get file size");
+                case AKAI_EMPTY_FILE_ERROR:
+                    return PyErr_Format(PyExc_Exception, "Exception before transfer: cowardly refusing to transfer an empty file");
                 case AKAI_FILE_READ_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: error reading file");
                 case AKAI_INVALID_FILENAME:

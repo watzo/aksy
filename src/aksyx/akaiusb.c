@@ -480,6 +480,11 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     }
 #endif 
 
+    if (filesize == 0)
+    {
+        return AKAI_EMPTY_FILE_ERROR;
+    }
+
     printf("File name to upload %s, Size of file: %li bytes\n", dest_filename, filesize);
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
     command = (unsigned char*) calloc(dest_filename_length+6,  sizeof(unsigned char));
