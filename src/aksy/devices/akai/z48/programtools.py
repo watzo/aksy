@@ -19,7 +19,7 @@ class Programtools:
           self.commands['\x14\x02\x00'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x14\x02\x01', 'get_names', (), None)
           self.commands['\x14\x02\x01'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x14\x02\x02', 'get_handles_names', (), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x14\x02\x02', 'get_handles_names', (), (aksy.devices.akai.sysex.HANDLENAMEARRAY,))
           self.commands['\x14\x02\x02'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x14\x02\x03', 'get_modified', (), None)
           self.commands['\x14\x02\x03'] = comm
