@@ -1,6 +1,7 @@
 # inspired by the frequent offers of great sounds by Steve of Hollow Sun, this
 # script will allow you to download, unpack and audition a new addition in no time!
-import sys, urllib, zipfile, os, os.path, aksy
+import sys, urllib, zipfile, os, os.path, 
+from aksy import Devices
 
 def checkout(url, destdir=''):
     file = urllib.urlretrieve(url)[0]
@@ -24,7 +25,7 @@ def checkout(url, destdir=''):
     zip.close()
 
     # aksy stuff
-    z48 = Sampler.get_instance('z48')
+    z48 = Devices.get_instance('z48', 'usb')
     z48.init()
     for file in destfiles:
         z48.put(file, os.path.basename(file))
