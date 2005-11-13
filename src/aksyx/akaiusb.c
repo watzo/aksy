@@ -173,16 +173,19 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     strncpy(extension, name + name_length-3, 4);
     if (strcasecmp(extension, "akm") == 0)
     {
+        /* s56k: 0x0c 0x42 */ 
         section = '\x18';
         if (cmd_id) *cmd_id = Z48_MEMORY_GET_MULTI;
     }
     else if (strcasecmp(extension, "wav") == 0)
     {
+        /* s56k: 0x0e 0x13 */ 
         section = '\x1c';
         if (cmd_id) *cmd_id = Z48_MEMORY_GET_SAMPLE;
     }
     else if (strcasecmp(extension, "akp") == 0)
     {
+        /* s56k: 0x10 0x12 */ 
         section = '\x14';
         if (cmd_id) *cmd_id = Z48_MEMORY_GET_PROGRAM;
     }
