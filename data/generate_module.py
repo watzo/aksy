@@ -46,8 +46,7 @@ if len(sys.argv)== 3:
 if len(sys.argv)== 4:
     device_name = sys.argv[3]
 else:
-
-device_id = sysex_info.devices[device_name]['device_id']
+    device_id = sysex_info.devices[device_name]['device_id']
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
 preamble = "".join(file_preamble.readlines())
@@ -64,10 +63,18 @@ destfile = section_name + '.py'
 
 file_out = open(destfile, 'w')
 file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\"\n\n" % (section_name,section_desc)) 
+testfile_out = open('test' + "_" + section_name + ".py", "w")
+testfile_out.writelines("from unittest import TestCase\n\n")
+testfile_out.writelines("from aksy.device import Devices\n\n")
+
 file_out.writelines( "%s\n" % preamble) 
 file_out.writelines( "import %s\n\n" % sysex_module_name ) 
 file_out.writelines( "class %s:\n" % classname_helper(section_name))
+testfile_out.writelines( "class Test%s(TestCase):\n" % classname_helper(section_name))
 file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
+testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
+testfile_out.writelines( "%sself.z48 = Devices.get_instance('z48')\n" % (indent_block*2))
+testfile_out.writelines( "%sself.z48.init()\n\n" % (indent_block*2))
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 #file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
@@ -106,12 +113,15 @@ while line:
 
         # definition
         methods.writelines( "%sdef %s(%s):\n" % (indent_block, name, ', '.join(args))) 
+        testfile_out.writelines( "%sdef test_%s(self):\n" % (indent_block, name) ) 
 
         # docstring
         format = { 'indent': indent_block, 'desc': desc,'returns': ('\n'+indent_block*3).join(reply_spec) }
         if len(reply_spec) > 0:
+            testfile_out.writelines( "%sself.assertEquals(, self.z48.%s())\n\n" % ((indent_block*2), name) ) 
             format['returns'] = "\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s" % format
         else:
+            testfile_out.writelines( "%sself.z48.%s()\n\n" % ((indent_block*2), name) ) 
             format['returns'] = ""
         
         methods.writelines(
@@ -147,4 +157,9 @@ file_in.close()
 file_out.writelines("\n%s" % methods.getvalue())
 methods.close()
 file_out.close()
-os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
+
+testfile_out.writelines( "%sdef tearDown(self):\n" % indent_block)
+testfile_out.writelines( "%sself.z48.close()\n\n" % (indent_block*2))
+testfile_out.close()
+os.renames(destfile, os.path.join('..','tmp', 'aksy', 'devices', 'akai', device_name, destfile))
+#os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
