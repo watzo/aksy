@@ -46,6 +46,11 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 3. Known issues and limitations in this release
 
+* After executing the disktools.get_disklist() method the internal sysex
+  buffer gets messed up. This might indicate a deeper problem with Aksy and
+  the sampler's sysex buffer, or just be a bug in this command as Ak.Sys is
+  using s56k sysex commands for disk related functions.
+
 * Win32 and Mac OS X have not seen much testing yet.
 
 * Multiple instances of Aksy are currently not supported.
