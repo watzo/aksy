@@ -46,6 +46,29 @@ print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred
 }
 #endif
 
+int _init_commands(akai_usb_device akai_dev) {
+	 sysex_commands commands;
+	 switch (akai_dev->id) {
+		case Z48:
+			commands.get_multi_handle = Z48_GET_MULTI_HANDLE;
+			commands.get_midi_handle = Z48_GET_MIDI_HANDLE;
+			commands.get_program_handle = Z48_GET_PROGRAM_HANDLE;
+			commands.get_sample_handle = Z48_GET_SAMPLE_HANDLE;
+			akai_dev->commands = commands;
+			return AKAI_SUCCESS;
+		case S56K:
+			commands.get_multi_handle = S56K_GET_MULTI_HANDLE;
+			commands.get_midi_handle = S56K_GET_MIDI_HANDLE;
+			commands.get_program_handle = S56K_GET_PROGRAM_HANDLE;
+			commands.get_sample_handle = S56K_GET_SAMPLE_HANDLE;
+			akai_dev->commands = commands;
+			return AKAI_SUCCESS;
+		default:
+			return AKAI_UNSUPPORTED_DEVICE;
+	 }
+ 
+}
+
 int akai_usb_device_init(akai_usb_device akai_dev)
 {
     struct usb_bus *bus;
@@ -94,17 +117,18 @@ int akai_usb_device_init(akai_usb_device akai_dev)
                  return AKAI_USB_INIT_ERROR;
              }
 
-             /* setup sequence, snooped from ak.Sys */
+            /* setup sequence, snooped from ak.Sys */
              rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x01", 2, 1000);
              if (rc < 0) return AKAI_TRANSMISSION_ERROR;
-             
-             return 0;
+
+			 return _init_commands(akai_dev);
           }
        }
     }
 
     return AKAI_NO_SAMPLER_FOUND;
 }
+
 int akai_usb_device_close(akai_usb_device akai_dev)
 {
     int rc;
@@ -157,12 +181,12 @@ int akai_usb_device_recv_bytes(akai_usb_device akai_dev, unsigned char* buff,
 }
 
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
-    unsigned char* name, unsigned char* handle, unsigned char* cmd_id, int timeout)
+    unsigned char* name, unsigned char* handle, int timeout)
 {
-    unsigned char section;
-    unsigned char *extension, *sysex, *data;
-    int retval;
+    unsigned char *extension, *sysex, *data, *cmd_id;
     int name_length = strlen(name);
+    int retval;
+
     if (name_length < 4)
     {
         /* invalid name */
@@ -173,26 +197,19 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     strncpy(extension, name + name_length-3, 4);
     if (strcasecmp(extension, "akm") == 0)
     {
-        /* s56k: 0x0c 0x42 */ 
-        section = '\x18';
-        if (cmd_id) *cmd_id = Z48_MEMORY_GET_MULTI;
+        cmd_id = akai_dev->commands.get_multi_handle;
     }
     else if (strcasecmp(extension, "wav") == 0)
     {
-        /* s56k: 0x0e 0x13 */ 
-        section = '\x1c';
-        if (cmd_id) *cmd_id = Z48_MEMORY_GET_SAMPLE;
+        cmd_id = akai_dev->commands.get_sample_handle;
     }
     else if (strcasecmp(extension, "akp") == 0)
     {
-        /* s56k: 0x10 0x12 */ 
-        section = '\x14';
-        if (cmd_id) *cmd_id = Z48_MEMORY_GET_PROGRAM;
+        cmd_id = akai_dev->commands.get_program_handle;
     }
     else if (strcasecmp(extension, "mid") == 0)
     {
-        section = '\x28';
-        if (cmd_id) *cmd_id = Z48_MEMORY_GET_MIDI;
+        cmd_id = akai_dev->commands.get_midi_handle;
     }
     else
     {
@@ -209,8 +226,7 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     memcpy(sysex+2, "\x00\xf0\x47", 5 * sizeof(unsigned char));
     memcpy(sysex+5, &sysex_id, 1 * sizeof(unsigned char));
     memcpy(sysex+6, "\x00", 1 * sizeof(unsigned char));
-    memcpy(sysex+7, &section, 1 * sizeof(unsigned char));
-    memcpy(sysex+8, "\x08", 1 * sizeof(unsigned char));
+    memcpy(sysex+7, cmd_id, 2 * sizeof(unsigned char));
     memcpy(sysex+9, name, (name_length -4) * sizeof(unsigned char)); // strip extension
     memcpy(sysex+9 + name_length - 4, "\x00\xf7", 2 * sizeof(unsigned char));
 
@@ -261,7 +277,7 @@ read_sysex:
 int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename, 
     unsigned char *dest_filename, int location, int timeout)
 {
-    unsigned char *command, *data, *handle, cmd_id;
+    unsigned char *command, *data, *handle;
     int blocksize = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0, retval = 0;
     int src_filename_length = strlen(src_filename) + 1;
 #ifdef _POSIX_SOURCE
@@ -272,10 +288,9 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
     /* create get request */
     if (location == LOC_MEMORY)
     {
-        cmd_id = Z48_MEMORY_GET_SAMPLE;
         handle = (unsigned char*) calloc(4, sizeof(unsigned char));
         rc = akai_usb_device_get_handle_by_name(
-            akai_dev, src_filename, handle, &cmd_id, timeout); 
+            akai_dev, src_filename, handle, timeout); 
 
         if (rc)
         {
@@ -285,7 +300,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
         else
         {
             command = (unsigned char*) calloc(5, sizeof(unsigned char));
-            command[0] = cmd_id;
+            command[0] = Z48_MEMORY_GET;
             /* 
                 the handle we retrieved uses 7 bits bytes but for the
                 transfer request uses 8 bit values so we swap back and forth:
@@ -419,7 +434,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
 #ifdef _POSIX_SOURCE
         print_transfer_stats(t1, t2, bytes_transferred);
 #endif
-        return 0;
+        return AKAI_SUCCESS;
     }
     else
     {

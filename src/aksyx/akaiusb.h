@@ -9,14 +9,24 @@
 #define EP_OUT 0x02
 #define LOC_DISK 0
 #define LOC_MEMORY 1
+
 /* commands */
 #define Z48_DISK_GET 0x41
-#define Z48_MEMORY_GET_SAMPLE 0x21
-#define Z48_MEMORY_GET_PROGRAM 0x22
-#define Z48_MEMORY_GET_MULTI 0x23
-#define Z48_MEMORY_GET_MIDI 0x24
-#define Z48_MEMORY_PUT 0x20
 #define Z48_DISK_PUT 0x40
+#define Z48_MEMORY_GET 0x21
+#define Z48_MEMORY_PUT 0x20
+
+#define Z48_GET_SAMPLE_HANDLE "\x1c\x08"
+#define Z48_GET_PROGRAM_HANDLE "\x14\x08"
+#define Z48_GET_MULTI_HANDLE "\x18\x08"
+#define Z48_GET_MIDI_HANDLE "\x28\x08"
+
+/* this retrieves current handles, there is no get_handle_by_name cmd for S56K */
+#define S56K_GET_SAMPLE_HANDLE "\x0e\x13"
+#define S56K_GET_PROGRAM_HANDLE "\x10\x12"
+#define S56K_GET_MULTI_HANDLE "\x0c\x42"
+#define S56K_GET_MIDI_HANDLE "\x16\x13"
+
 /* sysex defs */
 #define SYSEX_OK 0x4f
 #define SYSEX_REPLY 0x52
@@ -27,6 +37,7 @@
 #define GET_BYTES_TRANSFERRED(buffer) (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24)
 
 /* error codes */
+#define AKAI_SUCCESS 0
 #define AKAI_USB_INIT_ERROR 5000
 #define AKAI_NO_SAMPLER_FOUND 5001
 #define AKAI_UNSUPPORTED_DEVICE 5002
@@ -41,10 +52,23 @@
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 
+typedef struct _sysex_commands {
+	char* get_multi_handle;
+	char* get_sample_handle;
+	char* get_midi_handle;
+	char* get_program_handle;
+} sysex_commands;
+
 typedef struct _akai_usb_device {
     usb_dev_handle *dev;
     int id;
+	sysex_commands commands;
 } *akai_usb_device;
+
+/*
+ * public api methods
+ *
+ */
 
 /* opens a akai usb device. allocated memory is freed in case the
  * device initialisation goes wrong  
@@ -72,11 +96,9 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
 
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated 4 byte value
- * cmd_id may be NULL - if specified it will be set to the command id used
- * by file transfers from the sampler
  */
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
-    unsigned char* name, unsigned char* handle, unsigned char* cmd_id, int timeout);
+    unsigned char* name, unsigned char* handle, int timeout);
 
 /* uploads a file to the sampler. location is Z48_MEMORY or Z48_DISK
  * The current path must be set explicitly if the file is transferred to
