@@ -47,26 +47,26 @@ print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred
 #endif
 
 int _init_commands(akai_usb_device akai_dev) {
-	 sysex_commands commands;
-	 switch (akai_dev->id) {
-		case Z48:
-			commands.get_multi_handle = Z48_GET_MULTI_HANDLE;
-			commands.get_midi_handle = Z48_GET_MIDI_HANDLE;
-			commands.get_program_handle = Z48_GET_PROGRAM_HANDLE;
-			commands.get_sample_handle = Z48_GET_SAMPLE_HANDLE;
-			akai_dev->commands = commands;
-			return AKAI_SUCCESS;
-		case S56K:
-			commands.get_multi_handle = S56K_GET_MULTI_HANDLE;
-			commands.get_midi_handle = S56K_GET_MIDI_HANDLE;
-			commands.get_program_handle = S56K_GET_PROGRAM_HANDLE;
-			commands.get_sample_handle = S56K_GET_SAMPLE_HANDLE;
-			akai_dev->commands = commands;
-			return AKAI_SUCCESS;
-		default:
-			return AKAI_UNSUPPORTED_DEVICE;
-	 }
-
+    sysex_commands commands;
+    switch (akai_dev->id) {
+	case Z48:
+	case MPC4000:
+	    commands.get_multi_handle = Z48_GET_MULTI_HANDLE;
+	    commands.get_midi_handle = Z48_GET_MIDI_HANDLE;
+	    commands.get_program_handle = Z48_GET_PROGRAM_HANDLE;
+	    commands.get_sample_handle = Z48_GET_SAMPLE_HANDLE;
+	    akai_dev->commands = commands;
+	    return AKAI_SUCCESS;
+	case S56K:
+	    commands.get_multi_handle = S56K_GET_MULTI_HANDLE;
+	    commands.get_midi_handle = S56K_GET_MIDI_HANDLE;
+	    commands.get_program_handle = S56K_GET_PROGRAM_HANDLE;
+	    commands.get_sample_handle = S56K_GET_SAMPLE_HANDLE;
+	    akai_dev->commands = commands;
+	    return AKAI_SUCCESS;
+	default:
+	    return AKAI_UNSUPPORTED_DEVICE;
+    }
 }
 
 int akai_usb_device_init(akai_usb_device akai_dev)
@@ -89,7 +89,9 @@ int akai_usb_device_init(akai_usb_device akai_dev)
          {
              usb_product_id = dev->descriptor.idProduct;
 
-             if (usb_product_id != Z48 && usb_product_id != S56K)
+             if (usb_product_id != Z48 &&
+		 usb_product_id != S56K &&
+		 usb_product_id != MPC4000)
              {
                  continue;
              }
