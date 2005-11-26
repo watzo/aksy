@@ -16,8 +16,6 @@ ID_ABOUT=wxNewId()
 ID_EXIT=wxNewId()
 ID_MAIN_PANEL = wxNewId()
 
-USE_MOCK_OBJECTS = False
-
 class Frame(wxFrame):
     def __init__(self,parent,title):
         wxFrame.__init__(self,parent,wxID_ANY, title, size = ( 200,100),
@@ -43,15 +41,13 @@ class Frame(wxFrame):
 
         EVT_CLOSE(self, self.OnExit)
 
-        # values hardcoded for now
-        if not USE_MOCK_OBJECTS:
-            self.sampler = Devices.get_instance('z48', 'usb', 0)
-        else:
-            self.sampler = Devices.get_instance('mock_z48', None, 1)
-
         try:
+            self.sampler = Devices.get_instance('akai', 'usb', debug=0)
             self.sampler.init()
         except Exception, e:
+		    # if e[0] == "No sampler found":
+            self.sampler = Devices.get_instance('mock_z48', debug=1)
+            self.sampler.init()
             self.reportException(e)
             return
 
