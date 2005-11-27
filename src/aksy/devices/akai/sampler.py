@@ -12,23 +12,23 @@ class Sampler(AkaiSampler):
     You can use it like this:
     >>> z = Sampler()
     >>> z.init()
-    >>> z.disktools.get_disklist() 
+    >>> z.disktools.get_disklist()
     (512, 1, 2, 0, 1, 'Z48 & MPC4K')
 
-    >>> z.select_disk(256) 
-    >>> z.set_curr_folder('') 
-    >>> # z.create_subfolder('AUTOLOAD') 
-    >>> z.set_curr_folder('AUTOLOAD') 
+    >>> z.select_disk(256)
+    >>> z.set_curr_folder('')
+    >>> # z.create_subfolder('AUTOLOAD')
+    >>> z.set_curr_folder('AUTOLOAD')
 
-    >>> # z.get('Ride 1.wav', '/home/walco/dev/aksy' ) 
+    >>> # z.get('Ride 1.wav', '/home/walco/dev/aksy' )
     >>> # z.put('/home/walco/dev/aksy/Ride 1.wav', 'Ride 1 copy.wav')
 
     # the number can differ of course...
-    >>> # z.get_no_subfolders() 
+    >>> # z.get_no_subfolders()
     21
-    >>> # z.get_filenames() 
+    >>> # z.get_filenames()
 
-    >>> z.get_subfolder_names() 
+    >>> z.get_subfolder_names()
     ()
     >>> z.close_usb()
     """
@@ -55,7 +55,7 @@ class Sampler(AkaiSampler):
             # if confirmation msgs are already disabled, the sampler sometimes
             # doesn't respond.
             pass
-            
+
         # disable sync
         # msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
         # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
@@ -87,19 +87,19 @@ class Sampler(AkaiSampler):
 
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
- 
+
     def close(self):
         """Closes the connection with the sampler
         """
         self.close_usb()
 
-    def get(self, filename, destpath=None, source=AkaiSampler.MEMORY):
-        """Gets a file from the sampler, overwriting it if it already exists.
+    def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
+        """Gets a file from the sampler, overwriting destfile if it already exists.
         """
-        if destpath is None:
-            destpath = filename
+        if destfile is None:
+            destfile = filename
 
-        self._get(filename, destpath, source)
+        self._get(filename, destfile, source)
 
     def put(self, sourcepath, remote_name=None, destination=AkaiSampler.MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
@@ -110,17 +110,17 @@ class Sampler(AkaiSampler):
 
         self._put(sourcepath, remote_name, destination)
 
-    def execute(self, command, args, userref=None):
+    def execute(self, command, args, userref='\x00'):
         """Executes a command on the sampler
         TODO: calculate the deviceid byte together with the userref count
         """
-        request = Request(command, args)
+        request = Request(command, args, userref)
         if self.debug:
             sys.stderr.writelines("Request: %s\n" % repr(request))
         result_bytes = self._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
         if self.debug:
             sys.stderr.writelines("Length of reply: %i\n" % len(result_bytes))
-        result = Reply(result_bytes, command)
+        result = Reply(result_bytes, command, userref)
         if self.debug:
             sys.stderr.writelines("Reply: %s\n" % repr(result))
         return result.parse()

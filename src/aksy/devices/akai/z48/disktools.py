@@ -21,7 +21,7 @@ class Disktools:
           self.commands['\x20\x03'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x04', 'get_no_disks', (), None)
           self.commands['\x20\x04'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x05', 'get_disklist', (), 
+          comm = aksy.devices.akai.sysex.Command('\x5e\x20\x00', '\x10\x05', 'get_disklist', (),
               ( aksy.devices.akai.sysex.WORD,
                 aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE,
                 aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE,
@@ -47,7 +47,8 @@ class Disktools:
           self.commands['\x20\x18'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x20', 'get_no_files', (), None)
           self.commands['\x20\x20'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x22', 'get_filenames', (), None)
+          comm = aksy.devices.akai.sysex.Command('\x5e\x20\x00', '\x10\x22', 'get_filenames', (),
+          (aksy.devices.akai.sysex.STRINGARRAY,))
           self.commands['\x20\x22'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x28', 'rename_file', (aksy.devices.akai.sysex.STRING, aksy.devices.akai.sysex.STRING), None)
           self.commands['\x20\x28'] = comm
