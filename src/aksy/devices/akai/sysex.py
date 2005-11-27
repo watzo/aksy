@@ -1,4 +1,4 @@
-import struct, sys 
+import struct, sys
 
 class Command:
     """Represents a system exclusive command.
@@ -32,20 +32,20 @@ class Request:
     """ Encapsulates a sysex request
 
     Select disk:
-    >>> arg = 256 
-    >>> command = Command('\x5f', '\x20\x02', 'select_disk', (WORD,), ()) 
+    >>> arg = 256
+    >>> command = Command('\x5f', '\x20\x02', 'select_disk', (WORD,), ())
     >>> Request(command, (arg,))
     ['f0', '47', '5f', '00', '20', '02', '00', '02', 'f7']
 
     Select root folder:
     >>> folder = ''
-    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ()) 
+    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ())
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
 
     Select autoload folder:
     >>> folder = 'autoload'
-    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ()) 
+    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ())
     >>> Request(command, (folder,))
     ['f0', '47', '5f', '00', '20', '13', '61', '75', '74', '6f', '6c', '6f', '61', '64', '00', 'f7']
 
@@ -55,17 +55,12 @@ class Request:
 
     """
 
-    def __init__(self, command, args, userref=None):
+    def __init__(self, command, args, userref='\x00'):
         bytes = [START_SYSEX, AKAI_ID]
 
-        bytes.append(command.device_id) 
-
-        if userref is not None:
-            bytes.append(userref) 
-        else:
-            bytes.append(DEFAULT_USERREF) 
-
-        bytes.append(command.id) 
+        bytes.append(command.device_id)
+        bytes.append(userref)
+        bytes.append(command.id)
         data = command.create_arg_bytes(args)
         if data is not None:
             bytes.extend(data)
@@ -81,25 +76,31 @@ class Request:
 
 class Reply:
     r""" Encapsulates a sysex reply
-
+    >>> DEFAULT_USERREF='\x00'
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
-    >>> dcmd = Command('\x20\x05', 'dummy', (),(BYTE,))
-    >>> reply = Reply(''.join(bytes), dcmd) 
+    >>> dcmd = Command(Z48_ID, '\x20\x05', 'dummy', (),(BYTE,))
+    >>> reply = Reply(''.join(bytes), dcmd)
+    >>> reply.parse()
+    1
+
+    >>> bytes =  (START_SYSEX, AKAI_ID, '\x5e\x20', DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
+    >>> custom_cmd = Command('\x5e\x20', '\x20\x05', 'dummy', (),(BYTE,))
+    >>> reply = Reply(''.join(bytes), custom_cmd)
     >>> reply.parse()
     1
 
     >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x00','\x02\x01\x02', '\x00', '\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b', '\x00', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(''.join(bytes), dcmd)
+    >>> reply.parse()
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
-    # Future: should raise unknown disk error 
+    # Future: should raise unknown disk error
     >>> dcmd.id = '\x20\x05'
     >>> dcmd.reply_spec = ()
     >>> bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
-    >>> reply = Reply(bytes, dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(bytes, dcmd)
+    >>> reply.parse()
     Traceback (most recent call last):
     SamplerException: code 180 (Unknown disk error)
 
@@ -107,14 +108,14 @@ class Reply:
     >>> dcmd.id = '\x20\x10'
     >>> dcmd.reply_spec = None
     >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x10', '\x02', '\x15', '\x00', '\xf7')
-    >>> reply = Reply(''.join(bytes), dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(''.join(bytes), dcmd)
+    >>> reply.parse()
     21
 
     # not possible yet how to deal with the dump request replies
     >>> dcmd.reply_spec = ()
-    >>> reply = Reply('\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7', dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply('\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7', dcmd)
+    >>> reply.parse()
     Traceback (most recent call last):
         ParseException("Unknown reply type: %02x" % struct.unpack('B', reply_id))
     ParseException: Unknown reply type: 00
@@ -124,70 +125,62 @@ class Reply:
     >>> dcmd.id = '\x10\x05'
     >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x05\x00\x02\x01\x02\x00\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b\x00\xf7'
-    >>> reply = Reply(bytes, dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(bytes, dcmd)
+    >>> reply.parse()
     (256, 1, 2, 0, 1, 'Z48 & MPC4K')
 
     >>> dcmd.id = '\x10\x22'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x20\x53\x74\x72\x69\x6e\x67\x20\x41\x32\x2e\x77\x61\x76\x00\xf7'
     >>> dcmd.reply_spec = (STRING,)
-    >>> reply = Reply(bytes, dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(bytes, dcmd)
+    >>> reply.parse()
     'Mell String A2.wav'
 
     >>> dcmd.id = '\x10\x22'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x6f\x74\x72\x6f\x6e\x20\x53\x74\x72\x69\x6e\x67\x73\x2e\x61\x6b\x70\x00\xf7'
     >>> dcmd.reply_spec = (STRING,)
-    >>> reply = Reply(bytes, dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(bytes, dcmd)
+    >>> reply.parse()
     'Mellotron Strings.akp'
 
     >>> dcmd.id = '\x07\x01'
     >>> bytes = '\xf0\x47\x5f\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'
     >>> dcmd.reply_spec = (STRING,)
-    >>> reply = Reply(bytes, dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(bytes, dcmd)
+    >>> reply.parse()
     'Z8 Sampler'
 
     >>> bytes = '\xf0G_\x00E\x1eJ\x00\x00\xf7'
-    >>> reply = Reply(bytes, dcmd) 
-    >>> reply.parse() 
+    >>> reply = Reply(bytes, dcmd)
+    >>> reply.parse()
     Traceback (most recent call last):
     SamplerException: code 00 (The <Section> <Item> supplied are not supported)
- 
+
     """
-    def __init__(self, bytes, command, z48id=None, userref=None):
+    def __init__(self, bytes, command, userref='\x00'):
         self.bytes = bytes
         self.command = command
-        self.z48id = z48id
         self.userref = userref
 
     def parse(self):
         """ Parses the command sequence
-        TODO: split it up in two parts, heading and data
-        so parsing can be 
         """
 
         if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
             raise ParseException("Invalid system exclusive string received")
-
         # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
-        if self.userref is not None:
-            i += len(self.userref)
-        else:
-            i += 1
-
-        i += 1 # userref 
+        i += len(self.command.device_id)
+        i += len(self.userref)
         reply_id = self.bytes[i]
-        i +=  1 # skip past the reply
-        command =  self.bytes[i:i+2]
+        i +=  1 # skip past the reply code
+        command = self.bytes[i:i+2]
         i += 2 # skip past the command id (section, item)
         if reply_id == REPLY_ID_OK:
-            return None 
+            return None
         elif reply_id == REPLY_ID_DONE:
-            return None 
-        elif reply_id == REPLY_ID_ERROR: 
+            return None
+        elif reply_id == REPLY_ID_ERROR:
             b1, b2 = struct.unpack('2B', self.bytes[i:i+2])
             code = (b2 << 7) + b1
 
@@ -201,7 +194,7 @@ class Reply:
 
         if self.command.id[:2] != command:
             raise ParseException(
-                'Parsing the wrong reply for command %02x %02x' 
+                'Parsing the wrong reply for command %02x %02x'
                     % struct.unpack('2B', self.command.id[:2]))
         if self.command.reply_spec is None:
             return parse_typed_bytes(self.bytes, i)
@@ -230,7 +223,7 @@ def parse_untyped_bytes(bytes, reply_spec, offset):
     """
     result = []
     for type in reply_spec:
-        part, len_parsed = parse_byte_string(bytes, type, offset) 
+        part, len_parsed = parse_byte_string(bytes, type, offset)
         if part is not None:
             result.append(part)
         offset += len_parsed
@@ -259,7 +252,7 @@ class Error(Exception):
 
 START_SYSEX = '\xf0'
 AKAI_ID = '\x47'
-Z48_ID = '\x5f' 
+Z48_ID = '\x5f'
 AKSYS_Z48_ID = '\x5e\x20\x00' # used by ak.Sys for some requests
 
 DEFAULT_USERREF = '\x00'
@@ -289,7 +282,7 @@ class SysexType(object):
             self.min_val = signed and self.max_val*-1 or 0
         else:
             self.min_val = min_val
-        
+
     def set_min_val(self, value):
         self.min_val = value
 
@@ -300,7 +293,7 @@ class SysexType(object):
         """Encodes a value as sysex byte string
         """
         if (value < self.min_val or
-            value > self.max_val): 
+            value > self.max_val):
             raise ValueError("Value %s out of range:[%s-%s]" % (repr(value),
                               repr(self.min_val), repr(self.max_val)))
         return self._encode(value)
@@ -312,7 +305,7 @@ class SysexType(object):
             if len(value) == self.size + 1:
                 if typed and value[0] != self.id:
                     raise Exception(
-                        "Decoding error %s while decoding %s" 
+                        "Decoding error %s while decoding %s"
                             % (self.__class__.__name__, repr(value)))
                 value = value[1:]
             elif self.size != len(value):
@@ -365,7 +358,7 @@ class SignedByteType(SysexType):
         result = struct.unpack('B', string[1])[0]
 
         if string[0] == NEGATIVE:
-            result *= -1 
+            result *= -1
         return result
 
 class WordType(SysexType):
@@ -423,9 +416,9 @@ class DoubleWordType(SysexType):
     def _encode(self, value):
         r"""
         >>> dw = DoubleWordType()
-        >>> dw.encode(268435455) 
+        >>> dw.encode(268435455)
         '\x7f\x7f\x7f\x7f'
-        >>> dw.encode(1) 
+        >>> dw.encode(1)
         '\x01\x00\x00\x00'
         """
         return struct.pack('4B', value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
@@ -446,13 +439,13 @@ class SignedDoubleWordType(SysexType):
     def _encode(self, value):
         r"""
         >>> sdw = SignedDoubleWordType()
-        >>> sdw.encode(-268435455) 
+        >>> sdw.encode(-268435455)
         '\x01\x7f\x7f\x7f\x7f'
         """
         sign = value < 0 and 1 or 0
         value = abs(value)
         return struct.pack('5B', sign, value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
-        
+
     def _decode(self, string):
         r"""
         >>> sdw = SignedDoubleWordType()
@@ -471,7 +464,7 @@ class QWordType(SysexType):
     def _encode(self, value):
         r"""
         >>> qw = QWordType()
-        >>> qw.encode(268435455) 
+        >>> qw.encode(268435455)
         '\x7f\x7f\x7f\x7f\x00\x00\x00\x00'
         """
 
@@ -498,7 +491,7 @@ class SignedQWordType(SysexType):
     def _encode(self, value):
         r"""
         >>> sdw = SignedQWordType()
-        >>> sdw.encode(-268435455) 
+        >>> sdw.encode(-268435455)
         '\x01\x7f\x7f\x7f\x7f\x00\x00\x00\x00'
         """
         sign = value < 0 and 1 or 0
@@ -542,7 +535,7 @@ class BoolType(ByteType):
 
 class StringType(object):
     def __init__(self):
-        self.id = '\x08' 
+        self.id = '\x08'
         self.size = None # variable size, parsed length is returned in result
 
     def validate_encode(self, value):
@@ -557,7 +550,7 @@ class StringType(object):
         'test sdf\x00'
         """
         self.validate_encode(value)
-        return struct.pack(str(len(value)+1) + 's', value) 
+        return struct.pack(str(len(value)+1) + 's', value)
 
     def decode(self, string):
         r"""
@@ -577,13 +570,13 @@ class StringArrayType(object):
     """
     """
     def __init__(self):
-        self.id = '\x09' 
+        self.id = '\x09'
         self.size = None # variable size, parsed length is returned in result
 
     def encode(self, value):
         raise NotImplementedError()
 
-    def decode(self, string):    
+    def decode(self, string):
         r"""
         >>> s = StringArrayType()
         >>> s.decode('test sdf\x00test ghi\x00')
@@ -631,7 +624,7 @@ class SoundLevelType(SignedWordType):
         return super(SoundLevelType, self)._decode(string)/10.0
 
 class PanningType(ByteType):
-    """Represents panning levels in -50->L, 50->R 
+    """Represents panning levels in -50->L, 50->R
     """
 
 # Sysex type ids
@@ -642,7 +635,7 @@ SWORD       = SignedWordType()
 DWORD       = DoubleWordType()
 SDWORD      = SignedDoubleWordType()
 QWORD       = QWordType()
-SQWORD      = SignedQWordType() 
+SQWORD      = SignedQWordType()
 STRING      = StringType()
 STRINGARRAY = StringArrayType()
 
@@ -658,16 +651,16 @@ LEVEL       = SoundLevelType()
 
 _types = {
     BYTE.id: BYTE,
-    SBYTE.id: SBYTE,     
+    SBYTE.id: SBYTE,
     WORD.id: WORD,
-    SWORD.id: SWORD,      
+    SWORD.id: SWORD,
     DWORD.id: DWORD,
-    SDWORD.id: SDWORD,     
+    SDWORD.id: SDWORD,
     QWORD.id: QWORD,
     SQWORD.id: SQWORD,
     STRING.id: STRING,
-    TWO_BYTES.id: TWO_BYTES,  
-    THREE_BYTES.id: THREE_BYTES,  
+    TWO_BYTES.id: TWO_BYTES,
+    THREE_BYTES.id: THREE_BYTES,
 }
 
 def getType(typeId):
@@ -676,7 +669,7 @@ def getType(typeId):
 class HandleNameArrayType(object):
     r"""Mixed data type, wrapping handle(DoubleWord) and name (StringType)
 
-    >>> handle_name_type = HandleNameArrayType() 
+    >>> handle_name_type = HandleNameArrayType()
     >>> handle_name_type.decode('\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
     (16, (65537, 'SynthTest'))
     >>> handle_name_type.decode('\x04\x00\x00\x04\x00\x08\x44\x72\x79\x20\x4b\x69\x74\x20\x30\x32\x00\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
@@ -698,7 +691,7 @@ class HandleNameArrayType(object):
                     string[len_parsed:len_parsed+5], typed=False))
             len_parsed += 5
             len_result, result = STRING.decode(string[len_parsed:])
-            results.append(result) 
+            results.append(result)
             len_parsed += len_result
         return len_parsed, tuple(results)
 
@@ -741,7 +734,7 @@ def parse_byte_string(data, type, offset=0):
     (True, 1)
 
     """
-    
+
     len_parsed_data = 0
     if type.size is not None:
         result = type.decode(data[offset:offset+type.size])
@@ -751,11 +744,11 @@ def parse_byte_string(data, type, offset=0):
         len_parsed_data, result = type.decode(data[offset:])
         if len_parsed_data == 0:
             result = None
- 
+
     return (result, len_parsed_data)
 
 def _to_string(ordvalues):
-    """Method to quickly scan a string 
+    """Method to quickly scan a string
     >>> ordvalues = (90, 52, 56, 32, 38, 32, 77, 80, 67, 52, 75)
     >>> _to_string(ordvalues)
     'Z48 & MPC4K'
