@@ -2,7 +2,8 @@
 
 Originally conceived as a competitive cross-platform Ak.Sys, its author got
 realistic after a while - re-conceiving it as a complementary product for
-Ak.Sys, focussing on batch functionality and scripting.
+Ak.Sys, focussing on batch functionality and scripting. Currently, it supports
+the Z-Series and has preliminary support for MPC4000 and S56K.
 
 2. Usage
 
@@ -54,6 +55,9 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 * Win32 and Mac OS X have not seen much testing yet.
 
 * Multiple instances of Aksy are currently not supported.
+
+* Multiple samplers are not supported; currently the first found will be
+  instantiated.
 
 * Aksy can't always recover from certain USB error conditions, like broken
   pipes (USB stall, visible as return code -32). If the sampler's reset_usb()
