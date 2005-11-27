@@ -4,7 +4,7 @@
 #define VENDOR_ID 0x9e8
 #define S56K_ID 0x05e
 #define Z48_ID 0x05f
-#define MPC4000_ID 0x61
+#define MPC4K_ID 0x061
 
 #define EP_IN 0x82
 #define EP_OUT 0x02
