@@ -73,8 +73,8 @@ typedef struct _sysex_commands {
 
 typedef struct _akai_usb_device {
     usb_dev_handle *dev;
-    int id;
-	sysex_commands commands;
+    int sysex_id;
+    sysex_commands commands;
 } *akai_usb_device;
 
 /*

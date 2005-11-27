@@ -47,7 +47,7 @@ print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred
 #endif
 
 int _init_z48(akai_usb_device akai_dev) {
-    akai_dev->id = Z48_ID;
+    akai_dev->sysex_id = Z48_ID;
     sysex_commands commands;
     commands.get_multi_handle = Z48_GET_MULTI_HANDLE;
     commands.get_midi_handle = Z48_GET_MIDI_HANDLE;
@@ -58,7 +58,7 @@ int _init_z48(akai_usb_device akai_dev) {
 }
 
 int _init_s56k (akai_usb_device akai_dev) {
-    akai_dev->id = S56K_ID;
+    akai_dev->sysex_id = S56K_ID;
     sysex_commands commands;
     commands.get_multi_handle = S56K_GET_MULTI_HANDLE;
     commands.get_midi_handle = S56K_GET_MIDI_HANDLE;
@@ -229,12 +229,12 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
 
     /* request: \x10\x08\x00\xf0\x47 <device> <section, command, name, \xf7 */
     unsigned char sysex_length = (unsigned char)name_length+7; // 5 +
-    unsigned char sysex_id = akai_dev->id;
+
     sysex = (unsigned char*) calloc(sysex_length, sizeof(unsigned char));
     memcpy(sysex, "\x10", 5 * sizeof(unsigned char));
     memcpy(sysex+1, &sysex_length, 1 * sizeof(unsigned char));
     memcpy(sysex+2, "\x00\xf0\x47", 5 * sizeof(unsigned char));
-    memcpy(sysex+5, &sysex_id, 1 * sizeof(unsigned char));
+    memcpy(sysex+5, &akai_dev->sysex_id, 1 * sizeof(unsigned char));
     memcpy(sysex+6, "\x00", 1 * sizeof(unsigned char));
     memcpy(sysex+7, cmd_id, 2 * sizeof(unsigned char));
     memcpy(sysex+9, name, (name_length -4) * sizeof(unsigned char)); // strip extension
