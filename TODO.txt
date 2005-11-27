@@ -1,21 +1,22 @@
-0.1
+0.2
 ---
 
+* bug fixing:
+  * type conversions. check status.
+  * transfer to disk. done for Z48; fix S56K
+  * transfer from memory; done for Z48; support for S56K needed
+  * transfer to memory; fix S56K
+* basic doctest in tool modules
+* command loop implementation with userref support using OSC; investigate async
+  viability.
+
+0.3
+---
+
+* OSC - 10%
 * script window support
   * script loading, session save/restore
 * offline Z48 AKP write support
-* make python c code use libakai - done
-* bug fixing:
-  * type conversions - 90%
-  * transfer to disk
-  * transfer from memory
-* investigating:
-  * loop/region creation support - done
-  * usb connection reliability - done
-* basic doctest in tool modules?
-* OSC - 10%
-* command loop implementation with userref support -> this will be done
-  using OSC
 
 future
 ------
