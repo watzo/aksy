@@ -59,10 +59,10 @@
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 
-#define IS_MULTI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename), "akm") == 0)
-#define IS_SAMPLE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename), "wav") == 0)
-#define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename), "akp") == 0)
-#define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename), "mid") == 0)
+#define IS_MULTI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akm") == 0)
+#define IS_SAMPLE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "wav") == 0)
+#define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akp") == 0)
+#define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
 
 typedef struct _sysex_commands {
 	char* get_multi_handle;

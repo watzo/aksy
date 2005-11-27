@@ -17,13 +17,13 @@ AkaiSampler_init(PyObject *self, PyObject* args)
     return Py_None;
 }
 
-static PyObject* 
+static PyObject*
 AkaiSampler_init_usb(PyObject *self, PyObject *args)
 {
     PyObject* self_arg;
     int rc;
 
-    if (sampler) 
+    if (sampler)
     {
         return PyErr_Format(PyExc_Exception, "Sampler USB is already initialized");
     }
@@ -36,7 +36,7 @@ AkaiSampler_init_usb(PyObject *self, PyObject *args)
     sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct _akai_usb_device));
     rc = akai_usb_device_init(sampler);
 
-    if (rc == AKAI_NO_SAMPLER_FOUND) 
+    if (rc == AKAI_NO_SAMPLER_FOUND)
     {
         // valgrind complaint: invalid read
         PyMem_Free(sampler);
@@ -44,14 +44,14 @@ AkaiSampler_init_usb(PyObject *self, PyObject *args)
         return PyErr_Format(PyExc_Exception, "No sampler found");
     }
 
-    if (rc == AKAI_USB_INIT_ERROR) 
+    if (rc == AKAI_USB_INIT_ERROR)
     {
         PyMem_Free(sampler);
         sampler = NULL;
         return PyErr_Format(PyExc_Exception, "USB device init failed");
     }
 
-    if (rc == AKAI_TRANSMISSION_ERROR) 
+    if (rc == AKAI_TRANSMISSION_ERROR)
     {
         PyMem_Free(sampler);
         sampler = NULL;
@@ -59,15 +59,15 @@ AkaiSampler_init_usb(PyObject *self, PyObject *args)
     }
 
     PyObject* sysex_id_str = Py_BuildValue("s", "sysex_id");
-    PyObject* sysex_id = Py_BuildValue("i", sampler->id);
-    PyObject_SetAttr(self_arg, sysex_id_str, sysex_id); 
+    PyObject* sysex_id = Py_BuildValue("i", sampler->sysex_id);
+    PyObject_SetAttr(self_arg, sysex_id_str, sysex_id);
     Py_DECREF(sysex_id_str);
     Py_DECREF(sysex_id);
       Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject* 
+static PyObject*
 AkaiSampler_close_usb(PyObject *self, PyObject *args)
 {
     int rc;
@@ -91,9 +91,9 @@ AkaiSampler_close_usb(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-static PyObject* 
+static PyObject*
 AkaiSampler_reset_usb(PyObject *self, PyObject *args)
-{    
+{
     int rc;
 
     if (!sampler)
@@ -132,7 +132,7 @@ AkaiSampler_get(PyObject* self, PyObject* args)
         /* create get request */
         rc = akai_usb_device_get(sampler, src, dest, location, USB_TIMEOUT);
 
-        if (rc) 
+        if (rc)
         {
             switch(rc)
             {
@@ -164,7 +164,7 @@ AkaiSampler_put(PyObject* self, PyObject* args)
     unsigned char *src, *dest;
     char location;
     int rc;
-            
+
     if(!PyArg_ParseTuple(args, "Ossb", &self_arg, &src, &dest, &location))
     {
         return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
@@ -172,7 +172,7 @@ AkaiSampler_put(PyObject* self, PyObject* args)
     else
     {
         rc = akai_usb_device_put(sampler, src, dest, location, USB_TIMEOUT);
-        if (rc) 
+        if (rc)
         {
             switch(rc)
             {
@@ -233,7 +233,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
         }
         else
         {
-            ret = Py_BuildValue("s#", buffer, rc); 
+            ret = Py_BuildValue("s#", buffer, rc);
         }
 
         // valgr: val unitialized?
@@ -242,7 +242,7 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
     }
 }
 
-static PyMethodDef AkaiSamplerMethods[] = 
+static PyMethodDef AkaiSamplerMethods[] =
 {
     {"__init__", AkaiSampler_init, METH_O, ""},
     {"init_usb", AkaiSampler_init_usb, METH_VARARGS, "Initializes USB device and interface."},
@@ -279,8 +279,8 @@ void initaksyxusb()
 
     PyDict_SetItemString(moduleDict, "AkaiSampler", aksyxClass);
 
-    PyObject_SetAttr(aksyxClass, loc_disk_str, loc_disk_id); 
-    PyObject_SetAttr(aksyxClass, loc_mem_str, loc_mem_id); 
+    PyObject_SetAttr(aksyxClass, loc_disk_str, loc_disk_id);
+    PyObject_SetAttr(aksyxClass, loc_mem_str, loc_mem_id);
 
     Py_DECREF(loc_disk_str);
     Py_DECREF(loc_mem_str);
@@ -289,9 +289,9 @@ void initaksyxusb()
     Py_DECREF(classDict);
     Py_DECREF(className);
     Py_DECREF(aksyxClass);
-    
+
     /* add methods to class */
-    for (def = AkaiSamplerMethods; def->ml_name != NULL; def++) 
+    for (def = AkaiSamplerMethods; def->ml_name != NULL; def++)
     {
         PyObject *func = PyCFunction_New(def, NULL);
         PyObject *method = PyMethod_New(func, NULL, aksyxClass);
