@@ -46,7 +46,41 @@ print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred
 }
 #endif
 
-int _init_z48(akai_usb_device akai_dev) {
+int _init_akai_usb(akai_usb_device akai_dev, struct usb_device *dev) {
+    int rc;
+
+    akai_dev->dev = usb_open(dev);
+
+    if (! akai_dev->dev)
+    {
+	return AKAI_USB_INIT_ERROR;
+    }
+
+    rc = usb_set_configuration(akai_dev->dev, 1);
+    if (rc < 0)
+    {
+	usb_close(akai_dev->dev);
+	return AKAI_USB_INIT_ERROR;
+    }
+
+    rc = usb_claim_interface(akai_dev->dev, 0);
+    if (rc < 0)
+    {
+	usb_close(akai_dev->dev);
+	return AKAI_USB_INIT_ERROR;
+    }
+
+    return AKAI_SUCCESS;
+}
+
+int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
+    int rc = _init_akai_usb(akai_dev, dev);
+    if (rc) return rc;
+
+    /* setup sequence, snooped from ak.Sys */
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x01", 2, 1000);
+    if (rc) return rc;
+
     akai_dev->sysex_id = Z48_ID;
     sysex_commands commands;
     commands.get_multi_handle = Z48_GET_MULTI_HANDLE;
@@ -57,7 +91,16 @@ int _init_z48(akai_usb_device akai_dev) {
     return AKAI_SUCCESS;
 }
 
-int _init_s56k (akai_usb_device akai_dev) {
+int _init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
+    int rc = _init_akai_usb(akai_dev, dev);
+    if (rc) return rc;
+
+    /* setup sequence, snooped from ak.Sys */
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x14", 2, 1000);
+    if (rc) return rc;
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x04\x03", 2, 1000);
+    if (rc) return rc;
+
     akai_dev->sysex_id = S56K_ID;
     sysex_commands commands;
     commands.get_multi_handle = S56K_GET_MULTI_HANDLE;
@@ -68,8 +111,8 @@ int _init_s56k (akai_usb_device akai_dev) {
     return AKAI_SUCCESS;
 }
 
-int _init_mpc4000(akai_usb_device akai_dev) {
-    return _init_z48(akai_dev);
+int _init_mpc4k(akai_usb_device akai_dev, struct usb_device *dev) {
+    return _init_z48(akai_dev, dev);
 }
 
 int akai_usb_device_init(akai_usb_device akai_dev)
@@ -94,45 +137,19 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 
              switch (usb_product_id) {
 		 case Z48_ID:
-		     _init_z48(akai_dev);
+		     rc = _init_z48(akai_dev, dev);
 		     break;
 		 case S56K_ID:
-		     _init_s56k(akai_dev);
+		     rc = _init_s56k(akai_dev, dev);
 		     break;
 		 case MPC4K_ID:
-		     _init_mpc4000(akai_dev);
+		     rc = _init_mpc4k(akai_dev, dev);
 		     break;
 		 default:
 		     continue;
 	     }
 
-             akai_dev->dev = usb_open(dev);
-
-             if (! akai_dev->dev)
-             {
-                return AKAI_USB_INIT_ERROR;
-             }
-
-	     rc = usb_set_configuration(akai_dev->dev, 1);
-             if (rc < 0)
-             {
-                 usb_close(akai_dev->dev);
-                 return AKAI_USB_INIT_ERROR;
-             }
-
-
-             rc = usb_claim_interface(akai_dev->dev, 0);
-             if (rc < 0)
-             {
-                 usb_close(akai_dev->dev);
-                 return AKAI_USB_INIT_ERROR;
-             }
-
-            /* setup sequence, snooped from ak.Sys */
-             rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x01", 2, 1000);
-             if (rc < 0) return AKAI_TRANSMISSION_ERROR;
-
-	     return AKAI_SUCCESS;
+	     return (rc)? rc: AKAI_SUCCESS;
           }
        }
     }
@@ -142,8 +159,7 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 
 int akai_usb_device_close(akai_usb_device akai_dev)
 {
-    int rc;
-    rc = usb_release_interface(akai_dev->dev, 0);
+    int rc = usb_release_interface(akai_dev->dev, 0);
     rc = usb_close(akai_dev->dev)|rc;
     return rc;
 }
