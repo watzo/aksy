@@ -1,4 +1,4 @@
-import struct, sys
+import struct, sys, types
 
 class Command:
     """Represents a system exclusive command.
@@ -30,31 +30,7 @@ class Command:
 
 class Request:
     """ Encapsulates a sysex request
-
-    Select disk:
-    >>> arg = 256
-    >>> command = Command('\x5f', '\x20\x02', 'select_disk', (WORD,), ())
-    >>> Request(command, (arg,))
-    ['f0', '47', '5f', '00', '20', '02', '00', '02', 'f7']
-
-    Select root folder:
-    >>> folder = ''
-    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ())
-    >>> Request(command, (folder,))
-    ['f0', '47', '5f', '00', '20', '13', '00', 'f7']
-
-    Select autoload folder:
-    >>> folder = 'autoload'
-    >>> command = Command('\x5f', '\x20\x13', 'set_curr_folder', (STRING,), ())
-    >>> Request(command, (folder,))
-    ['f0', '47', '5f', '00', '20', '13', '61', '75', '74', '6f', '6c', '6f', '61', '64', '00', 'f7']
-
-    >>> command = Command('\x5f', '\x07\x01', 'get_sampler_name', (),(STRING,))
-    >>> Request(command, ())
-    ['f0', '47', '5f', '00', '07', '01', 'f7']
-
     """
-
     def __init__(self, command, args, userref='\x00'):
         bytes = [START_SYSEX, AKAI_ID]
 
@@ -75,87 +51,7 @@ class Request:
         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
 
 class Reply:
-    r""" Encapsulates a sysex reply
-    >>> DEFAULT_USERREF='\x00'
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
-    >>> dcmd = Command(Z48_ID, '\x20\x05', 'dummy', (),(BYTE,))
-    >>> reply = Reply(''.join(bytes), dcmd)
-    >>> reply.parse()
-    1
-
-    >>> bytes =  (START_SYSEX, AKAI_ID, '\x5e\x20', DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x01', END_SYSEX)
-    >>> custom_cmd = Command('\x5e\x20', '\x20\x05', 'dummy', (),(BYTE,))
-    >>> reply = Reply(''.join(bytes), custom_cmd)
-    >>> reply.parse()
-    1
-
-    >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x05', '\x00','\x02\x01\x02', '\x00', '\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b', '\x00', END_SYSEX)
-    >>> reply = Reply(''.join(bytes), dcmd)
-    >>> reply.parse()
-    (256, 1, 2, 0, 1, 'Z48 & MPC4K')
-
-    # Future: should raise unknown disk error
-    >>> dcmd.id = '\x20\x05'
-    >>> dcmd.reply_spec = ()
-    >>> bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
-    >>> reply = Reply(bytes, dcmd)
-    >>> reply.parse()
-    Traceback (most recent call last):
-    SamplerException: code 180 (Unknown disk error)
-
-    # using pad type if we encounter bytes not according to specification
-    >>> dcmd.id = '\x20\x10'
-    >>> dcmd.reply_spec = None
-    >>> bytes =  (START_SYSEX, AKAI_ID, Z48_ID, DEFAULT_USERREF, REPLY_ID_REPLY, '\x20\x10', '\x02', '\x15', '\x00', '\xf7')
-    >>> reply = Reply(''.join(bytes), dcmd)
-    >>> reply.parse()
-    21
-
-    # not possible yet how to deal with the dump request replies
-    >>> dcmd.reply_spec = ()
-    >>> reply = Reply('\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7', dcmd)
-    >>> reply.parse()
-    Traceback (most recent call last):
-        ParseException("Unknown reply type: %02x" % struct.unpack('B', reply_id))
-    ParseException: Unknown reply type: 00
-
-    # reply on 'bulk command 10 05' 10 0a 00 f0 47 5e 20 00 00 10 05 15 f7
-    # popped 2 0 bytes after header 5e  and here we discover how ak.sys gets its disk list! (but what about the 15? arg checksum?)
-    >>> dcmd.id = '\x10\x05'
-    >>> dcmd.reply_spec = (WORD, BYTE, BYTE, BYTE, BYTE, STRING)
-    >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x05\x00\x02\x01\x02\x00\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b\x00\xf7'
-    >>> reply = Reply(bytes, dcmd)
-    >>> reply.parse()
-    (256, 1, 2, 0, 1, 'Z48 & MPC4K')
-
-    >>> dcmd.id = '\x10\x22'
-    >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x20\x53\x74\x72\x69\x6e\x67\x20\x41\x32\x2e\x77\x61\x76\x00\xf7'
-    >>> dcmd.reply_spec = (STRING,)
-    >>> reply = Reply(bytes, dcmd)
-    >>> reply.parse()
-    'Mell String A2.wav'
-
-    >>> dcmd.id = '\x10\x22'
-    >>> bytes = '\xf0\x47\x5f\x00\x52\x10\x22\x4d\x65\x6c\x6c\x6f\x74\x72\x6f\x6e\x20\x53\x74\x72\x69\x6e\x67\x73\x2e\x61\x6b\x70\x00\xf7'
-    >>> dcmd.reply_spec = (STRING,)
-    >>> reply = Reply(bytes, dcmd)
-    >>> reply.parse()
-    'Mellotron Strings.akp'
-
-    >>> dcmd.id = '\x07\x01'
-    >>> bytes = '\xf0\x47\x5f\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'
-    >>> dcmd.reply_spec = (STRING,)
-    >>> reply = Reply(bytes, dcmd)
-    >>> reply.parse()
-    'Z8 Sampler'
-
-    >>> bytes = '\xf0G_\x00E\x1eJ\x00\x00\xf7'
-    >>> reply = Reply(bytes, dcmd)
-    >>> reply.parse()
-    Traceback (most recent call last):
-    SamplerException: code 00 (The <Section> <Item> supplied are not supported)
-
+    """ Encapsulates a sysex reply
     """
     def __init__(self, bytes, command, userref='\x00'):
         self.bytes = bytes
@@ -301,10 +197,15 @@ class SysexType(object):
     def decode(self, value, typed=True):
         """Decodes a value from a sysex byte string
         """
+        if value is None or not isinstance(value, types.StringType):
+            raise ValueError(
+                "Decoding error at %s.decode: %s is not a string"
+                % (self.__class__.__name__, repr(value)))
+
         if self.size is not None:
             if len(value) == self.size + 1:
                 if typed and value[0] != self.id:
-                    raise Exception(
+                    raise ParseException(
                         "Decoding error %s while decoding %s"
                             % (self.__class__.__name__, repr(value)))
                 value = value[1:]
@@ -570,18 +471,17 @@ class StringArrayType(object):
     """
     """
     def __init__(self):
-        self.id = '\x09'
         self.size = None # variable size, parsed length is returned in result
 
     def encode(self, value):
         raise NotImplementedError()
 
     def decode(self, string):
-        r"""
-        >>> s = StringArrayType()
-        >>> s.decode('test sdf\x00test ghi\x00')
-        (18, ('test sdf', 'test ghi'))
-        """
+        if not string or not isinstance(string, types.StringType):
+            raise ValueError(
+                "Decoding error at %s.decode: %s is not a string"
+                % (self.__class__.__name__, repr(string)))
+
         result = []
         index = 0
         offset = 0
@@ -639,7 +539,7 @@ SQWORD      = SignedQWordType()
 STRING      = StringType()
 STRINGARRAY = StringArrayType()
 
-TWO_BYTES   = SysexType(2, False, '\x0a')
+TWO_BYTES   = SysexType(2, False, '\x09')
 THREE_BYTES = SysexType(3, False, '\x0b')
 
 # aksy type extensions
@@ -663,8 +563,13 @@ _types = {
     THREE_BYTES.id: THREE_BYTES,
 }
 
+class UnknownSysexTypeError(Exception):
+    pass
+
 def getType(typeId):
-    return _types[typeId]
+    type = _types.get(typeId, None)
+    if type is None:
+        raise UnknownSysexTypeError( "%02x" % struct.unpack('B', '\x0a'))
 
 class HandleNameArrayType(object):
     r"""Mixed data type, wrapping handle(DoubleWord) and name (StringType)
