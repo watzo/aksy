@@ -79,7 +79,7 @@ int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
 
     /* setup sequence, snooped from ak.Sys */
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x01", 2, 1000);
-    if (rc) return rc;
+    if (rc < 0) return AKAI_USB_INIT_ERROR;
 
     akai_dev->sysex_id = Z48_ID;
     sysex_commands commands;
@@ -97,9 +97,9 @@ int _init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
 
     /* setup sequence, snooped from ak.Sys */
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x03\x14", 2, 1000);
-    if (rc) return rc;
+    if (rc < 0) return AKAI_USB_INIT_ERROR;
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, "\x04\x03", 2, 1000);
-    if (rc) return rc;
+    if (rc < 0) return AKAI_USB_INIT_ERROR;
 
     akai_dev->sysex_id = S56K_ID;
     sysex_commands commands;
@@ -148,8 +148,7 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 		 default:
 		     continue;
 	     }
-
-	     return (rc)? rc: AKAI_SUCCESS;
+	     return rc;
           }
        }
     }
