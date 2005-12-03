@@ -7,7 +7,7 @@ Sample
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.devices.akai.sysex
+import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
 class Sampletools:
      def __init__(self, z48):
@@ -21,31 +21,31 @@ class Sampletools:
           self.commands['\x1C\x02\x01'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x02\x02', 'get_handles_names', (), None)
           self.commands['\x1C\x02\x02'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1C\x02\x03'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x03', 'set_current_by_handle', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x03', 'set_current_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x1C\x03'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x04', 'set_current_by_name', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x04', 'set_current_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x1C\x04'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x05', 'get_current_handle', (), None)
           self.commands['\x1C\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x06', 'get_current_name', (), None)
           self.commands['\x1C\x06'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x07', 'get_name_by_handle', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x1C\x07'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x08', 'get_handle_by_name', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x1C\x08'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x09', 'delete_all', (), None)
           self.commands['\x1C\x09'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0A', 'delete_current', (), None)
           self.commands['\x1C\x0A'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0B', 'delete_by_handle', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x1C\x0B'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0C', 'rename_current', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0C', 'rename_current', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x1C\x0C'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0D', 'rename_by_handle', (aksy.devices.akai.sysex.DWORD, aksy.devices.akai.sysex.STRING), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
           self.commands['\x1C\x0D'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0E', 'set_tag_bit', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0E', 'set_tag_bit', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x1C\x0E'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x0F', 'get_tag_bitmap', (), None)
           self.commands['\x1C\x0F'] = comm
@@ -53,29 +53,29 @@ class Sampletools:
           self.commands['\x1C\x10'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x11 ', 'get_modified', (), None)
           self.commands['\x1C\x11 '] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x18', 'delete_tagged', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1C\x18'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x40', 'play', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BOOL), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x40', 'play', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
           self.commands['\x1C\x40'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x41', 'stop', (), None)
           self.commands['\x1C\x41'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x42', 'play_until', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x42', 'play_until', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1C\x42'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x43 ', 'play_from', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x43 ', 'play_from', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1C\x43 '] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x44', 'play_over', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x44', 'play_over', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1C\x44'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x45', 'play_loop', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x45', 'play_loop', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x1C\x45'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x46', 'play_region', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x46', 'play_region', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x1C\x46'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x48', 'create_loop', (), None)
           self.commands['\x1C\x48'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x49', 'delete_loop', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x49', 'delete_loop', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1C\x49'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1C\x4A', 'create_region', (), None)
           self.commands['\x1C\x4A'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x4B', 'delete_region', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1C\x4B', 'delete_region', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1C\x4B'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1F\x01', 'get_group_id', (), None)
           self.commands['\x1F\x01'] = comm
@@ -91,27 +91,27 @@ class Sampletools:
           self.commands['\x1F\x25'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1F\x26', 'get_playback_mode', (), None)
           self.commands['\x1F\x26'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x30', 'get_loop_start', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x30', 'get_loop_start', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x30'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x31', 'get_loop_end', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x31', 'get_loop_end', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x31'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x32', 'get_loop_length', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x32', 'get_loop_length', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x32'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x33', 'get_loop_lock', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x33', 'get_loop_lock', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x1F\x33'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x34', 'get_loop_tune', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x34', 'get_loop_tune', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x34'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x35', 'get_loop_dir', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x35', 'get_loop_dir', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x1F\x35'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x36', 'get_loop_type', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x36', 'get_loop_type', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x36'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x37', 'get_no_loop_reps', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x37', 'get_no_loop_reps', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x37'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1F\x38', 'get_no_loops', (), None)
           self.commands['\x1F\x38'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1F\x40', 'get_region_start', (), None)
           self.commands['\x1F\x40'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x41', 'get_region_end', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1F\x41', 'get_region_end', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1F\x41'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1F\x42', 'get_region_length', (), None)
           self.commands['\x1F\x42'] = comm
@@ -127,48 +127,48 @@ class Sampletools:
           self.commands['\x1F\x54'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1F\x55', 'get_no_channels', (), None)
           self.commands['\x1F\x55'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x01', 'set_group_id', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1E\x01'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x20', 'set_trim_start', (aksy.devices.akai.sysex.QWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x20', 'set_trim_start', (aksy.devices.akai.sysex_types.QWORD,), None)
           self.commands['\x1E\x20'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x21', 'set_trim_end', (aksy.devices.akai.sysex.QWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x21', 'set_trim_end', (aksy.devices.akai.sysex_types.QWORD,), None)
           self.commands['\x1E\x21'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x22', 'set_trim_length', (aksy.devices.akai.sysex.QWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x22', 'set_trim_length', (aksy.devices.akai.sysex_types.QWORD,), None)
           self.commands['\x1E\x22'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x24', 'set_orig_pitch', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x24', 'set_orig_pitch', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1E\x24'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x25', 'set_tune', (aksy.devices.akai.sysex.SWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x25', 'set_tune', (aksy.devices.akai.sysex_types.SWORD,), None)
           self.commands['\x1E\x25'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x1E\x26', 'set_playback_mode', (), None)
           self.commands['\x1E\x26'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x30', 'set_loop_start', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x30', 'set_loop_start', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1E\x30'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x31', 'set_loop_end', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x31', 'set_loop_end', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1E\x31'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x32', 'set_loop_length', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x32', 'set_loop_length', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1E\x32'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x33', 'set_loop_lock', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BOOL), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x33', 'set_loop_lock', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
           self.commands['\x1E\x33'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x34', 'set_loop_tune', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.SBYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x34', 'set_loop_tune', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SBYTE), None)
           self.commands['\x1E\x34'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x35', 'set_loop_direction', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x35', 'set_loop_direction', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x1E\x35'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x36', 'set_loop_type', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x36', 'set_loop_type', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x1E\x36'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x37', 'set_no_loop_reps', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x37', 'set_no_loop_reps', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x1E\x37'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x40', 'set_region_start', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x40', 'set_region_start', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1E\x40'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x41', 'set_region_end', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x41', 'set_region_end', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1E\x41'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x42', 'set_region_length', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.QWORD), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x1E\x42', 'set_region_length', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
           self.commands['\x1E\x42'] = comm
 
      def get_no_items(self):
           """Get number of items in memory
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x1C\x01')
           return self.z48.execute(comm, ())
@@ -183,7 +183,7 @@ class Sampletools:
           """Get sample names
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x1C\x02\x01')
           return self.z48.execute(comm, ())
@@ -192,7 +192,7 @@ class Sampletools:
           """Get list of sample handles and names
 
           Returns:
-               aksy.devices.akai.sysex.HANDLENAMEARRAY
+               aksy.devices.akai.sysex_types.HANDLENAMEARRAY
           """
           comm = self.commands.get('\x1C\x02\x02')
           return self.z48.execute(comm, ())
@@ -201,7 +201,7 @@ class Sampletools:
           """Get a list of modified/tagged samples
 
           Returns:
-               aksy.devices.akai.sysex.HANDLENAMEARRAY
+               aksy.devices.akai.sysex_types.HANDLENAMEARRAY
           """
           comm = self.commands.get('\x1C\x02\x03')
           return self.z48.execute(comm, (arg0, ))
@@ -222,7 +222,7 @@ class Sampletools:
           """Get handle of current item
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x1C\x05')
           return self.z48.execute(comm, ())
@@ -231,7 +231,7 @@ class Sampletools:
           """Get name of current item
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x1C\x06')
           return self.z48.execute(comm, ())
@@ -240,7 +240,7 @@ class Sampletools:
           """Get item name from handle
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x1C\x07')
           return self.z48.execute(comm, (arg0, ))
@@ -249,7 +249,7 @@ class Sampletools:
           """Get item handle from name
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x1C\x08')
           return self.z48.execute(comm, (arg0, ))
@@ -300,7 +300,7 @@ class Sampletools:
           """Get name of current item with modified/tagged info
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x1C\x10')
           return self.z48.execute(comm, ())
@@ -309,7 +309,7 @@ class Sampletools:
           """Get modified state of current item.
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1C\x11 ')
           return self.z48.execute(comm, ())
@@ -390,7 +390,7 @@ class Sampletools:
           """Get Group ID
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x01')
           return self.z48.execute(comm, ())
@@ -399,7 +399,7 @@ class Sampletools:
           """Get Trim Start
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x20')
           return self.z48.execute(comm, ())
@@ -408,7 +408,7 @@ class Sampletools:
           """Get Trim End
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x21')
           return self.z48.execute(comm, ())
@@ -417,7 +417,7 @@ class Sampletools:
           """Get Trim Length
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x22')
           return self.z48.execute(comm, ())
@@ -426,7 +426,7 @@ class Sampletools:
           """Get Original Pitch
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x24')
           return self.z48.execute(comm, ())
@@ -435,7 +435,7 @@ class Sampletools:
           """Get Cents Tune (0 ­ ± 36 00)
 
           Returns:
-               aksy.devices.akai.sysex.SWORD
+               aksy.devices.akai.sysex_types.SWORD
           """
           comm = self.commands.get('\x1F\x25')
           return self.z48.execute(comm, ())
@@ -444,7 +444,7 @@ class Sampletools:
           """Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x26')
           return self.z48.execute(comm, ())
@@ -453,7 +453,7 @@ class Sampletools:
           """Get Loop Start <Data1> = loop index
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x30')
           return self.z48.execute(comm, (arg0, ))
@@ -462,7 +462,7 @@ class Sampletools:
           """Get Loop End <Data1> = loop index
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x31')
           return self.z48.execute(comm, (arg0, ))
@@ -471,7 +471,7 @@ class Sampletools:
           """Get Loop Length <Data1> = loop index
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x32')
           return self.z48.execute(comm, (arg0, ))
@@ -480,7 +480,7 @@ class Sampletools:
           """Get Loop Lock <Data1> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x33')
           return self.z48.execute(comm, (arg0, ))
@@ -489,7 +489,7 @@ class Sampletools:
           """Get Loop Tune (0­±50)
 
           Returns:
-               aksy.devices.akai.sysex.SBYTE
+               aksy.devices.akai.sysex_types.SBYTE
           """
           comm = self.commands.get('\x1F\x34')
           return self.z48.execute(comm, (arg0, ))
@@ -498,7 +498,7 @@ class Sampletools:
           """Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x35')
           return self.z48.execute(comm, (arg0, ))
@@ -507,7 +507,7 @@ class Sampletools:
           """Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x36')
           return self.z48.execute(comm, (arg0, ))
@@ -516,7 +516,7 @@ class Sampletools:
           """Get Number of Loop Repetitions
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x37')
           return self.z48.execute(comm, (arg0, ))
@@ -525,7 +525,7 @@ class Sampletools:
           """Get Number of Loops
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x38')
           return self.z48.execute(comm, ())
@@ -534,7 +534,7 @@ class Sampletools:
           """Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x40')
           return self.z48.execute(comm, ())
@@ -543,7 +543,7 @@ class Sampletools:
           """Get Region End <Data1> = Region Num (0­31) <Reply1> = end
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x41')
           return self.z48.execute(comm, (arg0, ))
@@ -552,7 +552,7 @@ class Sampletools:
           """Get Region Length <Data1> = Region Num (0­31) <Reply1> = length BYTE
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x42')
           return self.z48.execute(comm, ())
@@ -561,7 +561,7 @@ class Sampletools:
           """Get Number of Regions
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x44')
           return self.z48.execute(comm, ())
@@ -570,7 +570,7 @@ class Sampletools:
           """Get Sample Length
 
           Returns:
-               aksy.devices.akai.sysex.QWORD
+               aksy.devices.akai.sysex_types.QWORD
           """
           comm = self.commands.get('\x1F\x50')
           return self.z48.execute(comm, ())
@@ -579,7 +579,7 @@ class Sampletools:
           """Get Sample Rate [Hz]
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x1F\x51')
           return self.z48.execute(comm, ())
@@ -588,7 +588,7 @@ class Sampletools:
           """Get Sample Bit-Depth [bits]
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x52')
           return self.z48.execute(comm, ())
@@ -597,7 +597,7 @@ class Sampletools:
           """Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x1F\x54')
           return self.z48.execute(comm, ())
@@ -606,7 +606,7 @@ class Sampletools:
           """Get Number of Channels
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x1F\x55')
           return self.z48.execute(comm, ())

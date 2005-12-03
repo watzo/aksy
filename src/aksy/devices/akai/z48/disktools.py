@@ -15,52 +15,52 @@ class Disktools:
           self.commands = {}
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x01', 'update_disklist', (), None)
           self.commands['\x20\x01'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x02', 'select_disk', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x02', 'select_disk', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x20\x02'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x03', 'test_disk', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x03', 'test_disk', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x20\x03'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x04', 'get_no_disks', (), None)
           self.commands['\x20\x04'] = comm
           comm = aksy.devices.akai.sysex.Command('\x5e\x20\x00', '\x10\x05', 'get_disklist', (),
-              ( aksy.devices.akai.sysex.WORD,
-                aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE,
-                aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE,
-                aksy.devices.akai.sysex.STRING,))
+              ( aksy.devices.akai.sysex_types.WORD,
+                aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE,
+                aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE,
+                aksy.devices.akai.sysex_types.STRING,))
           self.commands['\x20\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x09', 'get_curr_path', (), None)
           self.commands['\x20\x09'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x0D', 'eject_disk', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x0D', 'eject_disk', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x20\x0D'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x10', 'get_no_subfolders', (), None)
           self.commands['\x20\x10'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x12', 'get_subfolder_names', (), None)
           self.commands['\x20\x12'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x13', 'set_curr_folder', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x13', 'set_curr_folder', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x13'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x15', 'load_folder', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x15', 'load_folder', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x15'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x16', 'create_subfolder', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x16', 'create_subfolder', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x16'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x17', 'del_subfolder', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x17', 'del_subfolder', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x17'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x18', 'rename_subfolder', (aksy.devices.akai.sysex.STRING, aksy.devices.akai.sysex.STRING), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x18', 'rename_subfolder', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
           self.commands['\x20\x18'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x20', 'get_no_files', (), None)
           self.commands['\x20\x20'] = comm
           comm = aksy.devices.akai.sysex.Command('\x5e\x20\x00', '\x10\x22', 'get_filenames', (),
-          (aksy.devices.akai.sysex.STRINGARRAY,))
+          (aksy.devices.akai.sysex_types.STRINGARRAY,))
           self.commands['\x20\x22'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x28', 'rename_file', (aksy.devices.akai.sysex.STRING, aksy.devices.akai.sysex.STRING), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x28', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
           self.commands['\x20\x28'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x29', 'delete_file', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x29', 'delete_file', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x29'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2A', 'load_file', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2A', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x2A'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x20\x2B'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2C', 'save', (aksy.devices.akai.sysex.DWORD, aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BOOL, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2C', 'save', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x20\x2C'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2D', 'save_all', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BOOL), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x20\x2D', 'save_all', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
           self.commands['\x20\x2D'] = comm
 
      def update_disklist(self):
@@ -86,7 +86,7 @@ class Disktools:
 
           Returns:
                aksy.devices.akai.sysex.PAD
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x20\x04')
           return self.z48.execute(comm, ())
@@ -95,12 +95,12 @@ class Disktools:
           """Get list of all connected disks
 
           Returns:
-               aksy.devices.akai.sysex.WORD
-               aksy.devices.akai.sysex.BYTE
-               aksy.devices.akai.sysex.BYTE
-               aksy.devices.akai.sysex.BYTE
-               aksy.devices.akai.sysex.BYTE
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.WORD
+               aksy.devices.akai.sysex_types.BYTE
+               aksy.devices.akai.sysex_types.BYTE
+               aksy.devices.akai.sysex_types.BYTE
+               aksy.devices.akai.sysex_types.BYTE
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x20\x05')
           return self.z48.execute(comm, ())
@@ -109,7 +109,7 @@ class Disktools:
           """Get current path of current disk
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x20\x09')
           return self.z48.execute(comm, ())
@@ -125,7 +125,7 @@ class Disktools:
 
           Returns:
                aksy.devices.akai.sysex.PAD
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x20\x10')
           return self.z48.execute(comm, ())
@@ -134,7 +134,7 @@ class Disktools:
           """Get the names of all of the sub-folders in the current folder.
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x20\x12')
           return self.z48.execute(comm, ())
@@ -173,7 +173,7 @@ class Disktools:
           """Get number of files in the current folder.
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x20\x20')
           return self.z48.execute(comm, ())
@@ -182,7 +182,7 @@ class Disktools:
           """Get the names of all of the files in the current folder.
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x20\x22')
           return self.z48.execute(comm, ())

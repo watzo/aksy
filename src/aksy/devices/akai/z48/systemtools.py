@@ -7,7 +7,7 @@ Methods to manipulate system parameters
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.devices.akai.sysex
+import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
 class Systemtools:
      def __init__(self, z48):
@@ -31,9 +31,9 @@ class Systemtools:
           self.commands['\x04\x13'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x04\x18', 'clear_sampler_mem', (), None)
           self.commands['\x04\x18'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x04\x19', 'purge_unused', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x04\x19', 'purge_unused', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x04\x19'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x04\x1A', 'tag_unused', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x04\x1A', 'tag_unused', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x04\x1A'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x04\x20', 'compact_wave_mem', (), None)
           self.commands['\x04\x20'] = comm
@@ -53,7 +53,7 @@ class Systemtools:
           self.commands['\x07\x03'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x07\x04', 'get_master_level', (), None)
           self.commands['\x07\x04'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x07\x05', 'get_midi_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x07\x05', 'get_midi_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x07\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x07\x06', 'is_qlink_local_ctrl_enabled', (), None)
           self.commands['\x07\x06'] = comm
@@ -129,105 +129,105 @@ class Systemtools:
           self.commands['\x07\x51'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x07\x52', 'get_pad_sensitivity', (), None)
           self.commands['\x07\x52'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x07\x53', 'get_def_note_assign', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x07\x53', 'get_def_note_assign', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x07\x53'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x07\x54', 'get_chrom_start_note', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x07\x54', 'get_chrom_start_note', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x07\x54'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x01', 'set_sampler_name', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x01', 'set_sampler_name', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x06\x01'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x02', 'set_scsi_id', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x02', 'set_scsi_id', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x02'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x03', 'set_master_tune', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x03', 'set_master_tune', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x03'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x04', 'set_master_level', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x04', 'set_master_level', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x04'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x06\x05', 'set_midi_out_thru', (), None)
           self.commands['\x06\x05'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x06', 'set_qlink_local_control', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x06', 'set_qlink_local_control', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x06\x06'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x07', 'set_create_default_items', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x07', 'set_create_default_items', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x06\x07'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x08', 'set_midi_file_save_format', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x08', 'set_midi_file_save_format', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x08'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x09', 'set_cdr_write_speed', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x09', 'set_cdr_write_speed', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x09'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x0a', 'set_cdr_write_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x0a', 'set_cdr_write_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x0a'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x10', 'set_front_panel_lockout_state', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x10', 'set_front_panel_lockout_state', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x10'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x11', 'set_display_contrast', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x11', 'set_display_contrast', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x11'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x12', 'set_note_display', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x12', 'set_note_display', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x12'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x13', 'set_date_display_format', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x13', 'set_date_display_format', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x13'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x14', 'set_time_display_format', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x14', 'set_time_display_format', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x14'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x18', 'set_waveform_view_scale', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x18', 'set_waveform_view_scale', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x18'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x19', 'set_waveform_view_type', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x19', 'set_waveform_view_type', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x19'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x1a', 'set_waveform_view_fill', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x1a', 'set_waveform_view_fill', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x06\x1a'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x1b', 'set_item_sort_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x1b', 'set_item_sort_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x1b'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x20', 'set_year', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x20', 'set_year', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x20'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x21', 'set_month', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x21', 'set_month', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x21'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x22', 'set_day', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x22', 'set_day', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x22'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x23', 'set_day_of_week', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x23', 'set_day_of_week', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x23'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x24', 'set_hours', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x24', 'set_hours', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x24'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x25', 'set_minutes', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x25', 'set_minutes', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x25'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x26', 'set_seconds', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x26', 'set_seconds', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x26'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x30', 'set_system_clock', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x30', 'set_system_clock', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x30'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x06\x31', 'set_digital_out_sync', (), None)
           self.commands['\x06\x31'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x32', 'set_digital_format', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x32', 'set_digital_format', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x32'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x33', 'set_adat_main_out', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x33', 'set_adat_main_out', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x33'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x40', 'set_play_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x40', 'set_play_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x40'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x41', 'set_program_monitor_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x41', 'set_program_monitor_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x41'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x42', 'set_sample_monitor_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x42', 'set_sample_monitor_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x42'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x48', 'set_play_key_note', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x48', 'set_play_key_note', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x48'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x49', 'set_play_key_velocity', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x49', 'set_play_key_velocity', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x49'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4a', 'set_play_key_midi_channel', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4a', 'set_play_key_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x4a'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4b', 'set_play_key_echo', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4b', 'set_play_key_echo', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x06\x4b'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4c', 'set_program_change_enable', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4c', 'set_program_change_enable', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x06\x4c'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4d', 'set_autoload_enable', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x4d', 'set_autoload_enable', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x06\x4d'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x05\x50', 'set_global_pad_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x05\x50', 'set_global_pad_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x05\x50'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x51', 'set_pad_midi_channel', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x51', 'set_pad_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x51'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x52', 'set_pad_sensitivity', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x52', 'set_pad_sensitivity', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x06\x52'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x53', 'set_default_note_assignment', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x53', 'set_default_note_assignment', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x06\x53'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x06\x54', 'set_chromatic_start_note', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x06\x54', 'set_chromatic_start_note', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x06\x54'] = comm
 
      def get_os_software_version(self):
           """Get Operating System Software Version
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x00')
           return self.z48.execute(comm, ())
@@ -236,25 +236,25 @@ class Systemtools:
           """Get the Sub-Version of the Operating System
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x01')
           return self.z48.execute(comm, ())
 
      def get_sampler_model(self):
-          """Get Sampler Model
+          """Get Sampler Model  (0=Z4, 1=Z8, 2=MPC4000)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x04')
           return self.z48.execute(comm, ())
 
      def get_supported_filetypes(self):
-          """Get List of supported filetypes
+          """Get List of supported filetypes [returns DONE message]
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x04\x08')
           return self.z48.execute(comm, ())
@@ -263,7 +263,7 @@ class Systemtools:
           """Get the percentage free Wave memory
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x10')
           return self.z48.execute(comm, ())
@@ -272,7 +272,7 @@ class Systemtools:
           """Get the percentage free CPU memory
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x11')
           return self.z48.execute(comm, ())
@@ -281,7 +281,7 @@ class Systemtools:
           """Get the total number of kilobytes of Wave memory
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x04\x12')
           return self.z48.execute(comm, ())
@@ -290,7 +290,7 @@ class Systemtools:
           """Get the number of kilobytes of free Wave memory
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x04\x13')
           return self.z48.execute(comm, ())
@@ -329,7 +329,7 @@ class Systemtools:
           """Get Compact Wave Memory Progress (%)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x22 ')
           return self.z48.execute(comm, ())
@@ -338,7 +338,7 @@ class Systemtools:
           """Get State of Asynchronous Operation ERROR 'operation is pending' or DONE
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x04\x30 ')
           return self.z48.execute(comm, ())
@@ -353,7 +353,7 @@ class Systemtools:
           """Get Sampler Name
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x07\x01')
           return self.z48.execute(comm, ())
@@ -362,7 +362,7 @@ class Systemtools:
           """Get SCSI self ID
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x02')
           return self.z48.execute(comm, ())
@@ -371,7 +371,7 @@ class Systemtools:
           """Get Master Tune
 
           Returns:
-               aksy.devices.akai.sysex.SWORD
+               aksy.devices.akai.sysex_types.SWORD
           """
           comm = self.commands.get('\x07\x03')
           return self.z48.execute(comm, ())
@@ -380,7 +380,7 @@ class Systemtools:
           """Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x04')
           return self.z48.execute(comm, ())
@@ -389,7 +389,7 @@ class Systemtools:
           """Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x05')
           return self.z48.execute(comm, (arg0, ))
@@ -398,7 +398,7 @@ class Systemtools:
           """Get Qlink Local Control <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x06')
           return self.z48.execute(comm, ())
@@ -407,7 +407,7 @@ class Systemtools:
           """Get Create Default Items at Startup <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x07')
           return self.z48.execute(comm, ())
@@ -416,7 +416,7 @@ class Systemtools:
           """Get MIDI file save format
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x08')
           return self.z48.execute(comm, ())
@@ -425,7 +425,7 @@ class Systemtools:
           """Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x09')
           return self.z48.execute(comm, ())
@@ -434,7 +434,7 @@ class Systemtools:
           """Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x0A')
           return self.z48.execute(comm, ())
@@ -443,7 +443,7 @@ class Systemtools:
           """Get Front panel lock-out state
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x10')
           return self.z48.execute(comm, ())
@@ -452,7 +452,7 @@ class Systemtools:
           """Get Display Contrast
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x11')
           return self.z48.execute(comm, ())
@@ -461,7 +461,7 @@ class Systemtools:
           """Get Note Display <Reply> = (0=NUMBER, 1=NAME)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x12')
           return self.z48.execute(comm, ())
@@ -470,7 +470,7 @@ class Systemtools:
           """Get Date Display Format  <Reply> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x13')
           return self.z48.execute(comm, ())
@@ -479,7 +479,7 @@ class Systemtools:
           """Get Time Display Format <Reply> = (0=12HOUR, 1=24HOUR)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x14')
           return self.z48.execute(comm, ())
@@ -488,7 +488,7 @@ class Systemtools:
           """Get Waveform View Scale <Reply> = (0=LINEAR, 1=LOG)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x18')
           return self.z48.execute(comm, ())
@@ -497,7 +497,7 @@ class Systemtools:
           """Get Waveform View Type <Reply> = (0=RECTIFIED, 1=BIPOLAR)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x19')
           return self.z48.execute(comm, ())
@@ -506,7 +506,7 @@ class Systemtools:
           """Get Waveform View Fill <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x1A')
           return self.z48.execute(comm, ())
@@ -515,7 +515,7 @@ class Systemtools:
           """Get Item Sort Mode <Reply> = (0=ALPHABETIC, 1=MEMORY)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x1B')
           return self.z48.execute(comm, ())
@@ -524,7 +524,7 @@ class Systemtools:
           """Get Year
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x20')
           return self.z48.execute(comm, ())
@@ -533,7 +533,7 @@ class Systemtools:
           """Get Month
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x21')
           return self.z48.execute(comm, ())
@@ -542,7 +542,7 @@ class Systemtools:
           """Get Day
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x22')
           return self.z48.execute(comm, ())
@@ -551,7 +551,7 @@ class Systemtools:
           """Get Day of Week (0=SUN)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x23')
           return self.z48.execute(comm, ())
@@ -560,7 +560,7 @@ class Systemtools:
           """Get Hours
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x24')
           return self.z48.execute(comm, ())
@@ -569,7 +569,7 @@ class Systemtools:
           """Get Minutes
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x25')
           return self.z48.execute(comm, ())
@@ -578,7 +578,7 @@ class Systemtools:
           """Get Seconds
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x26')
           return self.z48.execute(comm, ())
@@ -587,7 +587,7 @@ class Systemtools:
           """Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x30')
           return self.z48.execute(comm, ())
@@ -596,7 +596,7 @@ class Systemtools:
           """Get Digital Out Sync (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x31')
           return self.z48.execute(comm, ())
@@ -605,7 +605,7 @@ class Systemtools:
           """Get Digital Format <Reply> = (0=PRO, 1=CONSUMER)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x32')
           return self.z48.execute(comm, ())
@@ -614,7 +614,7 @@ class Systemtools:
           """Get ADAT Main Out <Reply> = (0=L/R, 1=1/2)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x33')
           return self.z48.execute(comm, ())
@@ -623,7 +623,7 @@ class Systemtools:
           """Get Play Mode (0=Multi, 1=Program; 2=Sample; 3=Muted), handle of item which is the active Play Item
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x40')
           return self.z48.execute(comm, ())
@@ -632,7 +632,7 @@ class Systemtools:
           """Get Program Monitor Mode  (0=Multi, 1=Program(OMNI))
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x41')
           return self.z48.execute(comm, ())
@@ -641,7 +641,7 @@ class Systemtools:
           """Get Sample Monitor Mode (0=Multi, 1=Program; 2=Sample(OMNI))
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x42')
           return self.z48.execute(comm, ())
@@ -650,7 +650,7 @@ class Systemtools:
           """Get Play Key Note
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x48')
           return self.z48.execute(comm, ())
@@ -659,7 +659,7 @@ class Systemtools:
           """Get Play Key Velocity
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x49')
           return self.z48.execute(comm, ())
@@ -668,7 +668,7 @@ class Systemtools:
           """Get Play Key Midi Channel <Reply> = (1A=0, 2A=1, ..., 16B=31)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x4a')
           return self.z48.execute(comm, ())
@@ -677,7 +677,7 @@ class Systemtools:
           """Get Play Key Echo <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x07\x4b')
           return self.z48.execute(comm, ())
@@ -686,7 +686,7 @@ class Systemtools:
           """Get Program Change Enable <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x07\x4c')
           return self.z48.execute(comm, ())
@@ -695,7 +695,7 @@ class Systemtools:
           """Get Autoload Enable <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x07\x4d')
           return self.z48.execute(comm, ())
@@ -704,7 +704,7 @@ class Systemtools:
           """Get Global Pad Mode <Reply> = (0=DEFAULT, 1=CHROMATIC)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x50')
           return self.z48.execute(comm, ())
@@ -713,7 +713,7 @@ class Systemtools:
           """Get MIDI Channel for MPC Pad
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x51')
           return self.z48.execute(comm, ())
@@ -722,7 +722,7 @@ class Systemtools:
           """Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x52')
           return self.z48.execute(comm, ())
@@ -731,7 +731,7 @@ class Systemtools:
           """Get Default Note Assignment <Data1> = Pad
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x53')
           return self.z48.execute(comm, (arg0, ))
@@ -740,7 +740,7 @@ class Systemtools:
           """Get Default Note Assignment <Data1> = Pad
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x07\x54')
           return self.z48.execute(comm, (arg0, ))

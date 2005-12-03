@@ -110,17 +110,17 @@ class Sampler(AkaiSampler):
 
         self._put(sourcepath, remote_name, destination)
 
-    def execute(self, command, args, userref='\x00'):
+    def execute(self, command, args, request_id=0):
         """Executes a command on the sampler
         TODO: calculate the deviceid byte together with the userref count
         """
-        request = Request(command, args, userref)
+        request = Request(command, args, request_id)
         if self.debug:
-            sys.stderr.writelines("Request: %s\n" % repr(request))
+            sys.stderr.writelines("Request: %s, id %i\n" % (repr(request), request_id))
         result_bytes = self._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
         if self.debug:
             sys.stderr.writelines("Length of reply: %i\n" % len(result_bytes))
-        result = Reply(result_bytes, command, userref)
+        result = Reply(result_bytes, command)
         if self.debug:
             sys.stderr.writelines("Reply: %s\n" % repr(result))
         return result.parse()

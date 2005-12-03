@@ -7,7 +7,7 @@ Song
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.devices.akai.sysex
+import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
 class Songtools:
      def __init__(self, z48):
@@ -21,31 +21,31 @@ class Songtools:
           self.commands['\x28\x02\x01'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x02\x02', 'get_handles_names', (), None)
           self.commands['\x28\x02\x02'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x28\x02\x03'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x03', 'set_current_by_handle', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x03', 'set_current_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x28\x03'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x04', 'set_current_by_name', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x04', 'set_current_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x28\x04'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x05', 'get_current_handle', (), None)
           self.commands['\x28\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x06', 'get_current_name', (), None)
           self.commands['\x28\x06'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x07', 'get_name_by_handle', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x28\x07'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x08', 'get_handle_by_name', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x28\x08'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x09', 'delete_all', (), None)
           self.commands['\x28\x09'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x0A', 'delete_current', (), None)
           self.commands['\x28\x0A'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0B', 'delete_by_handle', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x28\x0B'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0C', 'rename_current', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0C', 'rename_current', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x28\x0C'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0D', 'rename_by_handle', (aksy.devices.akai.sysex.DWORD, aksy.devices.akai.sysex.STRING), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
           self.commands['\x28\x0D'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0E', 'set_tag_bit', (aksy.devices.akai.sysex.BYTE, aksy.devices.akai.sysex.BYTE), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x0E', 'set_tag_bit', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
           self.commands['\x28\x0E'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x0F', 'get_tag_bitmap', (), None)
           self.commands['\x28\x0F'] = comm
@@ -53,7 +53,7 @@ class Songtools:
           self.commands['\x28\x10'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x11 ', 'get_modified', (), None)
           self.commands['\x28\x11 '] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'delete_tagged', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x28\x18'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x40', 'play_song', (), None)
           self.commands['\x28\x40'] = comm
@@ -61,17 +61,17 @@ class Songtools:
           self.commands['\x28\x41'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x42', 'stop_song', (), None)
           self.commands['\x28\x42'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x01', 'set_group_id', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x28\x01'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'set_from_bar', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'set_from_bar', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x28\x10'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'set_to_bar', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'set_to_bar', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x28\x10'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x12', 'set_tempo_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x12', 'set_tempo_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x28\x12'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x13', 'set_manual_tempo', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x13', 'set_manual_tempo', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x28\x13'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'set_midi_output', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'set_midi_output', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x28\x18'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x28\x01', 'get_group_id', (), None)
           self.commands['\x28\x01'] = comm
@@ -100,7 +100,7 @@ class Songtools:
           """Get number of items in memory
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x28\x01')
           return self.z48.execute(comm, ())
@@ -115,7 +115,7 @@ class Songtools:
           """Get sample names
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x28\x02\x01')
           return self.z48.execute(comm, ())
@@ -124,7 +124,7 @@ class Songtools:
           """Get list of sample handles and names
 
           Returns:
-               aksy.devices.akai.sysex.HANDLENAMEARRAY
+               aksy.devices.akai.sysex_types.HANDLENAMEARRAY
           """
           comm = self.commands.get('\x28\x02\x02')
           return self.z48.execute(comm, ())
@@ -151,7 +151,7 @@ class Songtools:
           """Get handle of current item
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x28\x05')
           return self.z48.execute(comm, ())
@@ -160,7 +160,7 @@ class Songtools:
           """Get name of current item
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x28\x06')
           return self.z48.execute(comm, ())
@@ -169,7 +169,7 @@ class Songtools:
           """Get item name from handle
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x28\x07')
           return self.z48.execute(comm, (arg0, ))
@@ -178,7 +178,7 @@ class Songtools:
           """Get item handle from name
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x28\x08')
           return self.z48.execute(comm, (arg0, ))
@@ -229,7 +229,7 @@ class Songtools:
           """Get name of current item with modified/tagged info
 
           Returns:
-               aksy.devices.akai.sysex.STRINGARRAY
+               aksy.devices.akai.sysex_types.STRINGARRAY
           """
           comm = self.commands.get('\x28\x10')
           return self.z48.execute(comm, ())
@@ -238,7 +238,7 @@ class Songtools:
           """Get modified state of current item.
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x28\x11 ')
           return self.z48.execute(comm, ())
@@ -307,7 +307,7 @@ class Songtools:
           """Get Group ID
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x28\x01')
           return self.z48.execute(comm, ())
@@ -316,7 +316,7 @@ class Songtools:
           """Get From Bar
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x28\x10')
           return self.z48.execute(comm, ())
@@ -325,7 +325,7 @@ class Songtools:
           """Get To Bar
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x28\x11')
           return self.z48.execute(comm, ())
@@ -334,7 +334,7 @@ class Songtools:
           """Get Tempo Mode <Reply> = (0=FILE, 1=MANUAL, 2=MULTI)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x28\x12')
           return self.z48.execute(comm, ())
@@ -343,7 +343,7 @@ class Songtools:
           """Get Manual Tempo
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x28\x13')
           return self.z48.execute(comm, ())
@@ -352,7 +352,7 @@ class Songtools:
           """Get MIDI output port <Reply> = (0=NONE, 1=MIDI A, 2=MIDI B
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x28\x18')
           return self.z48.execute(comm, ())
@@ -361,7 +361,7 @@ class Songtools:
           """Get (Time Signature) Beat Value
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x28\x20')
           return self.z48.execute(comm, ())
@@ -370,7 +370,7 @@ class Songtools:
           """Get (Time Signature) Beats-per-Bar
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x28\x21')
           return self.z48.execute(comm, ())
@@ -379,7 +379,7 @@ class Songtools:
           """Get Current Beat
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x28\x22')
           return self.z48.execute(comm, ())
@@ -388,7 +388,7 @@ class Songtools:
           """Get Current Bar
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x28\x23')
           return self.z48.execute(comm, ())
@@ -397,7 +397,7 @@ class Songtools:
           """Get Current Tempo <Reply> = (tempo×10)bpm
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x28\x24')
           return self.z48.execute(comm, ())

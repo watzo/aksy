@@ -1,0 +1,44 @@
+import unittest, os
+from aksy.devices.akai import sampler
+
+class TestSampler(unittest.TestCase):
+    def setUp(self):
+        if not hasattr(self, 'z48'):
+            self.z48 = sampler.Sampler()
+            self.z48.init()
+
+    def __del__(self):
+        try:
+            self.z48.close()
+        except Exception, e:
+            print e
+
+    def testTransfers(self):
+        # TODO: add files for each type
+        _testTransfer('test.wav')
+
+    def _testTransfer(self, filename):
+        self.z48.put(filename)
+        actualfilename = 'cp' + filename
+        self.z48.get(filename, actualfilename)
+        expected = open(filename, 'rb')
+        actual = open(actualfilename, 'rb')
+        self.assertTrue(md5sum(expected), md5sum(actual))
+        expected.close()
+        actual.close()
+        os.remove(actualfilename)
+
+
+def md5sum(file):
+    m = md5.new()
+    while True:
+        d = fobj.read(8096)
+        if not d:
+            break
+        m.update(d)
+    return m.hexdigest()
+
+def test_suite():
+    testloader = unittest.TestLoader()
+    suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_sampler')
+    return suite

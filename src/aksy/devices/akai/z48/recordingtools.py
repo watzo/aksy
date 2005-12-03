@@ -7,7 +7,7 @@ Methods to facilitate recording
 __author__ =  'Walco van Loon'
 __version__=  '0.1'
 
-import aksy.devices.akai.sysex
+import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
 class Recordingtools:
      def __init__(self, z48):
@@ -35,33 +35,33 @@ class Recordingtools:
           self.commands['\x30\x22'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x30\x23', 'delete', (), None)
           self.commands['\x30\x23'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x01', 'set_input', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x01', 'set_input', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x32\x01'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x02', 'set_mode', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x02', 'set_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x32\x02'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x03', 'enable_monitor', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x03', 'enable_monitor', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x32\x03'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x04', 'set_rec_time', (aksy.devices.akai.sysex.DWORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x04', 'set_rec_time', (aksy.devices.akai.sysex_types.DWORD,), None)
           self.commands['\x32\x04'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x05', 'set_orig_pitch', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x05', 'set_orig_pitch', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x32\x05'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x06', 'set_threshold', (aksy.devices.akai.sysex.SBYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x06', 'set_threshold', (aksy.devices.akai.sysex_types.SBYTE,), None)
           self.commands['\x32\x06'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x07', 'set_trigger_src', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x07', 'set_trigger_src', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x32\x07'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x08', 'set_bit_depth', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x08', 'set_bit_depth', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x32\x08'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x09', 'set_prerec_time', (aksy.devices.akai.sysex.WORD,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x09', 'set_prerec_time', (aksy.devices.akai.sysex_types.WORD,), None)
           self.commands['\x32\x09'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x0A', 'set_dest', (aksy.devices.akai.sysex.BYTE,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x0A', 'set_dest', (aksy.devices.akai.sysex_types.BYTE,), None)
           self.commands['\x32\x0A'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x10', 'set_name', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x10', 'set_name', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x32\x10'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x11', 'set_name_seed', (aksy.devices.akai.sysex.STRING,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x11', 'set_name_seed', (aksy.devices.akai.sysex_types.STRING,), None)
           self.commands['\x32\x11'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x12', 'set_autorec_mode', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x12', 'set_autorec_mode', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x32\x12'] = comm
-          comm = aksy.devices.akai.sysex.Command('_', '\x32\x13', 'set_autonormalize', (aksy.devices.akai.sysex.BOOL,), None)
+          comm = aksy.devices.akai.sysex.Command('_', '\x32\x13', 'set_autonormalize', (aksy.devices.akai.sysex_types.BOOL,), None)
           self.commands['\x32\x13'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x33\x01', 'get_input', (), None)
           self.commands['\x33\x01'] = comm
@@ -96,7 +96,7 @@ class Recordingtools:
           """Get Record Status
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x30\x01')
           return self.z48.execute(comm, ())
@@ -105,7 +105,7 @@ class Recordingtools:
           """Get Record Progress
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x30\x02')
           return self.z48.execute(comm, ())
@@ -114,7 +114,7 @@ class Recordingtools:
           """Get Maximum Record Time
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x30\x03')
           return self.z48.execute(comm, ())
@@ -255,7 +255,7 @@ class Recordingtools:
           """Get Input (0=ANALOGUE, 1=DIGITAL, 2=MAIN OUT, 3=ADAT1/2, 4=ADAT3/4, 5=ADAT5/6, 6=ADAT7/8)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x33\x01')
           return self.z48.execute(comm, ())
@@ -270,7 +270,7 @@ class Recordingtools:
           """Get Record Monitor <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x33\x03')
           return self.z48.execute(comm, ())
@@ -279,7 +279,7 @@ class Recordingtools:
           """Get Record Time <Reply> = time in seconds.
 
           Returns:
-               aksy.devices.akai.sysex.DWORD
+               aksy.devices.akai.sysex_types.DWORD
           """
           comm = self.commands.get('\x33\x04')
           return self.z48.execute(comm, ())
@@ -288,7 +288,7 @@ class Recordingtools:
           """Get Original Pitch
 
           Returns:
-               aksy.devices.akai.sysex.PAD BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x33\x05')
           return self.z48.execute(comm, ())
@@ -297,7 +297,7 @@ class Recordingtools:
           """Get Threshold <Reply> = threshold in dB -63,0
 
           Returns:
-               aksy.devices.akai.sysex.SBYTE
+               aksy.devices.akai.sysex_types.SBYTE
           """
           comm = self.commands.get('\x33\x06')
           return self.z48.execute(comm, ())
@@ -306,7 +306,7 @@ class Recordingtools:
           """Get Trigger Source <Reply> = (0=OFF, 1=AUDIO, 2=MIDI)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x33\x07')
           return self.z48.execute(comm, ())
@@ -315,7 +315,7 @@ class Recordingtools:
           """Get Bit Depth <Reply> = (0=16-bit, 1=24-bit)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x33\x08')
           return self.z48.execute(comm, ())
@@ -324,7 +324,7 @@ class Recordingtools:
           """Get Pre-recording Time <Reply> = time in ms
 
           Returns:
-               aksy.devices.akai.sysex.WORD
+               aksy.devices.akai.sysex_types.WORD
           """
           comm = self.commands.get('\x33\x09')
           return self.z48.execute(comm, ())
@@ -333,7 +333,7 @@ class Recordingtools:
           """Get Recording Destination <Reply> = (0=RAM, 1=DISK)
 
           Returns:
-               aksy.devices.akai.sysex.BYTE
+               aksy.devices.akai.sysex_types.BYTE
           """
           comm = self.commands.get('\x33\x0A')
           return self.z48.execute(comm, ())
@@ -342,7 +342,7 @@ class Recordingtools:
           """Get Record Name
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x33\x10')
           return self.z48.execute(comm, ())
@@ -351,7 +351,7 @@ class Recordingtools:
           """Get Record Name Seed
 
           Returns:
-               aksy.devices.akai.sysex.STRING
+               aksy.devices.akai.sysex_types.STRING
           """
           comm = self.commands.get('\x33\x11')
           return self.z48.execute(comm, ())
@@ -360,7 +360,7 @@ class Recordingtools:
           """Get Auto-Record Mode <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x33\x12')
           return self.z48.execute(comm, ())
@@ -369,7 +369,7 @@ class Recordingtools:
           """Get Auto-Normalise Mode <Reply> = (0=OFF, 1=ON)
 
           Returns:
-               aksy.devices.akai.sysex.BOOL
+               aksy.devices.akai.sysex_types.BOOL
           """
           comm = self.commands.get('\x33\x13')
           return self.z48.execute(comm, ())
