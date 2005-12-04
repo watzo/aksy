@@ -10,27 +10,28 @@ class TestUserRef(unittest.TestCase):
     def testEncodeDecode(self):
         cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.PAD, sysex_types.BYTE,),
             userref_type=sysex_types.USERREF)
-        self.z48.execute(cmd, (), 0)
+        bytes = self.z48.execute(cmd, (), 0)
+        length, request_id = sysex_types.USERREF.decode(bytes[3:])
+        self.assertEquals(1, length)
+        self.assertEquals(0, request_id)
 
         # this fails on Z48
         cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.PAD, sysex_types.BYTE,),
             userref_type=sysex_types.USERREF)
-        self.z48.execute(cmd, (), 300)
+        bytes = self.z48.execute(cmd, (), 126)
+        length, request_id = sysex_types.USERREF.decode(bytes[3:])
+        self.assertEquals(2, length)
+        self.assertEquals(126, request_id)
 
         cmd = sysex.Command(sysex.S56K_ID, '\x10\x05', 'get_no_disks', (sysex_types.BYTE,),
             userref_type=sysex_types.S56K_USERREF)
-        self.z48.execute(cmd, (), 300)
-
+        bytes = self.z48.execute(cmd, (), 16000)
+        length, request_id = sysex_types.USERREF.decode(bytes[3:])
+        self.assertEquals(3, length)
+        self.assertEquals(16000, request_id)
 
     def tearDown(self):
         self.z48.close()
-
-    def __del__(self):
-        try:
-            pass # self.z48.close()
-        except Exception, e:
-            print e
-
 
 def test_suite():
     testloader = unittest.TestLoader()

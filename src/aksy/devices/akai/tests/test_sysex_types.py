@@ -135,29 +135,29 @@ class TestUserRefType(unittest.TestCase):
     def testEncode(self):
         u = sysex_types.UserRefType()
         self.assertEquals('\x00', u.encode(0))
-        self.assertEquals('\x01\x7f', u.encode(127))
-        self.assertEquals('\x02\x7f\x7f', u.encode(sysex_types.WORD.max_val))
+        self.assertEquals('\x10\x7f', u.encode(127))
+        self.assertEquals('\x20\x7f\x7f', u.encode(sysex_types.WORD.max_val))
 
     def testFixedSizeEncode(self):
         u = sysex_types.UserRefType(2)
-        self.assertEquals('\x02\x00\x00', u.encode(0))
-        self.assertEquals('\x02\x7f\x00', u.encode(127))
+        self.assertEquals('\x20\x00\x00', u.encode(0))
+        self.assertEquals('\x20\x7f\x00', u.encode(127))
 
     def testDecode(self):
         u = sysex_types.UserRefType()
         self.assertEquals((1, 0), u.decode('\x00'))
-        self.assertEquals((3, 0), u.decode('\x02\x00\x00'))
+        self.assertEquals((3, 0), u.decode('\x20\x00\x00'))
 
-        self.assertEquals((2, 127), u.decode('\x01\x7f'))
-        self.assertEquals((3, 16383), u.decode('\x02\x7f\x7f'))
+        self.assertEquals((2, 127), u.decode('\x10\x7f'))
+        self.assertEquals((3, 16383), u.decode('\x20\x7f\x7f'))
 
-        self.assertEquals((3, 0), u.decode('\x02\x00\x00'))
+        self.assertEquals((3, 0), u.decode('\x20\x00\x00'))
 
     def testInvalidValues(self):
         u = sysex_types.UserRefType()
         self.assertRaises(ValueError, u.encode, -1)
         self.assertRaises(ValueError, u.encode, 16384)
-        self.assertRaises(ValueError, u.decode, '\x02\x00')
+        self.assertRaises(ValueError, u.decode, '\x20\x00')
 
 class TestPadType(unittest.TestCase):
     def testDecode(self):

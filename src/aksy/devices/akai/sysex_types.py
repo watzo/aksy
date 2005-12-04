@@ -350,10 +350,10 @@ class UserRefType(object):
         self.max_val = WORD.max_val
 
     def _encode_WORD(self, value):
-        return BYTE.encode(2) + WORD.encode(value)
+        return BYTE.encode(2 << 4) + WORD.encode(value)
 
     def _encode_BYTE(self, value):
-        return BYTE.encode(1) + BYTE.encode(value)
+        return BYTE.encode(1 << 4) + BYTE.encode(value)
 
     def encode(self, value):
         if value < self.min_val or value > self.max_val:
@@ -379,7 +379,8 @@ class UserRefType(object):
                 "Decoding error at %s.decode: %s is not a string"
                 % (self.__class__.__name__, repr(string)))
 
-        length = BYTE.decode(string[0])
+        userref_length_user_id = BYTE.decode(string[0])
+        length = userref_length_user_id >> 4
         if length == 0:
             return (1, 0)
         if length == 1:
