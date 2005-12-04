@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import sys, os, os.path, StringIO
-import aksy.sysex
 import sysex_info
 
 """This hairy piece of code generates python modules from command
@@ -37,6 +36,7 @@ def classname_helper(section_name):
 # could use ljust etc...
 indent_block = "     "
 sysex_module_name = 'aksy.devices.akai.sysex'
+sysex_types_module_name = 'aksy.devices.akai.sysex_types'
 device_name = 'z48'
 
 file_in_name = sys.argv[1]
@@ -68,9 +68,10 @@ testfile_out.writelines("from unittest import TestCase\n\n")
 testfile_out.writelines("from aksy.device import Devices\n\n")
 
 file_out.writelines( "%s\n" % preamble) 
-file_out.writelines( "import %s\n\n" % sysex_module_name ) 
+file_out.writelines( "import %s,%s\n\n" % (sysex_module_name, sysex_types_module_name))
 file_out.writelines( "class %s:\n" % classname_helper(section_name))
-testfile_out.writelines( "class Test%s(TestCase):\n" % classname_helper(section_name))
+testClassName = "Test%s" % classname_helper(section_name)
+testfile_out.writelines( "class %s(TestCase):\n" %testClassName)
 file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
 testfile_out.writelines( "%sself.z48 = Devices.get_instance('z48')\n" % (indent_block*2))
@@ -95,7 +96,7 @@ while line:
         data = []
         for i in range(4, len(elems)):
             if elems[i] != 'NA':
-                data.append( sysex_module_name + '.' + elems[i])
+                data.append( sysex_types_module_name + '.' + elems[i])
                 args.append('arg' + str(i-4))
 
         reply_spec_line = file_in.readline().rstrip().split('\t')
@@ -106,7 +107,7 @@ while line:
             
         if len(reply_spec) > 0:
             if reply_spec[0]:
-                reply_spec = [ sysex_module_name + '.' + type for type in reply_spec ]
+                reply_spec = [ sysex_types_module_name + '.' + type for type in reply_spec ]
             else:
                 reply_spec = ()
 
@@ -158,8 +159,13 @@ file_out.writelines("\n%s" % methods.getvalue())
 methods.close()
 file_out.close()
 
-testfile_out.writelines( "%sdef tearDown(self):\n" % indent_block)
-testfile_out.writelines( "%sself.z48.close()\n\n" % (indent_block*2))
+testfile_out.writelines("""
+def suite():
+    suite = unittest.TestSuite()
+	suite = unittest.makeSuite(testClassName)
+    return suite
+""")
+
 testfile_out.close()
-os.renames(destfile, os.path.join('..','tmp', 'aksy', 'devices', 'akai', device_name, destfile))
-#os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
+#os.renames(destfile, os.path.join('..','tmp', 'aksy', 'devices', 'akai', device_name, destfile))
+os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
