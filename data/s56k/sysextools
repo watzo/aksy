@@ -1,0 +1,19 @@
+sysextools	Methods to manipulate sysex parameters
+\x00	\x00	query	Query device, returns device ID
+
+\x00	\x01	enable_msg_notification	Enable/disable 'OK' messages. Use with care!	BOOL
+
+\x00	\x03	enable_item_sync	Enable sync between sysex item and front panel	BOOL
+
+\x00	\x04	enable_checksum_verification	Enable sysex msg checksum verifcation	BOOL
+
+\x00	\x05	enable_screen_updates	Enable screen updates during sysex processing	BOOL
+
+\x00	\x06	echo	Echo the specified bytes	BYTE	BYTE	BYTE	BYTE
+BYTE	BYTE	BYTE	BYTE
+\x00	\x07	enable_heartbeat	Enable sending of empty sysex 'still alive' msgs
+
+\x00	\x08	enable_playback_sync	Enable sync between sysex playback item and front panel	BOOL
+
+\x00	\x10	get_sysex_buffersize	Retrieves the sysex buffer size
+WORD

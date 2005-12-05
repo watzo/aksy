@@ -5,7 +5,7 @@ import sysex_info
 """This hairy piece of code generates python modules from command
 specifications (that once were extracted from the Akai sysex documentation
 pdf)
-Usage: generate_module.py command_spec_file skip_replyspec device_name
+Usage: generate_module.py command_spec_file skip_replyspec
 
 command_spec_file: see data/z48 for examples.
 skip_replyspec: do not use the information in the command_spec_file for
@@ -14,10 +14,10 @@ more details.
 device_name: the name for the device
 """
 def _arglist_helper(arglist):
-    """Creates correct string rep 
+    """Creates correct string rep
     """
     if len(arglist) == 1:
-         return '(' + arglist[0] + ',)' 
+         return '(' + arglist[0] + ',)'
     else:
          return '(' + ', '.join(arglist) + ')'
 
@@ -37,45 +37,42 @@ def classname_helper(section_name):
 indent_block = "     "
 sysex_module_name = 'aksy.devices.akai.sysex'
 sysex_types_module_name = 'aksy.devices.akai.sysex_types'
-device_name = 'z48'
 
 file_in_name = sys.argv[1]
+device_name = os.path.dirname(file_in_name)
 skip_replyspec = True
 if len(sys.argv)== 3:
-    skip_replyspec = bool(sys.argv[2])
-if len(sys.argv)== 4:
-    device_name = sys.argv[3]
-else:
-    device_id = sysex_info.devices[device_name]['device_id']
+    skip_replyspec = False
+device_id = sysex_info.devices[device_name]['device_id']
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
 preamble = "".join(file_preamble.readlines())
-file_preamble.close() 
+file_preamble.close()
 command_spec = open( 'commandspec', 'r')
 commandspec = ", ".join(command_spec.readlines()[0].rstrip().split("\t"))
-command_spec.close() 
+command_spec.close()
 
-line = file_in.readline() 
+line = file_in.readline()
 
 # Section data
 section_name, section_desc = line.rstrip().split('\t')
 destfile = section_name + '.py'
 
 file_out = open(destfile, 'w')
-file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\"\n\n" % (section_name,section_desc)) 
+file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\"\n\n" % (section_name,section_desc))
 testfile_out = open('test' + "_" + section_name + ".py", "w")
 testfile_out.writelines("from unittest import TestCase\n\n")
 testfile_out.writelines("from aksy.device import Devices\n\n")
 
-file_out.writelines( "%s\n" % preamble) 
+file_out.writelines( "%s\n" % preamble)
 file_out.writelines( "import %s,%s\n\n" % (sysex_module_name, sysex_types_module_name))
 file_out.writelines( "class %s:\n" % classname_helper(section_name))
 testClassName = "Test%s" % classname_helper(section_name)
 testfile_out.writelines( "class %s(TestCase):\n" %testClassName)
-file_out.writelines( "%sdef __init__(self, z48):\n" % indent_block)
+file_out.writelines( "%sdef __init__(self, %s):\n" % (indent_block, device_name))
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
-testfile_out.writelines( "%sself.z48 = Devices.get_instance('z48')\n" % (indent_block*2))
-testfile_out.writelines( "%sself.z48.init()\n\n" % (indent_block*2))
+testfile_out.writelines( "%sself.%s = Devices.get_instance('z48')\n" % (indent_block*2, device_name))
+testfile_out.writelines( "%sself.%s.init()\n\n" % (indent_block*2, device_name))
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 #file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
@@ -104,7 +101,7 @@ while line:
         #reply_spec_desc = reply_spec_line[len(reply_spec_line):]
         reply_spec = reply_spec_line
         args = tuple(args)
-            
+
         if len(reply_spec) > 0:
             if reply_spec[0]:
                 reply_spec = [ sysex_types_module_name + '.' + type for type in reply_spec ]
@@ -113,36 +110,36 @@ while line:
 
 
         # definition
-        methods.writelines( "%sdef %s(%s):\n" % (indent_block, name, ', '.join(args))) 
-        testfile_out.writelines( "%sdef test_%s(self):\n" % (indent_block, name) ) 
+        methods.writelines( "%sdef %s(%s):\n" % (indent_block, name, ', '.join(args)))
+        testfile_out.writelines( "%sdef test_%s(self):\n" % (indent_block, name) )
 
         # docstring
         format = { 'indent': indent_block, 'desc': desc,'returns': ('\n'+indent_block*3).join(reply_spec) }
         if len(reply_spec) > 0:
-            testfile_out.writelines( "%sself.assertEquals(, self.z48.%s())\n\n" % ((indent_block*2), name) ) 
+            testfile_out.writelines( "%sself.assertEquals(, self.%s.%s())\n\n" % ((indent_block*2), device_name, name) )
             format['returns'] = "\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s" % format
         else:
-            testfile_out.writelines( "%sself.z48.%s()\n\n" % ((indent_block*2), name) ) 
+            testfile_out.writelines( "%sself.%s.%s()\n\n" % ((indent_block*2), device_name, name) )
             format['returns'] = ""
-        
+
         methods.writelines(
             "%(indent)s%(indent)s\"\"\"%(desc)s%(returns)s\n%(indent)s%(indent)s\"\"\"\n" % format)
-        
+
         # command object creation
         comm_args = []
         comm_args.extend(args[1:])
         comm_args.append('')
-        methods.writelines( 
+        methods.writelines(
             "%scomm = self.commands.get('%s%s')\n" % (indent_block*2, section_id, id))
 
         methods.writelines( "%sreturn self.%s.execute(comm, %s)\n\n" % (indent_block*2, device_name, '('+ ', '.join(comm_args) + ')'))
 
-        # put the command in a dict with tuple key (section_id, id) 
+        # put the command in a dict with tuple key (section_id, id)
         if skip_replyspec:
-            replyspec_arg = None    
+            replyspec_arg = None
         else:
             replyspec_arg = _arglist_helper(reply_spec)
-        file_out.writelines( 
+        file_out.writelines(
             "%scomm = %s.Command(%s, '%s%s', '%s', %s, %s)\n" \
             % ((indent_block*2), sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg))
 
