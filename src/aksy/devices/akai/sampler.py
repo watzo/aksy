@@ -32,11 +32,9 @@ class Sampler(AkaiSampler):
     ()
     >>> z.close_usb()
     """
-    def __init__(self, confirmation_msgs=False, debug=1, id=0):
+    def __init__(self, debug=1, id=0):
         self.id = id
         self.debug = debug
-        sys.stderr.writelines("Sampler: %s\n" %repr(self))
-
         AkaiSampler.__init__(self)
 
     def init(self):
@@ -44,41 +42,27 @@ class Sampler(AkaiSampler):
         """
         self.init_usb()
 
-        # disable checksums (not enabled per default)
-        # msg = "\xf0\x47\x5f\x00\x04\x00\xf7";
-        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg) + '\x00' + msg)
-        # disable confirmation
-        try:
-            msg = "\xf0\x47%s\x00\x00\x01\x00\xf7" % struct.pack('B', self.sysex_id)
-            self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
-        except Exception, e:
-            # if confirmation msgs are already disabled, the sampler sometimes
-            # doesn't respond.
-            pass
-
-        # disable sync
-        # msg = "\xf0\x47\x5f\x00\x00\x03\x00\xf7";
-        # result_bytes = self._execute('\x10' + struct.pack('B', len(msg)) + '\x00' + msg)
         # not fool proof for multiple disks
         #disk = model.Disk(self.disktools.get_disklist())
         #self.disktools.select_disk(disk.handle)
         #rootfolder = model.Folder(("",))
         #folders = rootfolder.get_children()
         #disks.set_children(folders)
+        # XXX: move to seperate S56k Sampler class
         if self.sysex_id == 0x5e:
-            # s56k imports should be done here
-            pass
-            # from s56k import disktools, programtools, multitools, sampletools, systemtools, recordingtools
+            from s56k import sysextools, disktools
+            # programtools, multitools, sampletools, systemtools, recordingtools
         elif self.sysex_id == 0x5f:
-            from aksy.devices.akai.z48 import disktools, programtools, multitools, sampletools, systemtools, recordingtools
+            from aksy.devices.akai.z48 import sysextools, disktools, programtools, multitools, sampletools, systemtools, recordingtools
 
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
         self.sampletools = sampletools.Sampletools(self)
         self.multitools = multitools.Multitools(self)
         self.systemtools = systemtools.Systemtools(self)
+        self.sysextools = sysextools.Sysextools(self)
         self.recordingtools = recordingtools.Recordingtools(self)
-        # self.command_spec = CommandSpec('\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
+
         model.register_handlers({model.Disk: self.disktools,
                         model.File: self.disktools,
                         model.Program: self.programtools,
@@ -87,6 +71,9 @@ class Sampler(AkaiSampler):
 
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
+
+        self.sysextools.enable_msg_notification(False)
+        self.sysextools.enable_item_sync(False)
 
     def close(self):
         """Closes the connection with the sampler
@@ -112,7 +99,6 @@ class Sampler(AkaiSampler):
 
     def execute(self, command, args, request_id=0):
         """Executes a command on the sampler
-        TODO: calculate the deviceid byte together with the userref count
         """
         request = Request(command, args, request_id)
         if self.debug:

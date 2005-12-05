@@ -1,5 +1,7 @@
-import unittest, os
+import unittest, os, os.path
 from aksy.devices.akai import sampler
+
+TESTDIR = os.path.abspath(os.path.split(__file__)[0])
 
 class TestSampler(unittest.TestCase):
     def setUp(self):
@@ -7,27 +9,24 @@ class TestSampler(unittest.TestCase):
             self.z48 = sampler.Sampler()
             self.z48.init()
 
-    def __del__(self):
-        try:
-            self.z48.close()
-        except Exception, e:
-            print e
+    def tearDown(self):
+        self.z48.close()
 
     def testTransfers(self):
         # TODO: add files for each type
-        _testTransfer('test.wav')
+        self._testTransfer('test.wav')
 
     def _testTransfer(self, filename):
-        self.z48.put(filename)
+        fullpath = os.path.join(TESTDIR, filename)
+        self.z48.put(fullpath)
         actualfilename = 'cp' + filename
         self.z48.get(filename, actualfilename)
-        expected = open(filename, 'rb')
+        expected = open(fullpath, 'rb')
         actual = open(actualfilename, 'rb')
         self.assertTrue(md5sum(expected), md5sum(actual))
         expected.close()
         actual.close()
         os.remove(actualfilename)
-
 
 def md5sum(file):
     m = md5.new()

@@ -71,10 +71,13 @@ class Reply:
         self.bytes = bytes
         self.command = command
         self.request_id  = 0
-        # self.returnValues = self.parse()
+        #self.return_value = self.parse()
 
-    def getValue():
-        return self.returnValues
+    def get_request_id(self):
+        return self.request_id
+
+    def get_return_value(self):
+        return self.return_value
 
     def parse(self):
         """ Parses the command sequence
@@ -98,7 +101,6 @@ class Reply:
         elif reply_id == REPLY_ID_ERROR:
             b1, b2 = struct.unpack('2B', self.bytes[i:i+2])
             code = (b2 << 7) + b1
-
             raise SamplerException(
                 "code %02x (%s)" % (code, errors.get(code, "Unknown")))
         elif reply_id == REPLY_ID_REPLY:
@@ -109,8 +111,8 @@ class Reply:
 
         if self.command.id[:2] != command:
             raise ParseException(
-                'Parsing the wrong reply for command %02x %02x'
-                    % struct.unpack('2B', self.command.id[:2]))
+                'Parsing the wrong reply (%s) for command %02x %02x'
+                    % (repr(self), struct.unpack('2B', self.command.id[:2])))
         if self.command.reply_spec is None:
             return parse_typed_bytes(self.bytes, i)
         else:

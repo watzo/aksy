@@ -129,7 +129,7 @@ class TestStringArrayType(unittest.TestCase):
 
     def testInvalidValues(self):
         s = sysex_types.StringArrayType()
-        self.assertRaises(ValueError, s.decode, 44)
+        self.assertRaises(sysex_types.DecodeException, s.decode, 44)
 
 class TestUserRefType(unittest.TestCase):
     def testEncode(self):
@@ -157,7 +157,7 @@ class TestUserRefType(unittest.TestCase):
         u = sysex_types.UserRefType()
         self.assertRaises(ValueError, u.encode, -1)
         self.assertRaises(ValueError, u.encode, 16384)
-        self.assertRaises(ValueError, u.decode, '\x20\x00')
+        self.assertRaises(sysex_types.DecodeException, u.decode, '\x20\x00')
 
 class TestPadType(unittest.TestCase):
     def testDecode(self):

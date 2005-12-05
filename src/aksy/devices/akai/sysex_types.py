@@ -39,7 +39,7 @@ class SysexType(object):
         """Decodes a value from a sysex byte string
         """
         if value is None or not isinstance(value, types.StringType):
-            raise ValueError(
+            raise DecodeException(
                 "Decoding error at %s.decode: %s is not a string"
                 % (self.__class__.__name__, repr(value)))
 
@@ -51,7 +51,7 @@ class SysexType(object):
                             % (self.__class__.__name__, repr(value)))
                 value = value[1:]
             elif self.size != len(value):
-                raise ValueError("Length of string to decode %s <> %s" % (repr(value), repr(self.size)))
+                raise DecodeException("Length of string to decode %s <> %s" % (repr(value), repr(self.size)))
 
         return self._decode(value)
 
@@ -319,8 +319,8 @@ class StringArrayType(object):
 
     def decode(self, string):
         if not string or not isinstance(string, types.StringType):
-            raise ValueError(
-                "Decoding error at %s.decode: %s is not a string"
+            raise DecodeException(
+                "%s.decode: %s is not a string"
                 % (self.__class__.__name__, repr(string)))
 
         result = []
