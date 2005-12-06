@@ -72,7 +72,11 @@ class Sampler(AkaiSampler):
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
 
-        self.sysextools.enable_msg_notification(False)
+        try:
+            # this command sometimes doesn't yield a response
+            self.sysextools.enable_msg_notification(False)
+        except Exception, e:
+            print e
         self.sysextools.enable_item_sync(False)
 
     def close(self):

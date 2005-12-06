@@ -33,12 +33,10 @@ class TestUserRef(unittest.TestCase):
         request = sysex.Request(cmd, (), 126)
         sys.stderr.writelines("Request: %s, id %i\n" % (repr(request), 126))
         bytes = self.z48._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
-        length, request_id = sysex_types.USERREF.decode(bytes[3:])
         result = sysex.Reply(bytes, cmd)
         sys.stderr.writelines("Reply: %s\n" % repr(result))
-        result.parse()
+        request_id = result.get_request_id()
 
-        self.assertEquals(2, length)
         self.assertEquals(126, request_id)
 
     def tearDown(self):
