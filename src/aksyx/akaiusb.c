@@ -30,7 +30,11 @@ akai_usb_reply_ok(unsigned char* buffer)
 inline int
 akai_usb_sysex_reply_ok(unsigned char* sysex_reply)
 {
-    return sysex_reply[4] == SYSEX_OK;
+    int userref_length = sysex_reply[3] >> 4;
+    assert(userref_length >=0 && userref_length <= 3);
+    int index = userref_length + 4;
+    assert(index >=0 && index <= 3);
+    return sysex_reply[index] == SYSEX_OK;
 }
 
 #ifdef _POSIX_SOURCE
@@ -186,7 +190,7 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
         return rc;
     }
 
-    if (akai_usb_sysex_reply_ok(result_buff))
+    if (rc > 3 && akai_usb_sysex_reply_ok(result_buff))
     {
         return usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
     }
