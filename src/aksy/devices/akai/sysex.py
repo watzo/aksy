@@ -71,7 +71,7 @@ class Reply:
         self.bytes = bytes
         self.command = command
         self.request_id  = 0
-        #self.return_value = self.parse()
+        self.return_value = self._parse()
 
     def get_request_id(self):
         return self.request_id
@@ -79,7 +79,7 @@ class Reply:
     def get_return_value(self):
         return self.return_value
 
-    def parse(self):
+    def _parse(self):
         """ Parses the command sequence
         """
 
@@ -88,7 +88,7 @@ class Reply:
         # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
         i += len(self.command.device_id)
-        len_userref, self.request_id = sysex_types.USERREF.decode(self.bytes[i])
+        len_userref, self.request_id = sysex_types.USERREF.decode(self.bytes[i:])
         i += len_userref
         reply_id = self.bytes[i]
         i +=  1 # skip past the reply code
@@ -111,15 +111,12 @@ class Reply:
 
         if self.command.id[:2] != command:
             raise ParseException(
-                'Parsing the wrong reply (%s) for command %02x %02x'
-                    % (repr(self), struct.unpack('2B', self.command.id[:2])))
+                'Parsing the wrong reply for command %02x %02x'
+                    % struct.unpack('2B', self.command.id[:2]))
         if self.command.reply_spec is None:
             return parse_typed_bytes(self.bytes, i)
         else:
             return parse_untyped_bytes(self.bytes, self.command.reply_spec, i)
-
-    def __repr__(self):
-         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
 
 def parse_typed_bytes(bytes, offset):
     result = []
@@ -214,6 +211,9 @@ def parse_byte_string(data, type, offset=0):
             result = None
 
     return (result, len_parsed_data)
+
+def byte_repr(bytes):
+    return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
 
 def _to_string(ordvalues):
     """Method to quickly scan a string
