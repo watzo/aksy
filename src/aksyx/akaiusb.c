@@ -33,7 +33,6 @@ akai_usb_sysex_reply_ok(unsigned char* sysex_reply)
     int userref_length = sysex_reply[3] >> 4;
     assert(userref_length >=0 && userref_length <= 3);
     int index = userref_length + 4;
-    assert(index >=0 && index <= 3);
     return sysex_reply[index] == SYSEX_OK;
 }
 
