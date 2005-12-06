@@ -1,13 +1,12 @@
-import unittest, os, os.path
+import unittest, os, os.path, md5
 from aksy.devices.akai import sampler
 
 TESTDIR = os.path.abspath(os.path.split(__file__)[0])
 
 class TestSampler(unittest.TestCase):
     def setUp(self):
-        if not hasattr(self, 'z48'):
-            self.z48 = sampler.Sampler()
-            self.z48.init()
+        self.z48 = sampler.Sampler()
+        self.z48.init()
 
     def tearDown(self):
         self.z48.close()
@@ -28,10 +27,10 @@ class TestSampler(unittest.TestCase):
         actual.close()
         os.remove(actualfilename)
 
-def md5sum(file):
+def md5sum(fh):
     m = md5.new()
     while True:
-        d = fobj.read(8096)
+        d = fh.read(8096)
         if not d:
             break
         m.update(d)
