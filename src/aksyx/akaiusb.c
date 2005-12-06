@@ -14,6 +14,7 @@
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
+    #define inline _inline
 #endif
 
 /* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49) */
@@ -31,8 +32,8 @@ inline int
 akai_usb_sysex_reply_ok(unsigned char* sysex_reply)
 {
     int userref_length = sysex_reply[3] >> 4;
-    assert(userref_length >=0 && userref_length <= 3);
     int index = userref_length + 4;
+    assert(userref_length >=0 && userref_length <= 3);
     return sysex_reply[index] == SYSEX_OK;
 }
 
@@ -91,6 +92,8 @@ int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
     commands.get_program_handle = Z48_GET_PROGRAM_HANDLE;
     commands.get_sample_handle = Z48_GET_SAMPLE_HANDLE;
     akai_dev->commands = commands;
+    akai_dev->userref = "";
+    akai_dev->userref_length = 0;
     return AKAI_SUCCESS;
 }
 
@@ -111,6 +114,8 @@ int _init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
     commands.get_program_handle = S56K_GET_PROGRAM_HANDLE;
     commands.get_sample_handle = S56K_GET_SAMPLE_HANDLE;
     akai_dev->commands = commands;
+    akai_dev->userref = "\x00\x00";
+    akai_dev->userref_length = 2;
     return AKAI_SUCCESS;
 }
 
@@ -244,18 +249,23 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
         return AKAI_INVALID_FILENAME;
     }
 
-    /* request: \x10\x08\x00\xf0\x47 <device> <section, command, name, \xf7 */
-    unsigned char sysex_length = (unsigned char)name_length+7; // 5 +
-
+    /* request: \x10\x08\x00\xf0\x47 <sysex_id> <device_id> <userref> <section, command, name, \xf7 */
+    int sysex_length = name_length + 7 + akai_dev->userref_length;
+    char device_id =  akai_dev->userref_length << 4;
+    int index = 0;
     sysex = (unsigned char*) calloc(sysex_length, sizeof(unsigned char));
-    memcpy(sysex, "\x10", 5 * sizeof(unsigned char));
+    memcpy(sysex, "\x10", 1 * sizeof(unsigned char));
     memcpy(sysex+1, &sysex_length, 1 * sizeof(unsigned char));
-    memcpy(sysex+2, "\x00\xf0\x47", 5 * sizeof(unsigned char));
+    memcpy(sysex+2, "\x00\xf0\x47", 3 * sizeof(unsigned char));
     memcpy(sysex+5, &akai_dev->sysex_id, 1 * sizeof(unsigned char));
-    memcpy(sysex+6, "\x00", 1 * sizeof(unsigned char));
-    memcpy(sysex+7, cmd_id, 2 * sizeof(unsigned char));
-    memcpy(sysex+9, name, (name_length -4) * sizeof(unsigned char)); // strip extension
-    memcpy(sysex+9 + name_length - 4, "\x00\xf7", 2 * sizeof(unsigned char));
+    memcpy(sysex+6, &device_id, 1 * sizeof(unsigned char));
+    memcpy(sysex+7,  &akai_dev->userref, akai_dev->userref_length * sizeof(unsigned char));
+    index = 7 + akai_dev->userref_length;
+    memcpy(sysex+index, cmd_id, 2 * sizeof(unsigned char));
+    index += 2;
+    memcpy(sysex+index, name, (name_length - 4) * sizeof(unsigned char)); // strip extension
+    index += name_length - 4;
+    memcpy(sysex+index, "\x00\xf7", 2 * sizeof(unsigned char));
 
     /* success reply: \xf0\x47 <device> userref <section, command, <reply_ok> <4 byte handle>, \xf7 */
     /* error reply: \xf0\x47 <device> userref <section, command, <reply_error>, \xf7 */
@@ -265,26 +275,26 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     }
     else
     {
-        data = (unsigned char*) calloc(13, sizeof(unsigned char));
+        data = (unsigned char*) calloc(13 + akai_dev->userref_length, sizeof(unsigned char));
         int ret;
 read_sysex:
-        if ((ret = usb_bulk_read(akai_dev->dev, EP_IN, data, 13, timeout)) < 0)
+        if ((ret = usb_bulk_read(akai_dev->dev, EP_IN, data, 13 + akai_dev->userref_length, timeout)) < 0)
         {
             retval = AKAI_TRANSMISSION_ERROR;
         }
         else
         {
-            if (data[4] == SYSEX_ERROR)
+            if (data[4+akai_dev->userref_length] == SYSEX_ERROR)
             {
                 retval = AKAI_FILE_NOT_FOUND;
             }
-            else if (data[4] == SYSEX_REPLY)
+            else if (data[4+akai_dev->userref_length] == SYSEX_REPLY)
             {
-                memcpy(handle, data+8, 4*sizeof(unsigned char));
+                memcpy(handle, data+8+akai_dev->userref_length, 4*sizeof(unsigned char));
 
                 retval = 0;
             }
-            else if (data[4] == SYSEX_OK)
+            else if (data[4+akai_dev->userref_length] == SYSEX_OK)
             {
                 goto read_sysex;
             }

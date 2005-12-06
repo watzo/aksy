@@ -75,6 +75,9 @@ typedef struct _akai_usb_device {
     usb_dev_handle *dev;
     int sysex_id;
     sysex_commands commands;
+    int userref_length;
+    char *userref;
+
 } *akai_usb_device;
 
 /*
