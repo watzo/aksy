@@ -40,10 +40,12 @@ sysex_types_module_name = 'aksy.devices.akai.sysex_types'
 
 file_in_name = sys.argv[1]
 device_name = os.path.dirname(file_in_name)
-skip_replyspec = True
+device_id = sysex_info.devices[device_name]['device_id']
+skip_replyspec = sysex_info.devices[device_name]['skip_replyspec']
+userref_type = sysex_info.devices[device_name].get('userref_type', None)
+
 if len(sys.argv)== 3:
     skip_replyspec = False
-device_id = sysex_info.devices[device_name]['device_id']
 file_in = open( file_in_name, 'r')
 file_preamble = open( 'preamble', 'r')
 preamble = "".join(file_preamble.readlines())
@@ -139,9 +141,13 @@ while line:
             replyspec_arg = None
         else:
             replyspec_arg = _arglist_helper(reply_spec)
+        if userref_type is None:
+            userref_type_arg = ''
+        else:
+            userref_type_arg = ', %s' % userref_type
         file_out.writelines(
-            "%scomm = %s.Command(%s, '%s%s', '%s', %s, %s)\n" \
-            % ((indent_block*2), sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg))
+            "%scomm = %s.Command(%s, '%s%s', '%s', %s, %s%s)\n" \
+            % ((indent_block*2), sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
 
         file_out.writelines("%sself.commands['%s%s'] = comm\n" % ((indent_block*2), section_id, id))
     except IndexError, e:

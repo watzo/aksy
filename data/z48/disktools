@@ -8,7 +8,7 @@ disktools	Methods to manipulate the samplers filesystem
 \x20	\x04	get_no_disks	Get the number of disks connected
 PAD	BYTE
 \x20	\x05	get_disklist	Get list of all connected disks
-WORD	BYTE	BYTE	BYTE	BYTE	STRING
+DISKLIST
 \x20	\x09	get_curr_path	Get current path of current disk
 STRING
 \x20	\x0D	eject_disk	Eject Disk <Data1> = Disk Handle	WORD
@@ -39,6 +39,6 @@ STRINGARRAY
 
 \x20	\x2B	load_file_and_deps	Load File <Data1> = name of file to load. Will load the dependents as well	STRING
 
-\x20	\x2C	save	Save Memory Item to Disk <Data1> = Handle of Memory Item <Data2> = Type = (1=Multi; 2=Program; 3=Sample; 4=SMF) <Data3> = (0=Skip if file exists; 1=Overwrite existing files) <Data4> = (0=Don't save children; 1=Save Children)	DWORD	BYTE	BOOL	BYTE 
+\x20	\x2C	save	Save Memory Item to Disk <Data1> = Handle of Memory Item <Data2> = Type = (1=Multi; 2=Program; 3=Sample; 4=SMF) <Data3> = (0=Skip if file exists; 1=Overwrite existing files) <Data4> = (0=Don't save children; 1=Save Children)	DWORD	BYTE	BOOL	BYTE
 
-\x20	\x2D	save_all	Save All Memory Items to Disk <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF) <Data2> = (0=Skip if file exists; 1=Overwrite existing files)	BYTE	BOOL 
+\x20	\x2D	save_all	Save All Memory Items to Disk <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF) <Data2> = (0=Skip if file exists; 1=Overwrite existing files)	BYTE	BOOL
