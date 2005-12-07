@@ -601,7 +601,14 @@ int akai_usb_device_put(akai_usb_device akai_dev,
             printf("%02x ", reply_buf[i]);
         printf("\n");
 #endif
-        if (rc == 1) continue;
+        if (rc == 1) {
+	    if (filesize == blocksize + transferred) {
+		// S56k transfer ends here
+		break;
+	    } else {
+		continue;
+	    }
+	}
 
         if (rc == 4 && akai_usb_reply_ok(reply_buf))
         {
