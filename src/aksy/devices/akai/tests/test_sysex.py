@@ -108,12 +108,32 @@ class TestReply(unittest.TestCase):
          reply = sysex.Reply(bytes, cmd)
          self.assertEquals(126, reply.get_request_id())
 
+    def testParseExtendedDisklist(self):
+        bytes = sysex.repr_bytes(
+            ['f0', '47', '5e', '20', '00', '00', '52', '10', '05', '01', '00', '00',
+            '08', '00', '01', '4e', '6f', '20', '64', '69', '73', '6b', '00', '01', '01',
+            '03', '08', '01', '00', '4e', '6f', '20', '64', '69', '73', '6b', '00', '01',
+            '02', '03', '08', '02', '00', '4e', '6f', '20', '64', '69', '73', '6b', '00',
+            '02', '03', '03', '01', '04', '01', '4e', '6f', '20', '44', '69', '73', '6b',
+            '20', '4e', '61', '6d', '65', '00', 'f7'])
+        cmd = sysex.Command(sysex.S56K_ID, '\x10\x05', 'dummy', (),(
+            sysex_types.DISKLIST,), sysex_types.USERREF)
+        reply = sysex.Reply(bytes, cmd)
+        self.assertEquals(
+            (sysex_types.DiskInfo((1, 0, 8, 0, 1, 'No disk')), sysex_types.DiskInfo((129, 3, 8, 1, 0, 'No disk')),
+            sysex_types.DiskInfo((257, 3, 8, 2, 0, 'No disk')), sysex_types.DiskInfo((386, 3, 1, 4, 1, 'No Disk Name')))
+            , reply.get_return_value())
+
 class TestModuleMethods(unittest.TestCase):
     def test_byte_repr(self):
         bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
         self.assertEquals(
             "['f0', '47', '5f', '00', '45', '20', '00', '00', '03', 'f7']",
             sysex.byte_repr(bytes))
+    def test_repr_bytes(self):
+        self.assertEquals(
+            '\xf0G_\x00E \x00\x00\x03\xf7',
+            sysex.repr_bytes(['f0', '47', '5f', '00', '45', '20', '00', '00', '03', 'f7']))
 
 def test_suite():
     testloader = unittest.TestLoader()

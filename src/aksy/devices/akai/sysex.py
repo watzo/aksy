@@ -114,38 +114,9 @@ class Reply:
                 'Parsing the wrong reply for command %02x %02x'
                     % struct.unpack('2B', self.command.id[:2]))
         if self.command.reply_spec is None:
-            return parse_typed_bytes(self.bytes, i)
+            return sysex_types.TYPED_COMPOSITE.decode(self.bytes[i:])[1]
         else:
-            return parse_untyped_bytes(self.bytes, self.command.reply_spec, i)
-
-def parse_typed_bytes(bytes, offset):
-    result = []
-    while offset < (len(bytes) - 1):
-        type = sysex_types.get_type(bytes[offset])
-        offset += 1
-        part, len_parsed = parse_byte_string(bytes, type, offset)
-        if part is not None:
-            result.append(part)
-        offset += len_parsed
-    if len(result) == 1:
-        return result[0]
-    else:
-        return tuple(result)
-
-def parse_untyped_bytes(bytes, reply_spec, offset):
-    """Parses a byte string without type information
-    """
-    result = []
-    for type in reply_spec:
-        part, len_parsed = parse_byte_string(bytes, type, offset)
-        if part is not None:
-            result.append(part)
-        offset += len_parsed
-    if len(result) == 1:
-        return result[0]
-    else:
-        return tuple(result)
-
+            return sysex_types.CompositeType(self.command.reply_spec).decode(self.bytes[i:])[1]
 
 class ParseException(Exception):
     """ Exception raised when parsing system exclusive fails
@@ -162,58 +133,11 @@ class Error(Exception):
     """
     pass
 
-def parse_byte_string(data, type, offset=0):
-    r""" Parses a byte string
-
-    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, STRING)
-    ('TEST', 5)
-
-    >>> parse_byte_string('\x54\x45\x53\x54' + STRING_TERMINATOR, STRING, 1)
-    ('EST', 4)
-
-    >>> parse_byte_string('\x54\x45\x53\x54\x00\x54\x45\x53\x54\x00', STRINGARRAY, 0)
-    (('TEST', 'TEST'), 10)
-
-    >>> parse_byte_string('\x0f', BYTE)
-    (15, 1)
-
-    >>> parse_byte_string('\x01\x0f', SBYTE)
-    (-15, 2)
-
-    >>> parse_byte_string('\x00\x03', WORD)
-    (384, 2)
-
-    >>> parse_byte_string('\x01\x0f\x0f', SWORD)
-    (-1935, 3)
-
-    >>> parse_byte_string('\x7f\x7f\x7f\x7f', DWORD)
-    (268435455, 4)
-
-    >>> parse_byte_string('\x01\x7f\x7f\x7f\x7f', SDWORD)
-    (-268435455, 5)
-
-    >>> parse_byte_string('\x00', BOOL)
-    (False, 1)
-
-    >>> parse_byte_string('\x01', BOOL)
-    (True, 1)
-
-    """
-
-    len_parsed_data = 0
-    if type.size is not None:
-        result = type.decode(data[offset:offset+type.size])
-        len_parsed_data = type.size
-    else:
-        # TODO: use a factory which returns instances with a size set ?
-        len_parsed_data, result = type.decode(data[offset:])
-        if len_parsed_data == 0:
-            result = None
-
-    return (result, len_parsed_data)
-
 def byte_repr(bytes):
     return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
+
+def repr_bytes(byte_repr):
+    return  ''.join([struct.pack('1B', int(byte, 16)) for byte in byte_repr])
 
 def _to_string(ordvalues):
     """Method to quickly scan a string

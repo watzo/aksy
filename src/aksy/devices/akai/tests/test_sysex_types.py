@@ -188,6 +188,64 @@ class TestTestHandleNameArrayType(unittest.TestCase):
         result = self.handle_name_type.decode('\x04\x00\x00\x04\x00\x08\x44\x72\x79\x20\x4b\x69\x74\x20\x30\x32\x00\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
         self.assertEquals((33, (65536, 'Dry Kit 02', 65537, 'SynthTest')), result)
 
+class TestDiskInfo(unittest.TestCase):
+    def test_repr(self):
+        diskInfo = sysex_types.DiskInfo((256, 1, 0, 6, 1, 'Some disk'))
+        self.assertEquals("<DiskInfo object name='Some disk', handle=256>", repr(diskInfo))
+    def test_eq_neq(self):
+        diskInfo1 = sysex_types.DiskInfo((256, 1, 0, 6, 1, 'Some disk'))
+        diskInfo2 = sysex_types.DiskInfo((255, 1, 0, 6, 1, 'Some other disk'))
+        diskInfo3 = sysex_types.DiskInfo((256, 1, 0, 6, 1, 'Some other name'))
+        self.assertTrue(diskInfo1 == diskInfo3)
+        self.assertFalse(diskInfo1 != diskInfo3)
+        self.assertFalse(diskInfo1 == diskInfo2)
+        self.assertTrue(diskInfo1 != diskInfo2)
+
+class TestModuleMethods(unittest.TestCase):
+    def test_parse_byte_string(self):
+        self.assertEquals(
+            (5,'TEST'),
+            sysex_types.parse_byte_string('\x54\x45\x53\x54' + sysex_types.STRING_TERMINATOR, sysex_types.STRING))
+        self.assertEquals(
+            (4,'EST'),
+            sysex_types.parse_byte_string('\x54\x45\x53\x54' + sysex_types.STRING_TERMINATOR, sysex_types.STRING, 1))
+
+        self.assertEquals(
+            (10, ('TEST', 'TEST')),
+            sysex_types.parse_byte_string('\x54\x45\x53\x54\x00\x54\x45\x53\x54\x00', sysex_types.STRINGARRAY))
+
+        self.assertEquals(
+            (1, 15),
+            sysex_types.parse_byte_string('\x0f', sysex_types.BYTE))
+
+        self.assertEquals(
+            (2, -15),
+            sysex_types.parse_byte_string('\x01\x0f', sysex_types.SBYTE))
+
+        self.assertEquals(
+            (2, 384),
+            sysex_types.parse_byte_string('\x00\x03', sysex_types.WORD))
+
+        self.assertEquals(
+            (3, -1935),
+            sysex_types.parse_byte_string('\x01\x0f\x0f', sysex_types.SWORD))
+
+        self.assertEquals(
+            (4, 268435455),
+            sysex_types.parse_byte_string('\x7f\x7f\x7f\x7f', sysex_types.DWORD))
+
+        self.assertEquals(
+            (5, -268435455),
+            sysex_types.parse_byte_string('\x01\x7f\x7f\x7f\x7f', sysex_types.SDWORD))
+
+        self.assertEquals(
+            (1, False),
+            sysex_types.parse_byte_string('\x00', sysex_types.BOOL))
+
+        self.assertEquals(
+            (1, True),
+            sysex_types.parse_byte_string('\x01', sysex_types.BOOL))
+
 def test_suite():
     testloader = unittest.TestLoader()
     suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_sysex_types')

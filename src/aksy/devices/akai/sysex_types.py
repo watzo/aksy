@@ -419,7 +419,94 @@ class PanningType(ByteType):
     """Represents panning levels in -50->L, 50->R
     """
 
-# Sysex type ids
+class CompositeType(object):
+    def __init__(self, types):
+        self.types = types
+    def decode(self, string):
+        offset = 0
+        result = []
+        for type in self.types:
+            len_parsed, part = parse_byte_string(string, type, offset)
+            if part is not None:
+                result.append(part)
+                offset += len_parsed
+        if len(result) == 1:
+            return offset, result[0]
+        return offset, tuple(result)
+
+class TypedCompositeType(object):
+    def decode(self, string):
+        result = []
+        offset = 0
+        while offset < (len(string) - 1):
+            type = get_type(string[offset])
+            offset += 1
+            len_parsed, part = parse_byte_string(string, type, offset)
+            if part is not None:
+                result.append(part)
+                offset += len_parsed
+        if len(result) == 1:
+            return offset, result[0]
+        return offset, tuple(result)
+
+class DiskInfo(object):
+    def __init__(self, (handle, type, format, scsi_id, writable, name)):
+        self.handle = handle
+        self.type = type
+        self.format = format
+        self.scsi_id = scsi_id
+        self.writable = bool(writable)
+        self.name = name
+
+    def __eq__(self, other):
+        if other is None: return False
+        return self.handle == other.handle
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __repr__(self):
+        return "<DiskInfo object name='%s', handle=%i>" % (self.name, self.handle)
+
+class DiskType(CompositeType):
+    def __init__(self):
+        super(DiskType, self).__init__((
+            sysex_types.WORD, sysex_types.BYTE,
+            sysex_types.BYTE, sysex_types.BYTE,
+            sysex_types.BYTE, sysex_types.STRING,))
+
+class DisklistType(object):
+    def __init__(self):
+        self.size = None
+
+    def decode(self, string):
+        result = []
+        index = 0
+        while string[index] != END_SYSEX:
+            length, val = DISK.decode(string[index:])
+            result.append(DiskInfo(val))
+            index += length
+        return index, tuple(result)
+
+def parse_byte_string(data, type, offset=0):
+    """ Parses a byte string
+    """
+
+    len_parsed_data = 0
+    if type.size is not None:
+        result = type.decode(data[offset:offset+type.size])
+        len_parsed_data = type.size
+    else:
+        # TODO: use a factory which returns instances with a size set ?
+        len_parsed_data, result = type.decode(data[offset:])
+        if len_parsed_data == 0:
+            result = None
+
+    return len_parsed_data, result
+
+
+
+# Base Sysex types
 BYTE        = ByteType()
 SBYTE       = SignedByteType()
 WORD        = WordType()
@@ -430,18 +517,21 @@ QWORD       = QWordType()
 SQWORD      = SignedQWordType()
 STRING      = StringType()
 STRINGARRAY = StringArrayType()
-USERREF  = UserRefType()
+USERREF     = UserRefType()
 S56K_USERREF = UserRefType(2)
 
 TWO_BYTES   = SysexType(2, False, '\x09')
 THREE_BYTES = SysexType(3, False, '\x0b')
 
-# aksy type extensions
+# Composite types
 PAD         = PadType()
 BOOL        = BoolType()
 CENTS       = '\x23' # SWORD(+- 3600)
 PAN         = PanningType()
 LEVEL       = SoundLevelType()
+DISK        = DiskType()
+DISKLIST    = DisklistType()
+TYPED_COMPOSITE = TypedCompositeType()
 
 _types = {
     BYTE.id: BYTE,
