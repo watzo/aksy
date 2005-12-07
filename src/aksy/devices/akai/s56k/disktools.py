@@ -25,9 +25,9 @@ class Disktools:
           self.commands['\x10\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('^', '\x10\x09', 'get_curr_path', (), (aksy.devices.akai.sysex_types.STRING,), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x09'] = comm
-          comm = aksy.devices.akai.sysex.Command('^', '\x10\x0D', 'eject_disk', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+          comm = aksy.devices.akai.sysex.Command('^', '\x10\x0D', 'eject_disk', (aksy.devices.akai.sysex_types.CWORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x0D'] = comm
-          comm = aksy.devices.akai.sysex.Command('^', '\x10\x10', 'get_no_subfolders', (), (aksy.devices.akai.sysex_types.WORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+          comm = aksy.devices.akai.sysex.Command('^', '\x10\x10', 'get_no_subfolders', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x10'] = comm
           comm = aksy.devices.akai.sysex.Command('^', '\x10\x12', 'get_subfolder_names', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x12'] = comm
@@ -41,7 +41,7 @@ class Disktools:
           self.commands['\x10\x17'] = comm
           comm = aksy.devices.akai.sysex.Command('^', '\x10\x18', 'rename_subfolder', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), (), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x18'] = comm
-          comm = aksy.devices.akai.sysex.Command('^', '\x10\x20', 'get_no_files', (), (aksy.devices.akai.sysex_types.WORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+          comm = aksy.devices.akai.sysex.Command('^', '\x10\x20', 'get_no_files', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x20'] = comm
           comm = aksy.devices.akai.sysex.Command('^', '\x10\x22', 'get_filenames', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
           self.commands['\x10\x22'] = comm
@@ -113,7 +113,7 @@ class Disktools:
           """Get number of sub-folders in the current folder.
 
           Returns:
-               aksy.devices.akai.sysex_types.WORD
+               aksy.devices.akai.sysex_types.CWORD
           """
           comm = self.commands.get('\x10\x10')
           return self.s56k.execute(comm, ())
@@ -161,7 +161,7 @@ class Disktools:
           """Get number of files in the current folder.
 
           Returns:
-               aksy.devices.akai.sysex_types.WORD
+               aksy.devices.akai.sysex_types.CWORD
           """
           comm = self.commands.get('\x10\x20')
           return self.s56k.execute(comm, ())

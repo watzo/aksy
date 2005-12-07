@@ -22,10 +22,7 @@ class Disktools:
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x04', 'get_no_disks', (), None)
           self.commands['\x20\x04'] = comm
           comm = aksy.devices.akai.sysex.Command('\x5e\x20\x00', '\x10\x05', 'get_disklist', (),
-              ( aksy.devices.akai.sysex_types.WORD,
-                aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE,
-                aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE,
-                aksy.devices.akai.sysex_types.STRING,))
+              (aksy.devices.akai.sysex_types.DISKLIST,))
           self.commands['\x20\x05'] = comm
           comm = aksy.devices.akai.sysex.Command('_', '\x20\x09', 'get_curr_path', (), None)
           self.commands['\x20\x09'] = comm
@@ -95,12 +92,7 @@ class Disktools:
           """Get list of all connected disks
 
           Returns:
-               aksy.devices.akai.sysex_types.WORD
-               aksy.devices.akai.sysex_types.BYTE
-               aksy.devices.akai.sysex_types.BYTE
-               aksy.devices.akai.sysex_types.BYTE
-               aksy.devices.akai.sysex_types.BYTE
-               aksy.devices.akai.sysex_types.STRING
+              a list of aksy.devices.akai.sysex_types.DiskInfo objects
           """
           comm = self.commands.get('\x20\x05')
           return self.z48.execute(comm, ())

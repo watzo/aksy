@@ -108,16 +108,24 @@ class WordType(SysexType):
         SysexType.__init__(self, 2, False, '\x02')
 
     def _encode(self, value):
-        """
-        w = WordType()
-        w.encode(256)
-        '\x00\x02'
-        """
         return struct.pack('2B', value & 0x7f, value >> 7)
 
     def _decode(self, string):
         b1, b2 = struct.unpack('2B', string)
         return (b2 << 7) + b1
+
+class CompoundWordType(SysexType):
+    """ the little endian brother of WordType
+    """
+    def __init__(self):
+        SysexType.__init__(self, 2, False, '\x02')
+
+    def _encode(self, value):
+        return struct.pack('2B', value >> 7,  value & 0x7f)
+
+    def _decode(self, string):
+        b1, b2 = struct.unpack('2B', string)
+        return (b1 << 7) + b2
 
 class SignedWordType(SysexType):
     def __init__(self):
@@ -518,7 +526,10 @@ SQWORD      = SignedQWordType()
 STRING      = StringType()
 STRINGARRAY = StringArrayType()
 USERREF     = UserRefType()
+
+# S56k types
 S56K_USERREF = UserRefType(2)
+CWORD = CompoundWordType()
 
 TWO_BYTES   = SysexType(2, False, '\x09')
 THREE_BYTES = SysexType(3, False, '\x0b')

@@ -34,6 +34,26 @@ class TestWordType(unittest.TestCase):
         w = sysex_types.WordType()
         self.assertRaises(ValueError, w.encode, 16383 + 1)
 
+class TestCompoundWordType(unittest.TestCase):
+    def testEncode(self):
+        cw = sysex_types.CompoundWordType()
+        self.assertEquals('\x00\x5d', cw.encode(93))
+        self.assertEquals('\x00\x7f', cw.encode(127))
+        self.assertEquals('\x05\x41', cw.encode(705))
+        self.assertEquals('\x02\x00', cw.encode(256))
+        self.assertEquals('\x7f\x7f', cw.encode(16383))
+
+    def testDecode(self):
+        cw = sysex_types.CompoundWordType()
+        self.assertEquals(93, cw.decode('\x00\x5d'))
+        self.assertEquals(128, cw.decode('\x01\x00'))
+        self.assertEquals(705, cw.decode('\x05\x41'))
+        self.assertEquals(256, cw.decode('\x02\x00'))
+        self.assertEquals(16383, cw.decode('\x7f\x7f'))
+
+    def testInvalidValues(self):
+        cw = sysex_types.CompoundWordType()
+        self.assertRaises(ValueError, cw.encode, 16383 + 1)
 
 class TestSignedWordType(unittest.TestCase):
     def testEncode(self):
