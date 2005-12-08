@@ -34,7 +34,7 @@ def classname_helper(section_name):
     return ''.join([name.capitalize() for name in names])
 
 # could use ljust etc...
-indent_block = "     "
+indent_block = "    "
 sysex_module_name = 'aksy.devices.akai.sysex'
 sysex_types_module_name = 'aksy.devices.akai.sysex_types'
 
@@ -76,6 +76,8 @@ file_out.writelines( "%sdef __init__(self, %s):\n" % (indent_block, device_name)
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
 testfile_out.writelines( "%sself.%s = Devices.get_instance('akai', 'usb')\n" % (indent_block*2, device_name))
 testfile_out.writelines( "%sself.%s.init()\n\n" % (indent_block*2, device_name))
+testfile_out.writelines( "%sdef tearDown(self):\n" % indent_block)
+testfile_out.writelines( "%sself.%s.close()\n\n" % (indent_block*2, device_name))
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 #file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
