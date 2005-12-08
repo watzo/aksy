@@ -62,8 +62,9 @@ destfile = section_name + '.py'
 
 file_out = open(destfile, 'w')
 file_out.writelines( "\n\"\"\" Python equivalent of akai section %s\n\n%s\n\"\"\"\n\n" % (section_name,section_desc))
-testfile_out = open('test' + "_" + section_name + ".py", "w")
-testfile_out.writelines("from unittest import TestCase\n\n")
+testfile_out_name = 'test' + "_" + section_name + ".py"
+testfile_out = open(testfile_out_name, "w")
+testfile_out.writelines("from unittest import TestCase, TestLoader\n\n")
 testfile_out.writelines("from aksy.device import Devices\n\n")
 
 file_out.writelines( "%s\n" % preamble)
@@ -73,7 +74,7 @@ testClassName = "Test%s" % classname_helper(section_name)
 testfile_out.writelines( "class %s(TestCase):\n" %testClassName)
 file_out.writelines( "%sdef __init__(self, %s):\n" % (indent_block, device_name))
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
-testfile_out.writelines( "%sself.%s = Devices.get_instance('z48')\n" % (indent_block*2, device_name))
+testfile_out.writelines( "%sself.%s = Devices.get_instance('akai', 'usb')\n" % (indent_block*2, device_name))
 testfile_out.writelines( "%sself.%s.init()\n\n" % (indent_block*2, device_name))
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
 file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
@@ -118,7 +119,7 @@ while line:
         # docstring
         format = { 'indent': indent_block, 'desc': desc,'returns': ('\n'+indent_block*3).join(reply_spec) }
         if len(reply_spec) > 0:
-            testfile_out.writelines( "%sself.assertEquals(, self.%s.%s())\n\n" % ((indent_block*2), device_name, name) )
+            testfile_out.writelines( "%sself.%s.%s()\n\n" % ((indent_block*2), device_name, name) )
             format['returns'] = "\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s" % format
         else:
             testfile_out.writelines( "%sself.%s.%s()\n\n" % ((indent_block*2), device_name, name) )
@@ -163,12 +164,12 @@ methods.close()
 file_out.close()
 
 testfile_out.writelines("""
-def suite():
-    suite = unittest.TestSuite()
-	suite = unittest.makeSuite(testClassName)
+def test_suite():
+    testloader = TestLoader()
+    suite = testloader.loadTestsFromName('aksy.devices.akai.%s.tests.%s')
     return suite
-""")
+""" % (device_name, testfile_out_name[:-3]))
 
 testfile_out.close()
 #os.renames(destfile, os.path.join('..','tmp', 'aksy', 'devices', 'akai', device_name, destfile))
-os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
+#os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
