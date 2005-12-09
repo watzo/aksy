@@ -15,6 +15,12 @@ class SysexType(object):
         self.max_val = signed and pow(2, 7*size-1) - 1 or pow(2, 7*size) - 1
         self.min_val = signed and self.max_val*-1 or 0
 
+    def validate_encode(self, value):
+        if (value < self.min_val or
+            value > self.max_val):
+            raise ValueError("Value %s out of range:[%s-%s]" % (repr(value),
+                              repr(self.min_val), repr(self.max_val)))
+
     def set_min_val(self, value):
         """
         Override for custom types
@@ -29,10 +35,7 @@ class SysexType(object):
     def encode(self, value):
         """Encodes a value as sysex byte string
         """
-        if (value < self.min_val or
-            value > self.max_val):
-            raise ValueError("Value %s out of range:[%s-%s]" % (repr(value),
-                              repr(self.min_val), repr(self.max_val)))
+        self.validate_encode(value)
         return self._encode(value)
 
     def decode(self, value, typed=True):
@@ -132,29 +135,11 @@ class SignedWordType(SysexType):
         SysexType.__init__(self, 3, True, '\x03')
 
     def _encode(self, value):
-        r"""
-        >>> sw = SignedWordType()
-        >>> sw.encode(256)
-        '\x00\x00\x02'
-
-        >>> sw.encode(-16383)
-        '\x01\x7f\x7f'
-
-        >>> sw.encode(-256)
-        '\x01\x00\x02'
-        """
         sign = value < 0 and 1 or 0
         value = abs(value)
         return struct.pack('3B', sign, value & 0x7f, value >> 7)
 
     def _decode(self, string):
-        r"""
-        >>> sw = SignedWordType()
-        >>> sw.decode('\x01\x00\x02')
-        -256
-        >>> sw.decode('\x01\x7f\x7f')
-        -16383
-        """
         s, b1, b2 = struct.unpack('3B', string[:3])
         sign = s and -1 or 1
         return sign * ((b2 << 7) | b1)
@@ -164,21 +149,9 @@ class DoubleWordType(SysexType):
         SysexType.__init__(self, 4, False, '\x04')
 
     def _encode(self, value):
-        r"""
-        >>> dw = DoubleWordType()
-        >>> dw.encode(268435455)
-        '\x7f\x7f\x7f\x7f'
-        >>> dw.encode(1)
-        '\x01\x00\x00\x00'
-        """
         return struct.pack('4B', value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
 
     def _decode(self, string):
-        r"""
-        >>> dw = DoubleWordType()
-        >>> dw.decode('\x7f\x7f\x7f\x7f')
-        268435455
-        """
         b1, b2, b3, b4 = struct.unpack('4B', string)
         return (b4 << 21) | (b3 << 14) | (b2 << 7) | b1
 
@@ -187,22 +160,11 @@ class SignedDoubleWordType(SysexType):
         SysexType.__init__(self, 5, True, '\x05')
 
     def _encode(self, value):
-        r"""
-        >>> sdw = SignedDoubleWordType()
-        >>> sdw.encode(-268435455)
-        '\x01\x7f\x7f\x7f\x7f'
-        """
         sign = value < 0 and 1 or 0
         value = abs(value)
         return struct.pack('5B', sign, value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
 
     def _decode(self, string):
-        r"""
-        >>> sdw = SignedDoubleWordType()
-        >>> sdw.decode('\x01\x7f\x7f\x7f\x7f')
-        -268435455
-        """
-
         s, b1, b2, b3, b4 = struct.unpack('5B', string)
         sign = s and -1 or 1
         return sign * ((b4 << 21) | (b3 << 14) | (b2 << 7) | b1)
@@ -212,24 +174,11 @@ class QWordType(SysexType):
         SysexType.__init__(self, 8, False, '\x06')
 
     def _encode(self, value):
-        r"""
-        >>> qw = QWordType()
-        >>> qw.encode(268435455)
-        '\x7f\x7f\x7f\x7f\x00\x00\x00\x00'
-        """
-
         return struct.pack('8B',  value & 0x7f, (value >> 7) & 0x7f,
             (value >> 14) & 0x7f, (value >> 21) & 0x7f, (value >> 28) & 0x7f,
             (value >> 35) & 0x7f, (value >> 42) & 0x7f, (value >> 49) & 0x7f)
 
     def _decode(self, string):
-        r"""
-        >>> qw = QWordType()
-        >>> qw.decode('\x7f\x7f\x7f\x7f\x7f\x7f\x7f\x7f')
-        72057594037927935L
-        >>> qw.decode('\x25\x74\x08\x00\x00\x00\x00\x00')
-        145957L
-        """
         b1, b2, b3, b4, b5, b6, b7, b8 = struct.unpack('8B', string)
         # bitshifting looks prettier but this works ;-)
         return (b8*pow(2,49)|b7*pow(2,42)|b6*pow(2,35)|b5*pow(2,28)|b4*pow(2,21)|b3*pow(2,14)|b2*pow(2,7)|b1)
@@ -239,11 +188,6 @@ class SignedQWordType(SysexType):
         SysexType.__init__(self, 9, True, '\x07')
 
     def _encode(self, value):
-        r"""
-        >>> sdw = SignedQWordType()
-        >>> sdw.encode(-268435455)
-        '\x01\x7f\x7f\x7f\x7f\x00\x00\x00\x00'
-        """
         sign = value < 0 and 1 or 0
         value = abs(value)
         return struct.pack('9B', sign, value & 0x7f, (value >> 7) & 0x7f,
@@ -251,14 +195,6 @@ class SignedQWordType(SysexType):
             (value >> 35) & 0x7f, (value >> 42) & 0x7f, (value >> 49) & 0x7f)
 
     def _decode(self, string):
-        r"""
-        >>> qw = SignedQWordType()
-        >>> qw.decode('\x01\x7f\x7f\x7f\x7f\x7f\x7f\x7f\x7f')
-        -72057594037927935L
-
-        >>> qw.decode('\x01\x00\x00\x00\x00\x00\x00\x7f\x00')
-        -558551906910208L
-        """
         s, b1, b2, b3, b4, b5, b6, b7, b8 = struct.unpack('9B', string)
         sign = s and -1 or 1
         # bitshifting looks prettier but this works without losing bits ;-)
@@ -271,13 +207,6 @@ class BoolType(ByteType):
         self.set_max_val(1)
 
     def _encode(self, value):
-        r"""
-        >>> b = BoolType()
-        >>> b.encode(False)
-        '\x00'
-        >>> b.encode(True)
-        '\x01'
-        """
         return super(BoolType, self)._encode(int(value))
 
     def _decode(self, string):
@@ -293,21 +222,10 @@ class StringType(object):
             raise ValueError("Value %s should be a (non unicode) string." % repr(value))
 
     def encode(self, value):
-        r"""
-        Todo: send the raw bytes + terminator if validate_encode fails
-        >>> s = StringType()
-        >>> s.encode('test sdf')
-        'test sdf\x00'
-        """
         self.validate_encode(value)
         return struct.pack(str(len(value)+1) + 's', value)
 
     def decode(self, string):
-        r"""
-        >>> s = StringType()
-        >>> s.decode('test sdf\x00')
-        (9, 'test sdf')
-        """
         index = string.find(STRING_TERMINATOR)
         if index == -1: raise ValueError
         if string[0] == self.id:
@@ -512,7 +430,33 @@ def parse_byte_string(data, type, offset=0):
 
     return len_parsed_data, result
 
+class CompositeByteType(SysexType):
+    def __init__(self, size, id):
+        super(CompositeByteType, self).__init__(size, False, id)
+        self.set_min_val(0)
+        self.set_max_val(127)
+    def encode(self, *args):
+        if len(args) != self.size:
+            raise ValueError("%s ints expected" % self.size)
+        for byte in args:
+            self.validate_encode(byte)
 
+        return struct.pack("%iB" %self.size, *args)
+    def _decode(self, string):
+        return struct.unpack("%iB" %self.size, string)
+
+
+class TwoByteType(CompositeByteType):
+     def __init__(self):
+         super(TwoByteType, self).__init__(2, '\x09')
+
+class ThreeByteType(CompositeByteType):
+     def __init__(self):
+         super(ThreeByteType, self).__init__(3, '\x0a')
+
+class FourByteType(CompositeByteType):
+     def __init__(self):
+         super(FourByteType, self).__init__(4, '\x0b')
 
 # Base Sysex types
 BYTE        = ByteType()
@@ -529,10 +473,11 @@ USERREF     = UserRefType()
 
 # S56k types
 S56K_USERREF = UserRefType(2)
-CWORD = CompoundWordType()
+CWORD        = CompoundWordType()
 
-TWO_BYTES   = SysexType(2, False, '\x09')
-THREE_BYTES = SysexType(3, False, '\x0b')
+TWO_BYTES   = TwoByteType()
+THREE_BYTES = ThreeByteType()
+FOUR_BYTES  = FourByteType()
 
 # Composite types
 PAD         = PadType()
@@ -556,6 +501,7 @@ _types = {
     STRING.id: STRING,
     TWO_BYTES.id: TWO_BYTES,
     THREE_BYTES.id: THREE_BYTES,
+    FOUR_BYTES.id: FOUR_BYTES,
 }
 
 class UnknownSysexTypeError(Exception):

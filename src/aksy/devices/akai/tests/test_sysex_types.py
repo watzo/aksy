@@ -221,6 +221,52 @@ class TestDiskInfo(unittest.TestCase):
         self.assertFalse(diskInfo1 == diskInfo2)
         self.assertTrue(diskInfo1 != diskInfo2)
 
+class TestFourByteType(unittest.TestCase):
+    def testEncode(self):
+        fourByteType = sysex_types.FourByteType()
+        self.assertEquals("\x01\x01\x01\x01", fourByteType.encode(1,1,1,1))
+
+    def testDecode(self):
+        fourByteType = sysex_types.FourByteType()
+        self.assertEquals((1,1,1,1), fourByteType.decode("\x01\x01\x01\x01"))
+
+    def testInvalidValues(self):
+        fourByteType = sysex_types.FourByteType()
+        self.assertRaises(ValueError, fourByteType.encode, 1,1,1)
+        self.assertRaises(ValueError, fourByteType.encode, 128,1,1,1)
+        self.assertRaises(sysex_types.DecodeException, fourByteType.decode, "\x01\x01\x01\x01\x05")
+
+class TestThreeByteType(unittest.TestCase):
+    def testEncode(self):
+        threeByteType = sysex_types.ThreeByteType()
+        self.assertEquals("\x01\x01\x01", threeByteType.encode(1,1,1))
+
+    def testDecode(self):
+        threeByteType = sysex_types.ThreeByteType()
+        self.assertEquals((127,1,1), threeByteType.decode("\x7f\x01\x01"))
+
+    def testInvalidValues(self):
+        threeByteType = sysex_types.ThreeByteType()
+        self.assertRaises(ValueError, threeByteType.encode, 1,1,1,1)
+        self.assertRaises(sysex_types.DecodeException, threeByteType.decode, "\x01\x01\x01\x01\x05")
+
+class TestTwoByteType(unittest.TestCase):
+    def testEncode(self):
+        twoByteType = sysex_types.TwoByteType()
+        self.assertEquals("\x01\x01", twoByteType.encode(1,1))
+
+    def testDecode(self):
+        twoByteType = sysex_types.TwoByteType()
+        self.assertEquals((127,1), twoByteType.decode("\x7f\x01"))
+
+    def testInvalidValues(self):
+        twoByteType = sysex_types.TwoByteType()
+        self.assertRaises(ValueError, twoByteType.encode, 128,1)
+        self.assertRaises(ValueError, twoByteType.encode, 1,1,1)
+        self.assertRaises(sysex_types.DecodeException, twoByteType.decode, "\x01")
+        self.assertRaises(sysex_types.DecodeException, twoByteType.decode, "\x01\x01\x01\x01\x05")
+
+
 class TestModuleMethods(unittest.TestCase):
     def test_parse_byte_string(self):
         self.assertEquals(
