@@ -602,7 +602,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         printf("\n");
 #endif
         if (rc == 1) {
-	    if (filesize == blocksize + transferred) {
+	    if (akai_dev->sysex_id == S56K_ID) {
 		// S56k transfer ends here
 		break;
 	    } else {
