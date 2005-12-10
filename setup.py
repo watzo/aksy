@@ -1,11 +1,20 @@
 """Aksy setup module
 """
 from distutils.core import setup, Extension
+from distutils.sysconfig import get_python_lib
 import platform
+
+
+library_dirs = []
+include_dirs = ["include"]
+libraries = ["usb"]
 
 extra_link_args = []
 if platform.system() == "Darwin":
     extra_link_args = ['-framework CoreFoundation IOKit']
+if platform.system() == "Windows":
+    libraries = ["libusb"]
+    library_dirs = ["C:\Program Files\LibUSB-Win32-0.1.10.1\lib\msvc"]
 
 setup(name = "aksy",
       version = "0.1.2",
@@ -22,9 +31,11 @@ setup(name = "aksy",
       ext_modules=[
           Extension("aksyxusb",
               sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c" ],
-              define_macros=[('_DEBUG', '1')],
+              define_macros=[('_AKSY_DEBUG', '1')],
+              library_dirs = library_dirs,
+              include_dirs = include_dirs,
               extra_link_args = extra_link_args,
-              libraries = ["usb"],
+              libraries = libraries,
           ),
       ]
 )
