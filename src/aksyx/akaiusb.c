@@ -15,6 +15,7 @@
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
     #define inline _inline
+    #define strcasecmp stricmp
 #endif
 
 /* Checks whether buffer is an ok reply (0x41 0x6b 0x61 0x49) */
@@ -78,6 +79,7 @@ int _init_akai_usb(akai_usb_device akai_dev, struct usb_device *dev) {
 }
 
 int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
+    sysex_commands commands;
     int rc = _init_akai_usb(akai_dev, dev);
     if (rc) return rc;
 
@@ -86,7 +88,6 @@ int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
     if (rc < 0) return AKAI_USB_INIT_ERROR;
 
     akai_dev->sysex_id = Z48_ID;
-    sysex_commands commands;
     commands.get_multi_handle = Z48_GET_MULTI_HANDLE;
     commands.get_midi_handle = Z48_GET_MIDI_HANDLE;
     commands.get_program_handle = Z48_GET_PROGRAM_HANDLE;
@@ -98,6 +99,7 @@ int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
 }
 
 int _init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
+    sysex_commands commands;
     int rc = _init_akai_usb(akai_dev, dev);
     if (rc) return rc;
 
@@ -108,7 +110,6 @@ int _init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
     if (rc < 0) return AKAI_USB_INIT_ERROR;
 
     akai_dev->sysex_id = S56K_ID;
-    sysex_commands commands;
     commands.get_multi_handle = S56K_GET_MULTI_HANDLE;
     commands.get_midi_handle = S56K_GET_MIDI_HANDLE;
     commands.get_program_handle = S56K_GET_PROGRAM_HANDLE;
@@ -142,8 +143,13 @@ int akai_usb_device_init(akai_usb_device akai_dev)
          if (dev->descriptor.idVendor == VENDOR_ID)
          {
              usb_product_id = dev->descriptor.idProduct;
-
-             switch (usb_product_id) {
+	     if (akai_dev->usb_product_id &&
+		 akai_dev->usb_product_id != usb_product_id)
+	     {
+		 continue;
+	     }
+             switch (usb_product_id)
+	     {
 		 case Z48_ID:
 		     rc = _init_z48(akai_dev, dev);
 		     break;
@@ -220,6 +226,9 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     unsigned char *sysex, *data, *cmd_id;
     int name_length = strlen(name);
     int retval;
+    int sysex_length;
+    char device_id;
+    int index;
 
     if (name_length < 4)
     {
@@ -250,9 +259,9 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     /* request: \x10\x08\x00\xf0\x47 <sysex_id> <device_id> <userref> <section, command, name, \xf7 */
-    int sysex_length = name_length + 7 + akai_dev->userref_length;
-    char device_id =  akai_dev->userref_length << 4;
-    int index = 0;
+    sysex_length = name_length + 7 + akai_dev->userref_length;
+    device_id =  akai_dev->userref_length << 4;
+    index = 0;
     sysex = (unsigned char*) calloc(sysex_length, sizeof(unsigned char));
     memcpy(sysex, "\x10", 1 * sizeof(unsigned char));
     memcpy(sysex+1, &sysex_length, 1 * sizeof(unsigned char));
@@ -276,9 +285,9 @@ int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
     else
     {
         data = (unsigned char*) calloc(13 + akai_dev->userref_length, sizeof(unsigned char));
-        int ret;
+
 read_sysex:
-        if ((ret = usb_bulk_read(akai_dev->dev, EP_IN, data, 13 + akai_dev->userref_length, timeout)) < 0)
+        if ((retval = usb_bulk_read(akai_dev->dev, EP_IN, data, 13 + akai_dev->userref_length, timeout)) < 0)
         {
             retval = AKAI_TRANSMISSION_ERROR;
         }
@@ -312,6 +321,9 @@ read_sysex:
 }
 
 int _init_get_request(unsigned char *get_request, unsigned char *filename, unsigned char *handle) {
+    int native_int_handle;
+    int be_handle;
+
     if (IS_SAMPLE_FILE(filename)) {
 	get_request[0] = Z48_MEMORY_GET_SAMPLE;
     }
@@ -332,12 +344,12 @@ int _init_get_request(unsigned char *get_request, unsigned char *filename, unsig
     transfer request uses 8 bit values so we swap back and forth:
     check this for ppc
     */
-    int native_int_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]);
+    native_int_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]);
 
 #if (_BIG_ENDIAN == 1)
-    int be_handle = native_int_handle;
+    be_handle = native_int_handle;
 #else
-    int be_handle = ENDSWAP_INT(native_int_handle);
+    be_handle = ENDSWAP_INT(native_int_handle);
 #endif
 
     memcpy(get_request+1, &be_handle, 1 * sizeof(int));
@@ -350,6 +362,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
     unsigned char *get_request, *data, *handle;
     int blocksize = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0;
     int src_filename_length = strlen(src_filename) + 1;
+    int read_transfer_status;
 #ifdef _POSIX_SOURCE
     struct timeval t1, t2;
 #endif
@@ -412,7 +425,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
     gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
 
-    int read_transfer_status = 1;
+    read_transfer_status = 1;
     do
     {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, data, blocksize, timeout);
@@ -435,7 +448,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
         else if (rc == 8)
         {
             /* get the number of bytes to read */
-#if (_DEBUG == 1)
+#if (_AKSY_DEBUG == 1)
             int i;
             printf("Reply block: ");
             for(i=0;i<8;i++)
@@ -449,7 +462,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
                 break;
             }
 
-#if (_DEBUG == 1)
+#if (_AKSY_DEBUG == 1)
             printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n",
                 blocksize, rc, bytes_transferred, actually_transferred);
 #endif
@@ -472,7 +485,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
         }
         else
         {
-#if (_DEBUG == 1)
+#if (_AKSY_DEBUG == 1)
             printf("At bulk read: Unexpected reply, rc %i or unexpected end of transmission.\n", rc);
 #endif
             rc = AKAI_TRANSMISSION_ERROR;
@@ -507,6 +520,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1;
     FILE* fp;
+    int i;
 
 #ifdef _POSIX_SOURCE
     struct stat* st;
@@ -594,9 +608,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, reply_buf, 64, 1000);
 
-#if (_DEBUG == 1)
+#if (_AKSY_DEBUG == 1)
         printf("return code: %i\n", rc);
-        int i = 0;
+        i = 0;
         for (; i < rc; i++)
             printf("%02x ", reply_buf[i]);
         printf("\n");
@@ -620,7 +634,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
             blocksize = GET_BLOCK_SIZE(reply_buf);
             assert (blocksize <= init_blocksize);
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
-#if (_DEBUG == 1)
+#if (_AKSY_DEBUG == 1)
             printf("blocksize: %i\n", blocksize);
             printf("transferred: %i\n", transferred);
 #endif
@@ -637,7 +651,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 
         fseek(fp, transferred, 0);
         bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
-#if (_DEBUG == 1)
+#if (_AKSY_DEBUG == 1)
         printf("writing %i bytes\n", bytes_read);
 #endif
         usb_bulk_write(akai_dev->dev, EP_OUT, buf, bytes_read, 1000);
