@@ -1,4 +1,6 @@
 from aksyxusb import AkaiSampler
+import aksyxusb
+
 from aksy.devices.akai import sysex
 from aksy.devices.akai.sysex import Request, Reply
 from aksy import model
@@ -10,38 +12,29 @@ class Sampler(AkaiSampler):
     """Models an Akai sampler.
 
     You can use it like this:
-    >>> z = Sampler()
-    >>> z.init()
+    >>> z = Sampler(0x5f)
     >>> z.disktools.get_disklist()
     (512, 1, 2, 0, 1, 'Z48 & MPC4K')
 
-    >>> z.select_disk(256)
-    >>> z.set_curr_folder('')
+    >>> z.disktools.select_disk(256)
+    >>> z.disktools.set_curr_folder('')
     >>> # z.create_subfolder('AUTOLOAD')
-    >>> z.set_curr_folder('AUTOLOAD')
+    >>> z.disktools.set_curr_folder('AUTOLOAD')
 
     >>> # z.get('Ride 1.wav', '/home/walco/dev/aksy' )
     >>> # z.put('/home/walco/dev/aksy/Ride 1.wav', 'Ride 1 copy.wav')
 
     # the number can differ of course...
-    >>> # z.get_no_subfolders()
+    >>> # z.disktools.get_no_subfolders()
     21
-    >>> # z.get_filenames()
+    >>> # z.disktools.get_filenames()
 
-    >>> z.get_subfolder_names()
+    >>> z.disktools.get_subfolder_names()
     ()
-    >>> z.close_usb()
     """
-    def __init__(self, debug=1, id=0):
-        self.id = id
+    def __init__(self, usb_product_id, debug=1):
         self.debug = debug
-        AkaiSampler.__init__(self)
-
-    def init(self):
-        """Initializes the connection with the sampler
-        """
-        self.init_usb()
-
+        AkaiSampler.__init__(self, usb_product_id)
         # not fool proof for multiple disks
         #disk = model.Disk(self.disktools.get_disklist())
         #self.disktools.select_disk(disk.handle)
@@ -79,12 +72,7 @@ class Sampler(AkaiSampler):
             print e
         self.sysextools.enable_item_sync(False)
 
-    def close(self):
-        """Closes the connection with the sampler
-        """
-        self.close_usb()
-
-    def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
+    def get(self, filename, destfile=None, source=aksyxusb.MEMORY):
         """Gets a file from the sampler, overwriting destfile if it already exists.
         """
         if destfile is None:
@@ -92,7 +80,7 @@ class Sampler(AkaiSampler):
 
         self._get(filename, destfile, source)
 
-    def put(self, sourcepath, remote_name=None, destination=AkaiSampler.MEMORY):
+    def put(self, sourcepath, remote_name=None, destination=aksyxusb.MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """

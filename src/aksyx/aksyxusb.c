@@ -1,4 +1,6 @@
 #include <Python.h>
+#include "structmember.h"
+
 #include <stdio.h>
 #include <usb.h>
 #include <assert.h>
@@ -6,131 +8,128 @@
 #include "akaiusb.h"
 #include "aksyxusb.h"
 
-static akai_usb_device sampler = NULL;
-
 extern int z48_sysex_reply_ok(char* sysex_reply);
 
-static PyObject*
-AkaiSampler_init(PyObject *self, PyObject* args)
-{
-    Py_INCREF(Py_None);
-    return Py_None;
-}
+typedef struct {
+    PyObject_HEAD
+    PyObject* sysex_id;
+    akai_usb_device sampler;
+} AkaiSampler;
 
-static PyObject*
-AkaiSampler_init_usb(PyObject *self, PyObject *args)
+static void
+AkaiSampler_dealloc(AkaiSampler* self)
 {
-    PyObject* self_arg;
     int rc;
 
-    if (sampler)
+    if (self->sampler)
     {
-        return PyErr_Format(PyExc_Exception, "Sampler USB is already initialized");
+	rc = akai_usb_device_close(self->sampler);
+	PyMem_Free(self->sampler);
+	self->sampler = NULL;
+	Py_DECREF(self->sysex_id);
+	self->sysex_id = NULL;
+	if (rc)
+	{
+	    printf("WARN: Device was not succesfully closed\n");
+	}
+    }
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+AkaiSampler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    AkaiSampler *self;
+
+    self = (AkaiSampler *)type->tp_alloc(type, 0);
+    if (self != NULL) {
+        self->sampler = NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "O", &self_arg))
+    return (PyObject *)self;
+}
+
+static int
+AkaiSampler_init(AkaiSampler *self, PyObject *args)
+{
+    int usb_product_id;
+    int rc;
+
+    if(!PyArg_ParseTuple(args, "i", &usb_product_id))
     {
-        return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
+        return -1;
     }
 
-    sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct _akai_usb_device));
-    rc = akai_usb_device_init(sampler);
+    self->sampler = (akai_usb_device)PyMem_Malloc(sizeof(akai_usb_device));
+    self->sampler->usb_product_id = usb_product_id;
+
+    rc = akai_usb_device_init(self->sampler);
 
     if (rc == AKAI_NO_SAMPLER_FOUND)
     {
         // valgrind complaint: invalid read
-        PyMem_Free(sampler);
-        sampler = NULL;
-        return PyErr_Format(PyExc_Exception, "No sampler found");
+        PyMem_Free(self->sampler);
+        self->sampler = NULL;
+        PyErr_Format(PyExc_Exception, "Sampler not found");
+	return -1;
     }
 
     if (rc == AKAI_USB_INIT_ERROR)
     {
-        PyMem_Free(sampler);
-        sampler = NULL;
-        return PyErr_Format(PyExc_Exception, "USB device init failed");
+        PyMem_Free(self->sampler);
+        self->sampler = NULL;
+        PyErr_Format(PyExc_Exception, "USB device init failed");
+	return -1;
     }
 
     if (rc == AKAI_TRANSMISSION_ERROR)
     {
-        PyMem_Free(sampler);
-        sampler = NULL;
-        return PyErr_Format(PyExc_Exception, "Akai setup sequence failed");
+        PyMem_Free(self->sampler);
+        self->sampler = NULL;
+        PyErr_Format(PyExc_Exception, "Akai setup sequence failed");
+	return -1;
     }
 
-    PyObject* sysex_id_str = Py_BuildValue("s", "sysex_id");
-    PyObject* sysex_id = Py_BuildValue("i", sampler->sysex_id);
-    PyObject_SetAttr(self_arg, sysex_id_str, sysex_id);
-    Py_DECREF(sysex_id_str);
-    Py_DECREF(sysex_id);
-      Py_INCREF(Py_None);
-    return Py_None;
+    self->sysex_id = Py_BuildValue("i", self->sampler->sysex_id);
+    Py_INCREF(self->sysex_id);
+    return 0;
 }
 
-static PyObject*
-AkaiSampler_close_usb(PyObject *self, PyObject *args)
+static int
+AkaiSampler_reset_usb(AkaiSampler* self, PyObject *args)
 {
     int rc;
 
-    if (!sampler)
-    {
-        return PyErr_Format(PyExc_Exception, "Device was not initialized so could not be closed");
+    rc = akai_usb_device_reset(self->sampler);
+    if (rc < 0) {
+        PyErr_Format(PyExc_Exception, "Exeption during USB reset");
+	return -1;
     }
-
-    rc = akai_usb_device_close(sampler);
-    // valgrind: invalid read
-    PyMem_Free(sampler);
-    sampler = NULL;
-
-    if (rc)
-    {
-        return PyErr_Format(PyExc_Exception, "Device was not successfully closed. rc: %i", rc);
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject*
-AkaiSampler_reset_usb(PyObject *self, PyObject *args)
-{
-    int rc;
-
-    if (!sampler)
-    {
-        return PyErr_Format(PyExc_Exception, "Device was not initialized so could not be reset");
-    }
-
-    rc = akai_usb_device_reset(sampler);
-    if (rc < 0)
-        return PyErr_Format(PyExc_Exception, "Exeption during USB reset");
-
-    return AkaiSampler_close_usb(self, args);
+    return 0;
 }
 
 /* Gets a file from the sampler. Any existing file with the same name will be overwritten */
 static PyObject*
-AkaiSampler_get(PyObject* self, PyObject* args)
+AkaiSampler_get(AkaiSampler* self, PyObject* args)
 {
-    PyObject *self_arg = NULL;
     unsigned char *dest, *src;
     int rc;
     char location;
-
-    if (!sampler)
+    if (!self->sampler)
     {
-        return PyErr_Format(PyExc_Exception, "Device is not initialized.");
+        PyErr_Format(PyExc_Exception, "Device is not initialized.");
+	return NULL;
     }
 
 
-    if(!PyArg_ParseTuple(args, "Ossb", &self_arg, &src, &dest, &location))
+    if(!PyArg_ParseTuple(args, "ssb", &src, &dest, &location))
     {
-        return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
+        return NULL;
     }
     else
     {
         /* create get request */
-        rc = akai_usb_device_get(sampler, src, dest, location, USB_TIMEOUT);
+        rc = akai_usb_device_get(self->sampler, src, dest, location, USB_TIMEOUT);
 
         if (rc)
         {
@@ -158,20 +157,19 @@ AkaiSampler_get(PyObject* self, PyObject* args)
 
 /* uploads a file to the sampler. */
 static PyObject*
-AkaiSampler_put(PyObject* self, PyObject* args)
+AkaiSampler_put(AkaiSampler* self, PyObject* args)
 {
-    PyObject *self_arg;
     unsigned char *src, *dest;
     char location;
     int rc;
 
-    if(!PyArg_ParseTuple(args, "Ossb", &self_arg, &src, &dest, &location))
+    if(!PyArg_ParseTuple(args, "ssb", &src, &dest, &location))
     {
-        return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
+        return NULL;
     }
     else
     {
-        rc = akai_usb_device_put(sampler, src, dest, location, USB_TIMEOUT);
+        rc = akai_usb_device_put(self->sampler, src, dest, location, USB_TIMEOUT);
         if (rc)
         {
             switch(rc)
@@ -203,29 +201,24 @@ AkaiSampler_put(PyObject* self, PyObject* args)
 }
 
 static PyObject*
-AkaiSampler_execute(PyObject* self, PyObject* args)
+AkaiSampler_execute(AkaiSampler* self, PyObject* args)
 {
-    PyObject *self_arg, *ret;
+    PyObject *ret;
     char* sysex_command;
     int sysex_length, rc;
     const int BUFF_SIZE = 4096;
     unsigned char* buffer;
 
-    if (!sampler)
+    if(!PyArg_ParseTuple(args, "s#", &sysex_command, &sysex_length))
     {
-        return PyErr_Format(PyExc_Exception, "USB not initialized. Call init_usb first");
-    }
-
-    if(!PyArg_ParseTuple(args, "Os#", &self_arg, &sysex_command, &sysex_length))
-    {
-        return PyErr_Format(PyExc_Exception, "Arguments could not be parsed");
+        return NULL;
     }
     else
     {
         buffer = (unsigned char*)PyMem_Malloc( BUFF_SIZE * sizeof(unsigned char));
         buffer = memset(buffer, 128, sizeof(unsigned char));
         rc = akai_usb_device_exec_sysex(
-            sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
+            self->sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
 
         if (rc < 0)
         {
@@ -242,19 +235,64 @@ AkaiSampler_execute(PyObject* self, PyObject* args)
     }
 }
 
-static PyMethodDef AkaiSamplerMethods[] =
+static PyMemberDef AkaiSampler_members[] = {
+    {"sysex_id", T_OBJECT_EX, offsetof(AkaiSampler, sysex_id), 0,
+     "System exclusive ID"},
+    {NULL}
+};
+
+static PyMethodDef AkaiSampler_methods[] =
 {
-    {"__init__", AkaiSampler_init, METH_O, ""},
-    {"init_usb", AkaiSampler_init_usb, METH_VARARGS, "Initializes USB device and interface."},
-    {"reset_usb", AkaiSampler_reset_usb, METH_VARARGS, "Resets USB device and interface."},
-    {"close_usb", AkaiSampler_close_usb, METH_O, "Closes USB device and interface."},
-    {"_get", AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
-    {"_put", AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
-    {"_execute", AkaiSampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},
+    {"_reset", (PyCFunction)AkaiSampler_reset_usb, METH_VARARGS, "Resets USB device and interface."},
+    {"_get", (PyCFunction)AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
+    {"_put", (PyCFunction)AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
+    {"_execute", (PyCFunction)AkaiSampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},
     {NULL},
 };
 
-static PyMethodDef ModuleMethods[] = { {NULL} };
+static PyTypeObject aksyx_AkaiSamplerType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "aksyx.AkaiSampler",       /*tp_name*/
+    sizeof(AkaiSampler),       /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)AkaiSampler_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    "Akai USB Sampler",        /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    AkaiSampler_methods,       /* tp_methods */
+    AkaiSampler_members,       /* tp_members */
+    0,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)AkaiSampler_init,/* tp_init */
+    0,                         /* tp_alloc */
+    AkaiSampler_new,           /* tp_new */
+};
+
+static PyMethodDef aksyxusb_methods[] = { {NULL} };
 
 #ifdef __cplusplus
 extern "C"
@@ -262,42 +300,33 @@ extern "C"
 
 void initaksyxusb()
 {
-    PyMethodDef *def;
 
-    /* create a new module and class */
-    /* TODO: prevent multiple instances */
-    PyObject *module = Py_InitModule("aksyxusb", ModuleMethods);
-    PyObject *moduleDict = PyModule_GetDict(module);
-    PyObject *classDict = PyDict_New();
-    PyObject *className = PyString_FromString("AkaiSampler");
-    PyObject *aksyxClass = PyClass_New(NULL, classDict, className);
+    PyObject* m;
+    PyObject* loc_disk_str;
+    PyObject* loc_disk_id;
+    PyObject* loc_mem_str;
+    PyObject* loc_mem_id;
 
-    PyObject* loc_disk_str = Py_BuildValue("s", "DISK");
-    PyObject* loc_disk_id = Py_BuildValue("i", LOC_DISK);
-    PyObject* loc_mem_str = Py_BuildValue("s", "MEMORY");
-    PyObject* loc_mem_id = Py_BuildValue("i", LOC_MEMORY);
+    aksyx_AkaiSamplerType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&aksyx_AkaiSamplerType) < 0)
+        return;
 
-    PyDict_SetItemString(moduleDict, "AkaiSampler", aksyxClass);
+    m = Py_InitModule3("aksyxusb", aksyxusb_methods,
+                       "Aksy USB Extension.");
 
-    PyObject_SetAttr(aksyxClass, loc_disk_str, loc_disk_id);
-    PyObject_SetAttr(aksyxClass, loc_mem_str, loc_mem_id);
+    loc_disk_str = Py_BuildValue("s", "DISK");
+    loc_disk_id = Py_BuildValue("i", LOC_DISK);
+    loc_mem_str = Py_BuildValue("s", "MEMORY");
+    loc_mem_id = Py_BuildValue("i", LOC_MEMORY);
+
+    PyObject_SetAttr(m, loc_disk_str, loc_disk_id);
+    PyObject_SetAttr(m, loc_mem_str, loc_mem_id);
 
     Py_DECREF(loc_disk_str);
     Py_DECREF(loc_mem_str);
     Py_DECREF(loc_disk_id);
     Py_DECREF(loc_mem_id);
-    Py_DECREF(classDict);
-    Py_DECREF(className);
-    Py_DECREF(aksyxClass);
 
-    /* add methods to class */
-    for (def = AkaiSamplerMethods; def->ml_name != NULL; def++)
-    {
-        PyObject *func = PyCFunction_New(def, NULL);
-        PyObject *method = PyMethod_New(func, NULL, aksyxClass);
-        PyDict_SetItemString(classDict, def->ml_name, method);
-        Py_DECREF(func);
-        Py_DECREF(method);
-    }
+    Py_INCREF(&aksyx_AkaiSamplerType);
+    PyModule_AddObject(m, "AkaiSampler", (PyObject *)&aksyx_AkaiSamplerType);
 }
-
