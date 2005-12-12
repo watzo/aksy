@@ -12,6 +12,7 @@
 #define LOC_MEMORY 1
 
 /* transfer commands */
+#define CMD_EXEC_SYSEX 0x10
 #define Z48_DISK_GET 0x41
 #define Z48_DISK_PUT 0x40
 #define Z48_MEMORY_PUT 0x20
@@ -63,6 +64,7 @@
 #define IS_SAMPLE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "wav") == 0)
 #define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akp") == 0)
 #define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
+
 
 typedef struct _sysex_commands {
 	char* get_multi_handle;

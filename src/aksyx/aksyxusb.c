@@ -6,7 +6,8 @@
 #include <assert.h>
 #include <time.h>
 #include "akaiusb.h"
-#include "aksyxusb.h"
+
+#define USB_TIMEOUT 2000
 
 extern int z48_sysex_reply_ok(char* sysex_reply);
 
@@ -26,13 +27,13 @@ AkaiSampler_dealloc(AkaiSampler* self)
 	rc = akai_usb_device_close(self->sampler);
 	PyMem_Free(self->sampler);
 	self->sampler = NULL;
-	Py_DECREF(self->sysex_id);
-	self->sysex_id = NULL;
 	if (rc)
 	{
 	    printf("WARN: Device was not succesfully closed\n");
 	}
     }
+
+    Py_XDECREF(self->sysex_id);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -44,6 +45,7 @@ AkaiSampler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (AkaiSampler *)type->tp_alloc(type, 0);
     if (self != NULL) {
         self->sampler = NULL;
+	self->sysex_id = NULL;
     }
 
     return (PyObject *)self;
@@ -228,7 +230,6 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
         {
             ret = Py_BuildValue("s#", buffer, rc);
         }
-
         // valgr: val unitialized?
         PyMem_Free(buffer);
         return ret;
@@ -294,39 +295,47 @@ static PyTypeObject aksyx_AkaiSamplerType = {
 
 static PyMethodDef aksyxusb_methods[] = { {NULL} };
 
-#ifdef __cplusplus
-extern "C"
+#ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
+#define PyMODINIT_FUNC void
 #endif
-
-void initaksyxusb()
+PyMODINIT_FUNC
+initaksyxusb(void)
 {
 
     PyObject* m;
-    PyObject* loc_disk_str;
     PyObject* loc_disk_id;
-    PyObject* loc_mem_str;
     PyObject* loc_mem_id;
+    PyObject* z48_usb_id;
+    PyObject* s56k_usb_id;
+    PyObject* mpc4k_usb_id;
 
     aksyx_AkaiSamplerType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&aksyx_AkaiSamplerType) < 0)
         return;
+    Py_INCREF(&aksyx_AkaiSamplerType);
+    m = Py_InitModule3("aksyxusb", aksyxusb_methods, "Aksy USB Extension.");
 
-    m = Py_InitModule3("aksyxusb", aksyxusb_methods,
-                       "Aksy USB Extension.");
-
-    loc_disk_str = Py_BuildValue("s", "DISK");
     loc_disk_id = Py_BuildValue("i", LOC_DISK);
-    loc_mem_str = Py_BuildValue("s", "MEMORY");
     loc_mem_id = Py_BuildValue("i", LOC_MEMORY);
 
-    PyObject_SetAttr(m, loc_disk_str, loc_disk_id);
-    PyObject_SetAttr(m, loc_mem_str, loc_mem_id);
+    z48_usb_id = Py_BuildValue("i", Z48_ID);
+    s56k_usb_id = Py_BuildValue("i", S56K_ID);
+    mpc4k_usb_id = Py_BuildValue("i", MPC4K_ID);
 
-    Py_DECREF(loc_disk_str);
-    Py_DECREF(loc_mem_str);
+    PyDict_SetItemString(aksyx_AkaiSamplerType.tp_dict, "DISK", loc_disk_id);
+    PyDict_SetItemString(aksyx_AkaiSamplerType.tp_dict, "MEMORY", loc_mem_id);
+
+    PyDict_SetItemString(aksyx_AkaiSamplerType.tp_dict, "Z48", z48_usb_id);
+    PyDict_SetItemString(aksyx_AkaiSamplerType.tp_dict, "S56K", s56k_usb_id);
+    PyDict_SetItemString(aksyx_AkaiSamplerType.tp_dict, "MPC4K", mpc4k_usb_id);
+
     Py_DECREF(loc_disk_id);
     Py_DECREF(loc_mem_id);
 
-    Py_INCREF(&aksyx_AkaiSamplerType);
+    Py_DECREF(z48_usb_id);
+    Py_DECREF(s56k_usb_id);
+    Py_DECREF(mpc4k_usb_id);
+
+
     PyModule_AddObject(m, "AkaiSampler", (PyObject *)&aksyx_AkaiSamplerType);
 }

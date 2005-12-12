@@ -138,6 +138,7 @@ int akai_usb_device_init(akai_usb_device akai_dev)
 
     for (bus = usb_get_busses(); bus; bus = bus->next)
     {
+
        for (dev = bus->devices; dev; dev = dev->next)
        {
          if (dev->descriptor.idVendor == VENDOR_ID)
@@ -186,8 +187,18 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
     unsigned char *sysex, int sysex_length,
     unsigned char *result_buff, int result_buff_length, int timeout)
 {
-    int rc = usb_bulk_write(akai_dev->dev, EP_OUT, sysex, sysex_length, timeout);
+    int rc;
+    char* request = (unsigned char*) calloc(sysex_length+1, sizeof(unsigned char));
+    char byte1 = (unsigned char)sysex_length;
+    char byte2 = (unsigned char)sysex_length>>8;
 
+    request[0] = CMD_EXEC_SYSEX;
+    memcpy(request+1, &byte1, 1*sizeof(unsigned char));
+    memcpy(request+2, &byte2, 1*sizeof(unsigned char));
+    memcpy(request+3, sysex, sysex_length*sizeof(unsigned char));
+
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request, sysex_length+3, timeout);
+    free(request);
     if (rc < 0)
     {
         return rc;
@@ -356,68 +367,26 @@ int _init_get_request(unsigned char *get_request, unsigned char *filename, unsig
     return AKAI_SUCCESS;
 }
 
-int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
-    unsigned char *dest_filename, int location, int timeout)
-{
-    unsigned char *get_request, *data, *handle;
+int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* request, int request_length,
+				  unsigned char *dest_filename, int timeout) {
+    unsigned char* data;
     int blocksize = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0;
-    int src_filename_length = strlen(src_filename) + 1;
     int read_transfer_status;
 #ifdef _POSIX_SOURCE
     struct timeval t1, t2;
 #endif
     FILE *dest_file;
-
-    /* create get request */
-    if (location == LOC_MEMORY)
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request, request_length, timeout);
+    if (rc < 0)
     {
-        handle = (unsigned char*) calloc(4, sizeof(unsigned char));
-        rc = akai_usb_device_get_handle_by_name(akai_dev, src_filename,
-		handle, timeout);
-
-        if (rc)
-        {
-            free(handle);
-            return rc;
-        }
-        else
-        {
-            get_request = (unsigned char*) calloc(5, sizeof(unsigned char));
-	    rc = _init_get_request(get_request, src_filename, handle);
-
-	    if (rc) {
-		free(handle);
-		free(get_request);
-		return rc;
-	    }
-
-            rc = usb_bulk_write(akai_dev->dev, EP_OUT, get_request, 5, timeout);
-
-            if (rc < 0)
-            {
-                free(get_request);
-                return AKAI_TRANSMISSION_ERROR;
-            }
-        }
-    }
-    else
-    {
-        get_request = (unsigned char*) calloc(src_filename_length+1, sizeof(unsigned char));
-        get_request[0] = Z48_DISK_GET;
-        memcpy(get_request+1, src_filename, src_filename_length * sizeof(unsigned char));
-        rc = usb_bulk_write(akai_dev->dev, EP_OUT, get_request, src_filename_length+1, timeout);
-        if (rc < 0)
-        {
-            free(get_request);
-            return AKAI_TRANSMISSION_ERROR;
-        }
+	return AKAI_TRANSMISSION_ERROR;
     }
 
     dest_file = fopen(dest_filename, "w+b");
 
     if (!dest_file)
     {
-        return errno;
+	return errno;
     }
 
     data = calloc(blocksize, sizeof(unsigned char));
@@ -428,69 +397,69 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
     read_transfer_status = 1;
     do
     {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, data, blocksize, timeout);
+	rc = usb_bulk_read(akai_dev->dev, EP_IN, data, blocksize, timeout);
 
-        if (rc == blocksize && !read_transfer_status)
-        {
-            bytes_transferred+= rc;
+	if (rc == blocksize && !read_transfer_status)
+	{
+	    bytes_transferred+= rc;
 
-            fseek(dest_file, actually_transferred, 0);
+	    fseek(dest_file, actually_transferred, 0);
 
-            /* write to file */
-            fwrite(data, sizeof(unsigned char), rc, dest_file);
+	    /* write to file */
+	    fwrite(data, sizeof(unsigned char), rc, dest_file);
 
-            /* sent continue request */
-            usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);
-            blocksize = 8;
-            read_transfer_status = 1;
-            continue;
-        }
-        else if (rc == 8)
-        {
-            /* get the number of bytes to read */
+	    /* sent continue request */
+	    usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);
+	    blocksize = 8;
+	    read_transfer_status = 1;
+	    continue;
+	}
+	else if (rc == 8)
+	{
+	    /* get the number of bytes to read */
 #if (_AKSY_DEBUG == 1)
-            int i;
-            printf("Reply block: ");
-            for(i=0;i<8;i++)
-                printf("%02X ", data[i]);
-            printf("\n");
+	    int i;
+	    printf("Reply block: ");
+	    for(i=0;i<8;i++)
+		printf("%02X ", data[i]);
+	    printf("\n");
 #endif
-            actually_transferred = GET_BYTES_TRANSFERRED(data);
-            if (actually_transferred == 1)
-            {
-                rc =  AKAI_FILE_NOT_FOUND;
-                break;
-            }
+	    actually_transferred = GET_BYTES_TRANSFERRED(data);
+	    if (actually_transferred == 1)
+	    {
+		rc =  AKAI_FILE_NOT_FOUND;
+		break;
+	    }
 
 #if (_AKSY_DEBUG == 1)
-            printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n",
-                blocksize, rc, bytes_transferred, actually_transferred);
+	    printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n",
+		   blocksize, rc, bytes_transferred, actually_transferred);
 #endif
 
-            blocksize = GET_BLOCK_SIZE(data);
+	    blocksize = GET_BLOCK_SIZE(data);
 
-            if (blocksize == 0)
-            {
-                /* file transfer completed */
-                rc = 0;
-                break;
-            }
+	    if (blocksize == 0)
+	    {
+		/* file transfer completed */
+		rc = 0;
+		break;
+	    }
 
-            read_transfer_status = 0;
-            continue;
-        }
-        else if (rc == 4 && akai_usb_reply_ok(data))
-        {
-             continue;
-        }
-        else
-        {
+	    read_transfer_status = 0;
+	    continue;
+	}
+	else if (rc == 4 && akai_usb_reply_ok(data))
+	{
+	    continue;
+	}
+	else
+	{
 #if (_AKSY_DEBUG == 1)
-            printf("At bulk read: Unexpected reply, rc %i or unexpected end of transmission.\n", rc);
+	    printf("At bulk read: Unexpected reply, rc %i or unexpected end of transmission.\n", rc);
 #endif
-            rc = AKAI_TRANSMISSION_ERROR;
+	    rc = AKAI_TRANSMISSION_ERROR;
 	    break;
-        }
+	}
 
     } while(rc > 0);
 
@@ -500,14 +469,59 @@ int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
     if (!rc)
     {
 #ifdef _POSIX_SOURCE
-        print_transfer_stats(t1, t2, bytes_transferred);
+	print_transfer_stats(t1, t2, bytes_transferred);
 #endif
-        return AKAI_SUCCESS;
+	return AKAI_SUCCESS;
     }
     else
     {
-        // remove(dest_filename);
-        return rc;
+	// remove(dest_filename);
+	return rc;
+    }
+}
+
+int akai_usb_device_get(akai_usb_device akai_dev, unsigned char *src_filename,
+    unsigned char *dest_filename, int location, int timeout)
+{
+    int rc = 0, src_filename_length = strlen(src_filename) + 1;
+    unsigned char *get_request, *handle;
+
+    /* create get request */
+    if (location == LOC_MEMORY)
+    {
+        handle = (unsigned char*) calloc(4, sizeof(unsigned char));
+        rc = akai_usb_device_get_handle_by_name(akai_dev, src_filename, handle, timeout);
+
+        if (rc)
+        {
+            free(handle);
+            return rc;
+        }
+        else
+        {
+            get_request = (unsigned char*) calloc(5, sizeof(unsigned char));
+	    rc = _init_get_request(get_request, src_filename, handle);
+	    free(handle);
+
+	    if (rc) {
+		free(get_request);
+		return rc;
+	    }
+
+	    rc = akai_usb_device_exec_get_request(akai_dev, get_request, 5, dest_filename, timeout);
+	    free(get_request);
+            return rc;
+        }
+    }
+    else
+    {
+	get_request = (unsigned char*) calloc(src_filename_length+1, sizeof(unsigned char));
+	get_request[0] = Z48_DISK_GET;
+	memcpy(get_request+1, src_filename, src_filename_length * sizeof(unsigned char));
+
+	rc = akai_usb_device_exec_get_request(akai_dev, get_request, src_filename_length+1, dest_filename, timeout);
+	free(get_request);
+	return rc;
     }
 }
 
@@ -576,10 +590,10 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
     command = (unsigned char*) calloc(dest_filename_length+6,  sizeof(unsigned char));
     command[0] = (location)?Z48_MEMORY_PUT:Z48_DISK_PUT;
-    command[1] = filesize >> 24;
-    command[2] = filesize >> 16;
-    command[3] = filesize >> 8;
-    command[4] = filesize;
+    command[1] = (unsigned char)filesize >> 24;
+    command[2] = (unsigned char)filesize >> 16;
+    command[3] = (unsigned char)filesize >> 8;
+    command[4] = (unsigned char)filesize;
     memcpy(command+5, dest_filename, dest_filename_length * sizeof(unsigned char));
 
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, command, dest_filename_length+6, 1000);
