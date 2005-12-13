@@ -188,7 +188,7 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
     unsigned char *result_buff, int result_buff_length, int timeout)
 {
     int rc;
-    char* request = (unsigned char*) calloc(sysex_length+1, sizeof(unsigned char));
+    char* request = (unsigned char*) calloc(sysex_length+3, sizeof(unsigned char));
     char byte1 = (unsigned char)sysex_length;
     char byte2 = (unsigned char)sysex_length>>8;
 
@@ -198,25 +198,31 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
     memcpy(request+3, sysex, sysex_length*sizeof(unsigned char));
 
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, request, sysex_length+3, timeout);
+
     free(request);
+
     if (rc < 0)
     {
-        return rc;
+        return AKAI_TRANSMISSION_ERROR;
     }
 
     rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
 
     if (rc < 0)
     {
-        return rc;
+        return AKAI_TRANSMISSION_ERROR;
     }
 
     if (rc > 3 && akai_usb_sysex_reply_ok(result_buff))
     {
-        return usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
+        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
     }
 
-    return rc;
+    if (rc < 0) {
+	return AKAI_TRANSMISSION_ERROR;
+    }
+
+    return AKAI_SUCCESS;
 }
 
 int akai_usb_device_send_bytes(akai_usb_device akai_dev, unsigned char* bytes,
@@ -417,7 +423,7 @@ int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* re
 	else if (rc == 8)
 	{
 	    /* get the number of bytes to read */
-#if (_AKSY_DEBUG == 1)
+#if (AKSY_DEBUG == 1)
 	    int i;
 	    printf("Reply block: ");
 	    for(i=0;i<8;i++)
@@ -431,7 +437,7 @@ int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* re
 		break;
 	    }
 
-#if (_AKSY_DEBUG == 1)
+#if (AKSY_DEBUG == 1)
 	    printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n",
 		   blocksize, rc, bytes_transferred, actually_transferred);
 #endif
@@ -454,7 +460,7 @@ int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* re
 	}
 	else
 	{
-#if (_AKSY_DEBUG == 1)
+#if (AKSY_DEBUG == 1)
 	    printf("At bulk read: Unexpected reply, rc %i or unexpected end of transmission.\n", rc);
 #endif
 	    rc = AKAI_TRANSMISSION_ERROR;
@@ -534,7 +540,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1;
     FILE* fp;
+#ifdef AKSY_DEBUG
     int i;
+#endif
 
 #ifdef _POSIX_SOURCE
     struct stat* st;
@@ -590,9 +598,9 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
     command = (unsigned char*) calloc(dest_filename_length+6,  sizeof(unsigned char));
     command[0] = (location)?Z48_MEMORY_PUT:Z48_DISK_PUT;
-    command[1] = (unsigned char)filesize >> 24;
-    command[2] = (unsigned char)filesize >> 16;
-    command[3] = (unsigned char)filesize >> 8;
+    command[1] = (unsigned char)(filesize >> 24);
+    command[2] = (unsigned char)(filesize >> 16);
+    command[3] = (unsigned char)(filesize >> 8);
     command[4] = (unsigned char)filesize;
     memcpy(command+5, dest_filename, dest_filename_length * sizeof(unsigned char));
 
@@ -622,7 +630,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, reply_buf, 64, 1000);
 
-#if (_AKSY_DEBUG == 1)
+#if (AKSY_DEBUG == 1)
         printf("return code: %i\n", rc);
         i = 0;
         for (; i < rc; i++)
@@ -648,7 +656,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
             blocksize = GET_BLOCK_SIZE(reply_buf);
             assert (blocksize <= init_blocksize);
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
-#if (_AKSY_DEBUG == 1)
+#if (AKSY_DEBUG == 1)
             printf("blocksize: %i\n", blocksize);
             printf("transferred: %i\n", transferred);
 #endif
@@ -665,7 +673,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 
         fseek(fp, transferred, 0);
         bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
-#if (_AKSY_DEBUG == 1)
+#if (AKSY_DEBUG == 1)
         printf("writing %i bytes\n", bytes_read);
 #endif
         usb_bulk_write(akai_dev->dev, EP_OUT, buf, bytes_read, 1000);
