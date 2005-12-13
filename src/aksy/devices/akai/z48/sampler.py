@@ -41,4 +41,4 @@ class Z48(Sampler):
 
 class MPC4K(Z48):
     def __init__(self, debug=1):
-        Z48.__init__(self, debug=1, Sampler.MPC4K)
+        Z48.__init__(self, debug=1, usb_product_id=Sampler.MPC4K)
