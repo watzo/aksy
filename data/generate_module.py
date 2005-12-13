@@ -121,7 +121,7 @@ while line:
         # docstring
         format = { 'indent': indent_block, 'desc': desc,'returns': ('\n'+indent_block*3).join(reply_spec) }
         if len(reply_spec) > 0:
-            testfile_out.writelines( "%sself.%s.%s()\n\n" % ((indent_block*2), device_name, name) )
+            testfile_out.writelines( "%sself.%s.%s.%s()\n\n" % ((indent_block*2), device_name, section_name, name) )
             format['returns'] = "\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s" % format
         else:
             testfile_out.writelines( "%sself.%s.%s()\n\n" % ((indent_block*2), device_name, name) )

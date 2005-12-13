@@ -9,7 +9,7 @@ sysextools	Methods to manipulate sysex parameters
 
 \x00	\x05	enable_screen_updates	Enable screen updates during sysex processing	BOOL
 
-\x00	\x06	echo	Echo the specified bytes	FOUR_BYTES
+\x00	\x06	echo	Echo the specified bytes	BYTE	BYTE	BYTE	BYTE
 FOUR_BYTES
 \x00	\x07	enable_heartbeat	Enable sending of empty sysex 'still alive' msgs
 
