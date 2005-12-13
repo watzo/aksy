@@ -62,7 +62,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
         return -1;
     }
 
-    self->sampler = (akai_usb_device)PyMem_Malloc(sizeof(akai_usb_device));
+    self->sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct _akai_usb_device));
     self->sampler->usb_product_id = usb_product_id;
 
     rc = akai_usb_device_init(self->sampler);
@@ -218,7 +218,6 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
     else
     {
         buffer = (unsigned char*)PyMem_Malloc( BUFF_SIZE * sizeof(unsigned char));
-        buffer = memset(buffer, 128, sizeof(unsigned char));
         rc = akai_usb_device_exec_sysex(
             self->sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
 
@@ -230,7 +229,6 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
         {
             ret = Py_BuildValue("s#", buffer, rc);
         }
-        // valgr: val unitialized?
         PyMem_Free(buffer);
         return ret;
     }
