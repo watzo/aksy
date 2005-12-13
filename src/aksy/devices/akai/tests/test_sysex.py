@@ -124,6 +124,16 @@ class TestReply(unittest.TestCase):
             sysex_types.DiskInfo((257, 3, 8, 2, 0, 'No disk')), sysex_types.DiskInfo((386, 3, 1, 4, 1, 'No Disk Name')))
             , reply.get_return_value())
 
+    def testParseEchoReply(self):
+        bytes = sysex.repr_bytes(
+            ['f0', '47', '5f', '00', '52', '00', '06', '0b', '01', '01', '01', '01', 'f7'])
+        cmd = sysex.Command(sysex.Z48_ID, '\x00\x06', 'query', (),(
+            sysex_types.BYTE,sysex_types.BYTE,sysex_types.BYTE,sysex_types.BYTE))
+        reply = sysex.Reply(bytes, cmd)
+        self.assertEquals((1,1,1,1), reply.get_return_value())
+
+
+
 class TestModuleMethods(unittest.TestCase):
     def test_byte_repr(self):
         bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
