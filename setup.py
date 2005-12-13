@@ -29,7 +29,7 @@ setup(name = "aksy",
       # scripts=['scripts/checkout.py'],
       ext_modules=[
           Extension("aksyxusb",
-              sources = [ "src/aksyx/aksyxusb.c",],
+              sources = [ "src/aksyx/aksyxusb.c", "src/aksyx/akaiusb.c",],
               define_macros=[('AKSY_DEBUG', '1')],
               library_dirs = library_dirs,
               include_dirs = include_dirs,
