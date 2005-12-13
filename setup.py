@@ -23,6 +23,7 @@ setup(name = "aksy",
       packages=[
           'aksy', 'aksy.devices',
           'aksy.devices.akai',
+          'aksy.devices.akai.mock_z48',
           'aksy.devices.akai.z48',
           'aksy.devices.akai.s56k' ],
       url='http://walco.n--tree.net/projects/aksy',
