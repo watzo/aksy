@@ -127,8 +127,7 @@ class TestReply(unittest.TestCase):
     def testParseEchoReply(self):
         bytes = sysex.repr_bytes(
             ['f0', '47', '5f', '00', '52', '00', '06', '0b', '01', '01', '01', '01', 'f7'])
-        cmd = sysex.Command(sysex.Z48_ID, '\x00\x06', 'query', (),(
-            sysex_types.BYTE,sysex_types.BYTE,sysex_types.BYTE,sysex_types.BYTE))
+        cmd = sysex.Command(sysex.Z48_ID, '\x00\x06', 'query', (), None)
         reply = sysex.Reply(bytes, cmd)
         self.assertEquals((1,1,1,1), reply.get_return_value())
 
