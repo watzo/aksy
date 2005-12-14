@@ -1,21 +1,20 @@
 import sys, aksy
 from aksy.devices.akai.sysex import Request, Reply
-from aksy.devices.akai.z48 import disktools, programtools, sampletools, multitools
+from aksy.devices.akai.sampler import Sampler
+from aksy.devices.akai.z48 import sysextools, disktools, programtools, sampletools, multitools
 from aksy import model
 
-class Sampler:
+class Z48(Sampler):
     MEMORY = 1
     """
-    >>> z = MockZ48()
+    >>> z = Z48()
     >>> z.init()
     """
     def __init__(self, debug=0):
-        print "INIT MOCK"
         self.debug = debug
-        #self.command_spec = CommandSpec(
-        #    r'\x47\x5f\x00', CommandSpec.ID, CommandSpec.ARGS)
         self.disks = aksy.model.Storage('disk')
         self.memory = aksy.model.Memory('memory')
+        self.sysextools = sysextools.Sysextools(self)
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
         self.sampletools = sampletools.Sampletools(self)
@@ -25,12 +24,6 @@ class Sampler:
               model.Program: self.programtools,
               model.Sample: self.sampletools,
               model.Multi: self.multitools})
-
-
-    def init(self):
-        if self.debug > 0:
-            print "Init sampler"
-            # Setup some items
 
         rootfolder = model.Folder(("",))
         rootfolder.children.append(model.Folder(('', 'Autoload',)))
@@ -64,10 +57,6 @@ class Sampler:
             print "Executing command: %s " % command.name
         request = Request(command, args)
         return None
-
-    def close(self):
-        if self.debug > 0:
-            print "Close sampler"
 
 if __name__ == "__main__":
     import doctest, sys
