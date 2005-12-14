@@ -74,12 +74,11 @@ testClassName = "Test%s" % classname_helper(section_name)
 testfile_out.writelines( "class %s(TestCase):\n" %testClassName)
 file_out.writelines( "%sdef __init__(self, %s):\n" % (indent_block, device_name))
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
-testfile_out.writelines( "%sself.%s = Devices.get_instance('akai', 'usb')\n" % (indent_block*2, device_name))
+testfile_out.writelines( "%sself.%s = Devices.get_instance(%s, 'usb')\n" % (indent_block*2, device_name, device_name))
 testfile_out.writelines( "%sself.%s.init()\n\n" % (indent_block*2, device_name))
 testfile_out.writelines( "%sdef tearDown(self):\n" % indent_block)
 testfile_out.writelines( "%sself.%s.close()\n\n" % (indent_block*2, device_name))
 file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
-file_out.writelines( "%sself.commands = {}\n" % (indent_block*2))
 #file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
 
 methods = StringIO.StringIO()
@@ -115,6 +114,7 @@ while line:
 
 
         # definition
+        cmd_var_name = "self.%s_cmd" % name
         methods.writelines( "%sdef %s(%s):\n" % (indent_block, name, ', '.join(args)))
         testfile_out.writelines( "%sdef test_%s(self):\n" % (indent_block, name) )
 
@@ -134,10 +134,7 @@ while line:
         comm_args = []
         comm_args.extend(args[1:])
         comm_args.append('')
-        methods.writelines(
-            "%scomm = self.commands.get('%s%s')\n" % (indent_block*2, section_id, id))
-
-        methods.writelines( "%sreturn self.%s.execute(comm, %s)\n\n" % (indent_block*2, device_name, '('+ ', '.join(comm_args) + ')'))
+        methods.writelines( "%sreturn self.%s.execute(%s, %s)\n\n" % (indent_block*2, device_name, cmd_var_name, '('+ ', '.join(comm_args) + ')'))
 
         # put the command in a dict with tuple key (section_id, id)
         if skip_replyspec:
@@ -149,10 +146,8 @@ while line:
         else:
             userref_type_arg = ', %s' % userref_type
         file_out.writelines(
-            "%scomm = %s.Command(%s, '%s%s', '%s', %s, %s%s)\n" \
-            % ((indent_block*2), sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
-
-        file_out.writelines("%sself.commands['%s%s'] = comm\n" % ((indent_block*2), section_id, id))
+            "%s%s = %s.Command(%s, '%s%s', '%s', %s, %s%s)\n" \
+            % ((indent_block*2), cmd_var_name, sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
     except IndexError, e:
         print "Parse error at line: %s, reason %s " % (line, e.args)
     except ValueError, e:
