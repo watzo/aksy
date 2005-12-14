@@ -27,7 +27,7 @@ AkaiSampler_dealloc(AkaiSampler* self)
 	rc = akai_usb_device_close(self->sampler);
 	PyMem_Free(self->sampler);
 	self->sampler = NULL;
-	if (rc)
+	if (rc == AKAI_USB_CLOSE_ERROR)
 	{
 	    printf("WARN: Device was not succesfully closed\n");
 	}
@@ -209,6 +209,7 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
     char* sysex_command;
     int sysex_length, rc;
     const int BUFF_SIZE = 4096;
+    int bytes_read;
     unsigned char* buffer;
 
     if(!PyArg_ParseTuple(args, "s#", &sysex_command, &sysex_length))
@@ -219,15 +220,15 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
     {
         buffer = (unsigned char*)PyMem_Malloc( BUFF_SIZE * sizeof(unsigned char));
         rc = akai_usb_device_exec_sysex(
-            self->sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, USB_TIMEOUT);
+            self->sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, &bytes_read, USB_TIMEOUT);
 
-        if (rc < 0)
+        if (rc == AKAI_TRANSMISSION_ERROR)
         {
             ret = PyErr_Format(PyExc_Exception, "Error reading sysex reply, rc: %i.", rc);
         }
         else
         {
-            ret = Py_BuildValue("s#", buffer, rc);
+            ret = Py_BuildValue("s#", buffer, bytes_read);
         }
         PyMem_Free(buffer);
         return ret;

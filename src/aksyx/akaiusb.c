@@ -175,17 +175,19 @@ int akai_usb_device_close(akai_usb_device akai_dev)
 {
     int rc = usb_release_interface(akai_dev->dev, 0);
     rc = usb_close(akai_dev->dev)|rc;
-    return rc;
+    return rc < 0? AKAI_USB_CLOSE_ERROR: AKAI_SUCCESS;
 }
 
 int akai_usb_device_reset(akai_usb_device akai_dev)
 {
-   return usb_reset(akai_dev->dev);
+   int rc = usb_reset(akai_dev->dev);
+   return rc < 0? AKAI_USB_RESET_ERROR: AKAI_SUCCESS;
+
 }
 
 int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
     unsigned char *sysex, int sysex_length,
-    unsigned char *result_buff, int result_buff_length, int timeout)
+    unsigned char *result_buff, int result_buff_length, int* bytes_read, int timeout)
 {
     int rc;
     char* request = (unsigned char*) calloc(sysex_length+3, sizeof(unsigned char));
@@ -222,6 +224,7 @@ int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
 	return AKAI_TRANSMISSION_ERROR;
     }
 
+    *bytes_read = rc;
     return AKAI_SUCCESS;
 }
 

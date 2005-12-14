@@ -57,6 +57,9 @@
 #define AKAI_FILE_STAT_ERROR 5008
 #define AKAI_FILE_READ_ERROR 5009
 #define AKAI_EMPTY_FILE_ERROR 5010
+#define AKAI_USB_CLOSE_ERROR 5011
+#define AKAI_USB_RESET_ERROR 5012
+
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 
@@ -86,10 +89,14 @@ typedef struct _akai_usb_device {
 /*
  * akaiusb public api methods
  *
+ * all methods return AKAI_SUCCESS on success
  */
 
-/* opens a akai usb device. allocated memory is freed in case the
- * device initialisation goes wrong
+/* opens a akai usb device
+ *
+ * returns AKAI_USB_INIT_ERROR if the usb setup failed or AKAI_NO_SAMPLER_FOUND
+ * if no supported samplers were found
+ *
  */
 int akai_usb_device_init(akai_usb_device akai_dev);
 
@@ -99,18 +106,14 @@ int akai_usb_device_reset(akai_usb_device akai_dev);
 /* closes a akai usb device */
 int akai_usb_device_close(akai_usb_device akai_dev);
 
-int akai_usb_device_send_bytes(akai_usb_device akai_dev, unsigned char* bytes,
-    int byte_length, int timeout);
-
-int akai_usb_device_recv_bytes(akai_usb_device akai_dev, unsigned char* buff,
-    int buff_length, int timeout);
-
 /* executes a system exclusive string on the sampler.
- * the return code is the return code of the underlying usb reads/writes
+ *
+ * returns AKAI_TRANSMISSION_ERROR if the usb reads or writes failed
+ *
  */
 int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
     unsigned char *sysex, int sysex_length,
-    unsigned char *result_buff, int result_buff_length, int timeout);
+    unsigned char *result_buff, int result_buff_length, int* bytes_read, int timeout);
 
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated 4 byte value
