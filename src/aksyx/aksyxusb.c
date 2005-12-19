@@ -62,7 +62,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
         return -1;
     }
 
-    self->sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct _akai_usb_device));
+    self->sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct akai_usb_device));
     self->sampler->usb_product_id = usb_product_id;
 
     rc = akai_usb_device_init(self->sampler);

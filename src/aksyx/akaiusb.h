@@ -69,14 +69,14 @@
 #define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
 
 
-typedef struct _sysex_commands {
+typedef struct sysex_commands {
 	char* get_multi_handle;
 	char* get_sample_handle;
 	char* get_midi_handle;
 	char* get_program_handle;
 } sysex_commands;
 
-typedef struct _akai_usb_device {
+typedef struct akai_usb_device {
     usb_dev_handle *dev;
     int usb_product_id;
     int sysex_id;

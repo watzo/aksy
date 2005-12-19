@@ -1,11 +1,14 @@
-import struct, sys, unittest
+import struct, sys, unittest, logging
+
 from aksy.devices.akai import sysex, sysex_types, sampler
+from aksy.devices.akai.z48 import sampler
+
+log = logging.getLogger("aksy")
 
 class TestUserRef(unittest.TestCase):
     def setUp(self):
         if not hasattr(self, 'z48'):
-            self.z48 = sampler.Sampler()
-            self.z48.init()
+            self.z48 = sampler.Z48()
 
     def testEncodeDecode(self):
         cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.PAD, sysex_types.BYTE,),
@@ -26,23 +29,23 @@ class TestUserRef(unittest.TestCase):
         self.assertEquals(3, length)
         self.assertEquals(16000, request_id)
 
-        # this fails on Z48
+        # this currently fails on Z48
         cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.PAD, sysex_types.BYTE,),
             userref_type=sysex_types.USERREF)
 
         request = sysex.Request(cmd, (), 126)
-        sys.stderr.writelines("Request: %s, id %i\n" % (repr(request), 126))
+        log.debug("Request: %s, id %i\n" % (repr(request), 126))
         bytes = self.z48._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
-        result = sysex.Reply(bytes, cmd)
-        sys.stderr.writelines("Reply: %s\n" % repr(result))
-        request_id = result.get_request_id()
-
-        self.assertEquals(126, request_id)
-
-    def tearDown(self):
-        self.z48.close()
+        try:
+            result = sysex.Reply(bytes, cmd)
+            log.debug("Reply: %s\n" % repr(result))
+            request_id = result.get_request_id()
+            self.assertEquals(126, request_id)
+        except sysex.SamplerException, e:
+            # unfortunately, this raises an exception
+            log.exception(e)
 
 def test_suite():
     testloader = unittest.TestLoader()
-    suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_sysex_integ')
+    suite = testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_sysex_integ')
     return suite

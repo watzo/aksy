@@ -1,6 +1,10 @@
+import logging
+
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai import sysex
 from aksy import model
+
+log = logging.getLogger("aksy")
 
 class Z48(Sampler):
     """Z48
@@ -36,7 +40,7 @@ class Z48(Sampler):
             # this command sometimes doesn't yield a response
             self.sysextools.enable_msg_notification(False)
         except Exception, e:
-            print e
+            log.exception(e)
         self.sysextools.enable_item_sync(False)
 
 class MPC4K(Z48):

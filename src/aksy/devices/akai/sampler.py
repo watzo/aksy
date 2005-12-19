@@ -13,6 +13,11 @@ class Sampler(AkaiSampler):
         self.debug = debug
         AkaiSampler.__init__(self, usb_product_id)
 
+    def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
+        tools_obj = getattr(self, section_name)
+        cmd = getattr(tools_obj, command_name + "_cmd")
+        return self.execute(cmd, args, request_id)
+
     def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
         """Gets a file from the sampler, overwriting destfile if it already exists.
         """
@@ -41,7 +46,3 @@ class Sampler(AkaiSampler):
             logging.debug("Reply %s\n" % sysex.byte_repr(result_bytes))
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(sys.modules[__name__])

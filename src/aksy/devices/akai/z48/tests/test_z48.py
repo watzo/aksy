@@ -1,21 +1,19 @@
 import unittest, os, os.path, md5
-from aksy.devices.akai import sampler
+from aksy.devices.akai.z48 import sampler
 
 TESTDIR = os.path.abspath(os.path.split(__file__)[0])
 
 class TestSampler(unittest.TestCase):
     def setUp(self):
-        self.z48 = sampler.Sampler()
-        self.z48.init()
-
-    def tearDown(self):
-        self.z48.close()
+        if not hasattr(self, 'z48'):
+            self.z48 = sampler.Z48()
 
     def testTransfers(self):
         # TODO: add files for each type
         self._testTransfer('test.wav')
 
     def _testTransfer(self, filename):
+
         fullpath = os.path.join(TESTDIR, filename)
         self.z48.put(fullpath)
         actualfilename = 'cp' + filename
@@ -38,5 +36,5 @@ def md5sum(fh):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_sampler')
+    suite = testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_z48')
     return suite
