@@ -4,13 +4,14 @@ Offers a high level API, should eventually be abstracting the midi jargon of
 different devices, but at the moment it is using Akai conventions
 
 """
-import re, os.path, sys
+import re, os.path, sys, logging
 
 RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
 
 handlers = {} 
+log = logging.getLogger("aksy")
 
 def register_handlers(tools):
     """Initialize the handlers, keyed on class
@@ -57,7 +58,7 @@ class File(object):
 
         assert isinstance(path, tuple) 
 
-        print >> sys.stderr, repr(path)
+        log.debug(repr(path))
         self.path = path
 
         if RE_MULTI.search(self.get_name()) is not None:
@@ -68,7 +69,7 @@ class File(object):
             self.type = self.SAMPLE
         else:
             #raise NotImplementedError("No support for file type: ", self.get_name()) 
-            print >> sys.stderr, "Warning: No support for file type: ", self.get_name() 
+            log.warn("No support for file type: ", self.get_name())
             self.type = self.SAMPLE
 
     def get_name(self):
@@ -122,7 +123,7 @@ class File(object):
     def transfer(self, path):
         """Transfer the file to host 
         """
-        print "Transfer of file %s to %s" % (self.get_name(), repr(path))
+        log.info("Transfer of file %s to %s" % (self.get_name(), repr(path)))
         # XXX: remove the reference to the sampler
         handlers[Disk].z48.get(self.get_name(), path)
 
@@ -185,10 +186,10 @@ class Folder(File):
         return self.path[-1]
 
     def set_current(self):
-        print "Current folder before set_current: %s" % handlers[Disk].get_curr_path()
+        log.debug("Current folder before set_current: %s" % handlers[Disk].get_curr_path())
         for item in self.path:
             handlers[Disk].set_curr_folder(item)
-        print "Current folder after set_current: %s" % handlers[Disk].get_curr_path()
+        log.debug("Current folder after set_current: %s" % handlers[Disk].get_curr_path())
 
     def copy(self, dest_path, recursive=True):
         """Copies a folder, default is including all its children
@@ -206,7 +207,7 @@ class Folder(File):
         """
         self.get_parent().set_current()
         handlers[Disk].load_folder(self.get_name())
-        print "Loading folder children %s" % repr (self.get_children())
+        log.debug("Loading folder children %s" % repr (self.get_children()))
         return [item for item in self.get_children()]
 
     def delete(self):
@@ -244,11 +245,11 @@ class Folder(File):
         """
         self.get_parent().set_current()
         path = os.path.join(path, self.get_name())
-        print "Transfer to dir: %s" % repr(path)
+        log.info("Transfer to dir: %s" % repr(path))
         if not os.path.exists(path):
             os.makedirs(path)
             for item in self.get_children():
-                print "Transfer to dir: %s" % repr(path)
+                log.debug("Transfer to dir: %s" % repr(path))
                 item.transfer(os.path.join(path, item.get_name()))
 
 class InMemoryFile(File):
@@ -262,7 +263,7 @@ class InMemoryFile(File):
         elif self.type == File.SONG:
             return Song(name)
         else:
-            print "Unknown file type:", repr(name)
+            log.debug("Unknown file type:", repr(name))
             return InMemoryFile(name)
 
     get_instance = staticmethod(get_instance)
@@ -293,7 +294,7 @@ class InMemoryFile(File):
         handlers[self.__class__].set_current_by_name(self.get_name())
 
     def delete(self):
-        print "InMemoryFile.delete() %s" % repr(self.get_name())
+        log.info("InMemoryFile.delete() %s" % repr(self.get_name()))
         handlers[self.__class__].get_no_items()
         self.set_current()
         handlers[self.__class__].delete_current()
