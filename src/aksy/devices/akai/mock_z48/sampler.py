@@ -1,4 +1,4 @@
-import sys, aksy
+import sys, aksy, logging, os.path
 from aksy.devices.akai.sysex import Request, Reply
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai.z48 import sysextools, disktools, programtools, sampletools, multitools
@@ -8,10 +8,10 @@ class Z48(Sampler):
     MEMORY = 1
     """
     >>> z = Z48()
-    >>> z.init()
     """
-    def __init__(self, debug=0):
-        self.debug = debug
+    def __init__(self):
+        self.log = logging.getLogger('aksy')
+        self.log.error('mock init')
         self.disks = aksy.model.Storage('disk')
         self.memory = aksy.model.Memory('memory')
         self.sysextools = sysextools.Sysextools(self)
@@ -45,19 +45,14 @@ class Z48(Sampler):
 
     def get(self, filename, destpath):
         if self.debug > 0:
-            print "Transferring file %s to host" % filename
+            self.log.debug("Transferring file %s to host" % filename)
 
     def put(self, path, remote_name, destination=MEMORY):
         if self.debug > 0:
-            print "Transferring file %s to sampler" % path
+            self.log.debug("Transferring file %s to sampler" % path)
 
     def execute(self, command, args, z48id=None, userref=None):
         # work with stored sessions later on
-        if self.debug > 0:
-            print "Executing command: %s " % command.name
+        self.log.debug("Executing command: %s " % command.name)
         request = Request(command, args)
         return None
-
-if __name__ == "__main__":
-    import doctest, sys
-    doctest.testmod(sys.modules[__name__])

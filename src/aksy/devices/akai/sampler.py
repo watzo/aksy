@@ -3,8 +3,9 @@ from aksyxusb import AkaiSampler
 
 from aksy import model
 
-import os.path
-import logging
+import os.path, logging
+
+log = logging.getLogger("aksy")
 
 class Sampler(AkaiSampler):
     """Base class for AkaiSampler.
@@ -40,9 +41,9 @@ class Sampler(AkaiSampler):
         """
         request = sysex.Request(command, args, request_id)
         if self.debug:
-            logging.debug("Request: %s, id %i\n" % (repr(request), request_id))
+            log.debug("Request: %s, id %i\n" % (repr(request), request_id))
         result_bytes = self._execute(request.get_bytes())
         if self.debug:
-            logging.debug("Reply %s\n" % sysex.byte_repr(result_bytes))
+            log.debug("Reply %s\n" % sysex.byte_repr(result_bytes))
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
