@@ -224,7 +224,7 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
 
         if (rc == AKAI_TRANSMISSION_ERROR)
         {
-            ret = PyErr_Format(PyExc_Exception, "Error reading sysex reply, rc: %i.", rc);
+            ret = PyErr_Format(PyExc_Exception, "Timeout waiting for sysex reply.");
         }
         else
         {

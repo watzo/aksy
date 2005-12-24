@@ -60,7 +60,6 @@
 #define AKAI_USB_CLOSE_ERROR 5011
 #define AKAI_USB_RESET_ERROR 5012
 
-
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 
 #define IS_MULTI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akm") == 0)
@@ -111,22 +110,22 @@ int akai_usb_device_close(akai_usb_device akai_dev);
  * returns AKAI_TRANSMISSION_ERROR if the usb reads or writes failed
  *
  */
-int akai_usb_device_exec_sysex(akai_usb_device akai_dev,
-    unsigned char *sysex, int sysex_length,
-    unsigned char *result_buff, int result_buff_length, int* bytes_read, int timeout);
+int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
+    const char *sysex, const int sysex_length,
+    char *result_buff, int result_buff_length, int* bytes_read, const int timeout);
 
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated 4 byte value
  */
 int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
-    unsigned char* name, unsigned char* handle, int timeout);
+    char* name, char* handle, int timeout);
 
 /* uploads a file to the sampler. location is Z48_MEMORY or Z48_DISK
  * The current path must be set explicitly if the file is transferred to
  * disk
  */
 int akai_usb_device_put(akai_usb_device akai_dev,
-    unsigned char *src_filename, unsigned char *dest_filename, int location, int timeout);
+    char *src_filename, char *dest_filename, int location, int timeout);
 
 /* transfers a file from the current path from the sampler.
  * Location can be either LOC_MEMORY or LOC_DISK.
@@ -134,4 +133,4 @@ int akai_usb_device_put(akai_usb_device akai_dev,
  * located before calling this function in case of disk transfers
  */
 int akai_usb_device_get(akai_usb_device akai_dev,
-    unsigned char *src_filename, unsigned char *dest_filename, int location, int timeout);
+    char *src_filename, char *dest_filename, int location, int timeout);

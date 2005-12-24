@@ -1,4 +1,4 @@
-import struct, sys, types, sysex_types
+import struct, sys, types, sysex_types, logging
 from sysex_types import START_SYSEX, END_SYSEX
 # Module vars
 
@@ -11,11 +11,13 @@ REPLY_ID_DONE = '\x44'
 REPLY_ID_REPLY = '\x52'
 REPLY_ID_ERROR = '\x45'
 
+log = logging.getLogger("aksy")
+
 class Command:
     """Represents a system exclusive command.
     """
     def __init__(self, device_id, id, name, arg_types,
-            reply_spec=(), userref_type=sysex_types.USERREF):
+            reply_spec, userref_type=sysex_types.USERREF):
         self.device_id = device_id
         self.id = id
         self.name = name
@@ -24,7 +26,6 @@ class Command:
         self.userref_type = userref_type
 
         for arg_type in arg_types:
-
             if arg_type is not None:
                 self.arg_types.append(arg_type)
 
