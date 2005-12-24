@@ -1,7 +1,9 @@
 from unittest import TestCase, TestLoader
 import logging
 
+from aksyxusb import AkaiSampler
 from aksy.device import Devices
+from aksy.devices.akai import sysex_types
 
 z48 = Devices.get_instance('z48', 'usb')
 log = logging.getLogger('aksy')
@@ -15,16 +17,18 @@ class TestDisktools(TestCase):
             log.error("selectFirstDisk: no disks found")
 
     def selectFirstFolder(self):
-        foldernames = z48.disktools.get_subfolder_names()
+        foldernames = z48.disktools.get_folder_names()
         if len(foldernames) > 0:
             z48.disktools.set_curr_folder(foldernames[0])
         else:
             log.error('selectFirstFolder: no folder to select')
 
+    def createSelectTestFolder(self):
+        z48.disktools.create_folder("test")
+        z48.disktools.set_curr_folder("test")
+
     def test_update_disklist(self):
-        # z48.disktools.update_disklist()
-        # ra
-        pass
+        z48.disktools.update_disklist()
 
     def test_select_disk(self):
         for disk in z48.disktools.get_disklist():
@@ -48,28 +52,31 @@ class TestDisktools(TestCase):
         pass
         #z48.eject_disk()
 
-    def test_get_no_subfolders(self):
+    def test_get_no_folders(self):
         self.selectFirstDisk()
 
-    def test_get_subfolder_names(self):
+    def test_get_folder_names(self):
         self.selectFirstDisk()
-        foldernames = z48.disktools.get_subfolder_names()
-        log.debug('test_get_subfolder_names' + repr(foldernames))
-        self.assertEquals(z48.disktools.get_no_subfolders(), len(foldernames))
+        foldernames = z48.disktools.get_folder_names()
+        log.debug('test_get_folder_names: ' + repr(foldernames))
+        self.assertEquals(z48.disktools.get_no_folders(), len(foldernames))
 
     def test_set_curr_folder(self):
         self.selectFirstDisk()
         self.selectFirstFolder()
 
     def test_load_folder(self):
-        pass # z48.disktools.load_folder()
+        self.selectFirstDisk()
+        self.createSelectTestFolder()
+        z48.disktools.set_curr_path("..")
+        z48.disktools.load_folder("test")
 
-    def test_create_rename_del_subfolder(self):
+    def test_create_rename_delete_folder(self):
         self.selectFirstDisk()
         self.selectFirstFolder()
-        z48.disktools.create_subfolder('test')
-        z48.disktools.rename_subfolder('test', 'testnew')
-        z48.disktools.del_subfolder('testnew')
+        z48.disktools.create_folder('test')
+        z48.disktools.rename_folder('test', 'testnew')
+        z48.disktools.delete_folder('testnew')
 
     def test_get_no_files(self):
         self.selectFirstDisk()
@@ -83,30 +90,37 @@ class TestDisktools(TestCase):
         log.info("test_get_filenames: %s" % repr(files))
         self.assertEquals(z48.disktools.get_no_files(), len(files))
 
-    """
     def test_rename_file(self):
-        z48.rename_file()
-
-    def test_delete_file(self):
-        z48.delete_file()
+        self.selectFirstDisk()
+        self.createSelectTestFolder()
+        z48.put("test.wav", AkaiSampler.DISK)
+        z48.disktools.rename_file("test.wav", "test2.wav")
 
     def test_load_file(self):
-        z48.load_file()
+        self.selectFirstDisk()
+        self.createSelectTestFolder()
+        z48.load_file("test.wav")
 
     def test_load_file_and_deps(self):
-        z48.load_file_and_deps("test")
+        self.selectFirstDisk()
+        self.createSelectTestFolder()
+        z48.load_file_and_deps("test2.wav")
+
+    def test_delete_file(self):
+        self.selectFirstDisk()
+        self.createSelectTestFolder()
+        z48.delete_file("test2.wav")
 
     def test_save(self):
         self.selectFirstDisk()
-        self.selectFirstFolder()
-		handle = z48.programtools.get_handle_by_name("test")
-        z48.save(handle, False ,False)
+        self.createSelectTestFolder()
+        handle = z48.sampletools.get_handle_by_name("test2")
+        z48.save(handle, sysex_types.FILETYPE.SAMPLE, False, False)
 
     def test_save_all(self):
         self.selectFirstDisk()
-        self.selectFirstFolder()
-        z48.save_all(0, False)
-    """
+        self.createSelectTestFolder()
+        z48.save_all(sysex_types.FILETYPE.ALL, False)
 
 def test_suite():
     testloader = TestLoader()
