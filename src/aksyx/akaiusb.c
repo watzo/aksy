@@ -116,6 +116,7 @@ int _init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
     akai_dev->commands = commands;
     akai_dev->userref = "";
     akai_dev->userref_length = 0;
+    akai_dev->get_handle_by_name = &z48_get_handle_by_name;
     return AKAI_SUCCESS;
 }
 
@@ -138,6 +139,7 @@ int _init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
     akai_dev->commands = commands;
     akai_dev->userref = "\x00\x00";
     akai_dev->userref_length = 2;
+    akai_dev->get_handle_by_name = &s56k_get_handle_by_name;
     return AKAI_SUCCESS;
 }
 
@@ -280,7 +282,7 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
     return AKAI_SUCCESS;
 }
 
-int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
+int z48_get_handle_by_name(akai_usb_device akai_dev,
     char* name, char* handle, int timeout)
 {
     char *sysex, *data, *cmd_id;
@@ -380,9 +382,8 @@ read_sysex:
     return retval;
 }
 
-
 int s56k_get_handle_by_name(akai_usb_device akai_dev,
-			    unsigned char* name, unsigned char* handle, int timeout)
+			    char* name, char* handle, int timeout)
 {
     unsigned char *sysex, *data, *get_no_items_cmd, *get_name_cmd_id;
     int name_length = strlen(name);
@@ -674,7 +675,7 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     if (location == LOC_MEMORY)
     {
         handle = (unsigned char*) calloc(4, sizeof(char));
-        rc = akai_usb_device_get_handle_by_name(akai_dev, src_filename, handle, timeout);
+        rc = akai_dev->get_handle_by_name(akai_dev, src_filename, handle, timeout);
 
         if (rc)
         {

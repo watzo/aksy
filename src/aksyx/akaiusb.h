@@ -82,7 +82,7 @@ typedef struct akai_usb_device {
     sysex_commands commands;
     int userref_length;
     char *userref;
-
+    int (*get_handle_by_name)(struct akai_usb_device*, char* , char*, int);
 } *akai_usb_device;
 
 /*
@@ -117,8 +117,11 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated 4 byte value
  */
-int akai_usb_device_get_handle_by_name(akai_usb_device akai_dev,
+int z48_get_handle_by_name(akai_usb_device akai_dev,
     char* name, char* handle, int timeout);
+
+int s56k_get_handle_by_name(akai_usb_device akai_dev,
+			   char* name, char* handle, int timeout);
 
 /* uploads a file to the sampler. location is Z48_MEMORY or Z48_DISK
  * The current path must be set explicitly if the file is transferred to
