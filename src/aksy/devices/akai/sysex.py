@@ -86,6 +86,9 @@ class Reply:
 
         if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
             raise ParseException("Invalid system exclusive string received")
+        # keep alive message
+        if len(self.bytes) == 2:
+            return None
         # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
         i += len(self.command.device_id)
@@ -180,8 +183,7 @@ errors = {
     0x18A:"Disk abort",
     0x200:"Unknown file error",
     0x201:"File format is not supported",
-}
-
-if __name__ == "__main__":
-    import doctest, sys
-    doctest.testmod(sys.modules[__name__])
+    0x202:"WAV format is incorrect",
+    0x203:"File not found",
+    0x204:"File already exists",
+    }

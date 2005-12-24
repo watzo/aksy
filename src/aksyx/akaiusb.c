@@ -257,6 +257,9 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
     log_hex("Reply 1: ", result_buff, rc);
 #endif
 
+    while (rc == 4 && akai_usb_reply_ok(result_buff)) {
+        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
+	log_hex("Reply: ", result_buff, rc);
     }
 
     if (rc > 4 && akai_usb_sysex_reply_ok(result_buff))

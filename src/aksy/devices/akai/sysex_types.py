@@ -1,4 +1,4 @@
-import struct, sys, types, sysex_types
+import struct, sys, types, sysex_types, logging
 
 START_SYSEX = '\xf0'
 STRING_TERMINATOR = '\x00'
@@ -6,6 +6,11 @@ END_SYSEX = '\xf7'
 
 POSTIVE     = '\x00'
 NEGATIVE    = '\x01'
+
+log = logging.getLogger("aksy")
+
+def byte_repr(bytes):
+    return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
 
 class SysexType(object):
     def __init__(self, size, signed=False, id=None):
@@ -345,6 +350,19 @@ class PanningType(ByteType):
     """Represents panning levels in -50->L, 50->R
     """
 
+class FileType(ByteType):
+    """Akai file types
+    """
+    ALL = 0
+    MULTI = 1
+    PROGRAM = 2
+    SAMPLE = 3
+    MIDI = 4
+    def __init__(self):
+        ByteType.__init__(self)
+        self.set_min_val(0)
+        self.set_max_val(4)
+
 class CompositeType(object):
     def __init__(self, types):
         self.types = types
@@ -484,6 +502,7 @@ PAD         = PadType()
 BOOL        = BoolType()
 CENTS       = '\x23' # SWORD(+- 3600)
 PAN         = PanningType()
+FILETYPE    = FileType()
 LEVEL       = SoundLevelType()
 DISK        = DiskType()
 DISKLIST    = DisklistType()

@@ -35,17 +35,19 @@ class Disktools:
               (aksy.devices.akai.sysex_types.WORD,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.get_filenames_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x22', 'get_filenames', (),
               (aksy.devices.akai.sysex_types.STRINGARRAY,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'rename', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
-          self.delete_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'delete', (aksy.devices.akai.sysex_types.STRING,), None,
+          self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
+          self.delete_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'delete_file', (aksy.devices.akai.sysex_types.STRING,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.load_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2A', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None)
-          self.load_file_and_deps_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None)
+          self.load_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2A', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None,
+               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
+          self.load_file_and_deps_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None,
+               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.save_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2C', 'save',
-              (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL,
+              (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.FILETYPE, aksy.devices.akai.sysex_types.BOOL,
                aksy.devices.akai.sysex_types.BOOL), None,
-              userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.save_all_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x20\x2D', 'save_all', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None,
-             userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
+               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
+          self.save_all_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2D', 'save_all', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.BOOL), None,
+             userref_type=aksy.devices.akai.sysex_types.USERREF)
 
      def update_disklist(self):
           """Update the list of disks connected
@@ -110,7 +112,7 @@ class Disktools:
      def open_folder(self, arg0):
           """Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)
           """
-          return self.z48.execute(self.set_curr_folder_cmd, (arg0, ))
+          return self.z48.execute(self.open_folder_cmd, (arg0, ))
 
      def load_folder(self, arg0):
           """Load Folder: the selected folder, and all its contents (including folders)
@@ -148,13 +150,13 @@ class Disktools:
           """
           return self.z48.execute(self.get_filenames_cmd, ())
 
-     def rename(self, arg0, arg1):
-          """Rename File or Folder
+     def rename_file(self, arg0, arg1):
+          """Rename File
           """
           return self.z48.execute(self.rename_file_cmd, (arg0, arg1, ))
 
-     def delete(self, arg0):
-          """Delete File or Folder <Data1> = name of file to delete.
+     def delete_file(self, arg0):
+          """Delete File <Data1> = name of file to delete.
           """
           return self.z48.execute(self.delete_file_cmd, (arg0, ))
 
@@ -177,7 +179,10 @@ class Disktools:
           """
           return self.z48.execute(self.save_cmd, (arg0, arg1, arg2, arg3, ))
 
-     def save_all(self, arg0, arg1):
-          """Save All Memory Items to Disk <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF) <Data2> = (0=Skip if file exists; 1=Overwrite existing files)
+     def save_all(self, arg0, arg1, arg2):
+          """Save All Memory Items to Disk
+          <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF)
+          <Data2> = (0=Skip if file exists; 1=Overwrite existing files)
+          <Data4> = (0=Don't save children; 1=Save Children)
           """
-          return self.z48.execute(self.save_all_cmd, (arg0, arg1, ))
+          return self.z48.execute(self.save_all_cmd, (arg0, arg1, arg2))
