@@ -41,9 +41,9 @@ class Sampler(AkaiSampler):
         """
         request = sysex.Request(command, args, request_id)
         if self.debug:
-            log.debug("Request: %s, id %i\n" % (repr(request), request_id))
+            log.debug("Command: %s %s, id %i\n" % (command.name, repr(request), request_id))
         result_bytes = self._execute(request.get_bytes())
         if self.debug:
-            log.debug("Reply %s\n" % sysex.byte_repr(result_bytes))
+            log.debug("Command: %s Reply %s\n" % (command.name, sysex.byte_repr(result_bytes)))
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
