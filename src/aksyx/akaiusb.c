@@ -39,6 +39,8 @@ akai_usb_sysex_reply_ok(char* sysex_reply)
     return sysex_reply[index] == SYSEX_OK;
 }
 
+// WIN32 : long now = timeGetTime();
+// DWORD GetTickCount()
 #ifdef _POSIX_SOURCE
 void
 print_transfer_stats(struct timeval t1, struct timeval t2, int bytes_transferred)
@@ -361,11 +363,12 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 int s56k_get_handle_by_name(akai_usb_device akai_dev,
 			    char* name, char* handle, int timeout)
 {
-    char *data, *get_no_items_cmd, *get_name_cmd_id;
+    char *data, *get_no_items_cmd, *get_name_cmd_id, *item_name;
+    int BUF_SIZE = 64;
     int name_length = strlen(name);
     int no_items = 0;
     int bytes_read = 0;
-    int retval;
+    int retval, offset;
     int i;
 
     if (name_length < 4)
@@ -401,22 +404,23 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     // get the number of items in memory
-    data = (char*) calloc(13 + akai_dev->userref_length, sizeof(char));
+    data = (char*) calloc(BUF_SIZE , sizeof(char));
 
     retval = akai_usb_device_exec_cmd(
-	akai_dev, get_no_items_cmd, NULL, 0, data, 13 + akai_dev->userref_length, &bytes_read, timeout);
+	akai_dev, get_no_items_cmd, NULL, 0, data, BUF_SIZE , &bytes_read, timeout);
 
     if (retval) {
 	return retval;
     }
 
     memcpy(&no_items, data+8+akai_dev->userref_length, 2*sizeof(char));
-    // iterate over all handles to compare the name
+
     for (i=0;i < no_items; i++) {
+	// TODO: fix for PPC
 	handle[0] = (char)(i>>8);
 	handle[1] = (char)i;
 	retval = akai_usb_device_exec_cmd(
-	    akai_dev, get_name_cmd_id, handle, 2, data, 13 + akai_dev->userref_length, &bytes_read, timeout);
+	    akai_dev, get_name_cmd_id, handle, 2, data, BUF_SIZE, &bytes_read, timeout);
 
 	if (retval) {
 	    return retval;
@@ -429,13 +433,20 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
 	    }
 	    else if (data[4+akai_dev->userref_length] == SYSEX_REPLY)
 	    {
-		memcpy(handle, data+8+akai_dev->userref_length, 4*sizeof(char));
-
-		retval = 0;
+		offset = 8+akai_dev->userref_length;
+		int item_name_length = bytes_read-offset+6+akai_dev->userref_length;
+		item_name = (char*)calloc(item_name_length, sizeof(char));
+		memcpy(item_name, data+8+akai_dev->userref_length, item_name_length);
+		if (strcasecmp(name, item_name) == 0) {
+		    retval = AKAI_SUCCESS;
+		    break;
+		}
+		free(item_name);
 	    }
 	    else
 	    {
 		retval = AKAI_SYSEX_UNEXPECTED;
+		break;
 	    }
 	}
     }
