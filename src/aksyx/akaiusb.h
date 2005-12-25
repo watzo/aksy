@@ -44,22 +44,6 @@
 #define GET_BLOCK_SIZE(buffer) (buffer[7] | buffer[6] << 8 | buffer[5] << 16 | buffer[4] << 24)
 #define GET_BYTES_TRANSFERRED(buffer) (buffer[3] | buffer[2] << 8 | buffer[1] << 16 | buffer[0] << 24)
 
-/* error codes */
-#define AKAI_SUCCESS 0
-#define AKAI_USB_INIT_ERROR 5000
-#define AKAI_NO_SAMPLER_FOUND 5001
-#define AKAI_UNSUPPORTED_DEVICE 5002
-#define AKAI_TRANSMISSION_ERROR 5003
-#define AKAI_SYSEX_ERROR 5004
-#define AKAI_SYSEX_UNEXPECTED 5005
-#define AKAI_INVALID_FILENAME 5006
-#define AKAI_FILE_NOT_FOUND 5007
-#define AKAI_FILE_STAT_ERROR 5008
-#define AKAI_FILE_READ_ERROR 5009
-#define AKAI_EMPTY_FILE_ERROR 5010
-#define AKAI_USB_CLOSE_ERROR 5011
-#define AKAI_USB_RESET_ERROR 5012
-
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 
 #define IS_MULTI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akm") == 0)
@@ -67,6 +51,23 @@
 #define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akp") == 0)
 #define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
 
+/* return codes */
+enum return_codes {
+    AKAI_SUCCESS=0,
+	AKAI_USB_INIT_ERROR=5000,
+	AKAI_NO_SAMPLER_FOUND,
+	AKAI_UNSUPPORTED_DEVICE,
+	AKAI_TRANSMISSION_ERROR,
+	AKAI_SYSEX_ERROR,
+	AKAI_SYSEX_UNEXPECTED,
+	AKAI_INVALID_FILENAME,
+	AKAI_FILE_NOT_FOUND,
+	AKAI_FILE_STAT_ERROR,
+	AKAI_FILE_READ_ERROR,
+	AKAI_EMPTY_FILE_ERROR,
+	AKAI_USB_CLOSE_ERROR,
+	AKAI_USB_RESET_ERROR
+};
 
 typedef struct sysex_commands {
 	char* get_multi_handle;

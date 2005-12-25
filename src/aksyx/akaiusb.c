@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <errno.h>
 #include "akaiusb.h"
+#include <stdarg.h>
 
 #ifdef _POSIX_SOURCE
     #include <sys/stat.h>
@@ -61,7 +62,7 @@ log_debug(char* template, ...) {
 }
 
 void
-log_hex(char* template, char* buf, int buf_len, ...) {
+log_hex(char* buf, int buf_len, char* template, ...) {
     int i;
     va_list ap;
     va_start(ap, template);
@@ -245,7 +246,7 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
     memcpy(request+3, sysex, sysex_length);
 
 #if (AKSY_DEBUG == 1)
-    log_hex("Request: ", request, request_length);
+    log_hex(request, request_length, "Request: ");
 #endif
 
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, request, sysex_length+3, timeout);
@@ -265,12 +266,12 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
     }
 
 #if (AKSY_DEBUG == 1)
-    log_hex("Reply 1: ", result_buff, rc);
+    log_hex(result_buff, rc, "Reply 1: ");
 #endif
 
     while (rc == 4 && akai_usb_reply_ok(result_buff)) {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff, result_buff_length, timeout);
-	log_hex("Reply: ", result_buff, rc);
+	log_hex(result_buff, rc, "Reply: ");
     }
 
     if (rc > 4 && akai_usb_sysex_reply_ok(result_buff))
@@ -282,7 +283,7 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
 	}
 
 #if (AKSY_DEBUG == 1)
-	log_hex("Reply 2: ", result_buff, rc);
+	log_hex(result_buff, rc, "Reply 2: ");
 #endif
 
     }
@@ -294,13 +295,10 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
 int z48_get_handle_by_name(akai_usb_device akai_dev,
     char* name, char* handle, int timeout)
 {
-    char *sysex, *data, *cmd_id;
+    char *data, *cmd_id;
     int bytes_read = 0;
     int name_length = strlen(name);
     int retval;
-    int sysex_length;
-    char device_id;
-    int index;
 
     if (name_length < 4)
     {
@@ -330,12 +328,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
         return AKAI_INVALID_FILENAME;
     }
 
-    /* request: \x10\x08\x00\xf0\x47 <sysex_id> <device_id> <userref> <section, command, name, \xf7 */
-    sysex_length = name_length + 7 + akai_dev->userref_length;
-    device_id =  akai_dev->userref_length << 4;
-    index = 0;
-    sysex = (unsigned char*) calloc(sysex_length, sizeof(unsigned char));
-    data = (unsigned char*) calloc(13 + akai_dev->userref_length, sizeof(unsigned char));
+    data = (char*) calloc(13 + akai_dev->userref_length, sizeof(char));
     retval = akai_usb_device_exec_cmd(akai_dev, cmd_id, name,
 				      name_length-4, data, 13 + akai_dev->userref_length, &bytes_read, timeout);
 
@@ -351,7 +344,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 	}
 	else if (data[4+akai_dev->userref_length] == SYSEX_REPLY)
 	{
-	    memcpy(handle, data+8+akai_dev->userref_length, 4*sizeof(unsigned char));
+	    memcpy(handle, data+8+akai_dev->userref_length, 4*sizeof(char));
 
 	    retval = 0;
 	}
@@ -362,20 +355,18 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     free(data);
-    free(sysex);
     return retval;
 }
 
 int s56k_get_handle_by_name(akai_usb_device akai_dev,
 			    char* name, char* handle, int timeout)
 {
-    char *sysex, *data, *get_no_items_cmd, *get_name_cmd_id;
+    char *data, *get_no_items_cmd, *get_name_cmd_id;
     int name_length = strlen(name);
-    int retval, i;
-    int sysex_length;
-    char device_id;
     int no_items = 0;
-    int bytes_read;
+    int bytes_read = 0;
+    int retval;
+    int i;
 
     if (name_length < 4)
     {
@@ -410,8 +401,6 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     // get the number of items in memory
-    sysex_length = 9 + akai_dev->userref_length;
-    sysex = (char*) calloc(sysex_length, sizeof(char));
     data = (char*) calloc(13 + akai_dev->userref_length, sizeof(char));
 
     retval = akai_usb_device_exec_cmd(
@@ -422,7 +411,7 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     memcpy(&no_items, data+8+akai_dev->userref_length, 2*sizeof(char));
-    //
+    // iterate over all handles to compare the name
     for (i=0;i < no_items; i++) {
 	handle[0] = (char)(i>>8);
 	handle[1] = (char)i;
@@ -432,41 +421,30 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
 	if (retval) {
 	    return retval;
 	}
-	memcpy(&no_items, data+8+akai_dev->userref_length, 2);
-    }
-
-    sysex_length = name_length + 7 + akai_dev->userref_length;
-    device_id =  akai_dev->userref_length << 4;
-    sysex = (char*) calloc(sysex_length, sizeof(char));
-
-    if (retval)
-    {
-	retval = AKAI_TRANSMISSION_ERROR;
-    }
-    else
-    {
-	if (data[4+akai_dev->userref_length] == SYSEX_ERROR)
-	{
-	    retval = AKAI_FILE_NOT_FOUND;
-	}
-	else if (data[4+akai_dev->userref_length] == SYSEX_REPLY)
-	{
-	    memcpy(handle, data+8+akai_dev->userref_length, 4*sizeof(unsigned char));
-
-	    retval = 0;
-	}
 	else
 	{
-	    retval = AKAI_SYSEX_UNEXPECTED;
+	    if (data[4+akai_dev->userref_length] == SYSEX_ERROR)
+	    {
+		retval = AKAI_FILE_NOT_FOUND;
+	    }
+	    else if (data[4+akai_dev->userref_length] == SYSEX_REPLY)
+	    {
+		memcpy(handle, data+8+akai_dev->userref_length, 4*sizeof(char));
+
+		retval = 0;
+	    }
+	    else
+	    {
+		retval = AKAI_SYSEX_UNEXPECTED;
+	    }
 	}
     }
 
     free(data);
-    free(sysex);
     return retval;
 }
 
-int _init_get_request(unsigned char *get_request, unsigned char *filename, unsigned char *handle) {
+int _init_get_request(char *get_request, char *filename, char *handle) {
     int native_int_handle;
     int be_handle;
 
@@ -488,7 +466,6 @@ int _init_get_request(unsigned char *get_request, unsigned char *filename, unsig
     /*
     the handle we retrieved uses 7 bits bytes but the
     transfer request uses 8 bit values so we swap back and forth:
-    check this for ppc
     */
     native_int_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]);
 
@@ -502,9 +479,9 @@ int _init_get_request(unsigned char *get_request, unsigned char *filename, unsig
     return AKAI_SUCCESS;
 }
 
-int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* request, int request_length,
-				  unsigned char *dest_filename, int timeout) {
-    unsigned char* data;
+int akai_usb_device_exec_get_request(akai_usb_device akai_dev, char* request, int request_length,
+				  char *dest_filename, int timeout) {
+    char* data;
     int blocksize = 4096*4, bytes_transferred = 0, actually_transferred = 0, rc = 0;
     int read_transfer_status;
 #ifdef _POSIX_SOURCE
@@ -524,7 +501,7 @@ int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* re
 	return errno;
     }
 
-    data = calloc(blocksize, sizeof(unsigned char));
+    data = calloc(blocksize, sizeof(char));
 #ifdef _POSIX_SOURCE
     gettimeofday(&t1, NULL); // timeval, timezone struct
 #endif
@@ -541,7 +518,7 @@ int akai_usb_device_exec_get_request(akai_usb_device akai_dev, unsigned char* re
 	    fseek(dest_file, actually_transferred, 0);
 
 	    /* write to file */
-	    fwrite(data, sizeof(unsigned char), rc, dest_file);
+	    fwrite(data, sizeof(char), rc, dest_file);
 
 	    /* sent continue request */
 	    usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);
@@ -619,12 +596,12 @@ int akai_usb_device_get(akai_usb_device akai_dev, char *src_filename,
     char *dest_filename, int location, int timeout)
 {
     int rc = 0, src_filename_length = strlen(src_filename) + 1;
-    unsigned char *get_request, *handle;
+    char *get_request, *handle;
 
     /* create get request */
     if (location == LOC_MEMORY)
     {
-        handle = (unsigned char*) calloc(4, sizeof(char));
+        handle = (char*) calloc(4, sizeof(char));
         rc = akai_dev->get_handle_by_name(akai_dev, src_filename, handle, timeout);
 
         if (rc)
@@ -725,13 +702,13 @@ int akai_usb_device_put(akai_usb_device akai_dev,
 
     printf("File name to upload %s, Size of file: %li bytes\n", dest_filename, filesize);
     /* create 'put' command: 0x41, byte size and the name of the file to transfer */
-    command = (unsigned char*) calloc(dest_filename_length+6,  sizeof(unsigned char));
+    command = (char*) calloc(dest_filename_length+6,  sizeof(char));
     command[0] = (location)?Z48_MEMORY_PUT:Z48_DISK_PUT;
-    command[1] = (unsigned char)(filesize >> 24);
-    command[2] = (unsigned char)(filesize >> 16);
-    command[3] = (unsigned char)(filesize >> 8);
-    command[4] = (unsigned char)filesize;
-    memcpy(command+5, dest_filename, dest_filename_length * sizeof(unsigned char));
+    command[1] = (char)(filesize >> 24);
+    command[2] = (char)(filesize >> 16);
+    command[3] = (char)(filesize >> 8);
+    command[4] = (char)filesize;
+    memcpy(command+5, dest_filename, dest_filename_length * sizeof(char));
 
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, command, dest_filename_length+6, 1000);
 
@@ -740,7 +717,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         return AKAI_TRANSMISSION_ERROR;
     }
 
-    reply_buf = (unsigned char*) calloc(64, sizeof(unsigned char));
+    reply_buf = (char*) calloc(64, sizeof(char));
 
 #ifdef _POSIX_SOURCE
       gettimeofday(&t1, NULL); // timeval, timezone struct
@@ -753,7 +730,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         return AKAI_FILE_READ_ERROR;;
     }
 
-    buf = calloc(init_blocksize, sizeof(unsigned char));
+    buf = calloc(init_blocksize, sizeof(char));
 
     do
     {
@@ -801,7 +778,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         }
 
         fseek(fp, transferred, 0);
-        bytes_read = fread(buf, sizeof(unsigned char), blocksize, fp);
+        bytes_read = fread(buf, sizeof(char), blocksize, fp);
 #if (AKSY_DEBUG == 1)
         printf("writing %i bytes\n", bytes_read);
 #endif

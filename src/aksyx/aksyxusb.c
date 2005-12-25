@@ -206,7 +206,7 @@ static PyObject*
 AkaiSampler_execute(AkaiSampler* self, PyObject* args)
 {
     PyObject *ret;
-    char* sysex_command;
+    unsigned char* sysex_command;
     int sysex_length, rc;
     const int BUFF_SIZE = 4096;
     int bytes_read;
