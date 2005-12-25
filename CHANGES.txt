@@ -1,0 +1,14 @@
+Aksy changes
+	svn trunk
+		* Visual Studio compiler compatibility and win32 distutils support
+		* Multiple (hybrid) sampler support
+		* MPC4K support
+		* preliminary S56K support (transfers/disktools)
+		* added support for 'still alive' messages sent during slowly
+		  executing commands 
+		* new types added
+		* loads of bug fixes
+
+	0.1.2-dev
+		* Updated docs
+		* Fixed file upload on win32 

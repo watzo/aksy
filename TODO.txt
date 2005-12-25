@@ -3,14 +3,9 @@
 
 * complete command coverage
 * bug fixing:
-  * disktools:
-  	* get_disklist(): fixed.
-  	* get_filenames(): use S56K sysex
-  * type conversions. check status.
+  * type conversions
   * transfer to disk. done for Z48; fix S56K
   * transfer from memory; done for Z48; support for S56K needed
-  * transfer to memory; fix S56K
-* basic doctest in tool modules
 * command loop implementation with userref support using OSC; investigate async
   viability.
 

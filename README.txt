@@ -3,21 +3,24 @@
 Originally conceived as a competitive cross-platform Ak.Sys, its author got
 realistic after a while - re-conceiving it as a complementary product for
 Ak.Sys, focussing on batch functionality and scripting. Currently, it supports
-the Z-Series and has preliminary support for MPC4000 and S56K.
+the Z-Series/MPC4000 and some functionality of the S56K.
 
 2. Usage
 
 Some simple examples:
 
 from aksy.device import Devices
-# initializes the sampler 
-akaisampler = Devices.get_instance('akai','usb')
+# initializes the sampler
+sampler = Devices.get_instance('z48','usb')
 
-# initialize the device (set up the USB connection)
-akaisampler.init()
+# gets a file called "Noise.wav" from the sampler's memory
+sampler.get("Noise.wav")
 
-# returns the number of disks 
-akaisampler.disktools.get_no_disks()
+# puts a file called "Pulse.wav" in the sampler's memory
+sampler.put("Pulse.wav")
+
+# returns the number of disks
+sampler.disktools.get_no_disks()
 
 Besides disktools, the following modules are available for the Z-series:
 
@@ -30,15 +33,7 @@ sampletools
 recordingtools
 systemtools
 multifxtools
-
-# gets a file called "Noise.wav" from the sampler's memory
-akaisampler.get("Noise.wav") 
-
-# puts a file called "Pulse.wav" in the sampler's memory
-akaisampler.put("Pulse.wav") 
-
-# close the USB connection
-akaisampler.close()
+sysextools
 
 See the scripts/ directory for more interesting examples.
 For an overview of the functions in a module, run pydoc:
@@ -47,21 +42,13 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 3. Known issues and limitations in this release
 
-* After executing the disktools.get_disklist() method the internal sysex
-  buffer gets messed up. This might indicate a deeper problem with Aksy and
-  the sampler's sysex buffer, or just be a bug in this command as Ak.Sys is
-  using s56k sysex commands for disk related functions.
-
-* Win32 and Mac OS X have not seen much testing yet.
+* Mac OS X hasn't been recently tested yet.
 
 * Multiple instances of Aksy are currently not supported.
 
-* Multiple samplers are not supported; currently the first found will be
-  instantiated.
-
-* Aksy can't always recover from certain USB error conditions, like broken
-  pipes (USB stall, visible as return code -32). If the sampler's reset_usb()
-  method doesn't work, replug the usb cable or reboot the sampler. 
+* Multiple samplers of the same product type are not supported; currently the
+  first found will be instantiated. Different samplers (eg. a combination of Z4,
+  MPC and a S5000) should work.
 
 * Not all sampler methods have been tested extensively. Some are known to
   not be implemented on the sampler itself, but there could be more methods
@@ -70,7 +57,7 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 4. Debugging and troubleshooting
 
 Setting the USB_DEBUG environment variable can help to obtain more info from
-the low level usb communication. 
+the low level usb communication.
 
 Common reasons for not being able to set up a USB connection are: device
 permissions are set too restrictive (read-only, root permissions)
@@ -83,12 +70,12 @@ src/aksyx/
 
 src/aksy/
     devices/akai/
-    
+
     common functionality for akai samplers.
 
     akai/s56k
 
-    stub for s56k specific code
+    s56k specific code
 
     akai/z48
 
