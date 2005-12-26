@@ -215,12 +215,10 @@ int akai_usb_device_exec_cmd(akai_usb_device akai_dev, char *cmd, char *data,
 			     int data_length, char *result_buff, int result_buff_length, int* bytes_read, int timeout)
 {
     int rc, i;
-    int sysex_length = 7 + akai_dev->userref_length + data_length;
+    int sysex_length = 8 + akai_dev->userref_length + data_length;
     char* sysex = (char*)calloc(sysex_length, sizeof(char));
     char device_id =  akai_dev->userref_length << 4;
-    sprintf(sysex, "\xf0\x47");
-    memcpy(sysex+3, &akai_dev->sysex_id, 1);
-    memcpy(sysex+4, &device_id, 1);
+    sprintf(sysex, "\xf0\x47%c%c",akai_dev->sysex_id, device_id);
     memcpy(sysex+5,  &akai_dev->userref, akai_dev->userref_length);
     i = akai_dev->userref_length+5;
     memcpy(sysex+i, cmd, 2);
@@ -297,12 +295,12 @@ int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
 int z48_get_handle_by_name(akai_usb_device akai_dev,
     char* name, char* handle, int timeout)
 {
-    char *data, *cmd_id;
+    char *data, *cmd_id, *basename;
+    int basename_length = strlen(name) - 4;
     int bytes_read = 0;
-    int name_length = strlen(name);
     int retval;
 
-    if (name_length < 4)
+    if (basename_length <= 0)
     {
         /* invalid name */
         return AKAI_INVALID_FILENAME;
@@ -329,10 +327,12 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
         /* invalid name */
         return AKAI_INVALID_FILENAME;
     }
-
+    basename = calloc(basename_length, sizeof(char));
+    sprintf(basename, "%.*s", basename_length, name);
     data = (char*) calloc(13 + akai_dev->userref_length, sizeof(char));
-    retval = akai_usb_device_exec_cmd(akai_dev, cmd_id, name,
-				      name_length-4, data, 13 + akai_dev->userref_length, &bytes_read, timeout);
+    retval = akai_usb_device_exec_cmd(akai_dev, cmd_id,
+				      basename, basename_length + 1, // include terminator
+				      data, 13 + akai_dev->userref_length, &bytes_read, timeout);
 
     if (retval)
     {
