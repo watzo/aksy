@@ -361,7 +361,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 }
 
 int s56k_get_handle_by_name(akai_usb_device akai_dev,
-			    char* name, char* handle, int timeout)
+			    char* name, char* sysex_handle, int timeout)
 {
     char *data, *get_no_items_cmd, *get_name_cmd_id, *item_name;
     int BUF_SIZE = 64;
@@ -369,7 +369,7 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
     int no_items = 0;
     int bytes_read = 0;
     int retval, offset;
-    int i;
+    int i, handle;
 
     if (name_length < 4)
     {
@@ -416,11 +416,15 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev,
     memcpy(&no_items, data+8+akai_dev->userref_length, 2*sizeof(char));
 
     for (i=0;i < no_items; i++) {
-	// TODO: fix for PPC
-	handle[0] = (char)(i>>8);
-	handle[1] = (char)i;
+#if (_BIG_ENDIAN == 1)
+	handle = ENDSWAP_INT(i);
+#else
+	handle = i;
+#endif
+	sysex_handle[0] = (char)(i>>8);
+	sysex_handle[1] = (char)i;
 	retval = akai_usb_device_exec_cmd(
-	    akai_dev, get_name_cmd_id, handle, 2, data, BUF_SIZE, &bytes_read, timeout);
+	    akai_dev, get_name_cmd_id, sysex_handle, 2, data, BUF_SIZE, &bytes_read, timeout);
 
 	if (retval) {
 	    return retval;
@@ -476,7 +480,7 @@ int _init_get_request(char *get_request, char *filename, char *handle) {
 
     /*
     the handle we retrieved uses 7 bits bytes but the
-    transfer request uses 8 bit values so we swap back and forth:
+    transfer request uses 8 bit values so we swap back and forth
     */
     native_int_handle = ((handle[3] << 21) | (handle[2] << 14) | (handle[1] << 7) | handle[0]);
 
@@ -558,7 +562,6 @@ int akai_usb_device_exec_get_request(akai_usb_device akai_dev, char* request, in
 	    printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n",
 		   blocksize, rc, bytes_transferred, actually_transferred);
 #endif
-
 	    blocksize = GET_BLOCK_SIZE(data);
 
 	    if (blocksize == 0)
@@ -657,9 +660,6 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8, transferred = 0, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1;
     FILE* fp;
-#ifdef AKSY_DEBUG
-    int i;
-#endif
 
 #ifdef _POSIX_SOURCE
     struct stat* st;
@@ -712,7 +712,8 @@ int akai_usb_device_put(akai_usb_device akai_dev,
     }
 
     printf("File name to upload %s, Size of file: %li bytes\n", dest_filename, filesize);
-    /* create 'put' command: 0x41, byte size and the name of the file to transfer */
+
+    // TODO: fix ppc
     command = (char*) calloc(dest_filename_length+6,  sizeof(char));
     command[0] = (location)?Z48_MEMORY_PUT:Z48_DISK_PUT;
     command[1] = (char)(filesize >> 24);
@@ -748,11 +749,7 @@ int akai_usb_device_put(akai_usb_device akai_dev,
         rc = usb_bulk_read(akai_dev->dev, EP_IN, reply_buf, 64, 1000);
 
 #if (AKSY_DEBUG == 1)
-        printf("return code: %i\n", rc);
-        i = 0;
-        for (; i < rc; i++)
-            printf("%02x ", reply_buf[i]);
-        printf("\n");
+        log_hex(reply_buf, rc, "return code: %i\n", rc);
 #endif
         if (rc == 1) {
 	    if (akai_dev->sysex_id == S56K_ID) {
