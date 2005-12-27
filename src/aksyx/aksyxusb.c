@@ -27,7 +27,7 @@ AkaiSampler_dealloc(AkaiSampler* self)
 	rc = akai_usb_device_close(self->sampler);
 	PyMem_Free(self->sampler);
 	self->sampler = NULL;
-	if (rc == AKAI_USB_CLOSE_ERROR)
+	if (rc == AKSY_USB_CLOSE_ERROR)
 	{
 	    printf("WARN: Device was not succesfully closed\n");
 	}
@@ -67,7 +67,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
 
     rc = akai_usb_device_init(self->sampler);
 
-    if (rc == AKAI_NO_SAMPLER_FOUND)
+    if (rc == AKSY_NO_SAMPLER_FOUND)
     {
         // valgrind complaint: invalid read
         PyMem_Free(self->sampler);
@@ -76,7 +76,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
 	return -1;
     }
 
-    if (rc == AKAI_USB_INIT_ERROR)
+    if (rc == AKSY_USB_INIT_ERROR)
     {
         PyMem_Free(self->sampler);
         self->sampler = NULL;
@@ -84,7 +84,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
 	return -1;
     }
 
-    if (rc == AKAI_TRANSMISSION_ERROR)
+    if (rc == AKSY_TRANSMISSION_ERROR)
     {
         PyMem_Free(self->sampler);
         self->sampler = NULL;
@@ -137,13 +137,13 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
         {
             switch(rc)
             {
-                case AKAI_FILE_NOT_FOUND:
+                case AKSY_FILE_NOT_FOUND:
                     return PyErr_Format(PyExc_Exception, "File not found");
-                case AKAI_INVALID_FILENAME:
+                case AKSY_INVALID_FILENAME:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
-                case AKAI_TRANSMISSION_ERROR:
+                case AKSY_TRANSMISSION_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: transmission error");
-                case AKAI_SYSEX_ERROR:
+                case AKSY_SYSEX_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
                 default:
                     return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
@@ -176,19 +176,19 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
         {
             switch(rc)
             {
-                case AKAI_FILE_NOT_FOUND:
+                case AKSY_FILE_NOT_FOUND:
                     return PyErr_Format(PyExc_Exception, "Exception before transfer: file not found");
-                case AKAI_FILE_STAT_ERROR:
+                case AKSY_FILE_STAT_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception before transfer: could not get file size");
-                case AKAI_EMPTY_FILE_ERROR:
+                case AKSY_EMPTY_FILE_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception before transfer: cowardly refusing to transfer an empty file");
-                case AKAI_FILE_READ_ERROR:
+                case AKSY_FILE_READ_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: error reading file");
-                case AKAI_INVALID_FILENAME:
+                case AKSY_INVALID_FILENAME:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
-                case AKAI_TRANSMISSION_ERROR:
+                case AKSY_TRANSMISSION_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: transmission error");
-                case AKAI_SYSEX_ERROR:
+                case AKSY_SYSEX_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
                 default:
                     return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
@@ -222,7 +222,7 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
         rc = akai_usb_device_exec_sysex(
             self->sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, &bytes_read, USB_TIMEOUT);
 
-        if (rc == AKAI_TRANSMISSION_ERROR)
+        if (rc == AKSY_TRANSMISSION_ERROR)
         {
             ret = PyErr_Format(PyExc_Exception, "Timeout waiting for sysex reply.");
         }

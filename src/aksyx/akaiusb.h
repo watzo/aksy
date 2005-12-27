@@ -24,14 +24,19 @@
 /* gives a z48_ok reply */
 #define Z48_ABORT 0xff
 
-/* XXX: this retrieves current handles, there is no get_handle_by_name cmd for S56K */
-#define S56K_GET_SAMPLE_HANDLE "\x0e\x13"
-#define S56K_GET_PROGRAM_HANDLE "\x10\x12"
-#define S56K_GET_MULTI_HANDLE "\x0c\x42"
-#define S56K_GET_MIDI_HANDLE "\x16\x13"
+#define S56K_SET_CURR_SAMPLE_BY_NAME "\x0e\x05"
+#define S56K_SET_CURR_PROGRAM_BY_NAME "\x0a\x05"
+#define S56K_SET_CURR_MULTI_BY_NAME "\x0c\x05"
+#define S56K_SET_CURR_MIDI_BY_NAME "\x16\x05"
+
+#define S56K_GET_CURR_SAMPLE_INDEX "\x0e\x13"
+#define S56K_GET_CURR_PROGRAM_INDEX "\x0a\x12"
+#define S56K_GET_CURR_MULTI_INDEX "\x0c\x42"
+#define S56K_GET_CURR_MIDI_INDEX "\x16\x13"
 
 /* sysex defs */
 #define SYSEX_OK 0x4f
+#define SYSEX_DONE 0x44
 #define SYSEX_REPLY 0x52
 #define SYSEX_ERROR 0x45
 
@@ -53,34 +58,26 @@
 
 /* return codes */
 enum return_codes {
-    AKAI_SUCCESS=0,
-	AKAI_USB_INIT_ERROR=5000,
-	AKAI_NO_SAMPLER_FOUND,
-	AKAI_UNSUPPORTED_DEVICE,
-	AKAI_TRANSMISSION_ERROR,
-	AKAI_SYSEX_ERROR,
-	AKAI_SYSEX_UNEXPECTED,
-	AKAI_INVALID_FILENAME,
-	AKAI_FILE_NOT_FOUND,
-	AKAI_FILE_STAT_ERROR,
-	AKAI_FILE_READ_ERROR,
-	AKAI_EMPTY_FILE_ERROR,
-	AKAI_USB_CLOSE_ERROR,
-	AKAI_USB_RESET_ERROR
+    AKSY_SUCCESS=0,
+    AKSY_USB_INIT_ERROR=5000,
+    AKSY_NO_SAMPLER_FOUND,
+    AKSY_UNSUPPORTED_DEVICE,
+    AKSY_TRANSMISSION_ERROR,
+    AKSY_SYSEX_ERROR,
+    AKSY_SYSEX_UNEXPECTED,
+    AKSY_INVALID_FILENAME,
+    AKSY_FILE_NOT_FOUND,
+    AKSY_FILE_STAT_ERROR,
+    AKSY_FILE_READ_ERROR,
+    AKSY_EMPTY_FILE_ERROR,
+    AKSY_USB_CLOSE_ERROR,
+    AKSY_USB_RESET_ERROR
 };
-
-typedef struct sysex_commands {
-	char* get_multi_handle;
-	char* get_sample_handle;
-	char* get_midi_handle;
-	char* get_program_handle;
-} sysex_commands;
 
 typedef struct akai_usb_device {
     usb_dev_handle *dev;
     int usb_product_id;
     int sysex_id;
-    sysex_commands commands;
     int userref_length;
     char *userref;
     int (*get_handle_by_name)(struct akai_usb_device*, char* , char*, int);
@@ -89,12 +86,12 @@ typedef struct akai_usb_device {
 /*
  * akaiusb public api methods
  *
- * all methods return AKAI_SUCCESS on success
+ * all methods return AKSY_SUCCESS on success
  */
 
 /* opens a akai usb device
  *
- * returns AKAI_USB_INIT_ERROR if the usb setup failed or AKAI_NO_SAMPLER_FOUND
+ * returns AKSY_USB_INIT_ERROR if the usb setup failed or AKSY_NO_SAMPLER_FOUND
  * if no supported samplers were found
  *
  */
@@ -108,7 +105,7 @@ int akai_usb_device_close(akai_usb_device akai_dev);
 
 /* executes a system exclusive string on the sampler.
  *
- * returns AKAI_TRANSMISSION_ERROR if the usb reads or writes failed
+ * returns AKSY_TRANSMISSION_ERROR if the usb reads or writes failed
  *
  */
 int akai_usb_device_exec_sysex(const akai_usb_device akai_dev,
