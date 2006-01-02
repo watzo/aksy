@@ -1,5 +1,5 @@
 from aksy.devices.akai import sysex
-from aksyxusb import AkaiSampler
+from aksyx import AkaiSampler
 
 from aksy import model
 

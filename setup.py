@@ -29,7 +29,7 @@ setup(name = "aksy",
       url='http://walco.n--tree.net/projects/aksy',
       # scripts=['scripts/checkout.py'],
       ext_modules=[
-          Extension("aksyxusb",
+          Extension("aksyx",
               sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c",],
               define_macros=[('AKSY_DEBUG', '1')],
               library_dirs = library_dirs,

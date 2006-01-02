@@ -292,13 +292,13 @@ static PyTypeObject aksyx_AkaiSamplerType = {
     AkaiSampler_new,           /* tp_new */
 };
 
-static PyMethodDef aksyxusb_methods[] = { {NULL} };
+static PyMethodDef aksyx_methods[] = { {NULL} };
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
-initaksyxusb(void)
+initaksyx(void)
 {
 
     PyObject* m;
@@ -312,7 +312,7 @@ initaksyxusb(void)
     if (PyType_Ready(&aksyx_AkaiSamplerType) < 0)
         return;
     Py_INCREF(&aksyx_AkaiSamplerType);
-    m = Py_InitModule3("aksyxusb", aksyxusb_methods, "Aksy USB Extension.");
+    m = Py_InitModule3("aksyx", aksyx_methods, "Aksy USB Extension.");
 
     loc_disk_id = Py_BuildValue("i", LOC_DISK);
     loc_mem_id = Py_BuildValue("i", LOC_MEMORY);
