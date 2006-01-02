@@ -24,7 +24,7 @@ AkaiSampler_dealloc(AkaiSampler* self)
 
     if (self->sampler)
     {
-	rc = akai_usb_device_close(self->sampler);
+	rc = aksyxusb_device_close(self->sampler);
 	PyMem_Free(self->sampler);
 	self->sampler = NULL;
 	if (rc == AKSY_USB_CLOSE_ERROR)
@@ -65,7 +65,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
     self->sampler = (akai_usb_device)PyMem_Malloc(sizeof(struct akai_usb_device));
     self->sampler->usb_product_id = usb_product_id;
 
-    rc = akai_usb_device_init(self->sampler);
+    rc = aksyxusb_device_init(self->sampler);
 
     if (rc == AKSY_NO_SAMPLER_FOUND)
     {
@@ -102,7 +102,7 @@ AkaiSampler_reset_usb(AkaiSampler* self, PyObject *args)
 {
     int rc;
 
-    rc = akai_usb_device_reset(self->sampler);
+    rc = aksyxusb_device_reset(self->sampler);
     if (rc < 0) {
         PyErr_Format(PyExc_Exception, "Exeption during USB reset");
 	return -1;
@@ -131,7 +131,7 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
     else
     {
         /* create get request */
-        rc = akai_usb_device_get(self->sampler, src, dest, location, USB_TIMEOUT);
+        rc = aksyxusb_device_get(self->sampler, src, dest, location, USB_TIMEOUT);
 
         if (rc)
         {
@@ -171,7 +171,7 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
     }
     else
     {
-        rc = akai_usb_device_put(self->sampler, src, dest, location, USB_TIMEOUT);
+        rc = aksyxusb_device_put(self->sampler, src, dest, location, USB_TIMEOUT);
         if (rc)
         {
             switch(rc)
@@ -191,7 +191,7 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
                 case AKSY_SYSEX_ERROR:
                     return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
                 default:
-                    return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
+                    return PyErr_Format(PyExc_Exception, aksyx_get_sysex_error_msg(rc));
             }
         }
         else
@@ -206,21 +206,21 @@ static PyObject*
 AkaiSampler_execute(AkaiSampler* self, PyObject* args)
 {
     PyObject *ret;
-    unsigned char* sysex_command;
-    int sysex_length, rc;
+    struct byte_array sysex, buffer;
     const int BUFF_SIZE = 4096;
-    int bytes_read;
-    unsigned char* buffer;
+    int bytes_read = 0, rc;
 
-    if(!PyArg_ParseTuple(args, "s#", &sysex_command, &sysex_length))
+    if(!PyArg_ParseTuple(args, "s#", &sysex.bytes, &sysex.length))
     {
         return NULL;
     }
     else
     {
-        buffer = (unsigned char*)PyMem_Malloc( BUFF_SIZE * sizeof(unsigned char));
-        rc = akai_usb_device_exec_sysex(
-            self->sampler, sysex_command, sysex_length, buffer, BUFF_SIZE, &bytes_read, USB_TIMEOUT);
+	buffer.length = BUFF_SIZE;
+        buffer.bytes = (char*)PyMem_Malloc(buffer.length * sizeof(char));
+
+        rc = aksyxusb_device_exec_sysex(
+            self->sampler, &sysex, &buffer, &bytes_read, USB_TIMEOUT);
 
         if (rc == AKSY_TRANSMISSION_ERROR)
         {
@@ -228,9 +228,9 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
         }
         else
         {
-            ret = Py_BuildValue("s#", buffer, bytes_read);
+            ret = Py_BuildValue("s#", buffer.bytes, bytes_read);
         }
-        PyMem_Free(buffer);
+        PyMem_Free(buffer.bytes);
         return ret;
     }
 }
@@ -334,7 +334,6 @@ initaksyxusb(void)
     Py_DECREF(z48_usb_id);
     Py_DECREF(s56k_usb_id);
     Py_DECREF(mpc4k_usb_id);
-
 
     PyModule_AddObject(m, "AkaiSampler", (PyObject *)&aksyx_AkaiSamplerType);
 }

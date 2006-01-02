@@ -9,9 +9,8 @@ class Z48(Sampler):
     """
     >>> z = Z48()
     """
-    def __init__(self):
+    def __init__(self, debug=1):
         self.log = logging.getLogger('aksy')
-        self.log.error('mock init')
         self.disks = aksy.model.Storage('disk')
         self.memory = aksy.model.Memory('memory')
         self.sysextools = sysextools.Sysextools(self)

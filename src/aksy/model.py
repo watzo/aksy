@@ -10,7 +10,7 @@ RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
 
-handlers = {} 
+handlers = {}
 log = logging.getLogger("aksy")
 
 def register_handlers(tools):
@@ -34,7 +34,7 @@ class Disk(object):
 class Action:
     """Wraps an action for a file, adapting an interface action to
     a function call
-    """ 
+    """
     def __init__(self, function_name, display_name, id=None):
         self.function_name = function_name
         self.display_name = display_name
@@ -56,7 +56,7 @@ class File(object):
         is loaded into memory
         """
 
-        assert isinstance(path, tuple) 
+        assert isinstance(path, tuple)
 
         log.debug(repr(path))
         self.path = path
@@ -68,7 +68,7 @@ class File(object):
         elif RE_SAMPLE.search(self.get_name()) is not None:
             self.type = self.SAMPLE
         else:
-            #raise NotImplementedError("No support for file type: ", self.get_name()) 
+            #raise NotImplementedError("No support for file type: ", self.get_name())
             log.warn("No support for file type: ", self.get_name())
             self.type = self.SAMPLE
 
@@ -81,7 +81,7 @@ class File(object):
         return self.path
 
     def get_size(self):
-        return 'Unknown' 
+        return 'Unknown'
 
     def get_modified(self):
         """Returns True if this file has been modified
@@ -101,11 +101,11 @@ class File(object):
         """
         item = self.load()
         new_parent = Folder(dest_path)
-        
+
         return new_parent.append_child(item)
-    
+
     def load(self):
-        """Load the file into memory 
+        """Load the file into memory
         """
         self.get_parent().set_current()
         handlers[Disk].load_file(self.get_name())
@@ -117,11 +117,11 @@ class File(object):
         if self.type == self.SAMPLE:
             return Sample(self.get_name())
         else:
-            sys.stderr.writelines("Not a supported type %i\n" %self.type) 
+            sys.stderr.writelines("Not a supported type %i\n" %self.type)
             return Sample(self.get_name())
 
     def transfer(self, path):
-        """Transfer the file to host 
+        """Transfer the file to host
         """
         log.info("Transfer of file %s to %s" % (self.get_name(), repr(path)))
         # XXX: remove the reference to the sampler
@@ -172,7 +172,7 @@ class Folder(File):
         self.children = [Folder(self.path + (subfolder,))
             for subfolder in handlers[Disk].get_subfolder_names()]
 
-        files = [ File(self.path + (name,)) for name in 
+        files = [ File(self.path + (name,)) for name in
             handlers[Disk].get_filenames() ]
 
         self.children.extend(files)
@@ -181,14 +181,14 @@ class Folder(File):
     def has_children(self):
         return (len(self.children) > 0 or handlers[Disk].get_no_files() > 0 or
             handlers[Disk].get_no_subfolders() > 0)
-        
+
     def get_name(self):
         return self.path[-1]
 
     def set_current(self):
         log.debug("Current folder before set_current: %s" % handlers[Disk].get_curr_path())
         for item in self.path:
-            handlers[Disk].set_curr_folder(item)
+            handlers[Disk].open_folder(item)
         log.debug("Current folder after set_current: %s" % handlers[Disk].get_curr_path())
 
     def copy(self, dest_path, recursive=True):
@@ -241,7 +241,7 @@ class Folder(File):
         return item
 
     def transfer(self, path):
-        """Transfer the folder to host 
+        """Transfer the folder to host
         """
         self.get_parent().set_current()
         path = os.path.join(path, self.get_name())
@@ -281,7 +281,7 @@ class InMemoryFile(File):
 
     def get_name(self):
         return self.name
-    
+
     def get_handle(self):
         """Returns the handle
         XXX: Should be set on init
@@ -300,18 +300,18 @@ class InMemoryFile(File):
         handlers[self.__class__].delete_current()
 
     def save(self, overwrite, children=False):
-        handlers[Disk].save_file(self.get_handle(), self.type, overwrite, children) 
+        handlers[Disk].save_file(self.get_handle(), self.type, overwrite, children)
 
     def set_current(self):
         handlers[self.__class__].set_current_by_name(self.get_name())
-    
+
     def transfer(self, dest_path):
         pass
 
     def rename(self, new_name):
         self.set_current()
         handlers[self.__class__].rename(new_name)
-            
+
 class Multi(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
@@ -358,10 +358,10 @@ class Storage:
     def __init__(self, name):
         self.name = name
         self.path = name
-        self.actions = None 
+        self.actions = None
         self.type = File.FOLDER
         self._children = []
-    
+
     def has_children(self):
         return (len(self._children) > 0)
 
@@ -372,7 +372,7 @@ class Storage:
         return self.name
 
     def get_children(self):
-        return self._children    
+        return self._children
 
     def set_children(self, item_list):
         self._children = item_list
