@@ -3,7 +3,7 @@
 #include <usb.h>
 #include <assert.h>
 #include <errno.h>
-#include "akaiusb.h"
+#include "aksyxusb.h"
 #include <stdarg.h>
 
 #ifdef _POSIX_SOURCE

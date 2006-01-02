@@ -5,7 +5,7 @@
 #include <usb.h>
 #include <assert.h>
 #include <time.h>
-#include "akaiusb.h"
+#include "aksyxusb.h"
 
 #define USB_TIMEOUT 2000
 
