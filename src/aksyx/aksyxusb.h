@@ -175,7 +175,7 @@ typedef struct akai_usb_device {
  */
 int aksyxusb_device_init(const akai_usb_device akai_dev);
 
-void log_hex(char* bytes, int byte_length, ...);
+void log_hex(char* bytes, int byte_length, char* template, ...);
 
 /* resets a akai usb device */
 char* aksyx_get_sysex_error_msg(int code);

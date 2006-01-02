@@ -126,7 +126,7 @@ log_hex(char* buf, int buf_len, char* template, ...) {
 }
 void
 log_error(int code, long lineno) {
-    fprintf(stderr, "ERROR:%s:%d %i", __FILE__, lineno, code);
+    fprintf(stderr, "ERROR:%s:%li %i", __FILE__, lineno, code);
 }
 
 int _init_akai_usb(akai_usb_device akai_dev, struct usb_device *dev) {
@@ -362,7 +362,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 {
     char *cmd_id;
     struct byte_array basename, resp_data;
-    int retval, bytes_read = 0, error_code = 0;
+    int retval, error_code = 0;
     basename.length = strlen(name) - 3; // exclude extension, include terminator
     resp_data.length = 5;
 
@@ -427,8 +427,6 @@ s56k_get_handle_by_name(akai_usb_device akai_dev,
     char *set_curr_item_cmd, *get_curr_index_cmd;
     struct byte_array arg, basename, resp_data;
 
-    int BUF_SIZE = 64;
-    int no_items = 0, bytes_read = 0;
     int retval;
     int error_code;
     basename.length = strlen(name) - 3;
