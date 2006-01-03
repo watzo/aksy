@@ -363,7 +363,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 {
     char *cmd_id;
     struct byte_array basename, resp_data;
-    int retval, error_code = 0, tmp_handle = 0;
+    int retval, tmp_handle = 0;
     basename.length = strlen(name) - 3; // exclude extension, include terminator
     resp_data.length = 5;
 

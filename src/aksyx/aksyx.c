@@ -119,7 +119,7 @@ AkaiSampler_reset_usb(AkaiSampler* self, PyObject *args)
 static PyObject*
 AkaiSampler_get(AkaiSampler* self, PyObject* args)
 {
-    unsigned char *dest, *src;
+    char *dest, *src;
     int rc, sysex_error;
     char location;
 
@@ -167,7 +167,7 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
 static PyObject*
 AkaiSampler_put(AkaiSampler* self, PyObject* args)
 {
-    unsigned char *src, *dest;
+    char *src, *dest;
     char location;
     int rc;
 
