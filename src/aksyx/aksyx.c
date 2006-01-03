@@ -17,6 +17,11 @@ typedef struct {
     akai_usb_device sampler;
 } AkaiSampler;
 
+static PyObject* SysexException;
+static PyObject* TransferException;
+static PyObject* USBException;
+
+
 static void
 AkaiSampler_dealloc(AkaiSampler* self)
 {
@@ -115,8 +120,9 @@ static PyObject*
 AkaiSampler_get(AkaiSampler* self, PyObject* args)
 {
     unsigned char *dest, *src;
-    int rc;
+    int rc, sysex_error;
     char location;
+
     if (!self->sampler)
     {
         PyErr_Format(PyExc_Exception, "Device is not initialized.");
@@ -131,20 +137,20 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
     else
     {
         /* create get request */
-        rc = aksyxusb_device_get(self->sampler, src, dest, location, USB_TIMEOUT);
+        rc = aksyxusb_device_get(self->sampler, src, dest, location, &sysex_error, USB_TIMEOUT);
 
         if (rc)
         {
             switch(rc)
             {
                 case AKSY_FILE_NOT_FOUND:
-                    return PyErr_Format(PyExc_Exception, "File not found");
+                    return PyErr_Format(PyExc_IOError, "File not found");
                 case AKSY_INVALID_FILENAME:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
+                    return PyErr_Format(PyExc_Exception, "Invalid filename");
                 case AKSY_TRANSMISSION_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: transmission error");
+                    return PyErr_Format(USBException, "USB transmission error");
                 case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
+                    return PyErr_Format(SysexException, aksyx_get_sysex_error_msg(sysex_error));
                 default:
                     return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
             }
@@ -177,21 +183,21 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
             switch(rc)
             {
                 case AKSY_FILE_NOT_FOUND:
-                    return PyErr_Format(PyExc_Exception, "Exception before transfer: file not found");
+                    return PyErr_Format(PyExc_IOError, "File not found");
                 case AKSY_FILE_STAT_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception before transfer: could not get file size");
+                    return PyErr_Format(PyExc_IOError, "Could not get file size");
                 case AKSY_EMPTY_FILE_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception before transfer: cowardly refusing to transfer an empty file");
+                    return PyErr_Format(TransferException, "Cowardly refusing to transfer an empty file");
                 case AKSY_FILE_READ_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: error reading file");
+                    return PyErr_Format(PyExc_IOError, "Error reading file");
                 case AKSY_INVALID_FILENAME:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: invalid filename");
+                    return PyErr_Format(TransferException, "Invalid filename");
                 case AKSY_TRANSMISSION_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: transmission error");
+                    return PyErr_Format(USBException, "USB transmission error");
                 case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(PyExc_Exception, "Exception during transfer: sysex error");
+                    return PyErr_Format(SysexException, aksyx_get_sysex_error_msg(rc));
                 default:
-                    return PyErr_Format(PyExc_Exception, aksyx_get_sysex_error_msg(rc));
+                    return PyErr_Format(TransferException, "Unknown error");
             }
         }
         else
@@ -334,6 +340,18 @@ initaksyx(void)
     Py_DECREF(z48_usb_id);
     Py_DECREF(s56k_usb_id);
     Py_DECREF(mpc4k_usb_id);
+
+    SysexException = PyErr_NewException("aksyx.SysexException", NULL, NULL);
+    TransferException = PyErr_NewException("aksyx.TransferException", NULL, NULL);
+    USBException = PyErr_NewException("aksyx.USBException", NULL, NULL);
+
+    Py_INCREF(SysexException);
+    Py_INCREF(TransferException);
+    Py_INCREF(USBException);
+
+    PyModule_AddObject(m, "SysexException", SysexException);
+    PyModule_AddObject(m, "TransferException", TransferException);
+    PyModule_AddObject(m, "USBException", USBException);
 
     PyModule_AddObject(m, "AkaiSampler", (PyObject *)&aksyx_AkaiSamplerType);
 }

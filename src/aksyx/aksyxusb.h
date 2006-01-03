@@ -52,6 +52,7 @@
 #define GET_BYTES_TRANSFERRED(buffer) ((buffer[3]&0xFF) | ((buffer[2]&0xFF) << 8) | ((buffer[1]&0XFF) << 16) | ((buffer[0]&0xFF) << 24))
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
+#define ENDSWAP_SHORT(x) ((((x)>>8)&0xFF)+(((x)&0xFF)<<8))
 
 #define IS_MULTI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akm") == 0)
 #define IS_SAMPLE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "wav") == 0)
@@ -157,7 +158,7 @@ typedef struct akai_usb_device {
     int sysex_id;
     int userref_length;
     char *userref;
-    int (*get_handle_by_name)(struct akai_usb_device*, const char*, byte_array, const int);
+    int (*get_handle_by_name)(struct akai_usb_device*, const char*, byte_array, int*, const int);
 } *akai_usb_device;
 
 
@@ -207,10 +208,10 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char* cmd, co
  * handle should be a pointer to a preallocated byte_array
  */
 int z48_get_handle_by_name(akai_usb_device akai_dev,
-    const char* name, byte_array handle, const int timeout);
+    const char* name, byte_array handle, int* sysex_error, const int timeout);
 
 int s56k_get_handle_by_name(akai_usb_device akai_dev,
-			   const char* name, byte_array handle, const int timeout);
+			   const char* name, byte_array handle, int* sysex_error, const int timeout);
 
 /* uploads a file to the sampler. location is LOC_MEMORY or LOC_DISK
  * The current path must be set explicitly if the file is transferred to
@@ -225,4 +226,4 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
  * located before calling this function if location is LOC_DISK
  */
 int aksyxusb_device_get(const akai_usb_device akai_dev,
-    char *src_filename, char *dest_filename, const int location, const int timeout);
+    char *src_filename, char *dest_filename, const int location, int* sysex_error, const int timeout);
