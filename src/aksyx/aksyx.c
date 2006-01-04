@@ -77,7 +77,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
         // valgrind complaint: invalid read
         PyMem_Free(self->sampler);
         self->sampler = NULL;
-        PyErr_Format(PyExc_Exception, "Sampler not found");
+        PyErr_Format(USBException, "Sampler not found");
 	return -1;
     }
 
@@ -85,7 +85,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
     {
         PyMem_Free(self->sampler);
         self->sampler = NULL;
-        PyErr_Format(PyExc_Exception, "USB device init failed");
+        PyErr_Format(USBException, "Device init failed");
 	return -1;
     }
 
@@ -93,7 +93,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
     {
         PyMem_Free(self->sampler);
         self->sampler = NULL;
-        PyErr_Format(PyExc_Exception, "Akai setup sequence failed");
+        PyErr_Format(USBException, "Akai setup sequence failed");
 	return -1;
     }
 
@@ -109,7 +109,7 @@ AkaiSampler_reset_usb(AkaiSampler* self, PyObject *args)
 
     rc = aksyxusb_device_reset(self->sampler);
     if (rc < 0) {
-        PyErr_Format(PyExc_Exception, "Exeption during USB reset");
+        PyErr_Format(USBException, "Exeption during USB reset");
 	return -1;
     }
     return 0;
@@ -125,7 +125,7 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
 
     if (!self->sampler)
     {
-        PyErr_Format(PyExc_Exception, "Device is not initialized.");
+        PyErr_Format(USBException, "Device is not initialized.");
 	return NULL;
     }
 
@@ -152,7 +152,7 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
                 case AKSY_SYSEX_ERROR:
                     return PyErr_Format(SysexException, aksyx_get_sysex_error_msg(sysex_error));
                 default:
-                    return PyErr_Format(PyExc_Exception, "Unknown exception during transfer");
+                    return PyErr_Format(TransferException, "Unknown exception during transfer");
             }
         }
         else
