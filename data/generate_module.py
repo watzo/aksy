@@ -167,4 +167,4 @@ def test_suite():
 
 testfile_out.close()
 #os.renames(destfile, os.path.join('..','tmp', 'aksy', 'devices', 'akai', device_name, destfile))
-#os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
+os.renames(destfile, os.path.join('..','src', 'aksy', 'devices', 'akai', device_name, destfile))
