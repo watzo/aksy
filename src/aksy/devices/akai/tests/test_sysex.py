@@ -3,34 +3,42 @@ from aksy.devices.akai import sysex, sysex_types
 
 class TestCommand(unittest.TestCase):
     def test_create_arg_bytes(self):
-        dcmd = sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (sysex_types.BYTE,))
+        dcmd = sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (sysex_types.BYTE,), None)
 
 class TestRequest(unittest.TestCase):
     def testCreateRequest(self):
         # Select disk
-        command = sysex.Command('\x5f', '\x20\x02', 'select_disk', (sysex_types.WORD,))
+        command = sysex.Command('\x5f', '\x20\x02', 'select_disk', (sysex_types.WORD,), None)
         bytes = sysex.Request(command, (256,)).get_bytes()
         self.assertEquals(
             '\xf0\x47\x5f\x00\x20\x02\x00\x02\xf7', bytes)
 
         # Select root folder:
         folder = ''
-        command = sysex.Command('\x5f', '\x20\x13', 'set_curr_folder', (sysex_types.STRING,), ())
+        command = sysex.Command('\x5f', '\x20\x13', 'set_curr_folder', (sysex_types.STRING,), None)
         bytes = sysex.Request(command, (folder,)).get_bytes()
         self.assertEquals(
             '\xf0\x47\x5f\x00\x20\x13\x00\xf7', bytes)
 
         # Select autoload folder:
         folder = 'autoload'
-        command = sysex.Command('\x5f', '\x20\x13', 'set_curr_folder', (sysex_types.STRING,), ())
+        command = sysex.Command('\x5f', '\x20\x13', 'set_curr_folder', (sysex_types.STRING,), None)
         bytes = sysex.Request(command, (folder,)).get_bytes()
         self.assertEquals(
             '\xf0\x47\x5f\x00\x20\x13\x61\x75\x74\x6f\x6c\x6f\x61\x64\x00\xf7', bytes)
 
-        command = sysex.Command('\x5f', '\x07\x01', 'get_sampler_name', (),(sysex_types.STRING,))
+    def testRequestWithNondefaultUserref(self):
+        # slightly theoretical, because the z48 doesn't process these requests as expected
+        command = sysex.Command('\x5f', '\x07\x01', 'get_sampler_name', (),(sysex_types.STRING,), sysex_types.USERREF)
+        bytes = sysex.Request(command, (), request_id=129).get_bytes()
+        self.assertEquals(
+            '\xf0\x47\x5f\x20\x01\x01\x07\x01\xf7', bytes)
+
+    def testCreateS56KRequest(self):
+        command = sysex.Command('\x5e', '\x07\x01', 'get_sampler_name', (),(sysex_types.STRING,), sysex_types.S56K_USERREF)
         bytes = sysex.Request(command, ()).get_bytes()
         self.assertEquals(
-            '\xf0\x47\x5f\x00\x07\x01\xf7', bytes)
+            '\xf0\x47\x5e\x20\x00\x00\x07\x01\xf7', bytes)
 
 class TestReply(unittest.TestCase):
     def testCreateReply(self):
@@ -43,7 +51,7 @@ class TestReply(unittest.TestCase):
         bytes =  (
             sysex.START_SYSEX, sysex.AKAI_ID, '\x5e\x20', '\x00',
             sysex.REPLY_ID_REPLY, '\x20\x05', '\x01', sysex.END_SYSEX)
-        custom_cmd = sysex.Command('\x5e\x20', '\x20\x05', 'dummy', (),(sysex_types.BYTE,))
+        custom_cmd = sysex.Command('\x5e\x20', '\x20\x05', 'dummy', (),(sysex_types.BYTE,), None)
         reply = sysex.Reply(''.join(bytes), custom_cmd)
         self.assertEquals(1, reply.get_return_value())
 
@@ -130,8 +138,6 @@ class TestReply(unittest.TestCase):
         cmd = sysex.Command(sysex.Z48_ID, '\x00\x06', 'query', (), None)
         reply = sysex.Reply(bytes, cmd)
         self.assertEquals((1,1,1,1), reply.get_return_value())
-
-
 
 class TestModuleMethods(unittest.TestCase):
     def test_byte_repr(self):
