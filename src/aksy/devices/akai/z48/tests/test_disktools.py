@@ -1,5 +1,5 @@
 from unittest import TestCase, TestLoader
-import logging
+import logging, time
 
 from aksyxusb import AkaiSampler
 from aksy.device import Devices
@@ -8,6 +8,7 @@ from aksy.devices.akai import sysex_types
 z48 = Devices.get_instance('z48', 'usb')
 log = logging.getLogger('aksy')
 
+TESTFOLDER_NAME = "test%s" % time.time()
 class TestDisktools(TestCase):
     def selectFirstDisk(self):
         disks = z48.disktools.get_disklist()
@@ -19,16 +20,18 @@ class TestDisktools(TestCase):
     def selectFirstFolder(self):
         foldernames = z48.disktools.get_folder_names()
         if len(foldernames) > 0:
-            z48.disktools.set_curr_folder(foldernames[0])
+            z48.disktools.open_folder(foldernames[0])
         else:
             log.error('selectFirstFolder: no folder to select')
 
     def createSelectTestFolder(self):
-        z48.disktools.create_folder("test")
-        z48.disktools.set_curr_folder("test")
+        z48.disktools.create_folder(TESTFOLDER_NAME)
+        z48.disktools.set_curr_folder(TESTFOLDER_NAME)
 
     def test_update_disklist(self):
-        z48.disktools.update_disklist()
+        # this command works, but takes too long to execute
+        # z48.disktools.update_disklist()
+        pass
 
     def test_select_disk(self):
         for disk in z48.disktools.get_disklist():
@@ -74,9 +77,9 @@ class TestDisktools(TestCase):
     def test_create_rename_delete_folder(self):
         self.selectFirstDisk()
         self.selectFirstFolder()
-        z48.disktools.create_folder('test')
-        z48.disktools.rename_folder('test', 'testnew')
-        z48.disktools.delete_folder('testnew')
+        z48.disktools.create_folder(TESTFOLDER_NAME)
+        z48.disktools.rename_folder(TESTFOLDER_NAME, TESTFOLDER_NAME + 'new')
+        z48.disktools.delete_folder(TESTFOLDER_NAME + 'new')
 
     def test_get_no_files(self):
         self.selectFirstDisk()

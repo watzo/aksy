@@ -15,14 +15,14 @@ class TestRequest(unittest.TestCase):
 
         # Select root folder:
         folder = ''
-        command = sysex.Command('\x5f', '\x20\x13', 'set_curr_folder', (sysex_types.STRING,), None)
+        command = sysex.Command('\x5f', '\x20\x13', 'open_folder', (sysex_types.STRING,), None)
         bytes = sysex.Request(command, (folder,)).get_bytes()
         self.assertEquals(
             '\xf0\x47\x5f\x00\x20\x13\x00\xf7', bytes)
 
         # Select autoload folder:
         folder = 'autoload'
-        command = sysex.Command('\x5f', '\x20\x13', 'set_curr_folder', (sysex_types.STRING,), None)
+        command = sysex.Command('\x5f', '\x20\x13', 'open_folder', (sysex_types.STRING,), None)
         bytes = sysex.Request(command, (folder,)).get_bytes()
         self.assertEquals(
             '\xf0\x47\x5f\x00\x20\x13\x61\x75\x74\x6f\x6c\x6f\x61\x64\x00\xf7', bytes)
@@ -138,6 +138,14 @@ class TestReply(unittest.TestCase):
         cmd = sysex.Command(sysex.Z48_ID, '\x00\x06', 'query', (), None)
         reply = sysex.Reply(bytes, cmd)
         self.assertEquals((1,1,1,1), reply.get_return_value())
+
+    def testParseHandleNameArray(self):
+        bytes = sysex.repr_bytes(['F0','47','5F','00','52','14','02','20','08','44',
+            '72','79','20','4B','69','74','20','30','32','00','08','50','72','6F','67','72','61','6D','20','31','00',
+            '08','53','79','6E','74','68','54','65','73','74','00','F7'])
+        cmd = sysex.Command(sysex.Z48_ID, '\x14\x02\02', 'get_handles_names', (), None)
+        reply = sysex.Reply(bytes, cmd)
+        self.assertEquals(('Dry Kit 02', 'Program 1', 'SynthTest'), reply.get_return_value())
 
 class TestModuleMethods(unittest.TestCase):
     def test_byte_repr(self):

@@ -97,7 +97,7 @@ class Reply:
         reply_id = self.bytes[i]
         i +=  1 # skip past the reply code
         command = self.bytes[i:i+2]
-        i += 2 # skip past the command id (section, item)
+        i += len(self.command.id) # skip past the command id (section, item, optional subcmd)
         if reply_id == REPLY_ID_OK:
             return None
         elif reply_id == REPLY_ID_DONE:

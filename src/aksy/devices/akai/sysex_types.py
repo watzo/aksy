@@ -532,7 +532,7 @@ class DecodeException(Exception):
 def get_type(typeId):
     type = _types.get(typeId, None)
     if type is None:
-        raise UnknownSysexTypeError( "%02x" % struct.unpack('B', '\x0a'))
+        raise UnknownSysexTypeError( "%02x" % struct.unpack('B', typeId))
     return type
 
 class HandleNameArrayType(object):

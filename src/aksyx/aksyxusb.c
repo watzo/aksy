@@ -263,7 +263,7 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char *cmd, co
     resp_buff.length = 9+akai_dev->userref_length+response->length;
     resp_buff.bytes = (char*)calloc(resp_buff.length, sizeof(char));
     sysex.length = 7 + akai_dev->userref_length + arg_data->length;
-    sysex.bytes = (char*)calloc(sysex.length, sizeof(char));
+    sysex.bytes = (char*)malloc(sysex.length);
 
     sprintf(sysex.bytes, "\xf0\x47%c%c",akai_dev->sysex_id, device_id);
     memcpy(sysex.bytes+4,  &akai_dev->userref, akai_dev->userref_length);
@@ -307,7 +307,8 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     char byte1 = (char)sysex->length;
     char byte2 = (char)(sysex->length>>8);
     request.length = sysex->length+3;
-    request.bytes = (char*) calloc(request.length, sizeof(char));
+    // segfault
+    request.bytes = (char*) malloc(request.length);
     sprintf(request.bytes, "%c%c%c", CMD_EXEC_SYSEX, byte1, byte2);
     memcpy(request.bytes+3, sysex->bytes, sysex->length);
 
@@ -403,11 +404,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 
     free(basename.bytes);
 
-    if (retval)
-    {
-	return retval;
-    }
-    else if (retval == AKSY_SUCCESS)
+    if (retval == AKSY_SUCCESS)
     {
         /* convert the handle into an integer value, skipping the type byte */
 	tmp_handle = ((resp_data.bytes[4] << 21) |
@@ -420,9 +417,6 @@ int z48_get_handle_by_name(akai_usb_device akai_dev,
 #endif
 	memcpy(handle->bytes, &tmp_handle, handle->length);
 	log_hex(handle->bytes, handle->length, "Handle ");
-    }
-    else {
-	retval = AKSY_SYSEX_UNEXPECTED;
     }
 
     free(resp_data.bytes);
@@ -647,17 +641,17 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
     /* create get request */
     if (location == LOC_MEMORY)
     {
-        handle.bytes = (char*) calloc(handle.length, sizeof(char));
+        handle.bytes = (char*) malloc(handle.length);
         rc = akai_dev->get_handle_by_name(akai_dev, src_filename, &handle, sysex_error, timeout);
 
         if (rc)
         {
-            free(handle.bytes);
+	    free(handle.bytes);
             return rc;
         }
         else
         {
-	    get_request.bytes = (char*) calloc(get_request.length, sizeof(char));
+	    get_request.bytes = (char*) malloc(get_request.length);
 	    if (IS_SAMPLE_FILE(src_filename)) {
 		get_request.bytes[0] = CMD_MEMORY_GET_SAMPLE;
 	    }
@@ -673,12 +667,8 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
 		return AKSY_INVALID_FILENAME;
 	    }
 
+	    memcpy(get_request.bytes+1, handle.bytes, handle.length);
 	    free(handle.bytes);
-
-	    if (rc) {
-		free(get_request.bytes);
-		return rc;
-	    }
 	    log_hex(get_request.bytes, get_request.length, "Request cmd ");
 	    rc = aksyxusb_device_exec_get_request(akai_dev, &get_request, dest_filename, timeout);
 	    free(get_request.bytes);
