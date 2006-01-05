@@ -33,7 +33,7 @@ aksyxusb_reply_ok(char* buffer)
 inline int
 aksyxusb_sysex_reply_ok(char* sysex_reply)
 {
-    int userref_length = sysex_reply[3] >> 4;
+    int userref_length = (sysex_reply[3] >> 4);
     int index = userref_length + 4;
     assert(userref_length >=0 && userref_length <= 3);
     return sysex_reply[index] == SYSEX_OK;
@@ -261,18 +261,21 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char *cmd, co
     struct byte_array resp_buff;
     char device_id =  akai_dev->userref_length << 4;
     resp_buff.length = 9+akai_dev->userref_length+response->length;
-    resp_buff.bytes = (char*)calloc(resp_buff.length, sizeof(char));
+    resp_buff.bytes = (char*)malloc(resp_buff.length);
     sysex.length = 7 + akai_dev->userref_length + arg_data->length;
     sysex.bytes = (char*)malloc(sysex.length);
 
-    sprintf(sysex.bytes, "\xf0\x47%c%c",akai_dev->sysex_id, device_id);
-    memcpy(sysex.bytes+4,  &akai_dev->userref, akai_dev->userref_length);
+    memset(sysex.bytes, SYSEX_START, 1);
+    memset(sysex.bytes+1, SYSEX_AKAI_ID, 1);
+    memcpy(sysex.bytes+2, &akai_dev->sysex_id, 1);
+    memcpy(sysex.bytes+3, &device_id, 1);
+    memcpy(sysex.bytes+4, &akai_dev->userref, akai_dev->userref_length);
     i = akai_dev->userref_length+4;
     memcpy(sysex.bytes+i, cmd, 2);
     i += 2;
     memcpy(sysex.bytes+i, arg_data->bytes, arg_data->length);
     i += arg_data->length;
-    sprintf(sysex.bytes+i, "\xf7");
+    memset(sysex.bytes+i, SYSEX_END, 1);
 
     rc = aksyxusb_device_exec_sysex(akai_dev, &sysex, &resp_buff, &bytes_read, timeout);
     free(sysex.bytes);
@@ -307,9 +310,10 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     char byte1 = (char)sysex->length;
     char byte2 = (char)(sysex->length>>8);
     request.length = sysex->length+3;
-    // segfault
     request.bytes = (char*) malloc(request.length);
-    sprintf(request.bytes, "%c%c%c", CMD_EXEC_SYSEX, byte1, byte2);
+    memset(request.bytes, CMD_EXEC_SYSEX, 1);
+    memcpy(request.bytes+1, &byte1, 1);
+    memcpy(request.bytes+2, &byte2, 1);
     memcpy(request.bytes+3, sysex->bytes, sysex->length);
 
 #if (AKSY_DEBUG == 1)
@@ -485,16 +489,10 @@ s56k_get_handle_by_name(akai_usb_device akai_dev,
 	arg.bytes = NULL;
 	arg.length = 0;
 	resp_data.length = 2;
-	resp_data.bytes = calloc(resp_data.length, sizeof(char));
+	resp_data.bytes = malloc(resp_data.length);
 
 	retval = aksyxusb_device_exec_cmd(
 	    akai_dev, get_curr_index_cmd, &arg, &resp_data, sysex_error, timeout);
-
-	if (retval)
-	{
-	    free(resp_data.bytes);
-	    return retval;
-	}
 
 	if (retval == AKSY_SUCCESS) {
 	    /* convert the handle into an integer value */
@@ -510,7 +508,7 @@ s56k_get_handle_by_name(akai_usb_device akai_dev,
     }
 
     free(resp_data.bytes);
-    return AKSY_SUCCESS;
+    return retval;
 }
 
 int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array request,

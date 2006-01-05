@@ -8,8 +8,6 @@
 
 #define EP_IN 0x82
 #define EP_OUT 0x02
-#define LOC_DISK 0
-#define LOC_MEMORY 1
 
 /*
   transfer commands
@@ -37,6 +35,9 @@
 #define S56K_GET_CURR_MIDI_INDEX "\x16\x13"
 
 /* sysex defs */
+#define SYSEX_START 0xf0
+#define SYSEX_AKAI_ID 0x47
+#define SYSEX_END 0xf7
 #define SYSEX_OK 0x4f
 #define SYSEX_DONE 0x44
 #define SYSEX_REPLY 0x52
@@ -59,7 +60,12 @@
 #define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akp") == 0)
 #define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
 
-enum return_codes {
+enum TRANSFER_LOCATIONS {
+    LOC_DISK,
+    LOC_MEMORY
+};
+
+enum RETURN_CODES {
     AKSY_SUCCESS=0,
     AKSY_USB_INIT_ERROR=5000,
     AKSY_USB_RESET_ERROR,
