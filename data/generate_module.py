@@ -13,6 +13,10 @@ return types (but use typed parsing, see the z48 manual 'data types' for
 more details.
 device_name: the name for the device
 """
+
+# used in the data file to override dynamic type parsing
+USE_REPLY_SPEC_TOKEN = "*"
+
 def _arglist_helper(arglist):
     """Creates correct string rep
     """
@@ -67,17 +71,19 @@ testfile_out = open(testfile_out_name, "w")
 testfile_out.writelines("from unittest import TestCase, TestLoader\n\n")
 testfile_out.writelines("from aksy.device import Devices\n\n")
 
-file_out.writelines( "%s\n" % preamble)
-file_out.writelines( "import %s,%s\n\n" % (sysex_module_name, sysex_types_module_name))
-file_out.writelines( "class %s:\n" % classname_helper(section_name))
+file_out.writelines("%s\n" % preamble)
+file_out.writelines("from new import classobj\n\n")
+
+file_out.writelines("import %s,%s\n\n" % (sysex_module_name, sysex_types_module_name))
+file_out.writelines("class %s:\n" % classname_helper(section_name))
 testClassName = "Test%s" % classname_helper(section_name)
-testfile_out.writelines( "class %s(TestCase):\n" %testClassName)
-file_out.writelines( "%sdef __init__(self, %s):\n" % (indent_block, device_name))
+testfile_out.writelines("class %s(TestCase):\n" %testClassName)
+file_out.writelines("%sdef __init__(self, %s):\n" % (indent_block, device_name))
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
 testfile_out.writelines( "%sif not hasattr(self, %s):\n" % (indent_block*2,device_name))
 testfile_out.writelines( "%ssetattr(self, %s, Devices.get_instance(%s, 'usb'))\n\n" % (indent_block*3,device_name, device_name))
-file_out.writelines( "%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
-#file_out.writelines( "%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
+file_out.writelines("%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
+#file_out.writelines("%sself.command_spec = %s.CommandSpec(%s)\n" % ((indent_block*2), sysex_module_name, commandspec))
 
 methods = StringIO.StringIO()
 
@@ -98,32 +104,33 @@ while line:
                 data.append( sysex_types_module_name + '.' + elems[i])
                 args.append('arg' + str(i-4))
 
-        reply_spec_line = file_in.readline().rstrip().split('\t')
-        #reply_spec = reply_spec_line[0:len(reply_spec_line)]
-        #reply_spec_desc = reply_spec_line[len(reply_spec_line):]
-        reply_spec = reply_spec_line
+        reply_spec = file_in.readline().rstrip().split('\t')
         args = tuple(args)
 
+        if skip_replyspec:
+            replyspec_arg = None
+        else:
+            replyspec_arg = "()"
         if len(reply_spec) > 0:
-            if reply_spec[0]:
-                reply_spec = [ sysex_types_module_name + '.' + type for type in reply_spec ]
-            else:
-                reply_spec = ()
-
+            if reply_spec[0] == USE_REPLY_SPEC_TOKEN:
+                replyspec_arg = _arglist_helper([sysex_types_module_name + '.' + type for type in reply_spec])
+        else:
+            reply_spec = ()
 
         # definition
-        cmd_var_name = "self.%s_cmd" % name
+        # aksy.devices.akai.sysex.Command
+        cmd_var_name = "self.%s" % name
         methods.writelines( "%sdef %s(%s):\n" % (indent_block, name, ', '.join(args)))
         testfile_out.writelines( "%sdef test_%s(self):\n" % (indent_block, name) )
 
         # docstring
-        format = { 'indent': indent_block, 'desc': desc,'returns': ('\n'+indent_block*3).join(reply_spec) }
-        if len(reply_spec) > 0:
+        format = { 'indent': indent_block, 'desc': desc, "returns": ""}
+
+        if len(reply_spec) > 0 and reply_spec[0]:
+            format['returns'] = "\n\n%sReturns:\n%s" % (indent_block*2, indent_block *3) + ('\n'+indent_block*3).join(reply_spec)
             testfile_out.writelines( "%sself.%s.%s.%s()\n\n" % ((indent_block*2), device_name, section_name, name) )
-            format['returns'] = "\n\n%(indent)s%(indent)sReturns:\n%(indent)s%(indent)s%(indent)s%(returns)s" % format
         else:
             testfile_out.writelines( "%sself.%s.%s()\n\n" % ((indent_block*2), device_name, name) )
-            format['returns'] = ""
 
         methods.writelines(
             "%(indent)s%(indent)s\"\"\"%(desc)s%(returns)s\n%(indent)s%(indent)s\"\"\"\n" % format)
@@ -135,17 +142,13 @@ while line:
         methods.writelines( "%sreturn self.%s.execute(%s, %s)\n\n" % (indent_block*2, device_name, cmd_var_name, '('+ ', '.join(comm_args) + ')'))
 
         # put the command in a dict with tuple key (section_id, id)
-        if skip_replyspec:
-            replyspec_arg = None
-        else:
-            replyspec_arg = _arglist_helper(reply_spec)
         if userref_type is None:
             userref_type_arg = ''
         else:
             userref_type_arg = ', %s' % userref_type
         file_out.writelines(
-            "%s%s = %s.Command(%s, '%s%s', '%s', %s, %s%s)\n" \
-            % ((indent_block*2), cmd_var_name, sysex_module_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
+            "%s%s = classobj('%s', (%s.Command,), {'__doc__':'%s'})(%s, '%s%s', '%s', %s, %s%s)\n" \
+            % ((indent_block*2), cmd_var_name, name.title(), sysex_module_name, desc, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
     except IndexError, e:
         print "Parse error at line: %s, reason %s " % (line, e.args)
     except ValueError, e:

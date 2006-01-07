@@ -9,13 +9,13 @@ STRINGARRAY
 HANDLENAMEARRAY
 \x18	\x02\x03	get_handles_tagged	Get handles tagged <Data1> ; 3=list of handle+modified/tagged name 
 HANDLENAMEARRAY
-\x18	\x03	set_current_by_handle	Select by handle	DWORD
+\x18	\x03	set_curr_by_handle	Select by handle	DWORD
 
-\x18	\x04	set_current_by_name	Select by name	STRING
+\x18	\x04	set_curr_by_name	Select by name	STRING
 
-\x18	\x05	get_current_handle	Get current handle 
+\x18	\x05	get_curr_handle	Get current handle 
 DWORD
-\x18	\x06	get_current_name	Get name of current item
+\x18	\x06	get_curr_name	Get name of current item
 STRING
 \x18	\x07	get_name_by_handle	Get item name from handle	DWORD
 STRING
@@ -23,11 +23,11 @@ STRING
 DWORD
 \x18	\x09	delete_all	Delete ALL items from memory
 
-\x18	\x0A	delete_current	Delete current item from memory
+\x18	\x0A	delete_curr	Delete current item from memory
 
 \x18	\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
 
-\x18	\x0C	rename_current	Rename current item	STRING
+\x18	\x0C	rename_curr	Rename current item	STRING
 
 \x18	\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
 
@@ -35,7 +35,7 @@ DWORD
 
 \x18	\x0F	get_tag_bitmap	Get Tag Bitmap
 WORD
-\x18	\x10	get_current_modified	Get name of current item with modified/tagged info.
+\x18	\x10	get_curr_modified	Get name of current item with modified/tagged info.
 STRINGARRAY
 \x1B	\x01	get_group_id	Get Group ID
 BYTE

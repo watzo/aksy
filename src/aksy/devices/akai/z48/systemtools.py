@@ -5,7 +5,7 @@ Methods to manipulate system parameters
 """
 
 __author__ =  'Walco van Loon'
-__version__=  "$Rev$"
+__version__=  '$Rev$'
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
@@ -121,8 +121,8 @@ class Systemtools:
         """Get Operating System Software Version
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
+            BYTE
         """
         return self.z48.execute(self.get_os_software_version_cmd, ())
 
@@ -130,7 +130,7 @@ class Systemtools:
         """Get the Sub-Version of the Operating System
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_os_subversion_cmd, ())
 
@@ -138,7 +138,7 @@ class Systemtools:
         """Get Sampler Model  (0=Z4, 1=Z8, 2=MPC4000)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_sampler_model_cmd, ())
 
@@ -146,7 +146,7 @@ class Systemtools:
         """Get List of supported filetypes [returns DONE message]
 
         Returns:
-            aksy.devices.akai.sysex_types.STRINGARRAY
+            STRINGARRAY
         """
         return self.z48.execute(self.get_supported_filetypes_cmd, ())
 
@@ -154,7 +154,7 @@ class Systemtools:
         """Get the percentage free Wave memory
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_perc_free_wave_mem_cmd, ())
 
@@ -162,7 +162,7 @@ class Systemtools:
         """Get the percentage free CPU memory
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_perc_free_cpu_mem_cmd, ())
 
@@ -170,7 +170,7 @@ class Systemtools:
         """Get the total number of kilobytes of Wave memory
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_wave_mem_size_cmd, ())
 
@@ -178,7 +178,7 @@ class Systemtools:
         """Get the number of kilobytes of free Wave memory
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_free_wave_mem_size_cmd, ())
 
@@ -211,7 +211,7 @@ class Systemtools:
         """Get Compact Wave Memory Progress (%)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_compact_wave_mem_progress_cmd, ())
 
@@ -219,7 +219,7 @@ class Systemtools:
         """Get State of Asynchronous Operation ERROR 'operation is pending' or DONE
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_async_operation_state_cmd, ())
 
@@ -232,7 +232,7 @@ class Systemtools:
         """Get Sampler Name
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_sampler_name_cmd, ())
 
@@ -240,7 +240,7 @@ class Systemtools:
         """Get SCSI self ID
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_scsi_id_cmd, ())
 
@@ -248,7 +248,7 @@ class Systemtools:
         """Get Master Tune
 
         Returns:
-            aksy.devices.akai.sysex_types.SWORD
+            SWORD
         """
         return self.z48.execute(self.get_master_tune_cmd, ())
 
@@ -256,7 +256,7 @@ class Systemtools:
         """Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_master_level_cmd, ())
 
@@ -264,7 +264,7 @@ class Systemtools:
         """Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_midi_mode_cmd, (arg0, ))
 
@@ -272,7 +272,7 @@ class Systemtools:
         """Get Qlink Local Control <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.is_qlink_local_ctrl_enabled_cmd, ())
 
@@ -280,7 +280,7 @@ class Systemtools:
         """Get Create Default Items at Startup <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.is_default_items_enabled_cmd, ())
 
@@ -288,7 +288,7 @@ class Systemtools:
         """Get MIDI file save format
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_midi_file_save_format_cmd, ())
 
@@ -296,7 +296,7 @@ class Systemtools:
         """Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_cdr_write_speed_cmd, ())
 
@@ -304,7 +304,7 @@ class Systemtools:
         """Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_cdr_write_mode_cmd, ())
 
@@ -312,7 +312,7 @@ class Systemtools:
         """Get Front panel lock-out state
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.is_front_panel_locked_cmd, ())
 
@@ -320,7 +320,7 @@ class Systemtools:
         """Get Display Contrast
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_display_contrast_cmd, ())
 
@@ -328,7 +328,7 @@ class Systemtools:
         """Get Note Display <Reply> = (0=NUMBER, 1=NAME)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_note_display_cmd, ())
 
@@ -336,7 +336,7 @@ class Systemtools:
         """Get Date Display Format  <Reply> = (0=DDMMYY, 1=MMDDYY, 2=YYMMDD)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_date_format_cmd, ())
 
@@ -344,7 +344,7 @@ class Systemtools:
         """Get Time Display Format <Reply> = (0=12HOUR, 1=24HOUR)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_time_format_cmd, ())
 
@@ -352,7 +352,7 @@ class Systemtools:
         """Get Waveform View Scale <Reply> = (0=LINEAR, 1=LOG)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_waveform_view_scale_cmd, ())
 
@@ -360,7 +360,7 @@ class Systemtools:
         """Get Waveform View Type <Reply> = (0=RECTIFIED, 1=BIPOLAR)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_waveform_view_type_cmd, ())
 
@@ -368,7 +368,7 @@ class Systemtools:
         """Get Waveform View Fill <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_waveform_view_fill_cmd, ())
 
@@ -376,7 +376,7 @@ class Systemtools:
         """Get Item Sort Mode <Reply> = (0=ALPHABETIC, 1=MEMORY)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_item_sort_mode_cmd, ())
 
@@ -384,7 +384,7 @@ class Systemtools:
         """Get Year
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_year_cmd, ())
 
@@ -392,7 +392,7 @@ class Systemtools:
         """Get Month
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_month_cmd, ())
 
@@ -400,7 +400,7 @@ class Systemtools:
         """Get Day
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_day_cmd, ())
 
@@ -408,7 +408,7 @@ class Systemtools:
         """Get Day of Week (0=SUN)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_day_of_week_cmd, ())
 
@@ -416,7 +416,7 @@ class Systemtools:
         """Get Hours
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_hours_cmd, ())
 
@@ -424,7 +424,7 @@ class Systemtools:
         """Get Minutes
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_mins_cmd, ())
 
@@ -432,7 +432,7 @@ class Systemtools:
         """Get Seconds
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_secs_cmd, ())
 
@@ -440,7 +440,7 @@ class Systemtools:
         """Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_system_clock_cmd, ())
 
@@ -448,7 +448,7 @@ class Systemtools:
         """Get Digital Out Sync (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_dig_sync_cmd, ())
 
@@ -456,7 +456,7 @@ class Systemtools:
         """Get Digital Format <Reply> = (0=PRO, 1=CONSUMER)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_dig_format_cmd, ())
 
@@ -464,7 +464,7 @@ class Systemtools:
         """Get ADAT Main Out <Reply> = (0=L/R, 1=1/2)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_adat_main_out_cmd, ())
 
@@ -472,7 +472,7 @@ class Systemtools:
         """Get Play Mode (0=Multi, 1=Program; 2=Sample; 3=Muted), handle of item which is the active Play Item
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_play_mode_cmd, ())
 
@@ -480,7 +480,7 @@ class Systemtools:
         """Get Program Monitor Mode  (0=Multi, 1=Program(OMNI))
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_prog_monitor_mode_cmd, ())
 
@@ -488,7 +488,7 @@ class Systemtools:
         """Get Sample Monitor Mode (0=Multi, 1=Program; 2=Sample(OMNI))
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_sample_monitor_mode_cmd, ())
 
@@ -496,7 +496,7 @@ class Systemtools:
         """Get Play Key Note
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_play_key_note_cmd, ())
 
@@ -504,7 +504,7 @@ class Systemtools:
         """Get Play Key Velocity
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_play_key_velocity_cmd, ())
 
@@ -512,7 +512,7 @@ class Systemtools:
         """Get Play Key Midi Channel <Reply> = (1A=0, 2A=1, ..., 16B=31)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_play_key_midi_channel_cmd, ())
 
@@ -520,7 +520,7 @@ class Systemtools:
         """Get Play Key Echo <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_play_key_echo_cmd, ())
 
@@ -528,7 +528,7 @@ class Systemtools:
         """Get Program Change Enable <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_prog_change_enable_cmd, ())
 
@@ -536,7 +536,7 @@ class Systemtools:
         """Get Autoload Enable <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_autoload_enable_cmd, ())
 
@@ -544,7 +544,7 @@ class Systemtools:
         """Get Global Pad Mode <Reply> = (0=DEFAULT, 1=CHROMATIC)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_global_pad_mode_cmd, ())
 
@@ -552,7 +552,7 @@ class Systemtools:
         """Get MIDI Channel for MPC Pad
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_pad_midi_channel_cmd, ())
 
@@ -560,7 +560,7 @@ class Systemtools:
         """Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_pad_sensitivity_cmd, ())
 
@@ -568,7 +568,7 @@ class Systemtools:
         """Get Default Note Assignment <Data1> = Pad
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_def_note_assign_cmd, (arg0, ))
 
@@ -576,7 +576,7 @@ class Systemtools:
         """Get Default Note Assignment <Data1> = Pad
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_chrom_start_note_cmd, (arg0, ))
 

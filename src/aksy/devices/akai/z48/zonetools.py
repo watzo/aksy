@@ -5,7 +5,7 @@ Manipulate the zones of a keygroup
 """
 
 __author__ =  'Walco van Loon'
-__version__=  "$Rev$"
+__version__=  '$Rev$'
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
@@ -43,7 +43,7 @@ class Zonetools:
         """Get Zone Sample (Data1=zone number 1-4)
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_sample_cmd, (arg0, ))
 
@@ -51,7 +51,7 @@ class Zonetools:
         """Get Zone Level <Reply> = level in 10×dB
 
         Returns:
-            aksy.devices.akai.sysex_types.LEVEL
+            LEVEL
         """
         return self.z48.execute(self.get_level_cmd, (arg0, ))
 
@@ -59,7 +59,7 @@ class Zonetools:
         """Get Zone Pan (0-100)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_pan_cmd, (arg0, ))
 
@@ -67,7 +67,7 @@ class Zonetools:
         """Get Zone Output(0-15)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_output_cmd, (arg0, ))
 
@@ -75,7 +75,7 @@ class Zonetools:
         """Get Zone Filter (0 ­ ±100)
 
         Returns:
-            aksy.devices.akai.sysex_types.SBYTE
+            SBYTE
         """
         return self.z48.execute(self.get_filter_cmd, ())
 
@@ -83,7 +83,7 @@ class Zonetools:
         """Get Zone Cents Tune(0 ­ ±3600)
 
         Returns:
-            aksy.devices.akai.sysex_types.SBYTE
+            SBYTE
         """
         return self.z48.execute(self.get_tune_cmd, ())
 
@@ -91,7 +91,7 @@ class Zonetools:
         """Get Zone Keyboard Track
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_keyboard_track_cmd, (arg0, ))
 
@@ -99,7 +99,7 @@ class Zonetools:
         """Get Zone Playback
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_playback_cmd, (arg0, ))
 
@@ -107,7 +107,7 @@ class Zonetools:
         """Get Zone ModStart(0 ­ ± 99 99)
 
         Returns:
-            aksy.devices.akai.sysex_types.SWORD
+            SWORD
         """
         return self.z48.execute(self.get_mod_start_cmd, (arg0, ))
 
@@ -115,7 +115,7 @@ class Zonetools:
         """Get Zone Low Velocity
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_low_velocity_cmd, (arg0, ))
 
@@ -123,7 +123,7 @@ class Zonetools:
         """Get Zone High Velocity
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_high_velocity_cmd, (arg0, ))
 
@@ -131,7 +131,7 @@ class Zonetools:
         """Get Zone Mute
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_mute_cmd, (arg0, ))
 
@@ -139,7 +139,7 @@ class Zonetools:
         """Get Zone Solo
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_solo_cmd, (arg0, ))
 

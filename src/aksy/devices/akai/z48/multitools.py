@@ -5,7 +5,7 @@ Methods to manipulate multis
 """
 
 __author__ =  'Walco van Loon'
-__version__=  "$Rev$"
+__version__=  '$Rev$'
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
@@ -17,20 +17,20 @@ class Multitools:
         self.get_names_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x02\x01', 'get_names', (), None)
         self.get_handles_names_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x02\x02', 'get_handles_names', (), None)
         self.get_handles_tagged_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x02\x03', 'get_handles_tagged', (), None)
-        self.set_current_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x03', 'set_current_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.set_current_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x04', 'set_current_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.get_current_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x05', 'get_current_handle', (), None)
-        self.get_current_name_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x06', 'get_current_name', (), None)
+        self.set_curr_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.set_curr_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.get_curr_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x05', 'get_curr_handle', (), None)
+        self.get_curr_name_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x06', 'get_curr_name', (), None)
         self.get_name_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
         self.get_handle_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
         self.delete_all_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x09', 'delete_all', (), None)
-        self.delete_current_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0A', 'delete_current', (), None)
+        self.delete_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0A', 'delete_curr', (), None)
         self.delete_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.rename_current_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0C', 'rename_current', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.rename_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
         self.rename_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
         self.tag_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0E', 'tag', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_tag_bitmap_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x0F', 'get_tag_bitmap', (), None)
-        self.get_current_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x10', 'get_current_modified', (), None)
+        self.get_curr_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x18\x10', 'get_curr_modified', (), None)
         self.get_group_id_cmd = aksy.devices.akai.sysex.Command('_', '\x1B\x01', 'get_group_id', (), None)
         self.get_multi_select_method_cmd = aksy.devices.akai.sysex.Command('_', '\x1B\x02', 'get_multi_select_method', (), None)
         self.get_multi_select_channel_cmd = aksy.devices.akai.sysex.Command('_', '\x1B\x03', 'get_multi_select_channel', (), None)
@@ -61,7 +61,7 @@ class Multitools:
         """Get number of items in memory
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_no_items_cmd, ())
 
@@ -69,7 +69,7 @@ class Multitools:
         """Get handles <Data1>: 0=list of handles
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_handles_cmd, ())
 
@@ -77,7 +77,7 @@ class Multitools:
         """Get names items: <Data1>; 1=list of names;
 
         Returns:
-            aksy.devices.akai.sysex_types.STRINGARRAY
+            STRINGARRAY
         """
         return self.z48.execute(self.get_names_cmd, ())
 
@@ -85,7 +85,7 @@ class Multitools:
         """Get handles names: <Data1>; 2=list of handle+name
 
         Returns:
-            aksy.devices.akai.sysex_types.HANDLENAMEARRAY
+            HANDLENAMEARRAY
         """
         return self.z48.execute(self.get_handles_names_cmd, ())
 
@@ -93,41 +93,41 @@ class Multitools:
         """Get handles tagged <Data1> ; 3=list of handle+modified/tagged name
 
         Returns:
-            aksy.devices.akai.sysex_types.HANDLENAMEARRAY
+            HANDLENAMEARRAY
         """
         return self.z48.execute(self.get_handles_tagged_cmd, ())
 
-    def set_current_by_handle(self, arg0):
+    def set_curr_by_handle(self, arg0):
         """Select by handle
         """
-        return self.z48.execute(self.set_current_by_handle_cmd, (arg0, ))
+        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
-    def set_current_by_name(self, arg0):
+    def set_curr_by_name(self, arg0):
         """Select by name
         """
-        return self.z48.execute(self.set_current_by_name_cmd, (arg0, ))
+        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
 
-    def get_current_handle(self):
+    def get_curr_handle(self):
         """Get current handle
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
-        return self.z48.execute(self.get_current_handle_cmd, ())
+        return self.z48.execute(self.get_curr_handle_cmd, ())
 
-    def get_current_name(self):
+    def get_curr_name(self):
         """Get name of current item
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
-        return self.z48.execute(self.get_current_name_cmd, ())
+        return self.z48.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
 
@@ -135,7 +135,7 @@ class Multitools:
         """Get item handle from name
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
 
@@ -144,20 +144,20 @@ class Multitools:
         """
         return self.z48.execute(self.delete_all_cmd, ())
 
-    def delete_current(self):
+    def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_current_cmd, ())
+        return self.z48.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
         return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
 
-    def rename_current(self, arg0):
+    def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_current_cmd, (arg0, ))
+        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
@@ -173,23 +173,23 @@ class Multitools:
         """Get Tag Bitmap
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_tag_bitmap_cmd, ())
 
-    def get_current_modified(self):
+    def get_curr_modified(self):
         """Get name of current item with modified/tagged info.
 
         Returns:
-            aksy.devices.akai.sysex_types.STRINGARRAY
+            STRINGARRAY
         """
-        return self.z48.execute(self.get_current_modified_cmd, ())
+        return self.z48.execute(self.get_curr_modified_cmd, ())
 
     def get_group_id(self):
         """Get Group ID
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_group_id_cmd, ())
 
@@ -197,7 +197,7 @@ class Multitools:
         """Get Multi Select <Reply1> = (0=OFF, 1=BANK, 2=PROG CHANGE)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_multi_select_method_cmd, ())
 
@@ -205,7 +205,7 @@ class Multitools:
         """Get Multi Select Channel <Reply1> = (1A=0, 2A=1, ..., 16B=31)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_multi_select_channel_cmd, ())
 
@@ -213,7 +213,7 @@ class Multitools:
         """Get Multi Tempo <Reply> = 10×bpm
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_multi_tempo_cmd, ())
 
@@ -221,7 +221,7 @@ class Multitools:
         """Get Multi Program Number
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_multi_program_no_cmd, ())
 
@@ -229,7 +229,7 @@ class Multitools:
         """Get Multi Part handle. <Data1> = Part Number;<Reply> = Handle of program>
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_multi_part_handle_cmd, (arg0, ))
 
@@ -237,7 +237,7 @@ class Multitools:
         """Get Multi Part name. <Data1> = Part Number; <Reply> = Name of part
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_multi_part_name_cmd, (arg0, ))
 
@@ -245,7 +245,7 @@ class Multitools:
         """Get Number of Parts. <Reply> = new number of parts
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_no_parts_cmd, ())
 
@@ -253,7 +253,7 @@ class Multitools:
         """Get Part MIDI Channel, (Data1 = Part Number-1a) <Reply> = (1A=0, 2A=1, ..., 16B=31)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_midi_channel_cmd, (arg0, ))
 
@@ -261,7 +261,7 @@ class Multitools:
         """Get Part Mute, <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_mute_cmd, (arg0, ))
 
@@ -269,7 +269,7 @@ class Multitools:
         """Get Part Solo, <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_solo_cmd, (arg0, ))
 
@@ -277,7 +277,7 @@ class Multitools:
         """Get Part Level, <Reply> = PartLevel in 10×dB
 
         Returns:
-            aksy.devices.akai.sysex_types.SWORD
+            SWORD
         """
         return self.z48.execute(self.get_part_level_cmd, ())
 
@@ -285,7 +285,7 @@ class Multitools:
         """Get Part Output, <Reply> = (Output: 0 = L/R; 1­4 = op1/2­op7/8; 5­14 = L, R, op1-op8)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_output_cmd, (arg0, ))
 
@@ -293,7 +293,7 @@ class Multitools:
         """Get Part Pan/Balance, <Reply> = Pan/Bal (0­100 = L50­R50); centre=50
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_pan_cmd, (arg0, ))
 
@@ -301,7 +301,7 @@ class Multitools:
         """Get Part Effects Channel: Reply = (0=OFF, 1=FX1, 2=FX2, 3=RV3, 4=RV4)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_fx_channel_cmd, (arg0, ))
 
@@ -309,7 +309,7 @@ class Multitools:
         """Get Part FX Send Level <Reply> = level in 10×dB
 
         Returns:
-            aksy.devices.akai.sysex_types.SWORD
+            SWORD
         """
         return self.z48.execute(self.get_part_fx_send_level_cmd, ())
 
@@ -317,7 +317,7 @@ class Multitools:
         """Get Part Cents Tune
 
         Returns:
-            aksy.devices.akai.sysex_types.SWORD
+            SWORD
         """
         return self.z48.execute(self.get_part_tune_cmd, (arg0, ))
 
@@ -325,7 +325,7 @@ class Multitools:
         """Get Part Low Note
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_low_note_cmd, (arg0, ))
 
@@ -333,7 +333,7 @@ class Multitools:
         """Get Part High Note
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_part_high_note_cmd, (arg0, ))
 

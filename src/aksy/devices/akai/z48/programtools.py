@@ -5,7 +5,7 @@ Methods to manipulate sampler programs
 """
 
 __author__ =  'Walco van Loon'
-__version__=  "$Rev$"
+__version__=  '$Rev$'
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
@@ -17,16 +17,16 @@ class Programtools:
         self.get_names_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x01', 'get_names', (), None)
         self.get_handles_names_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x02', 'get_handles_names', (), None)
         self.get_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x03', 'get_modified', (), None)
-        self.set_current_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x03', 'set_current_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.set_current_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x04', 'set_current_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.get_current_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x05', 'get_current_handle', (), None)
-        self.get_current_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x06', 'get_current_name', (), None)
+        self.set_curr_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.set_curr_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.get_curr_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x05', 'get_curr_handle', (), None)
+        self.get_curr_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x06', 'get_curr_name', (), None)
         self.get_name_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
         self.get_handle_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
         self.delete_all_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x09', 'delete_all', (), None)
-        self.delete_current_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0A', 'delete_current', (), None)
+        self.delete_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0A', 'delete_curr', (), None)
         self.delete_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.rename_current_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0C', 'rename_current', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.rename_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
         self.rename_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
         self.tag_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0E', 'tag', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_tag_bitmap_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0F', 'get_tag_bitmap', (), None)
@@ -79,7 +79,7 @@ class Programtools:
         """Get list of info for all items: 0=list of handles;
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_handles_cmd, ())
 
@@ -87,7 +87,7 @@ class Programtools:
         """Get list of info for all items: 1=list of names
 
         Returns:
-            aksy.devices.akai.sysex_types.STRINGARRAY
+            STRINGARRAY
         """
         return self.z48.execute(self.get_names_cmd, ())
 
@@ -95,7 +95,7 @@ class Programtools:
         """Get list of info for all items: 2=list of handle+name;
 
         Returns:
-            aksy.devices.akai.sysex_types.HANDLENAMEARRAY
+            HANDLENAMEARRAY
         """
         return self.z48.execute(self.get_handles_names_cmd, ())
 
@@ -103,41 +103,41 @@ class Programtools:
         """Get list of info for all items: 3=list of handle+modified/tagged name
 
         Returns:
-            aksy.devices.akai.sysex_types.HANDLENAMEARRAY
+            HANDLENAMEARRAY
         """
         return self.z48.execute(self.get_modified_cmd, ())
 
-    def set_current_by_handle(self, arg0):
+    def set_curr_by_handle(self, arg0):
         """Select current item by handle
         """
-        return self.z48.execute(self.set_current_by_handle_cmd, (arg0, ))
+        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
-    def set_current_by_name(self, arg0):
+    def set_curr_by_name(self, arg0):
         """Select current item by name
         """
-        return self.z48.execute(self.set_current_by_name_cmd, (arg0, ))
+        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
 
-    def get_current_handle(self):
+    def get_curr_handle(self):
         """Get handle of current item
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
-        return self.z48.execute(self.get_current_handle_cmd, ())
+        return self.z48.execute(self.get_curr_handle_cmd, ())
 
-    def get_current_name(self):
+    def get_curr_name(self):
         """Get name of current item
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
-        return self.z48.execute(self.get_current_name_cmd, ())
+        return self.z48.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
 
@@ -145,7 +145,7 @@ class Programtools:
         """Get item handle from name
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
 
@@ -154,20 +154,20 @@ class Programtools:
         """
         return self.z48.execute(self.delete_all_cmd, ())
 
-    def delete_current(self):
+    def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_current_cmd, ())
+        return self.z48.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
         return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
 
-    def rename_current(self, arg0):
+    def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_current_cmd, (arg0, ))
+        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
@@ -183,7 +183,7 @@ class Programtools:
         """Get Tag Bitmap
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_tag_bitmap_cmd, ())
 
@@ -196,7 +196,7 @@ class Programtools:
         """Get modified state of current item.
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_modified_state_cmd, ())
 
@@ -219,7 +219,7 @@ class Programtools:
         """Get Group ID
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_group_id_cmd, ())
 
@@ -227,7 +227,7 @@ class Programtools:
         """Get Program Type <Reply> = (0=KEYGROUP, 1=DRUM)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_type_cmd, ())
 
@@ -235,7 +235,7 @@ class Programtools:
         """Get Genre
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_genre_cmd, ())
 
@@ -243,7 +243,7 @@ class Programtools:
         """Get Program Number <Reply1> = (0=OFF, 1­128)
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_program_no_cmd, ())
 
@@ -251,7 +251,7 @@ class Programtools:
         """Get Number of keygroups
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_no_keygroups_cmd, ())
 
@@ -259,7 +259,7 @@ class Programtools:
         """Get Keygroup Crossfade <Reply1> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_keygroup_xfade_cmd, ())
 
@@ -267,7 +267,7 @@ class Programtools:
         """Get Keygroup Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_keygroup_xfade_type_cmd, ())
 
@@ -275,7 +275,7 @@ class Programtools:
         """Get Program Level <Reply1> = level in 10×dB
 
         Returns:
-            aksy.devices.akai.sysex_types.SWORD
+            SWORD
         """
         return self.z48.execute(self.get_level_cmd, ())
 
@@ -283,7 +283,7 @@ class Programtools:
         """Get Polyphony
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_polyphony_cmd, ())
 
@@ -291,7 +291,7 @@ class Programtools:
         """Get Reassignment <Reply1> = (0=QUIETEST, 1=OLDEST)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_reassignment_method_cmd, ())
 
@@ -299,7 +299,7 @@ class Programtools:
         """Soft Pedal Loudness Reduction
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_softpedal_loudness_reduction_cmd, ())
 
@@ -307,7 +307,7 @@ class Programtools:
         """Soft Pedal Attack Stretch
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_softpedal_attack_stretch_cmd, ())
 

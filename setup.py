@@ -6,13 +6,17 @@ import platform
 library_dirs = []
 include_dirs = []
 libraries = ["usb"]
-
+extra_compile_args = []
 extra_link_args = []
+# macros= [("_DEBUG", 0), ('AKSY_DEBUG', '1')]
+macros= [("AKSY_DEBUG", 1)]
+
 if platform.system() == "Darwin":
     extra_link_args = ['-framework CoreFoundation IOKit']
 if platform.system() == "Windows":
     libraries = ["libusb"]
     include_dirs = ["include"]
+    extra_compile_args = ["/O2"]
     library_dirs = ["C:\Program Files\LibUSB-Win32-0.1.10.1\lib\msvc"]
 
 setup(name = "aksy",
@@ -31,9 +35,10 @@ setup(name = "aksy",
       ext_modules=[
           Extension("aksyx",
               sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c",],
-              define_macros=[('AKSY_DEBUG', '1')],
+              define_macros= macros,
               library_dirs = library_dirs,
               include_dirs = include_dirs,
+              extra_compile_args = extra_compile_args,
               extra_link_args = extra_link_args,
               libraries = libraries,
           ),

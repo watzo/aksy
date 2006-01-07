@@ -5,7 +5,7 @@ Methods to manipulate sysex parameters
 """
 
 __author__ =  'Walco van Loon'
-__version__=  '0.1'
+__version__=  "$Rev$"
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 

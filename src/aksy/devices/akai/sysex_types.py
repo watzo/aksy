@@ -320,18 +320,29 @@ class UserRefType(object):
             return (3, WORD.decode(string[1:3]))
         raise DecodeException("Unexpected UserRef length %i" % length)
 
-class PadType(SysexType):
+class TypeByteType(SysexType):
     def __init__(self):
         SysexType.__init__(self, 1, False)
 
     def _decode(self, value):
         return None
 
+class TuneType(SignedWordType):
+    """Represents tuning in cents
+    """
+    def __init__(self):
+        SignedWordType.__init__(self)
+        self.set_min_val(-36)
+        self.set_max_val(36)
+
+    def _encode(self, value):
+        return super(TuneType, self)._encode(int(value*100))
+
+    def _decode(self, string):
+        return super(TuneType, self)._decode(string)/100.0
+
 class SoundLevelType(SignedWordType):
-    r"""Represents soundlevels in dB
-    >>> sl = SoundLevelType()
-    >>> sl.decode(sl.encode(-34.0))
-    -34.0
+    """Represents soundlevels in dB
     """
     def __init__(self):
         SignedWordType.__init__(self)
@@ -342,8 +353,6 @@ class SoundLevelType(SignedWordType):
         return super(SoundLevelType, self)._encode(int(value*10))
 
     def _decode(self, string):
-        """XXX: reconsider conversion here
-        """
         return super(SoundLevelType, self)._decode(string)/10.0
 
 class PanningType(ByteType):
@@ -365,7 +374,9 @@ class FileType(ByteType):
 
 class CompositeType(object):
     def __init__(self, types):
+        log.debug("Initializing types %s" % repr(types));
         self.types = types
+
     def decode(self, string):
         offset = 0
         result = []
@@ -373,7 +384,7 @@ class CompositeType(object):
             len_parsed, part = parse_byte_string(string, type, offset)
             if part is not None:
                 result.append(part)
-                offset += len_parsed
+            offset += len_parsed
         if len(result) == 1:
             return offset, result[0]
         return offset, tuple(result)
@@ -384,6 +395,7 @@ class TypedCompositeType(object):
         offset = 0
         while offset < (len(string) - 1):
             type = get_type(string[offset])
+            log.debug("Parsing type %s" % type);
             offset += 1
             len_parsed, part = parse_byte_string(string, type, offset)
             if part is not None:
@@ -497,13 +509,15 @@ TWO_BYTES   = TwoByteType()
 THREE_BYTES = ThreeByteType()
 FOUR_BYTES  = FourByteType()
 
-# Composite types
-PAD         = PadType()
+# derived types
+TYPEBYTE    = TypeByteType()
 BOOL        = BoolType()
-CENTS       = '\x23' # SWORD(+- 3600)
+TUNE        =  TuneType()
 PAN         = PanningType()
 FILETYPE    = FileType()
 LEVEL       = SoundLevelType()
+
+# Composite types
 DISK        = DiskType()
 DISKLIST    = DisklistType()
 TYPED_COMPOSITE = TypedCompositeType()

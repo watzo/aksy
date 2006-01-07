@@ -103,7 +103,7 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args)
 }
 
 static int
-AkaiSampler_reset_usb(AkaiSampler* self, PyObject *args)
+AkaiSampler_reset_usb(AkaiSampler* self)
 {
     int rc;
 
@@ -146,11 +146,13 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
                 case AKSY_FILE_NOT_FOUND:
                     return PyErr_Format(PyExc_IOError, "File not found");
                 case AKSY_INVALID_FILENAME:
-                    return PyErr_Format(PyExc_Exception, "Invalid filename");
+                    return PyErr_Format(TransferException, "Invalid file name");
+                case AKSY_UNSUPPORTED_FILETYPE:
+                    return PyErr_Format(TransferException, "Invalid file type");
                 case AKSY_TRANSMISSION_ERROR:
                     return PyErr_Format(USBException, "USB transmission error");
                 case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(SysexException, aksyx_get_sysex_error_msg(sysex_error));
+                    return PyErr_Format(SysexException, aksyxusb_get_sysex_error_msg(sysex_error));
                 default:
                     return PyErr_Format(TransferException, "Unknown exception during transfer");
             }
@@ -190,12 +192,12 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
                     return PyErr_Format(TransferException, "Cowardly refusing to transfer an empty file");
                 case AKSY_FILE_READ_ERROR:
                     return PyErr_Format(PyExc_IOError, "Error reading file");
-                case AKSY_INVALID_FILENAME:
-                    return PyErr_Format(TransferException, "Invalid filename");
+                case AKSY_INVALID_FILE:
+                    return PyErr_Format(TransferException, "Unsupported type or corrupted file");
                 case AKSY_TRANSMISSION_ERROR:
                     return PyErr_Format(USBException, "USB transmission error");
                 case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(SysexException, aksyx_get_sysex_error_msg(rc));
+                    return PyErr_Format(SysexException, aksyxusb_get_sysex_error_msg(rc));
                 default:
                     return PyErr_Format(TransferException, "Unknown error");
             }
@@ -249,7 +251,7 @@ static PyMemberDef AkaiSampler_members[] = {
 
 static PyMethodDef AkaiSampler_methods[] =
 {
-    {"_reset", (PyCFunction)AkaiSampler_reset_usb, METH_VARARGS, "Resets USB device and interface."},
+    {"_reset", (PyCFunction)AkaiSampler_reset_usb, METH_O, "Resets USB device and interface."},
     {"_get", (PyCFunction)AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", (PyCFunction)AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
     {"_execute", (PyCFunction)AkaiSampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},

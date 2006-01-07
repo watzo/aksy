@@ -11,7 +11,7 @@ class TestUserRef(unittest.TestCase):
             self.z48 = sampler.Z48()
 
     def testEncodeDecode(self):
-        cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.PAD, sysex_types.BYTE,),
+        cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.TYPEBYTE, sysex_types.BYTE,),
             userref_type=sysex_types.USERREF)
         request = sysex.Request(cmd, (), 0)
         bytes = self.z48._execute('\x10' + struct.pack('B', len(request.get_bytes())) + '\x00' + request.get_bytes())
@@ -30,7 +30,7 @@ class TestUserRef(unittest.TestCase):
         self.assertEquals(16000, request_id)
 
         # this currently fails on Z48
-        cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.PAD, sysex_types.BYTE,),
+        cmd = sysex.Command(sysex.Z48_ID, '\x20\x04', 'get_no_disks', (sysex_types.TYPEBYTE, sysex_types.BYTE,),
             userref_type=sysex_types.USERREF)
 
         request = sysex.Request(cmd, (), 126)

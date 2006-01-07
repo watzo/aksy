@@ -1,7 +1,11 @@
 keygrouptools	Keygroup manipulation
+\x10	\x01	set_curr_keygroup	Select Keygroup to be current <Data1> = Keygroup number (starting with 0)	BYTE
+
+\x10	\x02	get_curr_keygroup	Get Current Keygroup
+BYTE
 \x13	\x01	get_group_id	Get Group ID
 BYTE
-\x13	\x02	get_edit_mode	Get Keygroup Edit Mode <Reply1> = (0=SINGLE, 1=ALL, 2=ADD) 
+\x13	\x02	get_edit_mode	Get Keygroup Edit Mode <Reply1> = (0=SINGLE, 1=ALL, 2=ADD)
 BYTE
 \x13	\x04	get_low_note	Get Low Note
 BYTE
@@ -9,9 +13,9 @@ BYTE
 BYTE
 \x13	\x06	get_mute_group	Get Mute Group <Reply1> = (0=OFF, 1­64=value)
 BYTE
-\x13	\x07 	get_FX_override	Get FX override <Reply1> = (0=OFF, 1=A, 2=B, 3=C, 4=D, 5=AB, 6=CD, 7=MULTI)
+\x13	\x07 	get_fx_override	Get FX override <Reply1> = (0=OFF, 1=A, 2=B, 3=C, 4=D, 5=AB, 6=CD, 7=MULTI)
 BYTE
-\x13	\x08	get_FX_send_level	Get FX Send Level <Reply1> = level in 10×dB (-600­+60)
+\x13	\x08	get_fx_send_level	Get FX Send Level <Reply1> = level in 10×dB (-600­+60)
 SWORD
 \x13	\x09	get_zone_crossfade	Get Zone Crossfade <Reply1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)
 BYTE
@@ -22,8 +26,8 @@ BYTE
 \x13	\x0F	get_zone_crossfade_ctrl_no	Get Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)
 BYTE
 \x13	\x10	get_tune	Get Cents Tune
-SBYTE
-\x13	\x11 	get_keygroup_level	Get Keygroup Level (RT) <Reply> = value in 10×dB
+SWORD
+\x13	\x11 	get_level	Get Keygroup Level (RT) <Reply> = value in 10×dB
 SWORD
 \x13	\x18	get_play_trigger	Get Play Trigger <Reply> = (0=NOTE ON, 1=NOTE OFF)
 BYTE
@@ -69,15 +73,15 @@ BYTE
 BYTE
 \x13	\x54 	get_lfo_phase	Get LFO Phase(0=LFO1, 1=LFO2)	BYTE
 WORD
-\x13	\x55	get_LFO_shift	Get LFO Shift(0=LFO1, 1=LFO2)	BYTE
+\x13	\x55	get_lfo_shift	Get LFO Shift(0=LFO1, 1=LFO2)	BYTE
 SBYTE
-\x13	\x56	get_LFO_midi_sync	Get LFO MIDI Sync (0=LFO1, 1=LFO2) <Reply> = (0=OFF, 1=ON)	BYTE
+\x13	\x56	get_lfo_midi_sync	Get LFO MIDI Sync (0=LFO1, 1=LFO2) <Reply> = (0=OFF, 1=ON)	BYTE
 BYTE
 \x13	\x57	get_midi_clock_sync_div	Get MIDI Clock Sync Division <Reply> = value, where 0=8 cy/bt, 1=6cy/bt, 2=4cy/bt, 3=3cy/bt, 4=2cy/bt, 5=1cy/bt 6=2 bt/cy, 7=3bt/cy, ..., 68=64bt/cy	BYTE
 BYTE
-\x13	\x58 	get_LFO_retrigger	Get LFO Re-trigger <Data1>0: LFO1 1: LF02 <Reply> = (0=OFF, 1=ON)	BYTE
+\x13	\x58 	get_lfo_retrigger	Get LFO Re-trigger <Data1>0: LFO1 1: LF02 <Reply> = (0=OFF, 1=ON)	BYTE
 BYTE
-\x13	\x59	get_LFO_sync	Get LFO sync (i.e., all voices in program locked to same LFO)	BYTE
+\x13	\x59	get_lfo_sync	Get LFO sync (i.e., all voices in program locked to same LFO)	BYTE
 BYTE
 \x12	\x01	set_group_id	Set Group ID	BYTE
 
@@ -101,10 +105,10 @@ BYTE
 
 \x12	\x0F	set_zone_xfade_ctrl_no	Set Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)	BYTE
 
-\x12	\x10	set_tune	Set Cents Tune (0 ­ ±3600)	BYTE
-	
-\x12	\x11	set_keygroup_level	Set Keygroup Level <Data1> = value in 10×dB	SWORD
-	
+\x12	\x10	set_tune	Set Cents Tune (0 ­ ±36)	SWORD
+
+\x12	\x11	set_level	Set Keygroup Level <Data1> = value in 10×dB	SWORD
+
 \x12	\x18	set_play_trigger	Set Play Trigger <Data1> = (0=NOTE ON, 1=NOTE OFF)
 
 \x12	\x19	set_play_trigger_vel	Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2­129=0­127)	BYTE
@@ -118,21 +122,21 @@ BYTE
 \x12	\x22	set_filter_resonance	Filter Resonance	BYTE	BYTE
 
 \x12	\x23	set_filter_atten	Set Filter Attenuation (one setting for all filters) <Data1> = (0, 1, 2, 3, 4, 5 = 0dB, 6dB, 12dB, 18dB, 24dB, 30dB)	BYTE
-	
+
 \x12	\x30	set_env_rate1	Set Envelope Rate 1 (for AMP = Attack)(0=AMP, 1=FILTER, 2=AUX)	BYTE	BYTE
-		
+
 \x12	\x31	set_env_level1	Set Envelope Level 1 (FILTER and AUX only)	BYTE	BYTE
 
 \x12	\x32	set_env_rate2	Set Envelope Rate 2 (for AMP = Decay)	BYTE	BYTE
 
 \x12	\x33	set_env_level2	Set Envelope Level 2 (for AMP = Sustain)	BYTE	BYTE
-	
+
 \x12	\x34	set_env_rate3	Set Envelope Rate 3 (for AMP = Release)	BYTE	BYTE
 
 \x12	\x35	set_env_level3	Set Envelope Level 3 (FILTER and AUX only)	BYTE	BYTE
 
 \x12	\x36	set_env_rate4	Set Envelope Rate 4 (FILTER and AUX only)	BYTE	BYTE
-	
+
 \x12	\x37	set_env_level4	Set Envelope Level 4 (FILTER and AUX only)	BYTE	BYTE
 
 \x12	\x42	set_env_ref	Set Envelope Reference (FILTER and AUX only)	BYTE	BYTE
@@ -142,10 +146,9 @@ BYTE
 \x12	\x50	set_lfo_rate	Set LFO Rate (0: LFO1 1: LFO2), rate	BYTE	BYTE
 
 \x12	\x51	set_lfo_delay	Set LFO Delay <Data2> = delay	BYTE	BYTE
-		
+
 \x12	\x52	set_lfo_depth	Set LFO Depth <Data2> = depth	BYTE	BYTE
 
 \x12	\x53	set_lfo_waveform	Set LFO Waveform <Data2> = waveform, (see Table 23)	BYTE	BYTE
 
 \x12	\x54	set_lfo_phase	Set LFO Phase	BYTE	BYTE
-

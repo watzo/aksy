@@ -1,6 +1,7 @@
-import struct, sys, unittest
+import struct, sys, unittest, logging
 from aksy.devices.akai import sysex, sysex_types
 
+log = logging.getLogger("aksy")
 class TestCommand(unittest.TestCase):
     def test_create_arg_bytes(self):
         dcmd = sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (sysex_types.BYTE,), None)
@@ -157,6 +158,11 @@ class TestModuleMethods(unittest.TestCase):
         self.assertEquals(
             '\xf0G_\x00E \x00\x00\x03\xf7',
             sysex.repr_bytes(['f0', '47', '5f', '00', '45', '20', '00', '00', '03', 'f7']))
+
+    def testCreateCommandClass(self):
+        klass = sysex.createCommandClass('A', 'A doc', '\x05', 'x03', 'A', (), None)
+        log.debug(repr(klass()))
+
 
 def test_suite():
     testloader = unittest.TestLoader()

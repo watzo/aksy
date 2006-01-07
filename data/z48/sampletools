@@ -9,13 +9,13 @@ STRINGARRAY
 HANDLENAMEARRAY
 \x1C	\x02\x03	get_handles_modified	Get a list of modified/tagged samples	BYTE
 HANDLENAMEARRAY
-\x1C	\x03	set_current_by_handle	Select current item by handle	DWORD
+\x1C	\x03	set_curr_by_handle	Select current item by handle	DWORD
 
-\x1C	\x04	set_current_by_name	Select current item by name	STRING
+\x1C	\x04	set_curr_by_name	Select current item by name	STRING
 
-\x1C	\x05	get_current_handle	Get handle of current item
+\x1C	\x05	get_curr_handle	Get handle of current item
 DWORD
-\x1C	\x06	get_current_name	Get name of current item
+\x1C	\x06	get_curr_name	Get name of current item
 STRING
 \x1C	\x07	get_name_by_handle	Get item name from handle	DWORD
 STRING
@@ -23,11 +23,11 @@ STRING
 DWORD
 \x1C	\x09	delete_all	Delete ALL items from memory
 
-\x1C	\x0A	delete_current	Delete current item from memory
+\x1C	\x0A	delete_curr	Delete current item from memory
 
 \x1C	\x0B	delete_by_handle	Delete item represented by handle <Data1>	DWORD
 
-\x1C	\x0C	rename_current	Rename current item	STRING
+\x1C	\x0C	rename_curr	Rename current item	STRING
 
 \x1C	\x0D	rename_by_handle	Rename item represented by handle <Data1>	DWORD	STRING
 

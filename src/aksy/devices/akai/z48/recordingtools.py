@@ -5,7 +5,7 @@ Methods to facilitate recording
 """
 
 __author__ =  'Walco van Loon'
-__version__=  "$Rev$"
+__version__=  '$Rev$'
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
@@ -56,7 +56,7 @@ class Recordingtools:
         """Get Record Status
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_status_cmd, ())
 
@@ -64,7 +64,7 @@ class Recordingtools:
         """Get Record Progress
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_progress_cmd, ())
 
@@ -72,7 +72,7 @@ class Recordingtools:
         """Get Maximum Record Time
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_max_rec_time_cmd, ())
 
@@ -190,7 +190,7 @@ class Recordingtools:
         """Get Input (0=ANALOGUE, 1=DIGITAL, 2=MAIN OUT, 3=ADAT1/2, 4=ADAT3/4, 5=ADAT5/6, 6=ADAT7/8)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_input_cmd, ())
 
@@ -203,7 +203,7 @@ class Recordingtools:
         """Get Record Monitor <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_monitor_cmd, ())
 
@@ -211,7 +211,7 @@ class Recordingtools:
         """Get Record Time <Reply> = time in seconds.
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_rec_time_cmd, ())
 
@@ -219,7 +219,7 @@ class Recordingtools:
         """Get Original Pitch
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_pitch_cmd, ())
 
@@ -227,7 +227,7 @@ class Recordingtools:
         """Get Threshold <Reply> = threshold in dB -63,0
 
         Returns:
-            aksy.devices.akai.sysex_types.SBYTE
+            SBYTE
         """
         return self.z48.execute(self.get_threshold_cmd, ())
 
@@ -235,7 +235,7 @@ class Recordingtools:
         """Get Trigger Source <Reply> = (0=OFF, 1=AUDIO, 2=MIDI)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_trigger_src_cmd, ())
 
@@ -243,7 +243,7 @@ class Recordingtools:
         """Get Bit Depth <Reply> = (0=16-bit, 1=24-bit)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_bit_depth_cmd, ())
 
@@ -251,7 +251,7 @@ class Recordingtools:
         """Get Pre-recording Time <Reply> = time in ms
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_prerec_time_cmd, ())
 
@@ -259,7 +259,7 @@ class Recordingtools:
         """Get Recording Destination <Reply> = (0=RAM, 1=DISK)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_dest_cmd, ())
 
@@ -267,7 +267,7 @@ class Recordingtools:
         """Get Record Name
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_name_cmd, ())
 
@@ -275,7 +275,7 @@ class Recordingtools:
         """Get Record Name Seed
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_name_seed_cmd, ())
 
@@ -283,7 +283,7 @@ class Recordingtools:
         """Get Auto-Record Mode <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_autorec_mode_cmd, ())
 
@@ -291,7 +291,7 @@ class Recordingtools:
         """Get Auto-Normalise Mode <Reply> = (0=OFF, 1=ON)
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_autonormalize_cmd, ())
 

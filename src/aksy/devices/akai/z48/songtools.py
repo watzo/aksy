@@ -5,7 +5,7 @@ Song
 """
 
 __author__ =  'Walco van Loon'
-__version__=  "$Rev$"
+__version__=  '$Rev$'
 
 import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
 
@@ -17,16 +17,16 @@ class Songtools:
         self.get_names_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x01', 'get_names', (), None)
         self.get_handles_names_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x02', 'get_handles_names', (), None)
         self.get_handles_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_current_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x03', 'set_current_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.set_current_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x04', 'set_current_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.get_current_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x05', 'get_current_handle', (), None)
-        self.get_current_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x06', 'get_current_name', (), None)
+        self.set_curr_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.set_curr_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.get_curr_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x05', 'get_curr_handle', (), None)
+        self.get_curr_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x06', 'get_curr_name', (), None)
         self.get_name_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
         self.get_handle_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
         self.delete_all_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x09', 'delete_all', (), None)
-        self.delete_current_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0A', 'delete_current', (), None)
+        self.delete_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0A', 'delete_curr', (), None)
         self.delete_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.rename_current_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0C', 'rename_current', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.rename_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
         self.rename_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
         self.set_tag_bit_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0E', 'set_tag_bit', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_tag_bitmap_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0F', 'get_tag_bitmap', (), None)
@@ -58,7 +58,7 @@ class Songtools:
         """Get number of items in memory
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_no_items_cmd, ())
 
@@ -71,7 +71,7 @@ class Songtools:
         """Get sample names
 
         Returns:
-            aksy.devices.akai.sysex_types.STRINGARRAY
+            STRINGARRAY
         """
         return self.z48.execute(self.get_names_cmd, ())
 
@@ -79,7 +79,7 @@ class Songtools:
         """Get list of sample handles and names
 
         Returns:
-            aksy.devices.akai.sysex_types.HANDLENAMEARRAY
+            HANDLENAMEARRAY
         """
         return self.z48.execute(self.get_handles_names_cmd, ())
 
@@ -88,37 +88,37 @@ class Songtools:
         """
         return self.z48.execute(self.get_handles_modified_cmd, (arg0, ))
 
-    def set_current_by_handle(self, arg0):
+    def set_curr_by_handle(self, arg0):
         """Select current item by handle
         """
-        return self.z48.execute(self.set_current_by_handle_cmd, (arg0, ))
+        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
-    def set_current_by_name(self, arg0):
+    def set_curr_by_name(self, arg0):
         """Select current item by name
         """
-        return self.z48.execute(self.set_current_by_name_cmd, (arg0, ))
+        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
 
-    def get_current_handle(self):
+    def get_curr_handle(self):
         """Get handle of current item
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
-        return self.z48.execute(self.get_current_handle_cmd, ())
+        return self.z48.execute(self.get_curr_handle_cmd, ())
 
-    def get_current_name(self):
+    def get_curr_name(self):
         """Get name of current item
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
-        return self.z48.execute(self.get_current_name_cmd, ())
+        return self.z48.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
 
         Returns:
-            aksy.devices.akai.sysex_types.STRING
+            STRING
         """
         return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
 
@@ -126,7 +126,7 @@ class Songtools:
         """Get item handle from name
 
         Returns:
-            aksy.devices.akai.sysex_types.DWORD
+            DWORD
         """
         return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
 
@@ -135,20 +135,20 @@ class Songtools:
         """
         return self.z48.execute(self.delete_all_cmd, ())
 
-    def delete_current(self):
+    def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_current_cmd, ())
+        return self.z48.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
         return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
 
-    def rename_current(self, arg0):
+    def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_current_cmd, (arg0, ))
+        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
@@ -169,7 +169,7 @@ class Songtools:
         """Get name of current item with modified/tagged info
 
         Returns:
-            aksy.devices.akai.sysex_types.STRINGARRAY
+            STRINGARRAY
         """
         return self.z48.execute(self.get_curr_modified_cmd, ())
 
@@ -177,7 +177,7 @@ class Songtools:
         """Get modified state of current item.
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_modified_cmd, ())
 
@@ -235,7 +235,7 @@ class Songtools:
         """Get Group ID
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_group_id_cmd, ())
 
@@ -243,7 +243,7 @@ class Songtools:
         """Get From Bar
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_from_bar_cmd, ())
 
@@ -251,7 +251,7 @@ class Songtools:
         """Get To Bar
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_to_bar_cmd, ())
 
@@ -259,7 +259,7 @@ class Songtools:
         """Get Tempo Mode <Reply> = (0=FILE, 1=MANUAL, 2=MULTI)
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_tempo_mode_cmd, ())
 
@@ -267,7 +267,7 @@ class Songtools:
         """Get Manual Tempo
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_manual_tempo_cmd, ())
 
@@ -275,7 +275,7 @@ class Songtools:
         """Get MIDI output port <Reply> = (0=NONE, 1=MIDI A, 2=MIDI B
 
         Returns:
-            aksy.devices.akai.sysex_types.BOOL
+            BOOL
         """
         return self.z48.execute(self.get_midi_output_port_cmd, ())
 
@@ -283,7 +283,7 @@ class Songtools:
         """Get (Time Signature) Beat Value
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_time_signature_beat_cmd, ())
 
@@ -291,7 +291,7 @@ class Songtools:
         """Get (Time Signature) Beats-per-Bar
 
         Returns:
-            aksy.devices.akai.sysex_types.BYTE
+            BYTE
         """
         return self.z48.execute(self.get_time_sig_beat_no_cmd, ())
 
@@ -299,7 +299,7 @@ class Songtools:
         """Get Current Beat
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_curr_beat_cmd, ())
 
@@ -307,7 +307,7 @@ class Songtools:
         """Get Current Bar
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_curr_bar_cmd, ())
 
@@ -315,7 +315,7 @@ class Songtools:
         """Get Current Tempo <Reply> = (tempo×10)bpm
 
         Returns:
-            aksy.devices.akai.sysex_types.WORD
+            WORD
         """
         return self.z48.execute(self.get_curr_tempo_cmd, ())
 

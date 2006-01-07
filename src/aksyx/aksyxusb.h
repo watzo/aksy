@@ -51,6 +51,9 @@
 
 #define GET_BLOCK_SIZE(buffer) ((buffer[7]&0xFF) | ((buffer[6]&0xFF) << 8) | ((buffer[5]&0xFF) << 16) | ((buffer[4]&0xFF) << 24))
 #define GET_BYTES_TRANSFERRED(buffer) ((buffer[3]&0xFF) | ((buffer[2]&0xFF) << 8) | ((buffer[1]&0XFF) << 16) | ((buffer[0]&0xFF) << 24))
+#define IS_USB_REPLY_OK(buffer) (buffer[0] == 0x41 && buffer[1] == 0x6b && buffer[2] == 0x61 && buffer[3] == 0x49)
+#define IS_INVALID_FILE_ERROR(buffer) (buffer[0] == 0x1)
+#define IS_TRANSFER_FINISHED(buffer) (buffer[0] == 0x0)
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 #define ENDSWAP_SHORT(x) ((((x)>>8)&0xFF)+(((x)&0xFF)<<8))
@@ -59,6 +62,8 @@
 #define IS_SAMPLE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "wav") == 0)
 #define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akp") == 0)
 #define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
+
+#define TIMEVAL_DELTA_MILLIS(t1, t2) ((t2.tv_sec-t1.tv_sec)*1000 + (t2.tv_usec-t1.tv_usec)/1000)
 
 enum TRANSFER_LOCATIONS {
     LOC_DISK,
@@ -76,7 +81,8 @@ enum RETURN_CODES {
     AKSY_SYSEX_ERROR,
     AKSY_SYSEX_UNEXPECTED,
     AKSY_INVALID_FILENAME,
-    AKSY_INVALID_FILETYPE,
+    AKSY_UNSUPPORTED_FILETYPE,
+    AKSY_INVALID_FILE, /* corrupt file, invalid file name/type */
     AKSY_FILE_NOT_FOUND,
     AKSY_FILE_STAT_ERROR,
     AKSY_FILE_READ_ERROR,
@@ -169,7 +175,7 @@ typedef struct akai_usb_device {
 
 
 /*
- * akaiusb public api methods
+ * akaiusb public API functions
  *
  * all methods return AKSY_SUCCESS on success
  */
@@ -182,10 +188,7 @@ typedef struct akai_usb_device {
  */
 int aksyxusb_device_init(const akai_usb_device akai_dev);
 
-void log_hex(char* bytes, int byte_length, char* template, ...);
-
-/* resets a akai usb device */
-char* aksyx_get_sysex_error_msg(int code);
+char* aksyxusb_get_sysex_error_msg(int code);
 
 /* resets a akai usb device */
 int aksyxusb_device_reset(const akai_usb_device akai_dev);

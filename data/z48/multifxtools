@@ -14,24 +14,24 @@ DWORD
 \x24	\x24	get_param_index_output_ctrl	Get Parameter Index for Output Control <Data1> = index of effect	WORD
 BYTE
 \x27	\x20	is_channel_muted	Get Mute Status of Channel <Reply> = (0=ON, 1=MUTE) BYTE
-BYTE
+BOOL
 \x27	\x21	get_channel_input	Get Channel Input <Reply> = input	BYTE
 BYTE
 \x27	\x22	get_channel_output	Get Channel Output <Reply> = output	BYTE
-BYTE	
+BYTE
 \x27	\x30	get_by_name	Get effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Reply> = effect	BYTE
 BYTE	STRING
 \x27	\x31	get_by_index	Get effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Reply> = effect	BYTE	BYTE
 WORD
 \x27	\x40	is_module_enabled	Get Enabled/Disabled State of FX module <Data1> = channel; <Data2> = module; (0=disabled, 1=enabled)	BYTE	BYTE
-BYTE	
+BYTE
 \x27	\x50	get_param_value	Get parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE
-SDWORD 
+SDWORD
 \x27	\x51	get_param_string	Get parameter string of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE	BYTE
 STRING
 \x27	\x52	get_param_qlinkctrl	Get Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1­n = Qlink 1­n)	BYTE	BYTE	BYTE
 BYTE
-\x26	\x20	set_channel_mute	Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)	BYTE	BYTE
+\x26	\x20	set_channel_mute	Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)	BYTE	BOOL
 
 \x26	\x21	set_channel_input	Set Channel Input <Data2> = input	BYTE	BYTE
 
@@ -41,7 +41,7 @@ BYTE
 
 \x26	\x31	set_fx_by_name	Set effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Data3> = effect	BYTE	BYTE	WORD
 
-\x26	\x40	enable_module	Set Enabled/Disabled State of FX module. <Data1> = channel; <Data2> = module; <Data3> =0 (disable) or 1 (enable) parameter values	BYTE	BYTES	DWORD
+\x26	\x40	enable_module	Set State of FX module. (channel, module, enable) 	BYTE	BYTE	BOOL
 
 \x26	\x50	set_param_value	Set parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = parameter value	BYTE	BYTE	BYTE	BYTE
 

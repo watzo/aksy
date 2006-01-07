@@ -1,5 +1,6 @@
 import struct, sys, types, sysex_types, logging
 from sysex_types import START_SYSEX, END_SYSEX
+from new import classobj
 # Module vars
 
 AKAI_ID = '\x47'
