@@ -206,7 +206,7 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char *cmd, co
     memset(sysex.bytes+1, SYSEX_AKAI_ID, 1);
     memcpy(sysex.bytes+2, &akai_dev->sysex_id, 1);
     memset(sysex.bytes+3, akai_dev->userref_length << 4, 1);
-    memcpy(sysex.bytes+4, &akai_dev->userref, akai_dev->userref_length);
+    memcpy(sysex.bytes+4, akai_dev->userref, akai_dev->userref_length);
     i = akai_dev->userref_length+4;
     memcpy(sysex.bytes+i, cmd, 2);
     i += 2;
