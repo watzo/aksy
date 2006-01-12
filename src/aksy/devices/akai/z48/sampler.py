@@ -1,5 +1,6 @@
 import logging
 
+import sysextools, disktools, programtools, multitools, sampletools, systemtools, recordingtools
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai import sysex
 from aksy import model
@@ -17,7 +18,6 @@ class Z48(Sampler):
         #rootfolder = model.Folder(("",))
         #folders = rootfolder.get_children()
         #disks.set_children(folders)
-        import sysextools, disktools, programtools, multitools, sampletools, systemtools, recordingtools
 
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
@@ -36,11 +36,7 @@ class Z48(Sampler):
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
 
-        try:
-            # this command sometimes doesn't yield a response
-            self.sysextools.enable_msg_notification(False)
-        except Exception, e:
-            log.exception(e)
+        self.sysextools.enable_msg_notification(False)
         self.sysextools.enable_item_sync(False)
 
 class MPC4K(Z48):

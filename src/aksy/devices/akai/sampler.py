@@ -11,8 +11,8 @@ class Sampler(AkaiSampler):
     """Base class for AkaiSampler.
     """
     def __init__(self, usb_product_id=0, debug=1):
-        self.debug = debug
         AkaiSampler.__init__(self, usb_product_id)
+        self.debug = debug
 
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
         tools_obj = getattr(self, section_name)
