@@ -611,11 +611,11 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
 {
     int rc = 0, src_filename_length = strlen(src_filename) + 1;
     struct byte_array get_request, handle;
-    get_request.length=5, handle.length=4;
 
     /* create get request */
     if (location == LOC_MEMORY)
     {
+	handle.length = 4;
         handle.bytes = (char*) malloc(handle.length);
         rc = akai_dev->get_handle_by_name(akai_dev, src_filename, &handle, sysex_error, timeout);
 
@@ -624,31 +624,30 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
 	    free(handle.bytes);
             return rc;
         }
-        else
-        {
-	    get_request.bytes = (char*) malloc(get_request.length);
-	    if (IS_SAMPLE_FILE(src_filename)) {
-		get_request.bytes[0] = CMD_MEMORY_GET_SAMPLE;
-	    }
-	    else if (IS_PROGRAM_FILE(src_filename)) {
-		get_request.bytes[0] = CMD_MEMORY_GET_PROGRAM;
-	    }
-	    else if (IS_MULTI_FILE(src_filename)) {
-		get_request.bytes[0] = CMD_MEMORY_GET_MULTI;
-	    }
-	    else if (IS_MIDI_FILE(src_filename)) {
-		get_request.bytes[0] = CMD_MEMORY_GET_MIDI;
-	    } else {
-		return AKSY_INVALID_FILENAME;
-	    }
 
-	    memcpy(get_request.bytes+1, handle.bytes, handle.length);
-	    free(handle.bytes);
-	    log_hex(get_request.bytes, get_request.length, "Request cmd ");
-	    rc = aksyxusb_device_exec_get_request(akai_dev, &get_request, dest_filename, timeout);
-	    free(get_request.bytes);
-            return rc;
-        }
+	get_request.length = handle.length + 1;
+	get_request.bytes = (char*) malloc(get_request.length);
+	if (IS_SAMPLE_FILE(src_filename)) {
+	    get_request.bytes[0] = CMD_MEMORY_GET_SAMPLE;
+	}
+	else if (IS_PROGRAM_FILE(src_filename)) {
+	    get_request.bytes[0] = CMD_MEMORY_GET_PROGRAM;
+	}
+	else if (IS_MULTI_FILE(src_filename)) {
+	    get_request.bytes[0] = CMD_MEMORY_GET_MULTI;
+	}
+	else if (IS_MIDI_FILE(src_filename)) {
+	    get_request.bytes[0] = CMD_MEMORY_GET_MIDI;
+	} else {
+	    log_error(AKSY_UNSUPPORTED_FILETYPE, __LINE__);
+	}
+
+	memcpy(get_request.bytes+1, handle.bytes, handle.length);
+	free(handle.bytes);
+	log_hex(get_request.bytes, get_request.length, "Request cmd ");
+	rc = aksyxusb_device_exec_get_request(akai_dev, &get_request, dest_filename, timeout);
+	free(get_request.bytes);
+	return rc;
     }
     else
     {
