@@ -529,7 +529,10 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	{
 	    bytes_transferred+= rc;
 
-	    fseek(dest_file, actually_transferred, 0);
+	    /* actually transferred bytes are only known in z48 protocol */
+	    if (actually_transferred > 0) {
+		fseek(dest_file, actually_transferred, 0);
+	    }
 
 	    /* write to file */
 	    fwrite(data, sizeof(char), rc, dest_file);
@@ -544,7 +547,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	{
 	    /* get the number of bytes to read */
 #if (AKSY_DEBUG == 1)
-	    log_hex(data, 8, "Reply block: ");
+	    log_hex(data, rc, "Reply block: ");
 #endif
 	    actually_transferred = GET_BYTES_TRANSFERRED(data);
 	    if (actually_transferred == 1)
@@ -568,8 +571,21 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	    read_transfer_status = 0;
 	    continue;
 	}
-	else if (rc == 4 && IS_USB_REPLY_OK(data))
+	else if (rc == 4)
 	{
+	    if (IS_USB_REPLY_OK(data)) {
+		continue;
+	    }
+	    /* s56k protocol only returns block size */
+	    blocksize = GET_S56K_BLOCK_SIZE(data);
+	    if (blocksize == 0)
+	    {
+		/* file transfer completed */
+		rc = AKSY_SUCCESS;
+		break;
+	    }
+
+	    read_transfer_status = 0;
 	    continue;
 	}
 	else
