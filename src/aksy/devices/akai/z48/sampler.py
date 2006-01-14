@@ -1,6 +1,7 @@
 import logging
 
-import sysextools, disktools, programtools, multitools, sampletools, systemtools, recordingtools
+import sysextools, disktools, programtools, multitools, songtools, multifxtools
+import sampletools, systemtools, recordingtools, keygrouptools, zonetools
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai import sysex
 from aksy import model
@@ -18,15 +19,26 @@ class Z48(Sampler):
         #rootfolder = model.Folder(("",))
         #folders = rootfolder.get_children()
         #disks.set_children(folders)
+        self.setupTools()
+        self.setupModel()
 
+        self.sysextools.enable_msg_notification(False)
+        self.sysextools.enable_item_sync(False)
+
+    def setupTools(self):
         self.disktools = disktools.Disktools(self)
         self.programtools = programtools.Programtools(self)
+        self.keygrouptools = keygrouptools.Keygrouptools(self)
+        self.zonetools = zonetools.Zonetools(self)
         self.sampletools = sampletools.Sampletools(self)
+        self.songtools = songtools.Songtools(self)
         self.multitools = multitools.Multitools(self)
+        self.multifxtools = multifxtools.Multifxtools(self)
         self.systemtools = systemtools.Systemtools(self)
         self.sysextools = sysextools.Sysextools(self)
         self.recordingtools = recordingtools.Recordingtools(self)
 
+    def setupModel(self):
         model.register_handlers({model.Disk: self.disktools,
                         model.File: self.disktools,
                         model.Program: self.programtools,
@@ -35,9 +47,6 @@ class Z48(Sampler):
 
         self.disks = model.Storage('disk')
         self.memory = model.Memory('memory')
-
-        self.sysextools.enable_msg_notification(False)
-        self.sysextools.enable_item_sync(False)
 
 class MPC4K(Z48):
     def __init__(self, debug=1):
