@@ -8,6 +8,23 @@ class MockZ48(Z48):
     def __init__(self, debug=1):
         self.setupTools()
         self.setupModel()
+        rootfolder = model.Folder(("",))
+        rootfolder.children.append(model.Folder(('', 'Autoload',)))
+        rootfolder.children.append(model.Folder(('', 'Songs',)))
+        mellotron_folder = model.Folder(('', 'Mellotron',))
+        choir_folder = model.Folder(('', 'Choir',))
+        choir_folder.children.extend(
+            (model.File(('', 'Mellotron', 'Choir', 'Choir.AKM',)),
+            model.File(('', 'Mellotron', 'Choir', 'Choir.AKP',)),
+            model.File(('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
+
+        mellotron_folder.children.extend(
+            (choir_folder,
+            model.File(('', 'Mellotron', 'Sample.AKP',)),
+            model.File(('', 'Mellotron', 'Sample.wav',)),))
+        rootfolder.children.append(mellotron_folder)
+        self.disks.set_children(rootfolder.get_children())
+        self.memory.set_children(choir_folder.get_children())
 
     def get(self, filename, destpath):
         if self.debug > 0:
