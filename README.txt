@@ -3,7 +3,8 @@
 Originally conceived as a competitive cross-platform Ak.Sys, its author got
 realistic after a while - re-conceiving it as a complementary product for
 Ak.Sys, focussing on batch functionality and scripting. Currently, it supports
-the Z-Series/MPC4000 and some functionality of the S56K.
+~500 sysex functions and file transfers on the Z-Series/MPC4000 and some
+functionality (disk functions and transfers) of the S56K.
 
 2. Usage
 

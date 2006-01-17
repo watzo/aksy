@@ -5,6 +5,7 @@ different devices, but at the moment it is using Akai conventions
 
 """
 import re, os.path, sys, logging
+from aksyx import AkaiSampler
 
 RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
@@ -180,7 +181,7 @@ class Folder(File):
 
     def has_children(self):
         return (len(self.children) > 0 or handlers[Disk].get_no_files() > 0 or
-            handlers[Disk].get_no_subfolders() > 0)
+            handlers[Disk].get_no_folders() > 0)
 
     def get_name(self):
         return self.path[-1]
@@ -199,7 +200,7 @@ class Folder(File):
 
     def rename(self, new_name):
         self.get_parent().set_current()
-        handlers[Disk].rename_subfolder(self.get_name(), new_name)
+        handlers[Disk].rename_folder(self.get_name(), new_name)
         self.path = self.path[:-1] + (new_name,)
 
     def load(self):
@@ -214,7 +215,7 @@ class Folder(File):
         """
         """
         self.get_parent().set_current()
-        handlers[Disk].delete_subfolder(self.get_name())
+        handlers[Disk].delete_folder(self.get_name())
         # could be optimized by using dicts instead of lists
         for item in self.get_parent().get_children():
             if item.get_name() == self.get_name():
@@ -225,10 +226,18 @@ class Folder(File):
         """
         """
         self.get_parent().set_current()
-        handlers[Disk].create_subfolder(name)
+        handlers[Disk].create_folder(name)
         folder = Folder(self.path + (name,))
         self.children.append(folder)
         return folder
+
+    def upload(self, path):
+        self.set_current()
+        name = os.path.basename(path)
+        handlers[Disk].z48.put(path, name, destination=AkaiSampler.DISK)
+        item = File(self.path + (name,))
+        self.children.append(item)
+        return item
 
     def append_child(self, item):
         """Adds a child item to this folder
@@ -257,20 +266,19 @@ class InMemoryFile(File):
         if self.type == File.MULTI:
             return Multi(name)
         elif self.type == File.PROGRAM:
-            return Multi(name)
+            return Program(name)
         elif self.type == File.SAMPLE:
-            return Multi(name)
+            return Sample(name)
         elif self.type == File.SONG:
             return Song(name)
-        else:
-            log.debug("Unknown file type:", repr(name))
-            return InMemoryFile(name)
+
+        log.debug("Unknown file type:", repr(name))
+        return InMemoryFile(name)
 
     get_instance = staticmethod(get_instance)
 
-    def __init__(self, name, handle=None):
+    def __init__(self, name):
         self.name = name
-        self.handle = handle
         File.__init__(self, (name,))
 
     def get_size(self):
@@ -284,33 +292,30 @@ class InMemoryFile(File):
 
     def get_handle(self):
         """Returns the handle
-        XXX: Should be set on init
         """
-        self.set_current()
-        return handlers[self.__class__].get_current_handle()
-        # return handlers[self.__class__].get_handle_by_name(self.get_name())
+        return handlers[self.__class__].get_handle_by_name(self.get_name())
 
     def set_current(self):
-        handlers[self.__class__].set_current_by_name(self.get_name())
+        handlers[self.__class__].set_curr_by_name(self.get_name())
 
     def delete(self):
         log.info("InMemoryFile.delete() %s" % repr(self.get_name()))
         handlers[self.__class__].get_no_items()
         self.set_current()
-        handlers[self.__class__].delete_current()
+        handlers[self.__class__].delete_curr()
 
     def save(self, overwrite, children=False):
         handlers[Disk].save_file(self.get_handle(), self.type, overwrite, children)
 
     def set_current(self):
-        handlers[self.__class__].set_current_by_name(self.get_name())
+        handlers[self.__class__].set_curr_by_name(self.get_name())
 
     def transfer(self, dest_path):
         pass
 
     def rename(self, new_name):
         self.set_current()
-        handlers[self.__class__].rename(new_name)
+        handlers[self.__class__].rename_curr(new_name)
 
 class Multi(InMemoryFile):
     def __init__(self, name):
@@ -386,8 +391,6 @@ class Memory(Storage):
         Storage.__init__(self, name)
 
     def upload(self, path):
-        if name == '':
-            raise ValueError
         name = os.path.basename(path)
         self.handlers[Disk].z48.put(path, name)
         item = InMemoryFile.get_instance(name)
@@ -400,30 +403,29 @@ class Memory(Storage):
     def has_children(self):
         if len(self._children) > 0:
             return True
-        else:
-            return (
-                handlers[Program].get_no_items() > 0 or
-                handlers[Sample].get_no_items() > 0 or
-                handlers[Multi].get_no_items() > 0)
+        return (
+            handlers[Program].get_no_items() > 0 or
+            handlers[Sample].get_no_items() > 0 or
+            handlers[Multi].get_no_items() > 0)
 
     def get_children(self):
         if len(self._children) > 0:
             return self._children
-        else:
-            pnames = handlers[Program].get_names()
-            if not isinstance(pnames, tuple):
-                pnames = (pnames,)
-            programs = [Program(name) for name in pnames ]
-            mnames = handlers[Multi].get_names()
-            if not isinstance(mnames, tuple):
-                mnames = (mnames,)
-            multis = [Multi(name) for name in mnames ]
-            snames = handlers[Sample].get_names()
-            if not isinstance(snames, tuple):
-                snames = (snames,)
 
-            samples = [Sample(name) for name in snames ]
-            self._children.extend(programs)
-            self._children.extend(multis)
-            self._children.extend(samples)
-            return self._children
+        pnames = handlers[Program].get_names()
+        if not isinstance(pnames, tuple):
+            pnames = (pnames,)
+        programs = [Program(name) for name in pnames ]
+        mnames = handlers[Multi].get_names()
+        if not isinstance(mnames, tuple):
+            mnames = (mnames,)
+        multis = [Multi(name) for name in mnames ]
+        snames = handlers[Sample].get_names()
+        if not isinstance(snames, tuple):
+            snames = (snames,)
+
+        samples = [Sample(name) for name in snames ]
+        self._children.extend(programs)
+        self._children.extend(multis)
+        self._children.extend(samples)
+        return self._children

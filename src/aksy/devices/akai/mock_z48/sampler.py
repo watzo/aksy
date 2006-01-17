@@ -6,6 +6,7 @@ from aksy import model
 log = logging.getLogger('aksy')
 class MockZ48(Z48):
     def __init__(self, debug=1):
+        self.debug = debug
         self.setupTools()
         self.setupModel()
         rootfolder = model.Folder(("",))
@@ -24,13 +25,15 @@ class MockZ48(Z48):
             model.File(('', 'Mellotron', 'Sample.wav',)),))
         rootfolder.children.append(mellotron_folder)
         self.disks.set_children(rootfolder.get_children())
-        self.memory.set_children(choir_folder.get_children())
+        self.memory.set_children((
+            model.Sample("Boo.wav"),
+            model.Multi("Default.akm"),))
 
-    def get(self, filename, destpath):
+    def get(self, filename, destpath=None):
         if self.debug > 0:
             log.debug("Transferring file %s to host" % filename)
 
-    def put(self, path, remote_name, destination=Z48.MEMORY):
+    def put(self, path, remote_name=None, destination=Z48.MEMORY):
         if self.debug > 0:
             log.debug("Transferring file %s to sampler" % path)
 
