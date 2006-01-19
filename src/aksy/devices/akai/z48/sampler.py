@@ -13,12 +13,6 @@ class Z48(Sampler):
     """
     def __init__(self, debug=1, usb_product_id=Sampler.Z48):
         Sampler.__init__(self, usb_product_id, debug)
-        # not fool proof for multiple disks
-        #disk = model.Disk(self.disktools.get_disklist())
-        #self.disktools.select_disk(disk.handle)
-        #rootfolder = model.Folder(("",))
-        #folders = rootfolder.get_children()
-        #disks.set_children(folders)
         self.setupTools()
         self.setupModel()
 
@@ -46,6 +40,8 @@ class Z48(Sampler):
                         model.Multi: self.multitools})
 
         self.disks = model.Storage('disk')
+        self.disks.set_children([model.Disk(disk) for disk 
+            in self.disktools.get_disklist()])
         self.memory = model.Memory('memory')
 
 class MPC4K(Z48):

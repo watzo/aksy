@@ -21,16 +21,26 @@ def register_handlers(tools):
     handlers.update(tools)
 
 class Disk(object):
-    def __init__(self, (handle, disktype, fstype, disk_id, writable, name)):
-        self.handle = handle
-        self.disktype = disktype
-        self.fstype = fstype
-        self.disk_id = disk_id
-        self.writable = writable
-        self.name = name
+    def __init__(self, disk_info):
+        self.info = disk_info
+        self.root = Folder("")
+
+    def has_children(self):
+        self.set_current()
+        self.root.has_children()
+    
+    def get_handle(self):
+        return self.info.handle
+
+    def set_current(self): 
+        handlers[Disk].select_disk(self.get_handle())
 
     def get_name(self):
-        return self.name
+        return self.info.name
+
+    def get_children(self):
+        self.set_current()
+        return self.root.get_children()
 
 class Action:
     """Wraps an action for a file, adapting an interface action to
