@@ -1,5 +1,6 @@
 import sys, aksy, logging, os.path
 from aksy.devices.akai.sysex import Request, Reply
+from aksy.devices.akai import sysex_types
 from aksy.devices.akai.z48.sampler import Z48
 from aksy import model
 
@@ -8,10 +9,10 @@ class MockZ48(Z48):
     def __init__(self, debug=1):
         self.debug = debug
         self.setupTools()
+        def get_disklist(): return []
+        self.disktools.get_disklist = get_disklist
         self.setupModel()
-        rootfolder = model.Folder(("",))
-        rootfolder.children.append(model.Folder(('', 'Autoload',)))
-        rootfolder.children.append(model.Folder(('', 'Songs',)))
+
         mellotron_folder = model.Folder(('', 'Mellotron',))
         choir_folder = model.Folder(('', 'Choir',))
         choir_folder.children.extend(
@@ -23,8 +24,14 @@ class MockZ48(Z48):
             (choir_folder,
             model.File(('', 'Mellotron', 'Sample.AKP',)),
             model.File(('', 'Mellotron', 'Sample.wav',)),))
-        rootfolder.children.append(mellotron_folder)
-        self.disks.set_children(rootfolder.get_children())
+        disks = [model.Disk(info) for info in
+            sysex_types.DiskInfo((256, 1, 0, 3, True, "Samples disk")),
+            sysex_types.DiskInfo((512, 1, 0, 3, False, "Cdrom"))]
+        disks[0].root.children = [model.Folder(('', 'Autoload',)),
+             model.Folder(('', 'Songs',))]
+        disks[1].root.children = [mellotron_folder]
+
+        self.disks.set_children(disks)
         self.memory.set_children((
             model.Sample("Boo.wav"),
             model.Multi("Default.akm"),))

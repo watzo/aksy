@@ -170,13 +170,12 @@ class AksyFSTree(TreeListCtrl):
             else:
                 self.SetItemImage(child, self.fileidx, which = wx.TreeItemIcon_Normal)
                 self.SetItemImage(child, self.fileidx, which = wx.TreeItemIcon_Expanded)
-        elif isinstance(item, model.Storage):
-            if isinstance(item, model.Memory):
-                self.SetItemImage(child, self.memidx, which = wx.TreeItemIcon_Normal)
-                self.SetItemImage(child, self.memidx, which = wx.TreeItemIcon_Expanded)
-            else:
-                self.SetItemImage(child, self.diskidx, which = wx.TreeItemIcon_Normal)
-                self.SetItemImage(child, self.diskidx, which = wx.TreeItemIcon_Expanded)
+        elif isinstance(item, model.Memory):
+            self.SetItemImage(child, self.memidx, which = wx.TreeItemIcon_Normal)
+            self.SetItemImage(child, self.memidx, which = wx.TreeItemIcon_Expanded)
+        elif isinstance(item, model.Disk):
+            self.SetItemImage(child, self.diskidx, which = wx.TreeItemIcon_Normal)
+            self.SetItemImage(child, self.diskidx, which = wx.TreeItemIcon_Expanded)
         else:
             self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Normal)
             self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Expanded)
@@ -275,12 +274,13 @@ class TreePanel(wx.Panel):
         wx.EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
 
         # replace by get_system_objects
-        disks = self.sampler.disks
         mem = self.sampler.memory
         mem_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), mem)
-        disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disks)
         self.tree.Expand(mem_id)
-        self.tree.Expand(disks_id)
+
+        for disk in self.sampler.disks.get_children():
+            disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disk)
+            self.tree.Expand(disks_id)
 
     def store_config(self):
         print "store_config"

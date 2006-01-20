@@ -20,28 +20,6 @@ def register_handlers(tools):
     """
     handlers.update(tools)
 
-class Disk(object):
-    def __init__(self, disk_info):
-        self.info = disk_info
-        self.root = Folder("")
-
-    def has_children(self):
-        self.set_current()
-        self.root.has_children()
-    
-    def get_handle(self):
-        return self.info.handle
-
-    def set_current(self): 
-        handlers[Disk].select_disk(self.get_handle())
-
-    def get_name(self):
-        return self.info.name
-
-    def get_children(self):
-        self.set_current()
-        return self.root.get_children()
-
 class Action:
     """Wraps an action for a file, adapting an interface action to
     a function call
@@ -55,6 +33,38 @@ class Action:
         self.epilog = None
         self.id = id
 
+class Disk(object):
+    def __init__(self, disk_info):
+        self.info = disk_info
+        self.root = Folder("")
+
+    def has_children(self):
+        self.set_current()
+        self.root.has_children()
+
+    def get_handle(self):
+        return self.info.handle
+
+    def set_current(self):
+        handlers[Disk].select_disk(self.get_handle())
+
+    def get_name(self):
+        return self.info.name
+
+    def get_size(self):
+        return None
+
+    def get_used_by(self):
+        return None
+
+    def get_modified(self):
+        return None
+
+    def get_children(self):
+        self.set_current()
+        return self.root.get_children()
+
+Diks.actions = {}
 class File(object):
     FOLDER = 0
     MULTI = 1
@@ -358,7 +368,7 @@ class Sample(InMemoryFile):
         self.type = File.SAMPLE
 
     def get_size(self):
-        self.handlers[Sample].get_sample_length()
+        handlers[Sample].get_sample_length()
     def get_used_by(self):
         """Returns the pogram(s) using this file
         """
@@ -402,7 +412,7 @@ class Memory(Storage):
 
     def upload(self, path):
         name = os.path.basename(path)
-        self.handlers[Disk].z48.put(path, name)
+        handlers[Disk].z48.put(path, name)
         item = InMemoryFile.get_instance(name)
         self.append_child(item)
 
