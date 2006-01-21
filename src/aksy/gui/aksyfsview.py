@@ -257,6 +257,7 @@ class TreePanel(wx.Panel):
         self._action = None
         self.recordedActions = []
         self.register_menu_actions(model.File.actions)
+        self.register_menu_actions(model.InMemoryFile.actions)
 
         for action in ( model.Action('cut','Cut\tCtrl+X', wx.ID_CUT),
                         model.Action('copy','Copy\tCtrl+C', wx.ID_COPY),
@@ -440,7 +441,7 @@ class TreePanel(wx.Panel):
 
     def select_directory(self, item):
         dir_dialog = wx.DirDialog(self, "Choose a destination for %s" %item.get_name(),
-            style=wx.DD_DEFAULT_STYLE|wxDD_NEW_DIR_BUTTON)
+            style=wx.DD_DEFAULT_STYLE|wx.DD_NEW_DIR_BUTTON)
         dir_dialog.SetPath(self.lastdir)
         if dir_dialog.ShowModal() == wx.ID_OK:
             self.lastdir = dir_dialog.GetPath()
@@ -494,7 +495,6 @@ class TreePanel(wx.Panel):
         self.tree.Expand(memory_folder)
 
     def remove_from_memory_branch(self, item):
-        memory_folder = self.tree.get_item_by_name('memory')
         self.tree.Delete(item.id)
 
     def OnSize(self, e):

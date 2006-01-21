@@ -34,13 +34,14 @@ class Action:
         self.id = id
 
 class Disk(object):
+    actions = {}
     def __init__(self, disk_info):
         self.info = disk_info
         self.root = Folder("")
 
     def has_children(self):
         self.set_current()
-        self.root.has_children()
+        return self.root.has_children()
 
     def get_handle(self):
         return self.info.handle
@@ -63,9 +64,12 @@ class Disk(object):
     def get_children(self):
         self.set_current()
         return self.root.get_children()
-
-Diks.actions = {}
+    
+    def get_actions(self):
+        return Disk.actions
+    
 class File(object):
+    actions = [Action("load", "Load"), Action("delete", "Delete"), Action("transfer", "Transfer"),]
     FOLDER = 0
     MULTI = 1
     PROGRAM = 2
@@ -172,7 +176,7 @@ class File(object):
     def get_actions(self):
         return File.actions
 
-File.actions = [Action("load", "Load"), Action("delete", "Delete"), Action("transfer", "Transfer"),]
+
 
 class Folder(File):
     def __init__(self, path):
@@ -282,6 +286,7 @@ class Folder(File):
                 item.transfer(os.path.join(path, item.get_name()))
 
 class InMemoryFile(File):
+    actions = [Action("delete", "Delete"), Action("transfer", "Transfer"),]
     def get_instance(name):
         if self.type == File.MULTI:
             return Multi(name)
@@ -301,6 +306,9 @@ class InMemoryFile(File):
         self.name = name
         File.__init__(self, (name,))
 
+    def get_actions(self):
+        return InMemoryFile.actions
+    
     def get_size(self):
         return 'Unknown'
 
@@ -370,13 +378,9 @@ class Sample(InMemoryFile):
     def get_size(self):
         handlers[Sample].get_sample_length()
     def get_used_by(self):
-        """Returns the pogram(s) using this file
-        """
         return None
 
     def get_children(self):
-        """Returns the samples used by this program
-        """
         return None
 
 class Storage:
