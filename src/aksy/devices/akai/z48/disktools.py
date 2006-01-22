@@ -35,19 +35,19 @@ class Disktools:
               (aksy.devices.akai.sysex_types.WORD,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.get_filenames_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x22', 'get_filenames', (),
               (aksy.devices.akai.sysex_types.STRINGARRAY,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
+          self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None, 
+              userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.delete_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'delete_file', (aksy.devices.akai.sysex_types.STRING,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.load_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2A', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None,
-               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.load_file_and_deps_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None,
-               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
+              userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
+          self.load_file_and_deps_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None)
           self.save_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2C', 'save',
               (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.FILETYPE, aksy.devices.akai.sysex_types.BOOL,
                aksy.devices.akai.sysex_types.BOOL), None,
                userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.save_all_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2D', 'save_all', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.BOOL), None,
-             userref_type=aksy.devices.akai.sysex_types.USERREF)
+              userref_type=aksy.devices.akai.sysex_types.USERREF)
 
      def update_disklist(self):
           """Update the list of disks connected
@@ -155,8 +155,8 @@ class Disktools:
           """
           return self.z48.execute(self.rename_file_cmd, (arg0, arg1, ))
 
-     def delete_file(self, arg0):
-          """Delete File <Data1> = name of file to delete.
+     def delete(self, arg0):
+          """Delete file or folder (including folder content!)
           """
           return self.z48.execute(self.delete_file_cmd, (arg0, ))
 
@@ -172,17 +172,18 @@ class Disktools:
 
      def save(self, arg0, arg1, arg2, arg3):
           """Save Memory Item to Disk
-          <Data1> = Handle of Memory Item
-          <Data2> = Type = (1=Multi; 2=Program; 3=Sample; 4=SMF)
-          <Data3> = (0=Skip if file exists; 1=Overwrite existing files)
-          <Data4> = (0=Don't save children; 1=Save Children)
+          handle Handle of Memory Item
+          type (1=Multi; 2=Program; 3=Sample; 4=SMF)
+          overwrite (0=Skip if file exists; 1=Overwrite existing files)
+          save_childen = (0=Don't save children; 1=Save Children)
+          
           """
           return self.z48.execute(self.save_cmd, (arg0, arg1, arg2, arg3, ))
 
      def save_all(self, arg0, arg1, arg2):
           """Save All Memory Items to Disk
-          <Data1> = Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF)
-          <Data2> = (0=Skip if file exists; 1=Overwrite existing files)
-          <Data4> = (0=Don't save children; 1=Save Children)
+          Type = (0=All; 1=Multi; 2=Program; 3=Sample; 4=SMF)
+          Overwrite (0=Skip if file exists; 1=Overwrite existing files)
+          SaveChildren = (0=Don't save children; 1=Save Children)
           """
           return self.z48.execute(self.save_all_cmd, (arg0, arg1, arg2))
