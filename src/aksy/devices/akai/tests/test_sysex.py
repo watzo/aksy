@@ -52,7 +52,7 @@ class TestReply(unittest.TestCase):
         bytes =  (
             sysex.START_SYSEX, sysex.AKAI_ID, '\x5e\x20', '\x00',
             sysex.REPLY_ID_REPLY, '\x20\x05', '\x01', sysex.END_SYSEX)
-        custom_cmd = sysex.Command('\x5e\x20', '\x20\x05', 'dummy', (),(sysex_types.BYTE,), None)
+        custom_cmd = sysex.Command('\x5e\x20', '\x20\x05', 'dummy', (),(sysex_types.BYTE,))
         reply = sysex.Reply(''.join(bytes), custom_cmd)
         self.assertEquals(1, reply.get_return_value())
 
@@ -158,11 +158,6 @@ class TestModuleMethods(unittest.TestCase):
         self.assertEquals(
             '\xf0G_\x00E \x00\x00\x03\xf7',
             sysex.repr_bytes(['f0', '47', '5f', '00', '45', '20', '00', '00', '03', 'f7']))
-
-    def testCreateCommandClass(self):
-        klass = sysex.createCommandClass('A', 'A doc', '\x05', 'x03', 'A', (), None)
-        log.debug(repr(klass()))
-
 
 def test_suite():
     testloader = unittest.TestLoader()

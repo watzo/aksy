@@ -36,5 +36,5 @@ def md5sum(fh):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_sampler')
+    suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_transfers')
     return suite

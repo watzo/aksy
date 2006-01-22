@@ -179,10 +179,6 @@ class TestUserRefType(unittest.TestCase):
         self.assertRaises(ValueError, u.encode, 16384)
         self.assertRaises(sysex_types.DecodeException, u.decode, '\x20\x00')
 
-class TestPadType(unittest.TestCase):
-    def testDecode(self):
-        self.assertEquals(None, sysex_types.PadType().decode('\x33'))
-
 class TestSoundLevelType(unittest.TestCase):
     def setUp(self):
         self.sl = sysex_types.SoundLevelType()

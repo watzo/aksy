@@ -304,14 +304,16 @@ class UserRefType(object):
         if self.encoding_size == 2:
             return self._encode_WORD(value)
 
+    def decode_length(self, byte):
+        return byte >> 4
+
     def decode(self, string):
         if not string or not isinstance(string, types.StringType):
             raise ValueError(
                 "Decoding error at %s.decode: %s is not a string"
                 % (self.__class__.__name__, repr(string)))
 
-        userref_length_user_id = BYTE.decode(string[0])
-        length = userref_length_user_id >> 4
+        length = self.decode_length(BYTE.decode(string[0]))
         if length == 0:
             return (1, 0)
         if length == 1:
@@ -319,6 +321,17 @@ class UserRefType(object):
         if length == 2:
             return (3, WORD.decode(string[1:3]))
         raise DecodeException("Unexpected UserRef length %i" % length)
+
+class Z48UserRefType(UserRefType):
+
+    def _encode_WORD(self, value):
+        return BYTE.encode(2 << 5) + WORD.encode(value)
+
+    def _encode_BYTE(self, value):
+        return BYTE.encode(1 << 5) + BYTE.encode(value)
+
+    def decode_length(self, byte):
+        return byte >> 5
 
 class TypeByteType(SysexType):
     def __init__(self):
@@ -500,6 +513,7 @@ SQWORD      = SignedQWordType()
 STRING      = StringType()
 STRINGARRAY = StringArrayType()
 USERREF     = UserRefType()
+Z48USERREF  = Z48UserRefType()
 
 # S56k types
 S56K_USERREF = UserRefType(2)

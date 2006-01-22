@@ -93,7 +93,7 @@ class Reply:
         # TODO: dispatching on z48id, userref and command
         i = 2   # skip start sysex, vendor id
         i += len(self.command.device_id)
-        len_userref, self.request_id = sysex_types.USERREF.decode(self.bytes[i:])
+        len_userref, self.request_id = self.command.userref_type.decode(self.bytes[i:])
         i += len_userref
         reply_id = self.bytes[i]
         i +=  1 # skip past the reply code
