@@ -4,8 +4,7 @@
 * complete command coverage
 * bug fixing:
   * type conversions
-  * transfer to disk. done for Z48; fix S56K
-  * transfer from memory; done for Z48; support for S56K needed
+  * transfer from memory/disk; done for Z48; fix S56K
 * command loop implementation with userref support using OSC; investigate async
   viability.
 
@@ -24,6 +23,6 @@ aksyfs
 * debug load/delete/rename operations
 * copy/paste, drag-n-drop (80% done)
 * key bindings for load(Ctrl-L), delete (DEL), rename (F2) 
-* transfer from host to disk (may be a hack with saving will do)
+* transfer from host to disk
 * extended view for multis, programs and samples
 * Editors for multis, programs and some basic functionality for samples
