@@ -27,6 +27,3 @@ To install the aksy python modules and the aksyxusb extension, run:
 
 python setup.py build
 python setup.py install (as root)
-
-On big endian machines, set _BIG_ENDIAN to 1 in the setup.py file. This will
-probably go away soon.
