@@ -69,7 +69,7 @@
 
 enum TRANSFER_LOCATIONS {
     LOC_DISK,
-    LOC_MEMORY
+    LOC_MEMORY,
 };
 
 enum RETURN_CODES {

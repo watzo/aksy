@@ -29,13 +29,13 @@ sysex_reply_ok(char* sysex_reply)
 }
 
 static void
-print_transfer_stats(long int timedelta, long filesize)
+print_transfer_stats(int timedelta, long filesize)
 {
     float elapsed, kbps;
     // get elapsed time in seconds.
     elapsed = timedelta/1000.0f;
     kbps = filesize/(1024*elapsed);
-    printf("Transfered %i bytes in elapsed %6f (%6f kB/s)\n", filesize, elapsed, kbps);
+    printf("Transfered %li bytes in elapsed %6f (%6f kB/s)\n", filesize, elapsed, kbps);
 }
 
 static void
@@ -493,9 +493,12 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 				  char *dest_filename, const int timeout) {
     char* data;
     int blocksize = 4096*4, rc = 0, read_transfer_status = 0;
-    unsigned long filesize, bytes_transferred = 0, actually_transferred = 0, t1, tdelta;
+    unsigned long filesize, bytes_transferred = 0, actually_transferred = 0, tdelta;
 #ifdef _POSIX_SOURCE
     struct timeval tv1, tv2;
+#endif
+#ifdef _WIN32
+    unsigned long t1;
 #endif
 
     FILE *dest_file;
@@ -557,7 +560,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	    }
 
 #if (AKSY_DEBUG == 1)
-	    printf("Current block size: %i. Bytes read now: %i, Total bytes read: %i. Actually transferred: %i\n",
+	    printf("Current block size: %i. Bytes read now: %i, Total bytes read: %li. Actually transferred: %li\n",
 		   blocksize, rc, bytes_transferred, actually_transferred);
 #endif
 	    blocksize = GET_BLOCK_SIZE(data);
@@ -683,7 +686,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
     char *src_filename, char *dest_filename, int location, int timeout)
 {
     char *buf, *command, *reply_buf;
-    unsigned long filesize = 0, transferred = 0, t1, tdelta;
+    unsigned long filesize = 0, transferred = 0, tdelta;
     int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8, bytes_read = 0;
     int dest_filename_length = strlen(dest_filename) + 1;
     FILE* fp;
@@ -706,6 +709,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
     free(st);
 #endif
 #ifdef _WIN32
+	long t1;
     HANDLE tmp_fp =  CreateFile(
         src_filename,
         GENERIC_READ,
@@ -808,7 +812,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
 #if (AKSY_DEBUG == 1)
             printf("blocksize: %i\n", blocksize);
-            printf("transferred: %i\n", transferred);
+            printf("transferred: %li\n", transferred);
 #endif
             if (transferred == filesize)
             {
