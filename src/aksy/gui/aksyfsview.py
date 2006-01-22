@@ -1,5 +1,4 @@
 import wx
-from wx.gizmos import TreeListCtrl
 
 from aksy import model
 from aksyx import USBException
@@ -44,9 +43,15 @@ class Frame(wx.Frame):
 		    # if e[0] == "No sampler found":
             self.sampler = Devices.get_instance('mock_z48', debug=1)
             # self.reportException(e)
-        panel = TreePanel(self)
-        panel.SetSize(self.GetSize())
+        splitter = wx.SplitterWindow(self, size=wx.DefaultSize,style=wx.SP_LIVE_UPDATE)
+        splitter.SetMinimumPaneSize(100)
+            
+        panel = TreePanel(splitter)
+        # panel.SetSize(self.GetSize())
 
+        listpanel = ListPanel(splitter)
+        splitter.SplitVertically(panel, listpanel)
+        
     def OnAbout(self,e):
         d= wx.MessageDialog(self, " Aksy, fresh action for your sampler\n", "About Aksy", wxOK)
         d.ShowModal()
@@ -72,9 +77,9 @@ class Frame(wx.Frame):
         d.ShowModal()
         d.Destroy()
 
-class AksyFSTree(TreeListCtrl):
+class AksyFSTree(wx.TreeCtrl):
     def __init__(self, parent, id, **kwargs):
-        TreeListCtrl.__init__(self, parent, id, **kwargs)
+        wx.TreeCtrl.__init__(self, parent, id, **kwargs)
 
         target = AksyFileDropTarget(self)
         self.SetDropTarget(target)
@@ -99,14 +104,6 @@ class AksyFSTree(TreeListCtrl):
         self.sample_icon     = il.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
         self.SetImageList(il)
         self.il = il
-
-        # create some columns
-        self.AddColumn("")
-        self.AddColumn("Size")
-        self.AddColumn("Used by")
-        self.AddColumn("Modified")
-        # self.SetMainColumn(0)
-        #self.SetColumnWidth(0, 450)
 
         self.root = self.AddRoot("Z48")
         self.SetItemImage(self.root, self.fldridx, which = wx.TreeItemIcon_Normal)
@@ -152,11 +149,6 @@ class AksyFSTree(TreeListCtrl):
         self.SetPyData(child, item)
         self.AddItemIndex(item.get_handle(), child)
 
-        if not isinstance(item, model.Storage):
-            self.SetItemText(child, str(item.get_size()), 1)
-            self.SetItemText(child, str(item.get_used_by()), 2)
-            self.SetItemText(child, str(item.get_modified()), 3)
-
         if isinstance(item, model.File):
             if item.type == model.File.MULTI:
                 self.SetItemImage(child, self.multi_icon, which = wx.TreeItemIcon_Normal)
@@ -190,8 +182,9 @@ class AksyFSTree(TreeListCtrl):
 
     def OnSelChanged(self, evt):
         id = evt.GetItem()
+        print evt.GetItem()
         item = self.GetPyData(id)
-        self.GetParent().GetParent().action_menu.set_actions(item.get_actions())
+        self.GetParent().GetParent().GetParent().action_menu.set_actions(item.get_actions())
 
     def OnKeyDown(self, evt):
         if evt.GetKeyCode() == wx.WXK_F2 and self.GetParent().is_rename_ok():
@@ -229,6 +222,11 @@ class AksyFSTree(TreeListCtrl):
         id = evt.GetItem()
         item = self.GetPyData(id)
 
+class ListPanel(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        listctl = wx.ListCtrl(self, size=wx.DefaultSize)
+
 class TreePanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, ID_MAIN_PANEL)
@@ -236,7 +234,7 @@ class TreePanel(wx.Panel):
 
         # the default implementation seems to be in-memory
         if wx.Platform == "__WXGTK__":
-            self.config = wx.FileConfig("Aksy", style=wxCONFIG_USE_LOCAL_FILE)
+            self.config = wx.FileConfig("Aksy", style=wx.CONFIG_USE_LOCAL_FILE)
         else:
             self.config = wx.Config("Aksy")
         self.lastdir = self.config.Read("/LastRun/Lastdir")
@@ -246,12 +244,8 @@ class TreePanel(wx.Panel):
         if len(self.lastdir) == 1:
             self.lastdir = ""
 
-        self.sampler = parent.sampler
-
+        self.sampler = parent.GetParent().sampler
         self.tree = AksyFSTree(self, wx.NewId(), style=wx.TR_EDIT_LABELS|wx.TR_HIDE_ROOT|wx.TR_DEFAULT_STYLE|wx.TR_MULTIPLE)
-        self.tree.SetMainColumn(0)
-        self.tree.SetColumnWidth(0, 400)
-
         self.actions = {}
         self._action_item = None
         self._action = None
@@ -272,7 +266,7 @@ class TreePanel(wx.Panel):
 
         wx.EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
         wx.EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
-        wx.EVT_RIGHT_UP(self.tree.GetMainWindow(), self.contextMenu)
+        wx.EVT_RIGHT_UP(self.tree.GetParent(), self.contextMenu)
 
         # replace by get_system_objects
         mem = self.sampler.memory
