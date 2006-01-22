@@ -604,7 +604,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 
 #ifdef _POSIX_SOURCE
     gettimeofday(&tv2, NULL);
-    tdelta = TIMEVAL_DELTA_MILLIS(tv2, tv1);
+    tdelta = TIMEVAL_DELTA_MILLIS(tv1, tv2);
 #endif
 #ifdef _WIN32
     tdelta = GetTickCount() - t1;
@@ -838,7 +838,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
 
 #ifdef _POSIX_SOURCE
     gettimeofday(&tv2, NULL);
-    tdelta = TIMEVAL_DELTA_MILLIS(tv2, tv1);
+    tdelta = TIMEVAL_DELTA_MILLIS(tv1, tv2);
 #endif
 #ifdef _WIN32
     tdelta = GetTickCount() - t1;
