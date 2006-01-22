@@ -43,6 +43,8 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 3. Known issues and limitations in this release
 
+3a. General
+
 * Mac OS X hasn't been recently tested yet.
 
 * Multiple instances of Aksy are currently not supported.
@@ -54,6 +56,11 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 * Not all sampler methods have been tested extensively. Some are known to
   not be implemented on the sampler itself, but there could be more methods
   that are not supported by the sampler.
+
+3b. Akai Sysex implementation pecularities
+
+* set_current_by_name() and set_current_by_handle() don't complain about
+  invalid names or handles; the current item (if any) is unchanged.
 
 4. Debugging and troubleshooting
 
