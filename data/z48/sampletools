@@ -73,7 +73,7 @@ QWORD
 QWORD
 \x1F	\x24	get_orig_pitch	Get Original Pitch
 BYTE
-\x1F	\x25	get_cents_tune	Get Cents Tune (0 ­ ± 36 00)
+\x1F	\x25	get_cents_tune	Get Cents Tune (+-3600)
 SWORD
 \x1F	\x26	get_playback_mode	Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
 BYTE
@@ -85,7 +85,7 @@ QWORD
 QWORD
 \x1F	\x33	get_loop_lock	Get Loop Lock <Data1> = (0=OFF, 1=ON)	BOOL
 BYTE
-\x1F	\x34	get_loop_tune	Get Loop Tune (0­±50)	BYTE
+\x1F	\x34	get_loop_tune	Get Loop Tune (+-50)	BYTE
 SBYTE
 \x1F	\x35	get_loop_dir	Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BOOL
 BYTE
@@ -97,9 +97,9 @@ BYTE
 BYTE
 \x1F	\x40	get_region_start	Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
 QWORD
-\x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0­31) <Reply1> = end	BYTE
+\x1F	\x41	get_region_end	Get Region End <Data1> = Region Num (0-31) <Reply1> = end	BYTE
 QWORD
-\x1F	\x42	get_region_length	Get Region Length <Data1> = Region Num (0­31) <Reply1> = length BYTE
+\x1F	\x42	get_region_length	Get Region Length <Data1> = Region Num (0-31) <Reply1> = length BYTE
 QWORD
 \x1F	\x44	get_no_regions	Get Number of Regions
 BYTE
@@ -125,7 +125,7 @@ BYTE
 
 \x1E	\x25	set_tune	Set Cents Tune	SWORD
 
-\x1E	\x26	set_playback_mode	Set Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
+\x1E	\x26	set_playback_mode	Set Playback Mode, where arg0= (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
 
 \x1E	\x30	set_loop_start	Set Loop Start <Data1> = loop index	BYTE	QWORD
 
@@ -135,7 +135,7 @@ BYTE
 
 \x1E	\x33	set_loop_lock	Set Loop Lock <Data1> = (0=OFF, 1=ON)	BYTE	BOOL
 
-\x1E	\x34	set_loop_tune	Set Loop Tune (0­±50)	BYTE	SBYTE
+\x1E	\x34	set_loop_tune	Set Loop Tune (0-50)	BYTE	SBYTE
 
 \x1E	\x35	set_loop_direction	Set Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)	BYTE	BYTE
 

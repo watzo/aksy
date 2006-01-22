@@ -1,6 +1,6 @@
 # inspired by the frequent offers of great sounds by Steve of Hollow Sun, this
 # script will allow you to download, unpack and audition a new addition in no time!
-import sys, urllib, zipfile, os, os.path, 
+import sys, urllib, zipfile, os, os.path
 from aksy import Devices
 
 def checkout(url, destdir=''):
