@@ -16,26 +16,23 @@ class Frame(wx.Frame):
 
         filemenu= wx.Menu()
         filemenu.AppendSeparator()
-        filemenu.Append(ID_EXIT,"E&xit\tCtrl+Q"," Terminate the program")
+        filemenu.Append(wx.ID_EXIT, "E&xit\tCtrl+Q"," Terminate the program")
 
-        self.action_menu = ActionMenu(self, wx.SIMPLE_BORDER)
         helpmenu = wx.Menu()
-        helpmenu.Append(ID_ABOUT, "&About"," Information about this program")
+        helpmenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
 
         menuBar = wx.MenuBar()
-        menuBar.Append(filemenu,"&File")
-        menuBar.Append(self.action_menu,"&Actions")
-        menuBar.Append(helpmenu,"&Help")
+        menuBar.Append(filemenu, "&File")
+        menuBar.Append(helpmenu, "&Help")
         self.SetMenuBar(menuBar)
         self.SetSize((800, 600))
-        img_path = test_dir = os.path.join(os.path.split(__file__)[0], 'img')
+        img_path = os.path.join(os.path.split(__file__)[0], 'img')
         self.SetIcon(wx.IconFromBitmap(wx.Image(os.path.join(img_path, 'aksy.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()))
-
         self.Show(True)
-        wx.EVT_MENU(self, ID_EXIT, self.OnExit)
-        wx.EVT_MENU(self, ID_ABOUT, self.OnAbout)
 
-        wx.EVT_CLOSE(self, self.OnExit)
+        self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
+        self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
+        self.Bind(wx.EVT_CLOSE, self.OnExit)
 
         try:
             self.sampler = Devices.get_instance('z48', 'usb', debug=0)
@@ -43,13 +40,14 @@ class Frame(wx.Frame):
 		    # if e[0] == "No sampler found":
             self.sampler = Devices.get_instance('mock_z48', debug=1)
             # self.reportException(e)
-        splitter = wx.SplitterWindow(self, size=wx.DefaultSize,style=wx.SP_LIVE_UPDATE)
-        splitter.SetMinimumPaneSize(100)
-            
-        panel = TreePanel(splitter)
-        # panel.SetSize(self.GetSize())
 
+        splitter = wx.SplitterWindow(self, size=wx.DefaultSize,style=wx.SP_LIVE_UPDATE)
+        panel = TreePanel(splitter)
         listpanel = ListPanel(splitter)
+
+        self.Bind(wx.EVT_TREE_SEL_CHANGED, listpanel.OnTreeSelChanged, panel.tree)
+        splitter.SetMinimumPaneSize(100)
+        splitter.SetSize(self.GetSize())
         splitter.SplitVertically(panel, listpanel)
         
     def OnAbout(self,e):
@@ -67,9 +65,6 @@ class Frame(wx.Frame):
 
     def on_exit(self):
         self.FindWindowById(ID_MAIN_PANEL).store_config()
-
-    def set_edit_menu(self, menu):
-        self.GetMenuBar().Replace(1, menu, "Actions")
 
     def reportException(self, exception):
         traceback.print_exc()
@@ -98,10 +93,9 @@ class AksyFSTree(wx.TreeCtrl):
         self.fldridx = il.Add(wx.Image(os.path.join(img_path, 'folder.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
         self.fldropenidx = il.Add(wx.Image(os.path.join(img_path, 'folder-open.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
 
-        #self.program_icon     = il.Add(wx.ArtProvider_GetBitmap(wxART_REPORT_VIEW, wxART_OTHER, isz))
-        self.program_icon     = il.Add(wx.Image(os.path.join(img_path, 'program.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.multi_icon     = il.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.sample_icon     = il.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+        self.program_icon = il.Add(wx.Image(os.path.join(img_path, 'program.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+        self.multi_icon = il.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+        self.sample_icon = il.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
         self.SetImageList(il)
         self.il = il
 
@@ -110,12 +104,16 @@ class AksyFSTree(wx.TreeCtrl):
         self.SetItemImage(self.root, self.fldropenidx, which = wx.TreeItemIcon_Expanded)
         self._item_to_id = {}
 
+        self.Bind(wx.EVT_TREE_DELETE_ITEM, self.OnItemDelete, self)
         self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self.OnItemExpanding, self)
-        self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.OnItemActivate, self)
+        # self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.OnItemActivate, self)
         self.Bind(wx.EVT_TREE_BEGIN_DRAG, self.OnItemBeginDrag, self)
         self.Bind(wx.EVT_TREE_END_DRAG, self.OnItemEndDrag, self)
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, self)
         self.Bind(wx.EVT_TREE_KEY_DOWN, self.OnKeyDown, self)
+        self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.CheckRenameAction)
+        self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.RenameAction)
+        self.Bind(wx.EVT_RIGHT_UP, self.contextMenu)
 
     def OnItemBeginDrag(self, evt):
         id = evt.GetItem()
@@ -181,51 +179,99 @@ class AksyFSTree(wx.TreeCtrl):
         return self._item_to_id[name]
 
     def OnSelChanged(self, evt):
-        id = evt.GetItem()
-        print evt.GetItem()
-        item = self.GetPyData(id)
-        self.GetParent().GetParent().GetParent().action_menu.set_actions(item.get_actions())
-
+        ids = self.GetSelections()
+        if len(ids) > 0:
+            item = self.GetPyData(ids[-1])
+        
+        
     def OnKeyDown(self, evt):
-        if evt.GetKeyCode() == wx.WXK_F2 and self.GetParent().is_rename_ok():
-            id = self.GetSelection()
+        ids = self.GetSelections()
+        for id in ids: 
             item = self.GetPyData(id)
-            self.EditLabel(id)
-            return
-        elif evt.GetKeyCode() == wx.WXK_DELETE:
-            id = self.GetSelection()
-            item = self.GetPyData(id)
-            if not evt.GetKeyEvent().ShiftDown():
-                dialog = wx.MessageDialog(self,
-                  "Delete %s?" %item.get_name(),"Delete", wx.YES_NO)
-                if dialog.ShowModal() == wx.ID_YES:
-                    if hasattr(item, "delete"):
+            if evt.GetKeyCode() == wx.WXK_F2:
+                if hasattr(item, 'rename'):
+                    self.EditLabel(id)
+            elif evt.GetKeyCode() == wx.WXK_DELETE:
+                if not hasattr(item, "delete"):
+                    continue
+                if not evt.GetKeyEvent().ShiftDown():
+                    dialog = wx.MessageDialog(self,
+                      "Delete %s?" %item.get_name(),"Delete", wx.YES_NO)
+                    if dialog.ShowModal() == wx.ID_YES:
                         item.delete()
                         self.Delete(id)
-                dialog.Destroy()
-                return
-        else:
-            # event skip should be the only statement
-            evt.Skip()
+                    dialog.Destroy()
+                    continue
+            else:
+                # event skip should be the only statement
+                evt.Skip()
 
+    def OnItemDelete(self, evt):
+        """Make sure tree is updated
+        """
+        #tree_parent = self.GetItemParent(evt.GetItem())
+        #parent = self.GetPyData(tree_parent)
+        #self.SetItemHasChildren(tree_parent, parent.has_children())
+        print repr(evt)
+        
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
-        if not item: return
         print "OnItemExpanding %s %s" % (id, repr(item.get_name()))
         for item in item.get_children():
             if item.get_handle() not in self._item_to_id:
                 self.AppendAksyItem(id, item)
 
     def OnItemActivate(self, evt):
+        #evt.Skip()
         # TODO: hookup the edit views here
-        id = evt.GetItem()
-        item = self.GetPyData(id)
+        # id = evt.GetItem()
+        # item = self.GetPyData(id)
+        pass
 
+    def RenameAction(self, evt):
+        new_name = evt.GetLabel()
+        # TODO: implement decent checks
+        if len(new_name) == 0:
+            evt.Veto()
+
+        ids = self.GetSelections()
+        item = self.GetPyData(ids[-1])
+        item.rename(str(new_name))
+
+    def CheckRenameAction(self, evt):
+        """Handles begin label edit
+        """
+        ids = self.GetSelections()
+        for id in ids:
+            item = self.GetPyData(id)
+            if not hasattr(item, 'rename'):
+                evt.Veto()
+
+    def contextMenu(self, e):
+        ids = self.GetSelections()
+        actions = set()
+        for id in ids: 
+            item = self.GetPyData(id)
+            if len(actions) == 0:
+                actions.update(item.get_actions())
+            else:
+                actions.intersection(item.get_actions())
+        menu = ActionMenu(self, wx.SIMPLE_BORDER)
+        menu.set_actions(actions)
+        self.PopupMenu(menu, e.GetPosition())
+    
 class ListPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
-        listctl = wx.ListCtrl(self, size=wx.DefaultSize)
+        self.Bind(wx.EVT_SIZE, self.OnSize)    
+        self.listctl = wx.ListCtrl(self)
+        
+    def OnSize(self, evt):
+        self.listctl.SetSize(self.GetSize())
+    
+    def OnTreeSelChanged(self, evt):
+        print evt
 
 class TreePanel(wx.Panel):
     def __init__(self, parent):
@@ -263,10 +309,6 @@ class TreePanel(wx.Panel):
         wx.EVT_MENU(parent, wx.ID_COPY, self.OnCopy)
         wx.EVT_MENU(parent, wx.ID_PASTE, self.OnPaste)
         wx.EVT_CLOSE(self, self.store_config)
-
-        wx.EVT_TREE_BEGIN_LABEL_EDIT(self, self.tree.GetId(), self.CheckRenameAction)
-        wx.EVT_TREE_END_LABEL_EDIT(self, self.tree.GetId(), self.RenameAction)
-        wx.EVT_RIGHT_UP(self.tree.GetParent(), self.contextMenu)
 
         # replace by get_system_objects
         mem = self.sampler.memory
@@ -380,32 +422,14 @@ class TreePanel(wx.Panel):
         wx.EVT_MENU(self, id, self.ExecuteAction)
         wx.EVT_MENU(self.GetParent(), id, self.ExecuteAction)
 
-    def RenameAction(self, evt):
-        new_name = evt.GetLabel()
-        # TODO: implement decent checks
-        if len(new_name) == 0:
-            evt.Veto()
-
-        id = self.tree.GetSelection()
-        item = self.tree.GetPyData(id)
-        item.rename(new_name)
-
-    def CheckRenameAction(self, evt):
-        """Handles begin label edit
-        """
-        if not self.is_rename_ok():
-            evt.Veto()
-
-    def is_rename_ok(self):
-        id = self.tree.GetSelection()
-        item = self.tree.GetPyData(id)
-        if hasattr(item, 'rename'):
-            return True
-
     def ExecuteAction(self, evt):
         action = self.actions[evt.GetId()]
-        # TODO: multiple select
-        id = self.tree.GetSelection()
+
+        ids = self.tree.GetSelections()
+        for id in ids:
+            self.handle_action(id, action)
+            
+    def handle_action(self, id, action):
         item = self.tree.GetPyData(id)
         item.id = id
 
@@ -432,7 +456,7 @@ class TreePanel(wx.Panel):
                 action.epilog(item, result)
 
         self.recordedActions.append((action, args,))
-
+        
     def select_directory(self, item):
         dir_dialog = wx.DirDialog(self, "Choose a destination for %s" %item.get_name(),
             style=wx.DD_DEFAULT_STYLE|wx.DD_NEW_DIR_BUTTON)
@@ -459,21 +483,6 @@ class TreePanel(wx.Panel):
 
         filedialog.Destroy()
         return (path)
-
-    def contextMenu(self, e):
-        # TODO: multi-select
-        # items = self.tree.GetSelections()
-        # make an intersection of the actions
-        # show the menu
-
-        # dispatch on file type
-        item = self.tree.GetSelection()
-        aksy_object = self.tree.GetPyData(item)
-        if aksy_object is None or aksy_object.actions is None:
-            return
-        action_menu = self.GetParent().action_menu
-
-        self.PopupMenu(action_menu, e.GetPosition())
 
     def add_to_memory_branch(self, item, result):
         """Updates the memory branch when an item has been loaded
@@ -505,9 +514,9 @@ class ActionMenu(wx.Menu):
             self.Append(action.id, action.display_name, action.display_name)
 
 class AksyFileDropTarget(wx.FileDropTarget):
-    def __init__(self, window):
+    def __init__(self, tree):
         wx.FileDropTarget.__init__(self)
-        self.tree = window
+        self.tree = tree
 
     def OnDropFiles(self, x, y, filenames):
         id, flag1, flag2 = self.tree.HitTest((x,y))
