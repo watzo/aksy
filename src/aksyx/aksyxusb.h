@@ -53,7 +53,8 @@
 #define GET_BYTES_TRANSFERRED(buffer) ((buffer[3]&0xFF) | ((buffer[2]&0xFF) << 8) | ((buffer[1]&0XFF) << 16) | ((buffer[0]&0xFF) << 24))
 #define GET_S56K_BLOCK_SIZE GET_BYTES_TRANSFERRED
 
-#define IS_USB_REPLY_OK(buffer) (buffer[0] == 0x41 && buffer[1] == 0x6b && buffer[2] == 0x61 && buffer[3] == 0x49)
+/* Useless facts: 0x41 0x6b 0x61 0x49: AkaI in ascii */
+#define IS_SAMPLER_BUSY(buffer) (buffer[0] == 0x41 && buffer[1] == 0x6b && buffer[2] == 0x61 && buffer[3] == 0x49)
 #define IS_INVALID_FILE_ERROR(buffer) (buffer[0] == 0x1)
 #define IS_TRANSFER_FINISHED(buffer) (buffer[0] == 0x0)
 

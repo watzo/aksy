@@ -319,7 +319,7 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     log_hex(result_buff->bytes, rc, "Reply 1: ");
 #endif
 
-    while (rc == 4 && IS_USB_REPLY_OK(result_buff->bytes)) {
+    while (rc == 4 && IS_SAMPLER_BUSY(result_buff->bytes)) {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
 	log_hex(result_buff->bytes, rc, "Reply: ");
     }
@@ -576,7 +576,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	}
 	else if (rc == 4)
 	{
-	    if (IS_USB_REPLY_OK(data)) {
+	    if (IS_SAMPLER_BUSY(data)) {
 		continue;
 	    }
 	    /* s56k protocol only returns block size */
@@ -800,7 +800,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
 	    break;
 	}
 
-        if (rc == 4 && IS_USB_REPLY_OK(reply_buf))
+        if (rc == 4 && IS_SAMPLER_BUSY(reply_buf))
         {
             continue;
         }
