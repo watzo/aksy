@@ -104,6 +104,8 @@ init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
     akai_dev->sysex_id = Z48_ID;
     akai_dev->userref = "";
     akai_dev->userref_length = 0;
+    akai_dev->get_program_cmd_id = Z48_CMD_MEMORY_GET_PROGRAM;
+    akai_dev->get_multi_cmd_id = Z48_CMD_MEMORY_GET_MULTI;
     akai_dev->get_handle_by_name = &z48_get_handle_by_name;
     return AKSY_SUCCESS;
 }
@@ -121,6 +123,8 @@ static int init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
     akai_dev->sysex_id = S56K_ID;
     akai_dev->userref = "\x00\x00";
     akai_dev->userref_length = 2;
+    akai_dev->get_program_cmd_id = S56K_CMD_MEMORY_GET_PROGRAM;
+    akai_dev->get_multi_cmd_id = S56K_CMD_MEMORY_GET_MULTI;
     akai_dev->get_handle_by_name = &s56k_get_handle_by_name;
     return AKSY_SUCCESS;
 }
@@ -280,7 +284,6 @@ aksyxusb_get_sysex_error_msg(int code) {
     }
 }
 
-
 int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     const byte_array sysex, const byte_array result_buff, int* const bytes_read, const int timeout)
 {
@@ -427,7 +430,7 @@ s56k_get_handle_by_name(akai_usb_device akai_dev,
     }
     if (IS_MULTI_FILE(name))
     {
-	set_curr_item_cmd =  S56K_SET_CURR_MULTI_BY_NAME;
+		set_curr_item_cmd =  S56K_SET_CURR_MULTI_BY_NAME;
         get_curr_index_cmd = S56K_GET_CURR_MULTI_INDEX;
     }
     else if (IS_SAMPLE_FILE(name))
@@ -437,12 +440,12 @@ s56k_get_handle_by_name(akai_usb_device akai_dev,
     }
     else if (IS_PROGRAM_FILE(name))
     {
-	set_curr_item_cmd = S56K_SET_CURR_PROGRAM_BY_NAME;
+		set_curr_item_cmd = S56K_SET_CURR_PROGRAM_BY_NAME;
         get_curr_index_cmd = S56K_GET_CURR_PROGRAM_INDEX;
     }
     else if (IS_MIDI_FILE(name))
     {
-	set_curr_item_cmd = S56K_SET_CURR_MIDI_BY_NAME;
+		set_curr_item_cmd = S56K_SET_CURR_MIDI_BY_NAME;
         get_curr_index_cmd = S56K_GET_CURR_MIDI_INDEX;
     }
     else
@@ -650,13 +653,13 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
 	    get_request.bytes[0] = CMD_MEMORY_GET_SAMPLE;
 	}
 	else if (IS_PROGRAM_FILE(src_filename)) {
-	    get_request.bytes[0] = CMD_MEMORY_GET_PROGRAM;
+	    get_request.bytes[0] = akai_dev->get_program_cmd_id;
 	}
 	else if (IS_MULTI_FILE(src_filename)) {
-	    get_request.bytes[0] = CMD_MEMORY_GET_MULTI;
+	    get_request.bytes[0] = akai_dev->get_multi_cmd_id;
 	}
 	else if (IS_MIDI_FILE(src_filename)) {
-	    get_request.bytes[0] = CMD_MEMORY_GET_MIDI;
+	    get_request.bytes[0] = Z48_CMD_MEMORY_GET_MIDI;
 	} else {
 	    log_error(AKSY_UNSUPPORTED_FILETYPE, __LINE__);
 	}

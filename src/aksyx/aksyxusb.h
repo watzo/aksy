@@ -17,11 +17,16 @@
 #define CMD_DISK_PUT 0x40
 #define CMD_MEMORY_PUT 0x20
 #define CMD_MEMORY_GET_SAMPLE 0x21
-#define CMD_MEMORY_GET_PROGRAM 0x22
-#define CMD_MEMORY_GET_MULTI 0x23
-#define CMD_MEMORY_GET_MIDI 0x24
 
-/* abort an operation, returns a z48_ok reply on success */
+#define Z48_CMD_MEMORY_GET_PROGRAM 0x22
+#define Z48_CMD_MEMORY_GET_MULTI 0x23
+#define Z48_CMD_MEMORY_GET_MIDI 0x24
+
+#define S56K_CMD_MEMORY_GET_PROGRAM 0x23
+#define S56K_CMD_MEMORY_GET_MULTI 0x25
+#define S56K_CMD_MEMORY_GET_MIDI 0x24
+
+/* abort an operation, returns a busy reply on success */
 #define Z48_ABORT 0xff
 
 #define S56K_SET_CURR_SAMPLE_BY_NAME "\x0e\x05"
@@ -173,6 +178,8 @@ typedef struct akai_usb_device {
     int sysex_id;
     int userref_length;
     char *userref;
+    int get_program_cmd_id;
+    int get_multi_cmd_id;
     int (*get_handle_by_name)(struct akai_usb_device*, const char*, byte_array, int*, const int);
 } *akai_usb_device;
 
