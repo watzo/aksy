@@ -7,7 +7,8 @@ import os.path, traceback, sys, copy
 
 ID_ABOUT=wx.NewId()
 ID_EXIT=wx.NewId()
-ID_MAIN_PANEL = wx.NewId()
+ID_TREE_PANEL = wx.NewId()
+ID_TREE_CTL = wx.NewId()
 
 class Frame(wx.Frame):
     def __init__(self,parent,title):
@@ -42,12 +43,16 @@ class Frame(wx.Frame):
             # self.reportException(e)
 
         splitter = wx.SplitterWindow(self, size=wx.DefaultSize,style=wx.SP_LIVE_UPDATE)
-        panel = TreePanel(splitter)
-        listpanel = ListPanel(splitter)
+        splitter.SetMinimumPaneSize(100)
+        ilist = wx.ImageList(16, 16)
+        icon_map = create_icons(ilist)
+        panel = TreePanel(splitter, ilist, icon_map)
+
+        listpanel = ListPanel(splitter, ilist, icon_map)
+        splitter.SetSize(self.GetSize())
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, listpanel.OnTreeSelChanged, panel.tree)
-        splitter.SetMinimumPaneSize(100)
-        splitter.SetSize(self.GetSize())
+
         splitter.SplitVertically(panel, listpanel)
         
     def OnAbout(self,e):
@@ -64,7 +69,7 @@ class Frame(wx.Frame):
         self.Destroy()
 
     def on_exit(self):
-        self.FindWindowById(ID_MAIN_PANEL).store_config()
+        self.FindWindowById(ID_TREE_PANEL).store_config()
 
     def reportException(self, exception):
         traceback.print_exc()
@@ -72,36 +77,28 @@ class Frame(wx.Frame):
         d.ShowModal()
         d.Destroy()
 
+def create_icons(ilist):
+    img_path = os.path.join(os.path.split(__file__)[0], 'img')
+    return {
+        "file": ilist.Add(wx.ArtProvider_GetBitmap(wx.ART_REPORT_VIEW, wx.ART_OTHER, (16,16))),
+        "disk": ilist.Add(wx.Image(os.path.join(img_path, 'harddisk.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        "memory": ilist.Add(wx.Image(os.path.join(img_path, 'memory.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.File.FOLDER: ilist.Add(wx.Image(os.path.join(img_path, 'folder.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        "%i%s" %(model.File.FOLDER, "-open"): ilist.Add(wx.Image(os.path.join(img_path, 'folder-open.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.File.PROGRAM: ilist.Add(wx.Image(os.path.join(img_path, 'program.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.File.MULTI: ilist.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.File.SAMPLE: ilist.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+    }
+    
 class AksyFSTree(wx.TreeCtrl):
-    def __init__(self, parent, id, **kwargs):
-        wx.TreeCtrl.__init__(self, parent, id, **kwargs)
-
+    def __init__(self, parent, ilist, icon_map, **kwargs):
+        wx.TreeCtrl.__init__(self, parent, ID_TREE_CTL, **kwargs)
         target = AksyFileDropTarget(self)
         self.SetDropTarget(target)
-
-        isz = (16,16)
-        il = wx.ImageList(isz[0], isz[1])
-        # add icons for programs, multis, samples
-
-        # self.fldridx     = il.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER,      wx.ART_OTHER, isz))
-        #self.fldropenidx = il.Add(wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN,   wx.ART_OTHER, isz))
-        self.fileidx     = il.Add(wx.ArtProvider_GetBitmap(wx.ART_REPORT_VIEW, wx.ART_OTHER, isz))
-
-        img_path = test_dir = os.path.join(os.path.split(__file__)[0], 'img')
-        self.diskidx = il.Add(wx.Image(os.path.join(img_path, 'harddisk.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.memidx = il.Add(wx.Image(os.path.join(img_path, 'memory.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.fldridx = il.Add(wx.Image(os.path.join(img_path, 'folder.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.fldropenidx = il.Add(wx.Image(os.path.join(img_path, 'folder-open.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-
-        self.program_icon = il.Add(wx.Image(os.path.join(img_path, 'program.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.multi_icon = il.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.sample_icon = il.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        self.SetImageList(il)
-        self.il = il
-
-        self.root = self.AddRoot("Z48")
-        self.SetItemImage(self.root, self.fldridx, which = wx.TreeItemIcon_Normal)
-        self.SetItemImage(self.root, self.fldropenidx, which = wx.TreeItemIcon_Expanded)
+        self.SetImageList(ilist)
+        self.ilist = ilist # it seems we need to take ownership of the list
+        self.root = self.AddRoot("Sampler")
+        self.icon_map = icon_map
         self._item_to_id = {}
 
         self.Bind(wx.EVT_TREE_DELETE_ITEM, self.OnItemDelete, self)
@@ -148,24 +145,15 @@ class AksyFSTree(wx.TreeCtrl):
         self.AddItemIndex(item.get_handle(), child)
 
         if isinstance(item, model.File):
-            if item.type == model.File.MULTI:
-                self.SetItemImage(child, self.multi_icon, which = wx.TreeItemIcon_Normal)
-            elif item.type == model.File.PROGRAM:
-                self.SetItemImage(child, self.program_icon, which = wx.TreeItemIcon_Normal)
-            elif item.type == model.File.SAMPLE:
-                self.SetItemImage(child, self.sample_icon, which = wx.TreeItemIcon_Normal)
-            elif item.type == model.File.FOLDER:
-                self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Normal)
-                self.SetItemImage(child, self.fldropenidx, which = wx.TreeItemIcon_Expanded)
-            else:
-                self.SetItemImage(child, self.fileidx, which = wx.TreeItemIcon_Normal)
-                self.SetItemImage(child, self.fileidx, which = wx.TreeItemIcon_Expanded)
+            if item.type == model.File.FOLDER:
+                self.SetItemImage(child, self.icon_map["%i%s" %(model.File.FOLDER, "-open")], which = wx.TreeItemIcon_Expanded)
+            self.SetItemImage(child, self.icon_map[item.type], which = wx.TreeItemIcon_Normal)
         elif isinstance(item, model.Memory):
-            self.SetItemImage(child, self.memidx, which = wx.TreeItemIcon_Normal)
-            self.SetItemImage(child, self.memidx, which = wx.TreeItemIcon_Expanded)
+            self.SetItemImage(child, self.icon_map['memory'], which = wx.TreeItemIcon_Normal)
+            self.SetItemImage(child, self.icon_map['memory'], which = wx.TreeItemIcon_Expanded)
         elif isinstance(item, model.Disk):
-            self.SetItemImage(child, self.diskidx, which = wx.TreeItemIcon_Normal)
-            self.SetItemImage(child, self.diskidx, which = wx.TreeItemIcon_Expanded)
+            self.SetItemImage(child, self.icon_map['disk'], which = wx.TreeItemIcon_Normal)
+            self.SetItemImage(child, self.icon_map['disk'], which = wx.TreeItemIcon_Expanded)
         else:
             self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Normal)
             self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Expanded)
@@ -182,7 +170,8 @@ class AksyFSTree(wx.TreeCtrl):
         ids = self.GetSelections()
         if len(ids) > 0:
             item = self.GetPyData(ids[-1])
-        
+        print "TREE SEL CHANGED", ids
+        evt.Skip()
         
     def OnKeyDown(self, evt):
         ids = self.GetSelections()
@@ -262,20 +251,36 @@ class AksyFSTree(wx.TreeCtrl):
         self.PopupMenu(menu, e.GetPosition())
     
 class ListPanel(wx.Panel):
-    def __init__(self, parent):
+    def __init__(self, parent, ilist, icon_map):
         wx.Panel.__init__(self, parent)
         self.Bind(wx.EVT_SIZE, self.OnSize)    
         self.listctl = wx.ListCtrl(self)
+        self.listctl.SetImageList(ilist,0)
+        img_path = os.path.join(os.path.split(__file__)[0], 'img')
+        self.diskidx = ilist.Add(wx.Image(os.path.join(img_path, 'harddisk.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
         
     def OnSize(self, evt):
         self.listctl.SetSize(self.GetSize())
     
     def OnTreeSelChanged(self, evt):
-        print evt
+        id = evt.GetItem()
+        if not id.IsOk(): return
+        # TODO: make this less incestuous
+        item = self.GetParent().FindWindowById(ID_TREE_CTL).GetPyData(id)
+        self.listctl.ClearAll()
+        if not item.has_children(): return
+        
+        for index, child in enumerate(item.get_children()):
+            list_item = wx.ListItem()
+            list_item.m_mask = wx.LIST_MASK_TEXT | wx.LIST_MASK_IMAGE | wx.LIST_MASK_FORMAT
+            list_item.m_text = child.get_name()
+            list_item.m_image = self.diskidx
+            list_item.m_width = 50
+            self.listctl.InsertItem(list_item)
 
 class TreePanel(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent, ID_MAIN_PANEL)
+    def __init__(self, parent, ilist, icon_map):
+        wx.Panel.__init__(self, parent, ID_TREE_PANEL)
         self.Bind(wx.EVT_SIZE, self.OnSize)
 
         # the default implementation seems to be in-memory
@@ -291,7 +296,7 @@ class TreePanel(wx.Panel):
             self.lastdir = ""
 
         self.sampler = parent.GetParent().sampler
-        self.tree = AksyFSTree(self, wx.NewId(), style=wx.TR_EDIT_LABELS|wx.TR_HIDE_ROOT|wx.TR_DEFAULT_STYLE|wx.TR_MULTIPLE)
+        self.tree = AksyFSTree(self, ilist, icon_map, style=wx.TR_EDIT_LABELS|wx.TR_HIDE_ROOT|wx.TR_DEFAULT_STYLE|wx.TR_MULTIPLE)
         self.actions = {}
         self._action_item = None
         self._action = None
