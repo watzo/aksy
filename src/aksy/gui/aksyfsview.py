@@ -155,8 +155,8 @@ class AksyFSTree(wx.TreeCtrl):
             self.SetItemImage(child, self.icon_map['disk'], which = wx.TreeItemIcon_Normal)
             self.SetItemImage(child, self.icon_map['disk'], which = wx.TreeItemIcon_Expanded)
         else:
-            self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Normal)
-            self.SetItemImage(child, self.fldridx, which = wx.TreeItemIcon_Expanded)
+            self.SetItemImage(child, self.icon_map['file'], which = wx.TreeItemIcon_Normal)
+            self.SetItemImage(child, self.icon_map['file'], which = wx.TreeItemIcon_Expanded)
 
         return child
 
@@ -255,6 +255,7 @@ class ListPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.Bind(wx.EVT_SIZE, self.OnSize)    
         self.listctl = wx.ListCtrl(self)
+        self.icon_map = icon_map
         self.listctl.SetImageList(ilist,0)
         img_path = os.path.join(os.path.split(__file__)[0], 'img')
         self.diskidx = ilist.Add(wx.Image(os.path.join(img_path, 'harddisk.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
@@ -274,7 +275,7 @@ class ListPanel(wx.Panel):
             list_item = wx.ListItem()
             list_item.m_mask = wx.LIST_MASK_TEXT | wx.LIST_MASK_IMAGE | wx.LIST_MASK_FORMAT
             list_item.m_text = child.get_name()
-            list_item.m_image = self.diskidx
+            list_item.m_image = self.icon_map[child.type]
             list_item.m_width = 50
             self.listctl.InsertItem(list_item)
 
