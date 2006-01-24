@@ -19,13 +19,14 @@ class Disktools:
         self.get_disklist_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x05', 'get_disklist', (), (aksy.devices.akai.sysex_types.DISKLIST,), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_curr_path_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x09', 'get_curr_path', (), (aksy.devices.akai.sysex_types.STRING,), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.eject_disk_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x0D', 'eject_disk', (aksy.devices.akai.sysex_types.CWORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_no_subfolders_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x10', 'get_no_subfolders', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_subfolder_names_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x12', 'get_subfolder_names', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_no_folders_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x10', 'get_no_folders', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_folder_names_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x12', 'get_folder_names', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.open_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x13', 'open_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.close_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x14', 'close_folder', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.load_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x15', 'load_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.create_subfolder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x16', 'create_subfolder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.delete_subfolder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x17', 'delete_subfolder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.rename_subfolder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x18', 'rename_subfolder', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.create_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x16', 'create_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.delete_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x17', 'delete_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.rename_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x18', 'rename_folder', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_no_files_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x20', 'get_no_files', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_filenames_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x22', 'get_filenames', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.rename_file_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x28', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), (), aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -79,46 +80,54 @@ class Disktools:
         """
         return self.s56k.execute(self.eject_disk_cmd, (arg0, ))
 
-    def get_no_subfolders(self):
+    def get_no_folders(self):
         """Get number of sub-folders in the current folder.
 
         Returns:
             aksy.devices.akai.sysex_types.CWORD
         """
-        return self.s56k.execute(self.get_no_subfolders_cmd, ())
+        return self.s56k.execute(self.get_no_folders_cmd, ())
 
-    def get_subfolder_names(self):
+    def get_folder_names(self):
         """Get the names of all of the sub-folders in the current folder.
 
         Returns:
             aksy.devices.akai.sysex_types.STRINGARRAY
         """
-        return self.s56k.execute(self.get_subfolder_names_cmd, ())
+        return self.s56k.execute(self.get_folder_names_cmd, ())
 
     def open_folder(self, arg0):
         """Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)
         """
         return self.s56k.execute(self.open_folder_cmd, (arg0, ))
 
+    def close_folder(self):
+        """Close Folder. Folder. (Move up one level in the folder hierarchy.)
+        
+        If this is used on a root folder, an ERROR confirmation message will
+        be returned
+        """
+        return self.s56k.execute(self.close_folder_cmd, ())
+
     def load_folder(self, arg0):
         """Load Folder: the selected folder, and all its contents (including subfolders)
         """
         return self.s56k.execute(self.load_folder_cmd, (arg0, ))
 
-    def create_subfolder(self, arg0):
+    def create_folder(self, arg0):
         """Create Folder: Creates a sub-folder in the currently selected folder.
         """
-        return self.s56k.execute(self.create_subfolder_cmd, (arg0, ))
+        return self.s56k.execute(self.create_folder_cmd, (arg0, ))
 
-    def delete_subfolder(self, arg0):
+    def delete_folder(self, arg0):
         """Delete Sub-Folder.
         """
-        return self.s56k.execute(self.delete_subfolder_cmd, (arg0, ))
+        return self.s56k.execute(self.delete_folder_cmd, (arg0, ))
 
-    def rename_subfolder(self, arg0, arg1):
+    def rename_folder(self, arg0, arg1):
         """Rename Folder: <Data1> = name of folder to rename
         """
-        return self.s56k.execute(self.rename_subfolder_cmd, (arg0, arg1, ))
+        return self.s56k.execute(self.rename_folder_cmd, (arg0, arg1, ))
 
     def get_no_files(self):
         """Get number of files in the current folder.
