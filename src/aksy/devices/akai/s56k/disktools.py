@@ -21,7 +21,7 @@ class Disktools:
         self.eject_disk_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x0D', 'eject_disk', (aksy.devices.akai.sysex_types.CWORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_no_subfolders_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x10', 'get_no_subfolders', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_subfolder_names_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x12', 'get_subfolder_names', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x13', 'set_curr_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.open_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x13', 'open_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.load_folder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x15', 'load_folder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.create_subfolder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x16', 'create_subfolder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_subfolder_cmd = aksy.devices.akai.sysex.Command('^', '\x10\x17', 'delete_subfolder', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -95,10 +95,10 @@ class Disktools:
         """
         return self.s56k.execute(self.get_subfolder_names_cmd, ())
 
-    def set_curr_folder(self, arg0):
+    def open_folder(self, arg0):
         """Open Folder. This sets the current folder to be the requested one. (If <Data1> = 0, the root folder will be selected.)
         """
-        return self.s56k.execute(self.set_curr_folder_cmd, (arg0, ))
+        return self.s56k.execute(self.open_folder_cmd, (arg0, ))
 
     def load_folder(self, arg0):
         """Load Folder: the selected folder, and all its contents (including subfolders)
