@@ -136,14 +136,13 @@ class AksyFSTree(wx.TreeCtrl):
         if parent is None:
             parent = self.root
 
-        print "AppendAksyItem: Child name: %s has children: %s" % (item.get_name(), item.has_children())
+        print "AppendAksyItem: name: %s, children: %s" % (item.get_name(), repr(item.get_children()))
         child = self.AppendItem(parent, item.get_name())
         if item.has_children():
             self.SetItemHasChildren(child)
-
+        item.id = child
         self.SetPyData(child, item)
-        self.AddItemIndex(item.get_handle(), child)
-
+ 
         if isinstance(item, model.File):
             if item.type == model.File.FOLDER:
                 self.SetItemImage(child, self.icon_map["%i%s" %(model.File.FOLDER, "-open")], which = wx.TreeItemIcon_Expanded)
@@ -159,12 +158,6 @@ class AksyFSTree(wx.TreeCtrl):
             self.SetItemImage(child, self.icon_map['file'], which = wx.TreeItemIcon_Expanded)
 
         return child
-
-    def AddItemIndex(self, handle, wx_id):
-        self._item_to_id[handle] = wx_id
-
-    def get_item_by_name(self, name):
-        return self._item_to_id[name]
 
     def OnSelChanged(self, evt):
         ids = self.GetSelections()
@@ -206,10 +199,10 @@ class AksyFSTree(wx.TreeCtrl):
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
-        print "OnItemExpanding %s %s" % (id, repr(item.get_name()))
-        for item in item.get_children():
-            if item.get_handle() not in self._item_to_id:
-                self.AppendAksyItem(id, item)
+        print "OnItemExpanding %s %s, %s" % (id, item.get_name(), repr(item.get_children()))
+        for child in item.get_children():
+            if not hasattr(child, 'id'):
+                self.AppendAksyItem(id, child)
 
     def OnItemActivate(self, evt):
         #evt.Skip()
@@ -345,17 +338,6 @@ class TreePanel(wx.Panel):
         item = self.tree.GetPyData(id)
         assert hasattr(item, "copy")
         self.prepare_edit_action(item, 'copy')
-
-    def undo_action(self):
-        """XXX: make generic by adding it to the action class
-        """
-        item = self._item
-        id = self.tree.get_item_by_name(item)
-        if self._action == "cut":
-            # XXX: retain position within leaf
-            self.tree.AppendAksyItem(self.Tree.GetItemParent(id), item)
-        self._action_item = None
-        self._action = None
 
     def prepare_edit_action(self, item, action):
         self._action_item = item
@@ -494,7 +476,7 @@ class TreePanel(wx.Panel):
         """Updates the memory branch when an item has been loaded
         Should be factored out
         """
-        memory_folder = self.tree.get_item_by_name('memory')
+        memory_folder = self.tree.GetFirstVisibleItem()
         if not isinstance(result, list):
             self.tree.AppendAksyItem(memory_folder, result)
         else:
