@@ -56,7 +56,7 @@ class Frame(wx.Frame):
         splitter.SplitVertically(panel, listpanel)
         
     def OnAbout(self,e):
-        d= wx.MessageDialog(self, " Aksy, fresh action for your sampler\n", "About Aksy", wxOK)
+        d= wx.MessageDialog(self, " Aksy, fresh action for your sampler\n", "About Aksy", wx.OK)
         d.ShowModal()
         d.Destroy()
 
@@ -124,11 +124,17 @@ class AksyFSTree(wx.TreeCtrl):
         dest = evt.GetItem()
         item = self.GetPyData(dest)
         print "EndDrag %s, Mod: %s" % (repr(item), repr(evt.GetKeyCode()))
-        if not isinstance(item, model.Folder):
+        if isinstance(item, model.Folder):
+            print "Copy"
+            self.AppendAksyItem(dest, self.draggedItem)
+        elif isinstance(item, model.Memory):
+            print "Load"
+            self.draggedItem.load()
+        else:    
+            print "Unsupported drop target"
+            evt.Veto()
             return
-        # do copy operation
-        self.AppendAksyItem(dest, self.draggedItem)
-
+        
     def AppendAksyItem(self, parent, item):
 
         """Appends an item to the tree. default is root

@@ -32,9 +32,11 @@ class MockZ48(Z48):
         disks[1].root.children = [mellotron_folder]
 
         self.disks.set_children(disks)
-        self.memory.set_children((
-            model.Sample("Boo.wav"),
-            model.Multi("Default.akm"),))
+        memory_items = [model.Sample("Boo.wav"),
+            model.Multi("Default.akm"),]
+        for i in range(0, 100):
+            memory_items.append(model.Sample("Sample%i.wav" %i))
+        self.memory.set_children(memory_items)
 
     def get(self, filename, destpath=None):
         if self.debug > 0:

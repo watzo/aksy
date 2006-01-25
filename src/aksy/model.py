@@ -155,7 +155,7 @@ class File(object):
     def get_children(self):
         """
         """
-        raise NotImplementedError
+        return []
 
     def get_parent(self):
         return Folder(self.path[:-1])
@@ -186,6 +186,9 @@ class Folder(File):
         self.type = File.FOLDER
         self.children = []
 
+    def refresh(self):
+        del self.children[:]
+    
     def get_children(self):
         """Gets the children of this folder
         or returns a cached version when already retrieved.
@@ -194,13 +197,16 @@ class Folder(File):
         if len(self.children) > 0:
             return self.children
 
-        self.children = [Folder(self.path + (subfolder,))
-            for subfolder in handlers[Disk].get_subfolder_names()]
+        folder_names = handlers[Disk].get_folder_names()
+        if folder_names:
+            self.children = [Folder(self.path + (subfolder,))
+                for subfolder in folder_names]
 
-        files = [ File(self.path + (name,)) for name in
-            handlers[Disk].get_filenames() ]
-
-        self.children.extend(files)
+        file_names = handlers[Disk].get_filenames()
+        if file_names:
+            files = [ File(self.path + (name,)) for name in
+                file_names]
+            self.children.extend(files)
         return self.children
 
     def has_children(self):
@@ -391,6 +397,9 @@ class Storage:
         self.type = File.FOLDER
         self._children = []
 
+    def refresh(self):
+        del self.children[:]
+        
     def has_children(self):
         return (len(self._children) > 0)
 
