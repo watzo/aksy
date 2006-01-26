@@ -10,6 +10,7 @@ from aksyx import AkaiSampler
 RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
+RE_SONG = re.compile("\.[mM][iI][dD]$")
 
 handlers = {}
 log = logging.getLogger("aksy")
@@ -51,7 +52,9 @@ class Disk(object):
 
     def get_name(self):
         return self.info.name
-
+    def get_short_name(self):
+        return self.get_name()
+    
     def get_size(self):
         return None
 
@@ -68,6 +71,17 @@ class Disk(object):
     def get_actions(self):
         return Disk.actions
     
+def get_file_type(name):
+        if RE_MULTI.search(name) is not None:
+            return File.MULTI
+        if RE_PROGRAM.search(name) is not None:
+            return File.PROGRAM
+        if RE_SAMPLE.search(name) is not None:
+            return File.SAMPLE
+        
+        log.error("No support for file type: ", name)
+        return File.SAMPLE
+    
 class File(object):
     actions = [Action("load", "Load"), Action("delete", "Delete"), Action("transfer", "Transfer"),]
     FOLDER = 0
@@ -81,24 +95,19 @@ class File(object):
         is loaded into memory
         """
 
-        assert isinstance(path, tuple)
+        assert isinstance(path, tuple) or isinstance(path, list)
 
         log.debug(repr(path))
         self.path = path
-
-        if RE_MULTI.search(self.get_name()) is not None:
-            self.type = self.MULTI
-        elif RE_PROGRAM.search(self.get_name()) is not None:
-            self.type = self.PROGRAM
-        elif RE_SAMPLE.search(self.get_name()) is not None:
-            self.type = self.SAMPLE
-        else:
-            #raise NotImplementedError("No support for file type: ", self.get_name())
-            log.warn("No support for file type: ", self.get_name())
-            self.type = self.SAMPLE
+        self.type = get_file_type(self.get_name())
 
     def get_name(self):
         return self.path[-1]
+    
+    def get_short_name(self):
+        """ Returns name without extension
+        """
+        return os.path.splitext(self.get_name())[0]
 
     def get_handle(self):
         """Returns a unique handle for the file
@@ -294,16 +303,16 @@ class Folder(File):
 class InMemoryFile(File):
     actions = [Action("delete", "Delete"), Action("transfer", "Transfer"),]
     def get_instance(name):
-        if self.type == File.MULTI:
+        type = get_file_type(name)
+        if type == File.MULTI:
             return Multi(name)
-        elif self.type == File.PROGRAM:
+        if type == File.PROGRAM:
             return Program(name)
-        elif self.type == File.SAMPLE:
+        if type == File.SAMPLE:
             return Sample(name)
-        elif self.type == File.SONG:
+        if type == File.SONG:
             return Song(name)
-
-        log.debug("Unknown file type:", repr(name))
+        log.error("Unknown file type: %s" % repr(name))
         return InMemoryFile(name)
 
     get_instance = staticmethod(get_instance)
@@ -356,25 +365,10 @@ class Multi(InMemoryFile):
         InMemoryFile.__init__(self, name)
         self.type = File.MULTI
 
-    def get_used_by(self):
-        return None
-
-    def get_children(self):
-        """Returns the programs used by this multi
-        """
-
 class Program(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
         self.type = File.PROGRAM
-
-    def get_used_by(self):
-        """Returns the multi(s) using this program
-        """
-
-    def get_children(self):
-        """Returns the samples used by this program
-        """
 
 class Sample(InMemoryFile):
     def __init__(self, name):
@@ -386,7 +380,15 @@ class Sample(InMemoryFile):
     def get_used_by(self):
         return None
 
-    def get_children(self):
+class Song(InMemoryFile):
+    def __init__(self, name):
+        InMemoryFile.__init__(self, name)
+        self.type = File.SONG
+
+    def get_size(self):
+        raise NotImplementedError()
+    
+    def get_used_by(self):
         return None
 
 class Storage:
@@ -395,25 +397,28 @@ class Storage:
         self.path = name
         self.actions = None
         self.type = File.FOLDER
-        self._children = []
+        self.children = []
 
     def refresh(self):
         del self.children[:]
         
     def has_children(self):
-        return (len(self._children) > 0)
+        return (len(self.children) > 0)
 
     def get_name(self):
         return self.name
+
+    def get_short_name(self):
+        return self.get_name()
 
     def get_handle(self):
         return self.name
 
     def get_children(self):
-        return self._children
+        return self.children
 
     def set_children(self, item_list):
-        self._children = item_list
+        self.children = item_list
 
     def get_actions(self):
         # maybe implement an info action?
@@ -434,7 +439,7 @@ class Memory(Storage):
         return item
 
     def has_children(self):
-        if len(self._children) > 0:
+        if len(self.children) > 0:
             return True
         return (
             handlers[Program].get_no_items() > 0 or
@@ -442,23 +447,26 @@ class Memory(Storage):
             handlers[Multi].get_no_items() > 0)
 
     def get_children(self):
-        if len(self._children) > 0:
-            return self._children
-
+        if len(self.children) > 0:
+            return self.children
+        programs = []
+        multis = []
+        samples = []
+        songs = []
+        
         pnames = handlers[Program].get_names()
-        if not isinstance(pnames, tuple):
-            pnames = (pnames,)
-        programs = [Program(name) for name in pnames ]
+        if pnames is not None:
+            programs = [Program(name) for name in pnames ]
         mnames = handlers[Multi].get_names()
-        if not isinstance(mnames, tuple):
-            mnames = (mnames,)
-        multis = [Multi(name) for name in mnames ]
+        if mnames is not None:
+            multis = [Multi(name) for name in mnames ]
         snames = handlers[Sample].get_names()
-        if not isinstance(snames, tuple):
-            snames = (snames,)
-
-        samples = [Sample(name) for name in snames ]
-        self._children.extend(programs)
-        self._children.extend(multis)
-        self._children.extend(samples)
-        return self._children
+        if snames is not None:
+            samples = [Sample(name) for name in snames ]
+        
+        self.children.extend(programs)
+        self.children.extend(multis)
+        self.children.extend(samples)
+        self.children.extend(songs)
+        
+        return self.children

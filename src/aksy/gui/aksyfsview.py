@@ -1,4 +1,5 @@
 import wx
+from wx.lib.mixins import listctrl
 
 from aksy import model
 from aksyx import USBException
@@ -93,13 +94,10 @@ def create_icons(ilist):
 class AksyFSTree(wx.TreeCtrl):
     def __init__(self, parent, ilist, icon_map, **kwargs):
         wx.TreeCtrl.__init__(self, parent, ID_TREE_CTL, **kwargs)
-        target = AksyFileDropTarget(self)
-        self.SetDropTarget(target)
-        self.SetImageList(ilist)
-        self.ilist = ilist # it seems we need to take ownership of the list
+        self.SetDropTarget(CtrlFileDropTarget(self))
+        self.AssignImageList(ilist)
         self.root = self.AddRoot("Sampler")
         self.icon_map = icon_map
-        self._item_to_id = {}
 
         self.Bind(wx.EVT_TREE_DELETE_ITEM, self.OnItemDelete, self)
         self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self.OnItemExpanding, self)
@@ -143,7 +141,7 @@ class AksyFSTree(wx.TreeCtrl):
             parent = self.root
 
         print "AppendAksyItem: name: %s, children: %s" % (item.get_name(), repr(item.get_children()))
-        child = self.AppendItem(parent, item.get_name())
+        child = self.AppendItem(parent, item.get_short_name())
         if item.has_children():
             self.SetItemHasChildren(child)
         item.id = child
@@ -248,16 +246,14 @@ class AksyFSTree(wx.TreeCtrl):
         menu = ActionMenu(self, wx.SIMPLE_BORDER)
         menu.set_actions(actions)
         self.PopupMenu(menu, e.GetPosition())
+        menu.Destroy()
     
 class ListPanel(wx.Panel):
     def __init__(self, parent, ilist, icon_map):
         wx.Panel.__init__(self, parent)
         self.Bind(wx.EVT_SIZE, self.OnSize)    
-        self.listctl = wx.ListCtrl(self)
+        self.listctl = DirListCtrl(self, ilist, icon_map)
         self.icon_map = icon_map
-        self.listctl.SetImageList(ilist,0)
-        img_path = os.path.join(os.path.split(__file__)[0], 'img')
-        self.diskidx = ilist.Add(wx.Image(os.path.join(img_path, 'harddisk.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
         
     def OnSize(self, evt):
         self.listctl.SetSize(self.GetSize())
@@ -267,17 +263,82 @@ class ListPanel(wx.Panel):
         if not id.IsOk(): return
         # TODO: make this less incestuous
         item = self.GetParent().FindWindowById(ID_TREE_CTL).GetPyData(id)
-        self.listctl.ClearAll()
-        if not item.has_children(): return
-        
-        for index, child in enumerate(item.get_children()):
-            list_item = wx.ListItem()
-            list_item.m_mask = wx.LIST_MASK_TEXT | wx.LIST_MASK_IMAGE | wx.LIST_MASK_FORMAT
-            list_item.m_text = child.get_name()
-            list_item.m_image = self.icon_map[child.type]
-            list_item.m_width = 50
-            self.listctl.InsertItem(list_item)
+        self.listctl.set_current(item)
 
+class AksyListItem(wx.ListItem):
+    def SetPyData(self, item):
+        self.item = item
+    def GetPyData(self):
+        return self.item
+    
+class DirListCtrl(wx.ListCtrl, listctrl.ColumnSorterMixin):
+    def __init__(self, parent, ilist, icon_map):
+        
+        wx.ListCtrl.__init__(self, parent)
+        listctrl.ColumnSorterMixin.__init__ (self, 1)
+        self.icon_map = icon_map
+        self.SetDropTarget(DirListDropTarget(self))
+        self.SetImageList(ilist,0)
+        self.item = None
+
+        self.Bind(wx.EVT_COMMAND_RIGHT_CLICK, self.contextMenu)
+        self.Bind(wx.EVT_RIGHT_UP, self.contextMenu)
+        
+        self.Bind(wx.EVT_MENU, self.contextMenu)
+    def set_current(self, item):
+        self.current_item = item
+        self.refresh()
+    
+    def get_current(self):
+        return self.current_item
+    
+    def refresh(self):
+        self.ClearAll()
+        self.add_items(self.get_current())
+    
+    def GetListCtrl(self):
+        return self
+    
+    def GetColumnSorter(self):
+        print "GETCPO"
+    
+    def compare(self, item1, item2):
+        label1 = self.GetItem(item1).GetText()
+        label2 = self.GetItem(item2).GetText()
+        print label1, label2
+        return cmp(label2, label1)
+
+    def contextMenu(self, e):
+        ids = []
+        index = self.GetFirstSelected()
+        ids.append(index)
+        while index != -1:
+            index = self.GetNextSelected(index)
+            ids.append(index)
+        actions = set()
+        for id in ids: 
+            item = self.get_current().get_children()[id]
+            if len(actions) == 0:
+                actions.update(item.get_actions())
+            else:
+                actions.intersection(item.get_actions())
+        menu = ActionMenu(self, wx.SIMPLE_BORDER)
+        menu.set_actions(actions)
+        self.PopupMenu(menu)
+        menu.Destroy()
+        
+    def add_items(self, dir):
+        for index, child in enumerate(dir.get_children()):
+            list_item = AksyListItem()
+            list_item.SetMask(wx.LIST_MASK_TEXT | wx.LIST_MASK_IMAGE | wx.LIST_MASK_FORMAT)
+            list_item.SetText(child.get_short_name())
+            list_item.SetImage(self.icon_map[child.type])
+            list_item.SetWidth(50)
+            list_item.SetPyData(child)
+            self.InsertItem(list_item)
+        self.SortItems(self.compare)
+        
+        
 class TreePanel(wx.Panel):
     def __init__(self, parent, ilist, icon_map):
         wx.Panel.__init__(self, parent, ID_TREE_PANEL)
@@ -318,7 +379,7 @@ class TreePanel(wx.Panel):
         # replace by get_system_objects
         mem = self.sampler.memory
         mem_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), mem)
-        self.tree.Expand(mem_id)
+        self.tree.SelectItem(mem_id)
 
         for disk in self.sampler.disks.get_children():
             disks_id = self.tree.AppendAksyItem(self.tree.GetRootItem(), disk)
@@ -507,15 +568,19 @@ class ActionMenu(wx.Menu):
         for index, action in enumerate(actions):
             self.Append(action.id, action.display_name, action.display_name)
 
-class AksyFileDropTarget(wx.FileDropTarget):
-    def __init__(self, tree):
+class CtrlFileDropTarget(wx.FileDropTarget):
+    def __init__(self, ctrl):
         wx.FileDropTarget.__init__(self)
-        self.tree = tree
+        self.ctrl = ctrl
 
+    def get_drop_dest(self, id):
+        return self.ctrl.GetPyData(id)
+        
     def OnDropFiles(self, x, y, filenames):
-        id, flag1, flag2 = self.tree.HitTest((x,y))
+        id, flag1 = self.ctrl.HitTest((x,y))
         print repr(id)
-        item = self.tree.GetPyData(id)
+        item = self.get_drop_dest(id)
+        
         if item is None or not hasattr(item, "append_child"):
             return
 
@@ -525,7 +590,15 @@ class AksyFileDropTarget(wx.FileDropTarget):
             item.upload(file)
 
         # append items
-
+class DirListDropTarget(CtrlFileDropTarget):
+    def get_drop_dest(self, item):
+        return self.ctrl.get_current()
+    
+    def OnDropFiles(self, x, y, filenames):
+        print "FN: ", repr(filenames)
+        CtrlFileDropTarget.OnDropFiles(self, x, y, filenames)
+        self.ctrl.refresh()
+    
 if __name__ == '__main__':
     app = wx.PySimpleApp()
     frame = Frame(None, "Aksy")
