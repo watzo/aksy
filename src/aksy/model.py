@@ -22,17 +22,12 @@ def register_handlers(tools):
     handlers.update(tools)
 
 class Action:
-    """Wraps an action for a file, adapting an interface action to
+    """Wraps an action for an item, adapting an interface action to
     a function call
     """
-    def __init__(self, function_name, display_name, id=None):
-        self.function_name = function_name
-        self.display_name = display_name
-        # The function to be executed before the function
-        self.prolog = None
-        # The function to be executed after the function
-        self.epilog = None
-        self.id = id
+    def __init__(self, callable, name):
+        self.callable = callable
+        self.name = name
 
 class Disk(object):
     actions = {}
@@ -83,7 +78,6 @@ def get_file_type(name):
         return File.SAMPLE
     
 class File(object):
-    actions = [Action("load", "Load"), Action("delete", "Delete"), Action("transfer", "Transfer"),]
     FOLDER = 0
     MULTI = 1
     PROGRAM = 2
@@ -185,7 +179,7 @@ class File(object):
     def get_actions(self):
         return File.actions
 
-
+File.actions = [Action(File.load, "Load"), Action(File.delete, "Delete"), Action(File.transfer, "Transfer"),]
 
 class Folder(File):
     def __init__(self, path):
@@ -197,7 +191,10 @@ class Folder(File):
 
     def refresh(self):
         del self.children[:]
-    
+
+    def get_actions(self):
+        return Folder.actions
+        
     def get_children(self):
         """Gets the children of this folder
         or returns a cached version when already retrieved.
@@ -300,8 +297,9 @@ class Folder(File):
                 log.debug("Transfer to dir: %s" % repr(path))
                 item.transfer(os.path.join(path, item.get_name()))
 
+Folder.actions = [Action(Folder.load, "Load"), Action(Folder.transfer, "Transfer"), Action(Folder.delete, "Delete")]
+
 class InMemoryFile(File):
-    actions = [Action("delete", "Delete"), Action("transfer", "Transfer"),]
     def get_instance(name):
         type = get_file_type(name)
         if type == File.MULTI:
@@ -317,6 +315,9 @@ class InMemoryFile(File):
 
     get_instance = staticmethod(get_instance)
 
+    def __cmp__(self, item):
+        return cmp(self.get_short_name(), item.get_short_name())
+    
     def __init__(self, name):
         self.name = name
         File.__init__(self, (name,))
@@ -359,6 +360,8 @@ class InMemoryFile(File):
     def rename(self, new_name):
         self.set_current()
         handlers[self.__class__].rename_curr(new_name)
+
+InMemoryFile.actions = [Action(InMemoryFile.delete, "Delete"), Action(InMemoryFile.transfer, "Transfer"),]
 
 class Multi(InMemoryFile):
     def __init__(self, name):

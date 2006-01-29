@@ -9,16 +9,17 @@ import os.path, traceback, sys, copy
 ID_ABOUT=wx.NewId()
 ID_EXIT=wx.NewId()
 ID_TREE_PANEL = wx.NewId()
-ID_TREE_CTL = wx.NewId()
+ID_TREE_CTRL = wx.NewId()
+ID_DIR_PANEL = wx.NewId()
+ID_DIR_CTRL = wx.NewId()
 
 class Frame(wx.Frame):
     def __init__(self,parent,title):
         wx.Frame.__init__(self,parent,wx.ID_ANY, title, size = ( 200,100),
                          style=wx.DEFAULT_FRAME_STYLE|wx.NO_FULL_REPAINT_ON_RESIZE)
-
+        self.action_map = {}
         filemenu= wx.Menu()
-        filemenu.AppendSeparator()
-        filemenu.Append(wx.ID_EXIT, "E&xit\tCtrl+Q"," Terminate the program")
+        filemenu.Append(wx.ID_EXIT, "E&xit\tCtrl+Q"," Exit the program")
 
         helpmenu = wx.Menu()
         helpmenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
@@ -35,7 +36,7 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_CLOSE, self.OnExit)
-
+        
         try:
             self.sampler = Devices.get_instance('z48', 'usb', debug=0)
         except USBException, e:
@@ -48,14 +49,16 @@ class Frame(wx.Frame):
         ilist = wx.ImageList(16, 16)
         icon_map = create_icons(ilist)
         panel = TreePanel(splitter, ilist, icon_map)
-
         listpanel = ListPanel(splitter, ilist, icon_map)
         splitter.SetSize(self.GetSize())
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, listpanel.OnTreeSelChanged, panel.tree)
 
         splitter.SplitVertically(panel, listpanel)
-        
+        self.register_menu_actions([MenuAction.adapt(action) for action in model.File.actions])
+        self.register_menu_actions([MenuAction.adapt(action) for action in model.Folder.actions])
+        self.register_menu_actions([MenuAction.adapt(action) for action in model.InMemoryFile.actions])
+
     def OnAbout(self,e):
         d= wx.MessageDialog(self, " Aksy, fresh action for your sampler\n", "About Aksy", wx.OK)
         d.ShowModal()
@@ -78,6 +81,45 @@ class Frame(wx.Frame):
         d.ShowModal()
         d.Destroy()
 
+        for action in ( MenuAction('cut','Cut\tCtrl+X', wx.ID_CUT),
+                        MenuAction('copy','Copy\tCtrl+C', wx.ID_COPY),
+                        MenuAction('save','Paste\tCtrl+V', wx.ID_PASTE)):
+            model.File.actions.append(action)
+            self.register_menu_action(action)
+    
+    def register_menu_actions(self, actions):
+
+        # hook into actions
+            for action in actions:
+                if action.callable == 'transfer':
+                    action.name +=  '\tCtrl+T'
+                    action.prolog = action.select_directory
+                    file_transfer_action = copy.copy(action)
+                    file_transfer_action.prolog = action.select_file
+                    self.register_menu_action(file_transfer_action)
+                elif action.callable == 'load':
+                    action.name +=  '\tCtrl+L'
+                    # should be a notification of some sort
+                    action.epilog = action.execute_refresh
+    
+                if action.callable == 'delete':
+                    action.name +=  '\tCtrl+D'
+                    inmem_file_delete = copy.copy(action)
+                    inmem_file_delete.epilog = action.execute_refresh
+                    self.register_menu_action(inmem_file_delete)
+    
+                self.register_menu_action(action)
+
+    def get_menu_action(self, callable):
+        return self.action_map[callable]
+    
+    def register_menu_action(self, action):
+        print "Register ", action, action.callable, id(action.callable)
+        self.action_map[action.callable] = action
+        wx.EVT_MENU(self, action.id, action.callable)
+        wx.EVT_MENU(self.FindWindowById(ID_TREE_CTRL), action.id, action.execute)
+        wx.EVT_MENU(self.FindWindowById(ID_DIR_PANEL), action.id, action.execute)
+
 def create_icons(ilist):
     img_path = os.path.join(os.path.split(__file__)[0], 'img')
     return {
@@ -90,10 +132,108 @@ def create_icons(ilist):
         model.File.MULTI: ilist.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
         model.File.SAMPLE: ilist.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
     }
+
+class MenuAction(model.Action):
+    def adapt(action):
+        return MenuAction(action.callable, action.name, wx.NewId())
+
+    adapt = staticmethod(adapt)
     
-class AksyFSTree(wx.TreeCtrl):
+    def __init__(self, callable, name, id):
+        model.Action.__init__(self, callable, name)
+        self.id = id
+
+    def execute_refresh(self):
+        print "REFRESH"
+        # self.source.refresh()
+    def execute(self, evt):
+        print "EXEC" 
+        items = evt.GetEventObject().items
+        for item in items:
+            self.execute_action(item)
+
+    def execute_action(self, item):
+        print "Action %s, item: %s %s" % (self.name, repr(item), repr(self.callable))
+        if self.prolog is None:
+            args = ()
+        else:
+            args = self.prolog(item)
+
+        if args is None:
+            return
+
+        if len(args) == 0:
+            result = self.callable(item,)
+        elif len(args) == 1:
+            result = self.callable(item,args[0])
+        else:
+            result = self.callable(item, args)
+
+        if self.epilog is not None:
+            if result is None:
+                self.epilog(item)
+            else:
+                self.epilog(item, result)
+
+    def select_directory(self, item):
+        dir_dialog = wx.DirDialog(self, "Choose a destination for %s" %item.get_name(),
+            style=wx.DD_DEFAULT_STYLE|wx.DD_NEW_DIR_BUTTON)
+        dir_dialog.SetPath(self.lastdir)
+        if dir_dialog.ShowModal() == wx.ID_OK:
+            self.lastdir = dir_dialog.GetPath()
+            retval = (self.lastdir,)
+        else:
+            retval = None
+
+        dir_dialog.Destroy()
+        return retval
+
+    def select_file(self, item):
+        # TODO: cache this dialog as it is heavy...
+        filedialog = wx.FileDialog(self, "Choose a destination for %s" %item.get_name(),
+            style=wx.DD_DEFAULT_STYLE)
+        filedialog.SetDirectory(self.lastdir)
+        filedialog.SetFilename(item.get_name())
+        if filedialog.ShowModal() == wx.ID_OK:
+            path = filedialog.GetPath()
+        else:
+            path = None
+
+        filedialog.Destroy()
+        return (path)
+        
+class ContextMenuHandler(object):
+    def get_frame(self):
+        return self.GetParent().GetParent().GetParent()
+        
+    def get_selections(self):
+        raise NotImplementedError()
+
+    def get_aksy_item(self, id):
+        raise NotImplementedError()
+        
+    def contextMenu(self, e):
+        ids = self.get_selections()
+        actions = set()
+        items = []
+        for id in ids: 
+            item = self.get_aksy_item(id)
+            items.append(item)
+            if len(actions) == 0:
+                actions.update(item.get_actions())
+            else:
+                actions.intersection(item.get_actions())
+        menu = ActionMenu(self, wx.SIMPLE_BORDER)
+        mactions = [self.get_frame().get_menu_action(action.callable) for action in actions]
+        menu.set_actions(mactions)
+        menu.set_items(items)
+        self.PopupMenu(menu)
+        menu.Destroy()
+
+class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
     def __init__(self, parent, ilist, icon_map, **kwargs):
-        wx.TreeCtrl.__init__(self, parent, ID_TREE_CTL, **kwargs)
+        wx.TreeCtrl.__init__(self, parent, ID_TREE_CTRL, **kwargs)
+        ContextMenuHandler.__init__(self)
         self.SetDropTarget(CtrlFileDropTarget(self))
         self.AssignImageList(ilist)
         self.root = self.AddRoot("Sampler")
@@ -109,7 +249,13 @@ class AksyFSTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.CheckRenameAction)
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.RenameAction)
         self.Bind(wx.EVT_RIGHT_UP, self.contextMenu)
+    
+    def get_selections(self):
+         return self.GetSelections()
 
+    def get_aksy_item(self, id):         
+         return self.GetPyData(id)
+     
     def OnItemBeginDrag(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
@@ -234,23 +380,11 @@ class AksyFSTree(wx.TreeCtrl):
             if not hasattr(item, 'rename'):
                 evt.Veto()
 
-    def contextMenu(self, e):
-        ids = self.GetSelections()
-        actions = set()
-        for id in ids: 
-            item = self.GetPyData(id)
-            if len(actions) == 0:
-                actions.update(item.get_actions())
-            else:
-                actions.intersection(item.get_actions())
-        menu = ActionMenu(self, wx.SIMPLE_BORDER)
-        menu.set_actions(actions)
-        self.PopupMenu(menu, e.GetPosition())
-        menu.Destroy()
+ 
     
 class ListPanel(wx.Panel):
     def __init__(self, parent, ilist, icon_map):
-        wx.Panel.__init__(self, parent)
+        wx.Panel.__init__(self, parent, ID_DIR_PANEL)
         self.Bind(wx.EVT_SIZE, self.OnSize)    
         self.listctl = DirListCtrl(self, ilist, icon_map)
         self.icon_map = icon_map
@@ -262,29 +396,19 @@ class ListPanel(wx.Panel):
         id = evt.GetItem()
         if not id.IsOk(): return
         # TODO: make this less incestuous
-        item = self.GetParent().FindWindowById(ID_TREE_CTL).GetPyData(id)
+        item = self.GetParent().FindWindowById(ID_TREE_CTRL).GetPyData(id)
         self.listctl.set_current(item)
 
-class AksyListItem(wx.ListItem):
-    def SetPyData(self, item):
-        self.item = item
-    def GetPyData(self):
-        return self.item
-    
-class DirListCtrl(wx.ListCtrl, listctrl.ColumnSorterMixin):
+class DirListCtrl(wx.ListCtrl, ContextMenuHandler):
     def __init__(self, parent, ilist, icon_map):
-        
-        wx.ListCtrl.__init__(self, parent)
-        listctrl.ColumnSorterMixin.__init__ (self, 1)
+        wx.ListCtrl.__init__(self, parent, ID_DIR_PANEL)
+        ContextMenuHandler.__init__(self)
         self.icon_map = icon_map
         self.SetDropTarget(DirListDropTarget(self))
         self.SetImageList(ilist,0)
         self.item = None
-
         self.Bind(wx.EVT_COMMAND_RIGHT_CLICK, self.contextMenu)
-        self.Bind(wx.EVT_RIGHT_UP, self.contextMenu)
-        
-        self.Bind(wx.EVT_MENU, self.contextMenu)
+
     def set_current(self, item):
         self.current_item = item
         self.refresh()
@@ -296,25 +420,20 @@ class DirListCtrl(wx.ListCtrl, listctrl.ColumnSorterMixin):
         self.ClearAll()
         self.add_items(self.get_current())
     
-    def GetListCtrl(self):
-        return self
-    
-    def GetColumnSorter(self):
-        print "GETCPO"
-    
-    def compare(self, item1, item2):
-        label1 = self.GetItem(item1).GetText()
-        label2 = self.GetItem(item2).GetText()
-        print label1, label2
-        return cmp(label2, label1)
-
-    def contextMenu(self, e):
+    def get_selections(self):
         ids = []
         index = self.GetFirstSelected()
         ids.append(index)
         while index != -1:
             index = self.GetNextSelected(index)
             ids.append(index)
+        return ids
+    def get_aksy_item(self, id):
+        return self.get_current().get_children()[id]
+    
+    def blacontextMenu(self, e):
+        ids = []
+       
         actions = set()
         for id in ids: 
             item = self.get_current().get_children()[id]
@@ -323,28 +442,29 @@ class DirListCtrl(wx.ListCtrl, listctrl.ColumnSorterMixin):
             else:
                 actions.intersection(item.get_actions())
         menu = ActionMenu(self, wx.SIMPLE_BORDER)
-        menu.set_actions(actions)
+        print "ACTIONS ", actions
+        mactions = [self.get_frame().get_menu_action(action.callable) for action in actions]
+        menu.set_actions(mactions)
         self.PopupMenu(menu)
         menu.Destroy()
         
     def add_items(self, dir):
-        for index, child in enumerate(dir.get_children()):
-            list_item = AksyListItem()
+        children = dir.get_children()
+        for index in range(len(children)-1, -1, -1):
+            child = children[index]
+            list_item = wx.ListItem()
             list_item.SetMask(wx.LIST_MASK_TEXT | wx.LIST_MASK_IMAGE | wx.LIST_MASK_FORMAT)
             list_item.SetText(child.get_short_name())
             list_item.SetImage(self.icon_map[child.type])
             list_item.SetWidth(50)
-            list_item.SetPyData(child)
             self.InsertItem(list_item)
-        self.SortItems(self.compare)
-        
         
 class TreePanel(wx.Panel):
     def __init__(self, parent, ilist, icon_map):
         wx.Panel.__init__(self, parent, ID_TREE_PANEL)
         self.Bind(wx.EVT_SIZE, self.OnSize)
 
-        # the default implementation seems to be in-memory
+        # the default GTK implementation seems to be in-memory
         if wx.Platform == "__WXGTK__":
             self.config = wx.FileConfig("Aksy", style=wx.CONFIG_USE_LOCAL_FILE)
         else:
@@ -358,19 +478,6 @@ class TreePanel(wx.Panel):
 
         self.sampler = parent.GetParent().sampler
         self.tree = AksyFSTree(self, ilist, icon_map, style=wx.TR_EDIT_LABELS|wx.TR_HIDE_ROOT|wx.TR_DEFAULT_STYLE|wx.TR_MULTIPLE)
-        self.actions = {}
-        self._action_item = None
-        self._action = None
-        self.recordedActions = []
-        self.register_menu_actions(model.File.actions)
-        self.register_menu_actions(model.InMemoryFile.actions)
-
-        for action in ( model.Action('cut','Cut\tCtrl+X', wx.ID_CUT),
-                        model.Action('copy','Copy\tCtrl+C', wx.ID_COPY),
-                        model.Action('save','Paste\tCtrl+V', wx.ID_PASTE)):
-            model.File.actions.append(action)
-            self.register_menu_action(action)
-
         wx.EVT_MENU(parent, wx.ID_CUT, self.OnCut)
         wx.EVT_MENU(parent, wx.ID_COPY, self.OnCopy)
         wx.EVT_MENU(parent, wx.ID_PASTE, self.OnPaste)
@@ -444,129 +551,21 @@ class TreePanel(wx.Panel):
                      print "Clipboard data ", repr(data.GetFilenames())
                 wx.TheClipboard.Close()
 
-    def register_menu_actions(self, actions):
-
-        # hook into actions
-        for action in actions:
-            if action.function_name == 'transfer':
-                action.display_name +=  '\tCtrl+T'
-                action.prolog = self.select_directory
-                file_transfer_action = copy.copy(action)
-                file_transfer_action.prolog = self.select_file
-                self.register_menu_action(file_transfer_action)
-            elif action.function_name == 'load':
-                action.display_name +=  '\tCtrl+L'
-                # should be a notification of some sort
-                action.epilog = self.add_to_memory_branch
-
-            if action.function_name == 'delete':
-                action.display_name +=  '\tCtrl+D'
-                inmem_file_delete = copy.copy(action)
-                inmem_file_delete.epilog = self.remove_from_memory_branch
-                self.register_menu_action(inmem_file_delete)
-
-            self.register_menu_action(action)
-
-    def register_menu_action(self, action):
-        if action.id is None:
-            id = wx.NewId()
-            action.id = id
-        else:
-            id = action.id
-        self.actions[id] = action
-        wx.EVT_MENU(self, id, self.ExecuteAction)
-        wx.EVT_MENU(self.GetParent(), id, self.ExecuteAction)
-
-    def ExecuteAction(self, evt):
-        action = self.actions[evt.GetId()]
-
-        ids = self.tree.GetSelections()
-        for id in ids:
-            self.handle_action(id, action)
-            
-    def handle_action(self, id, action):
-        item = self.tree.GetPyData(id)
-        item.id = id
-
-        print "Action %s, item: %s" % (action.display_name, repr(item))
-        if action.prolog is None:
-            args = ()
-        else:
-            args = action.prolog(item)
-
-        if args is None:
-            return
-
-        if len(args) == 0:
-            result = getattr(item, action.function_name)()
-        elif len(args) == 1:
-            result = getattr(item, action.function_name)(args[0])
-        else:
-            result = getattr(item, action.function_name)(args)
-
-        if action.epilog is not None:
-            if result is None:
-                action.epilog(item)
-            else:
-                action.epilog(item, result)
-
-        self.recordedActions.append((action, args,))
-        
-    def select_directory(self, item):
-        dir_dialog = wx.DirDialog(self, "Choose a destination for %s" %item.get_name(),
-            style=wx.DD_DEFAULT_STYLE|wx.DD_NEW_DIR_BUTTON)
-        dir_dialog.SetPath(self.lastdir)
-        if dir_dialog.ShowModal() == wx.ID_OK:
-            self.lastdir = dir_dialog.GetPath()
-            retval = (self.lastdir,)
-        else:
-            retval = None
-
-        dir_dialog.Destroy()
-        return retval
-
-    def select_file(self, item):
-        # TODO: cache this dialog as it is heavy...
-        filedialog = wx.FileDialog(self, "Choose a destination for %s" %item.get_name(),
-            style=wx.DD_DEFAULT_STYLE)
-        filedialog.SetDirectory(self.lastdir)
-        filedialog.SetFilename(item.get_name())
-        if filedialog.ShowModal() == wx.ID_OK:
-            path = filedialog.GetPath()
-        else:
-            path = None
-
-        filedialog.Destroy()
-        return (path)
-
-    def add_to_memory_branch(self, item, result):
-        """Updates the memory branch when an item has been loaded
-        Should be factored out
-        """
-        memory_folder = self.tree.GetFirstVisibleItem()
-        if not isinstance(result, list):
-            self.tree.AppendAksyItem(memory_folder, result)
-        else:
-            for item in result:
-                self.tree.AppendAksyItem(memory_folder, item)
-
-        self.tree.Expand(memory_folder)
-
-    def remove_from_memory_branch(self, item):
-        self.tree.Delete(item.id)
-
     def OnSize(self, e):
         self.tree.SetSize(self.GetSize())
 
 class ActionMenu(wx.Menu):
     def __init__(self, parent, style):
-         wx.Menu.__init__(self)
-
+        wx.Menu.__init__(self, style=style)
+    
+    def set_items(self, items):
+        self.items = items
+             
     def set_actions(self, actions):
         for item in self.GetMenuItems():
             self.Remove(item.GetId())
         for index, action in enumerate(actions):
-            self.Append(action.id, action.display_name, action.display_name)
+            self.Append(action.id, action.name, action.name)
 
 class CtrlFileDropTarget(wx.FileDropTarget):
     def __init__(self, ctrl):
