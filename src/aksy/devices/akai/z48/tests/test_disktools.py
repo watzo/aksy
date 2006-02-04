@@ -1,5 +1,5 @@
 from unittest import TestCase, TestLoader
-import logging, time, os.path
+import logging, time, os.path, os
 
 from aksyxusb import AkaiSampler
 from aksy.device import Devices
@@ -7,10 +7,14 @@ from aksy.devices.akai import sysex_types
 
 TESTDIR = os.path.abspath(os.path.split(__file__)[0])
 TESTFOLDER_NAME = "test%s" % time.time()
-RUN_SLOW_TESTS = False
+AKSY_RUN_INTEG_TESTS = bool(os.environ.get("AKSY_RUN_INTEG_TESTS", False))
+AKSY_RUN_SLOW_TESTS =  bool(os.environ.get("AKSY_RUN_SLOW_TESTS", False))
+LOG = logging.getLogger('aksy')
 
-z48 = Devices.get_instance('z48', 'usb')
-log = logging.getLogger('aksy')
+if AKSY_RUN_INTEG_TESTS: 
+    z48 = Devices.get_instance('z48', 'usb')
+else:
+    z48 = Devices.get_instance('mock_z48')
 
 class TestDisktools(TestCase):
     def setUp(self):
@@ -26,20 +30,20 @@ class TestDisktools(TestCase):
         if len(disks) > 0:
             z48.disktools.select_disk(disks[0].handle)
         else:
-            log.error("selectFirstDisk: no disks found")
+            LOG.error("selectFirstDisk: no disks found")
 
     def selectFirstFolder(self):
         foldernames = z48.disktools.get_folder_names()
         if len(foldernames) > 0:
             z48.disktools.open_folder(foldernames[0])
         else:
-            log.error('selectFirstFolder: no folder to select')
+            LOG.error('selectFirstFolder: no folder to select')
 
     def selectTestFolder(self):
         z48.disktools.open_folder(TESTFOLDER_NAME)
 
     def test_update_disklist(self):
-        if RUN_SLOW_TESTS: 
+        if AKSY_RUN_SLOW_TESTS: 
             z48.disktools.update_disklist()
 
     def test_select_disk(self):
@@ -53,7 +57,7 @@ class TestDisktools(TestCase):
 
     def test_get_disklist(self):
         disks = z48.disktools.get_disklist()
-        log.info('test_get_disklist: ' + repr(disks))
+        LOG.info('test_get_disklist: ' + repr(disks))
         self.assertEquals(z48.disktools.get_no_disks(), len(disks))
 
     def test_get_curr_path(self):
@@ -66,7 +70,7 @@ class TestDisktools(TestCase):
 
     def test_folder_listings(self):
         foldernames = z48.disktools.get_folder_names()
-        log.debug('test_get_folder_names: ' + repr(foldernames))
+        LOG.debug('test_get_folder_names: ' + repr(foldernames))
         self.assertEquals(z48.disktools.get_no_folders(), len(foldernames))
 
     def test_load_folder(self):
@@ -82,12 +86,12 @@ class TestDisktools(TestCase):
 
     def test_get_no_files(self):
         self.selectFirstFolder()
-        log.info("test_get_no_files: %i" % z48.disktools.get_no_files())
+        LOG.info("test_get_no_files: %i" % z48.disktools.get_no_files())
 
     def test_get_filenames(self):
         self.selectFirstFolder()
         files = z48.disktools.get_filenames()
-        log.info("test_get_filenames: %s" % repr(files))
+        LOG.info("test_get_filenames: %s" % repr(files))
         self.assertEquals(z48.disktools.get_no_files(), len(files))
 
     def test_rename_delete_file(self):
@@ -111,10 +115,11 @@ class TestDisktools(TestCase):
 
     def test_save_all(self):
         self.selectTestFolder()
-        if RUN_SLOW_TESTS:
+        if AKSY_RUN_SLOW_TESTS:
             z48.disktools.save_all(sysex_types.FILETYPE.ALL, False, False)
 
 def test_suite():
     testloader = TestLoader()
-    suite = testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_disktools')
-    return suite
+    if AKSY_RUN_INTEG_TESTS:
+        return testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_disktools')
+    return None

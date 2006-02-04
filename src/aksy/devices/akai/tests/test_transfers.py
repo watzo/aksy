@@ -3,11 +3,12 @@ from aksy.devices.akai import sampler
 
 TESTDIR = os.path.abspath(os.path.split(__file__)[0])
 
-class TestSampler(unittest.TestCase):
-    def setUp(self):
-        if not hasattr(self, 'sampler'):
-            self.sampler = sampler.Sampler()
+AKSY_RUN_INTEG_TESTS = bool(os.environ.get("AKSY_RUN_INTEG_TESTS", False))
 
+if AKSY_RUN_INTEG_TESTS:
+    sampler = sampler.Sampler()
+    
+class TestSampler(unittest.TestCase):
     def testTransfers(self):
         # TODO: add files for each type
         self._testTransfer('test.wav')
@@ -15,9 +16,9 @@ class TestSampler(unittest.TestCase):
     def _testTransfer(self, filename):
 
         fullpath = os.path.join(TESTDIR, filename)
-        self.sampler.put(fullpath)
+        sampler.put(fullpath)
         actualfilename = 'cp' + filename
-        self.sampler.get(filename, actualfilename)
+        sampler.get(filename, actualfilename)
         expected = open(fullpath, 'rb')
         actual = open(actualfilename, 'rb')
         self.assertTrue(md5sum(expected), md5sum(actual))
@@ -36,5 +37,6 @@ def md5sum(fh):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    suite = testloader.loadTestsFromName('aksy.devices.akai.tests.test_transfers')
-    return suite
+    if AKSY_RUN_INTEG_TESTS:
+        return testloader.loadTestsFromName('aksy.devices.akai.tests.test_transfers')
+    return None
