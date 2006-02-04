@@ -1,7 +1,6 @@
 """aksy model
 
-Offers a high level API, should eventually be abstracting the midi jargon of
-different devices, but at the moment it is using Akai conventions
+Offers a high level sampler API
 
 """
 import re, os.path, sys, logging
@@ -21,16 +20,7 @@ def register_handlers(tools):
     """
     handlers.update(tools)
 
-class Action:
-    """Wraps an action for an item, adapting an interface action to
-    a function call
-    """
-    def __init__(self, callable, name):
-        self.callable = callable
-        self.name = name
-
 class Disk(object):
-    actions = {}
     def __init__(self, disk_info):
         self.info = disk_info
         self.root = Folder("")
@@ -64,7 +54,7 @@ class Disk(object):
         return self.root.get_children()
     
     def get_actions(self):
-        return Disk.actions
+        return ('upload',)
     
 def get_file_type(name):
         if RE_MULTI.search(name) is not None:
@@ -148,10 +138,10 @@ class File(object):
             sys.stderr.writelines("Not a supported type %i\n" %self.type)
             return Sample(self.get_name())
 
-    def transfer(self, path):
-        """Transfer the file to host
+    def download(self, path):
+        """download the file to host
         """
-        log.info("Transfer of file %s to %s" % (self.get_name(), repr(path)))
+        log.info("download of file %s to %s" % (self.get_name(), repr(path)))
         # XXX: remove the reference to the sampler
         handlers[Disk].z48.get(self.get_name(), path)
 
@@ -177,9 +167,7 @@ class File(object):
         self.path = self.path[:-1] + (new_name,)
 
     def get_actions(self):
-        return File.actions
-
-File.actions = [Action(File.load, "Load"), Action(File.delete, "Delete"), Action(File.transfer, "Transfer"),]
+        return ('load', 'delete', 'download',)
 
 class Folder(File):
     def __init__(self, path):
@@ -193,7 +181,7 @@ class Folder(File):
         del self.children[:]
 
     def get_actions(self):
-        return Folder.actions
+        return ('load', 'delete', 'download',)
         
     def get_children(self):
         """Gets the children of this folder
@@ -258,7 +246,7 @@ class Folder(File):
                del item
                break
 
-    def create_subfolder(self, name):
+    def create_folder(self, name):
         """
         """
         self.get_parent().set_current()
@@ -285,19 +273,17 @@ class Folder(File):
         self.children.append(item)
         return item
 
-    def transfer(self, path):
-        """Transfer the folder to host
+    def download(self, path):
+        """download the folder to host
         """
         self.get_parent().set_current()
         path = os.path.join(path, self.get_name())
-        log.info("Transfer to dir: %s" % repr(path))
+        log.info("download to dir: %s" % repr(path))
         if not os.path.exists(path):
             os.makedirs(path)
             for item in self.get_children():
-                log.debug("Transfer to dir: %s" % repr(path))
-                item.transfer(os.path.join(path, item.get_name()))
-
-Folder.actions = [Action(Folder.load, "Load"), Action(Folder.transfer, "Transfer"), Action(Folder.delete, "Delete")]
+                log.debug("download to dir: %s" % repr(path))
+                item.download(os.path.join(path, item.get_name()))
 
 class InMemoryFile(File):
     def get_instance(name):
@@ -323,7 +309,7 @@ class InMemoryFile(File):
         File.__init__(self, (name,))
 
     def get_actions(self):
-        return InMemoryFile.actions
+        return ('delete', 'download',)
     
     def get_size(self):
         return 'Unknown'
@@ -354,14 +340,12 @@ class InMemoryFile(File):
     def set_current(self):
         handlers[self.__class__].set_curr_by_name(self.get_name())
 
-    def transfer(self, dest_path):
+    def download(self, dest_path):
         pass
 
     def rename(self, new_name):
         self.set_current()
         handlers[self.__class__].rename_curr(new_name)
-
-InMemoryFile.actions = [Action(InMemoryFile.delete, "Delete"), Action(InMemoryFile.transfer, "Transfer"),]
 
 class Multi(InMemoryFile):
     def __init__(self, name):
@@ -431,6 +415,9 @@ class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
 
+    def get_actions(self):
+        return ('upload',)
+    
     def upload(self, path):
         name = os.path.basename(path)
         handlers[Disk].z48.put(path, name)
