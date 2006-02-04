@@ -1,28 +1,32 @@
 0.2
 ---
 
-* complete command coverage
-* bug fixing:
-  * type conversions
-  * transfer from memory/disk; done for Z48; fix S56K
-* command loop implementation with userref support using OSC; investigate async
-  viability.
+* complete and tested command coverage
+* working S56k transfers
 
+aksyfsview
+* basic functionality working
+	* debug load/delete/rename operations
+	* copy/paste, drag-n-drop (80% done)
+	
 0.3
 ---
 
-* OSC - 10%
+* a few useful scripts (backup, beat slicing)
+
+0.4
+
+* command loop implementation with userref support using OSC; investigate async
+  viability.
 * script window support
   * script loading, session save/restore
-* offline Z48 AKP write support
+* offline Z48 AKP write/convert support
 
 future
 ------
 
-aksyfs
-* debug load/delete/rename operations
-* copy/paste, drag-n-drop (80% done)
-* key bindings for load(Ctrl-L), delete (DEL), rename (F2) 
-* transfer from host to disk
+aksyfsview
 * extended view for multis, programs and samples
 * Editors for multis, programs and some basic functionality for samples
+
+* FUSE implementation for aksyfs

@@ -3,11 +3,12 @@ Aksy changes
 		* Visual Studio compiler compatibility and win32 distutils support
 		* Multiple (hybrid) sampler support
 		* MPC4K support
-		* preliminary S56K support (transfers/disktools)
-		* added support for 'busy' messages sent during slowly
-		  executing commands
-		* new types added
-		* loads of bug fixes
+		* basic S56K support (transfers/disktools)
+		* added support for busy messages sent during slowly
+		  executing commands 
+		* new commands and types added
+		* loads of bug fixes, including model and aksyfsview
+		* integration tests for disktools commands
 
 	0.1.2-dev
 		* Updated docs
