@@ -24,7 +24,7 @@
 
 #define S56K_CMD_MEMORY_GET_PROGRAM 0x23
 #define S56K_CMD_MEMORY_GET_MULTI 0x25
-#define S56K_CMD_MEMORY_GET_MIDI 0x24
+#define S56K_CMD_MEMORY_GET_MIDI 0x29
 
 /* abort an operation, returns a busy reply on success */
 #define Z48_ABORT 0xff
