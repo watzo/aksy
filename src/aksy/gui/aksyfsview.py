@@ -86,11 +86,11 @@ class Frame(wx.Frame):
         d.Destroy()
 
     def OnExitMenu(self,e):
-        get_config.store()
+        Config.get_config().store()
         self.Close(True)
 
     def OnExit(self,e):
-        get_config.store()
+        Config.get_config().store()
         self.Destroy()
 
     def reportException(self, exception):
@@ -126,26 +126,25 @@ def create_icons(ilist):
               
 class Config(wx.FileConfig):
     LASTDIR = '/LastRun/Lastdir'
-    
     def get_config():
-         return config
+         return Config.config
 
     get_config = staticmethod(get_config)
     def __init__(self):
-        wx.FileConfig.__init__("Aksy", style=wx.CONFIG_USE_LOCAL_FILE)
+        wx.FileConfig.__init__(self, "Aksy", style=wx.CONFIG_USE_LOCAL_FILE)
 
     def store(self):
         self.Flush()    
         
-    def get_last_dir(self, key):
+    def get_last_dir(self, key=None):
         if self.lastdir is '':
             return os.path.expanduser("~")
         if len(self.lastdir) == 1:
             return ""
         return self.config.Read("%s/%s" % (LASTDIR, key))
    
-    def set_last_dir(self, key, lastdir):
-        self.Write("%s%s" %(LASTDIR, key), lastdir)
+    def set_last_dir(self, lastdir, key=None):
+        self.Write("%s%s" %(self.LASTDIR, key), lastdir)
 
 Config.config = Config()
 
@@ -158,7 +157,7 @@ class MenuAction(object):
         self.prolog = prolog
         self.epilog = epilog
 
-    def execute_refresh(self, item):
+    def execute_refresh(self, item, *args):
         print "REFRESH"
         item.get_parent().refresh()
 
@@ -197,7 +196,7 @@ class MenuAction(object):
         # dir_dialog.SetPath(self.widget.lastdir)
         if dir_dialog.ShowModal() == wx.ID_OK:
             selected = dir_dialog.GetPath()
-            get_config().set_last_dir(selected)
+            Config.get_config().set_last_dir(selected)
             retval = (selected,)
         else:
             retval = None
@@ -493,7 +492,7 @@ class TreePanel(wx.Panel):
         wx.EVT_MENU(parent, wx.ID_CUT, self.OnCut)
         wx.EVT_MENU(parent, wx.ID_COPY, self.OnCopy)
         wx.EVT_MENU(parent, wx.ID_PASTE, self.OnPaste)
-        wx.EVT_CLOSE(self, self.store_config)
+        wx.EVT_CLOSE(self, Config.get_config().store())
 
         # replace by get_system_objects
         mem = self.sampler.memory
