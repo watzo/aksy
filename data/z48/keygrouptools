@@ -35,7 +35,7 @@ BYTE
 WORD
 \x13	\x1A 	get_play_toggle_note	Get Play Toggle Note <Reply> = (0=OFF, 1=ON)
 BYTE
-\x13	\x20	get_filter	Get Filter <Data1> = Filter block (0=N
+\x13	\x20	get_filter	Get Filter <Data1> = Filter block 	BYTE
 BYTE
 \x13	\x21	get_filter_cutoff	Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100) BYTE
 BYTE

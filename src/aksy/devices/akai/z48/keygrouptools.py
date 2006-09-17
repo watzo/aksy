@@ -32,7 +32,7 @@ class Keygrouptools:
         self.get_play_trigger_cmd = Command('_', '\x13\x18', 'get_play_trigger', (), None)
         self.get_player_trigger_velocity_cmd = Command('_', '\x13\x19', 'get_player_trigger_velocity', (), None)
         self.get_play_toggle_note_cmd = Command('_', '\x13\x1A ', 'get_play_toggle_note', (), None)
-        self.get_filter_cmd = Command('_', '\x13\x20', 'get_filter', (), None)
+        self.get_filter_cmd = Command('_', '\x13\x20', 'get_filter', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_filter_cutoff_cmd = Command('_', '\x13\x21', 'get_filter_cutoff', (), None)
         self.get_filter_resonance_cmd = Command('_', '\x13\x22', 'get_filter_resonance', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_filter_attenuation_cmd = Command('_', '\x13\x23', 'get_filter_attenuation', (), None)
@@ -233,13 +233,13 @@ class Keygrouptools:
         """
         return self.z48.execute(self.get_play_toggle_note_cmd, ())
 
-    def get_filter(self):
-        """Get Filter <Data1> = Filter block (0=N
+    def get_filter(self, arg0):
+        """Get Filter <Data1> = Filter block 
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_filter_cmd, ())
+        return self.z48.execute(self.get_filter_cmd, (arg0, ))
 
     def get_filter_cutoff(self):
         """Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100) BYTE

@@ -7,9 +7,9 @@ LEVEL
 BYTE
 \x0F	\x04	get_output	Get Zone Output(0-15)	BYTE
 BYTE
-\x0F	\x05	get_filter	Get Zone Filter (0 ­ ±100)
+\x0F	\x05	get_filter	Get Zone Filter (0 ­ ±100)	BYTE
 SBYTE
-\x0F	\x06	get_tune	Get Zone Cents Tune(0 ­ ±3600)
+\x0F	\x06	get_tune	Get Zone Cents Tune(0 ­ ±3600)	BYTE
 SBYTE
 \x0F	\x07	get_keyboard_track	Get Zone Keyboard Track	BYTE
 BOOL
