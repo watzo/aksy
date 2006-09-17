@@ -1,7 +1,11 @@
 # inspired by the frequent offers of great sounds by Steve of Hollow Sun, this
 # script will allow you to download, unpack and audition a new addition in no time!
+
+# usage: checkout.py <url to zip file>
+#        checkout.py <file path>
+
 import sys, urllib, zipfile, os, os.path
-from aksy import Devices
+from aksy.device import Devices
 
 def checkout(url, destdir=''):
     file = urllib.urlretrieve(url)[0]
@@ -26,19 +30,22 @@ def checkout(url, destdir=''):
 
     # aksy stuff
     z48 = Devices.get_instance('z48', 'usb')
-    z48.init()
     for file in destfiles:
+        name, ext = os.path.splitext(file)
+        print ext
+        if ext.lower() not in ['.akp', '.akm', '.wav', '.aiff']:
+            continue
+        print "Uploading file: " + repr(file)
         z48.put(file, os.path.basename(file))
         # set current program
-        if file[-3:] == 'akp':
-            z48.programtools.set_current_by_name(file)
+        if ext.lower() == '.akp':
+            z48.programtools.set_curr_by_name(file)
         # TODO: play file
-    z48.close()
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         url = sys.argv[1]
     else:
-        url = 'http://216.55.137.24/hollowsun/donations_dl/mdp40.zip'
-        checkout(url)
+        url = 'http://www.hollowsun.com/downloads/s56_m1k/221%20angel.zip'
+    checkout(url)
 
