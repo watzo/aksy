@@ -36,9 +36,9 @@ class Keygrouptools:
         self.get_filter_cutoff_cmd = Command('_', '\x13\x21', 'get_filter_cutoff', (), None)
         self.get_filter_resonance_cmd = Command('_', '\x13\x22', 'get_filter_resonance', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_filter_attenuation_cmd = Command('_', '\x13\x23', 'get_filter_attenuation', (), None)
-        self.get_envelope_rate_cmd = Command('_', '\x13\x30', 'get_envelope_rate', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_envelope_level1_cmd = Command('_', '\x13\x31', 'get_envelope_level1', (), None)
-        self.get_envelope_rate2_cmd = Command('_', '\x13\x32', 'get_envelope_rate2', (), None)
+        self.get_envelope_rate1_cmd = Command('_', '\x13\x30', 'get_envelope_rate1', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_envelope_level1_cmd = Command('_', '\x13\x31', 'get_envelope_level1', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_envelope_rate2_cmd = Command('_', '\x13\x32', 'get_envelope_rate2', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_envelope_level2_cmd = Command('_', '\x13\x33', 'get_envelope_level2', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_envelope_rate3_cmd = Command('_', '\x13\x34', 'get_envelope_rate3', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_envelope_level3_cmd = Command('_', '\x13\x35', 'get_envelope_level3', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -138,7 +138,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_high_note_cmd, ())
 
     def get_mute_group(self):
-        """Get Mute Group <Reply1> = (0=OFF, 1­64=value)
+        """Get Mute Group <Reply1> = (0=OFF, 1ï¿½64=value)
 
         Returns:
             BYTE
@@ -154,7 +154,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_fx_override_cmd, ())
 
     def get_fx_send_level(self):
-        """Get FX Send Level <Reply1> = level in 10×dB (-600­+60)
+        """Get FX Send Level <Reply1> = level in 10ï¿½dB (-600ï¿½+60)
 
         Returns:
             SWORD
@@ -202,7 +202,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_tune_cmd, ())
 
     def get_level(self):
-        """Get Keygroup Level (RT) <Reply> = value in 10×dB
+        """Get Keygroup Level (RT) <Reply> = value in 10ï¿½dB
 
         Returns:
             SWORD
@@ -218,7 +218,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_play_trigger_cmd, ())
 
     def get_player_trigger_velocity(self):
-        """Get Play Trigger Velocity (0­129) <Reply> = (0=ON VEL, 1=OFF VEL, 2­129=0­127)
+        """Get Play Trigger Velocity (0ï¿½129) <Reply> = (0=ON VEL, 1=OFF VEL, 2ï¿½129=0ï¿½127)
 
         Returns:
             WORD
@@ -265,29 +265,29 @@ class Keygrouptools:
         """
         return self.z48.execute(self.get_filter_attenuation_cmd, ())
 
-    def get_envelope_rate(self, arg0):
-        """Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0­100) Get Envelope Rate 1 (for AMP = Attack)
+    def get_envelope_rate1(self, arg0):
+        """Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0ï¿½100) Get Envelope Rate 1 (for AMP = Attack)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_envelope_rate_cmd, (arg0, ))
+        return self.z48.execute(self.get_envelope_rate1_cmd, (arg0, ))
 
-    def get_envelope_level1(self):
+    def get_envelope_level1(self, arg0):
         """Get Envelope Level 1 (FILTER and AUX only)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_envelope_level1_cmd, ())
+        return self.z48.execute(self.get_envelope_level1_cmd, (arg0, ))
 
-    def get_envelope_rate2(self):
+    def get_envelope_rate2(self, arg0):
         """Get Envelope Rate 2 (for AMP = Decay)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_envelope_rate2_cmd, ())
+        return self.z48.execute(self.get_envelope_rate2_cmd, (arg0, ))
 
     def get_envelope_level2(self, arg0):
         """Get Envelope Level 2 (for AMP = Sustain)
@@ -446,7 +446,7 @@ class Keygrouptools:
         return self.z48.execute(self.set_high_note_cmd, (arg0, ))
 
     def set_mute_group(self, arg0):
-        """Set Mute Group <Data1> = (0=OFF, 1­64=value)
+        """Set Mute Group <Data1> = (0=OFF, 1ï¿½64=value)
         """
         return self.z48.execute(self.set_mute_group_cmd, (arg0, ))
 
@@ -456,7 +456,7 @@ class Keygrouptools:
         return self.z48.execute(self.set_fx_override_cmd, (arg0, ))
 
     def set_fx_send_level(self, arg0):
-        """Set FX Send Level <Data1> = level in 10×dB (-600­+60)
+        """Set FX Send Level <Data1> = level in 10ï¿½dB (-600ï¿½+60)
         """
         return self.z48.execute(self.set_fx_send_level_cmd, (arg0, ))
 
@@ -481,12 +481,12 @@ class Keygrouptools:
         return self.z48.execute(self.set_zone_xfade_ctrl_no_cmd, (arg0, ))
 
     def set_tune(self, arg0):
-        """Set Cents Tune (0 ­ ±36)
+        """Set Cents Tune (0 ï¿½ ï¿½36)
         """
         return self.z48.execute(self.set_tune_cmd, (arg0, ))
 
     def set_level(self, arg0):
-        """Set Keygroup Level <Data1> = value in 10×dB
+        """Set Keygroup Level <Data1> = value in 10ï¿½dB
         """
         return self.z48.execute(self.set_level_cmd, (arg0, ))
 
@@ -496,7 +496,7 @@ class Keygrouptools:
         return self.z48.execute(self.set_play_trigger_cmd, ())
 
     def set_play_trigger_vel(self, arg0):
-        """Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2­129=0­127)
+        """Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2ï¿½129=0ï¿½127)
         """
         return self.z48.execute(self.set_play_trigger_vel_cmd, (arg0, ))
 
