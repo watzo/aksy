@@ -211,9 +211,8 @@ int aksyxusb_device_close(const akai_usb_device akai_dev);
  * returns AKSY_TRANSMISSION_ERROR if the usb reads or writes failed
  *
  */
-int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
-    const byte_array sysex, const byte_array reply, int* const bytes_read, const int timeout);
-
+int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev, const byte_array sysex, const byte_array reply, int* const bytes_read, const int timeout);
+int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array reply, int* const bytes_read, const int timeout);
 /* executes a system exclusive command on the sampler.
  *
  * the caller is responsible to allocate enough memory to contain the response data, including type bytes
@@ -246,3 +245,5 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
  */
 int aksyxusb_device_get(const akai_usb_device akai_dev,
     char *src_filename, char *dest_filename, const int location, int* sysex_error, const int timeout);
+
+int aksyxusb_device_exec_finishlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout);

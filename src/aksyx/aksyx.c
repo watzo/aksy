@@ -210,6 +210,32 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
     }
 }
 
+static PyObject* AkaiSampler_getlcd(AkaiSampler* self)
+{
+    PyObject *ret;
+    struct byte_array buffer;
+    const int BUFF_SIZE = 4096;
+    int bytes_read = 0, rc;
+
+	buffer.length = BUFF_SIZE;
+    buffer.bytes = (char*)PyMem_Malloc(buffer.length * sizeof(char));
+
+    rc = aksyxusb_device_exec_getlcd(self->sampler, &buffer, &bytes_read, USB_TIMEOUT);
+
+    if (rc == AKSY_TRANSMISSION_ERROR)
+    {
+        ret = PyErr_Format(PyExc_Exception, "Timeout waiting for sysex reply.");
+    }
+    else
+    {
+        ret = Py_BuildValue("s#", buffer.bytes, bytes_read);
+    }
+
+    // this second bunch of data might contain useful stuff, no idea what yet 
+    rc = aksyxusb_device_exec_finishlcd(self->sampler, &buffer, &bytes_read, USB_TIMEOUT);
+    PyMem_Free(buffer.bytes);
+    return ret;
+}
 static PyObject*
 AkaiSampler_execute(AkaiSampler* self, PyObject* args)
 {
@@ -255,6 +281,7 @@ static PyMethodDef AkaiSampler_methods[] =
     {"_get", (PyCFunction)AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", (PyCFunction)AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
     {"_execute", (PyCFunction)AkaiSampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},
+    {"_getlcd", (PyCFunction)AkaiSampler_getlcd, METH_VARARGS, "Gets a dump of current lcd screen state"},
     {NULL},
 };
 
