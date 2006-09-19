@@ -7,68 +7,91 @@ Methods to manipulate sampler programs
 __author__ =  'Walco van Loon'
 __version__=  '$Rev$'
 
-import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
+from aksy.devices.akai.sysex import Command
+
+import aksy.devices.akai.sysex_types
 
 class Programtools:
     def __init__(self, z48):
         self.z48 = z48
-        self.get_no_items_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x01', 'get_no_items', (), None)
-        self.get_handles_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x00', 'get_handles', (), None)
-        self.get_names_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x01', 'get_names', (), None)
-        self.get_handles_names_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x02', 'get_handles_names', (), None)
-        self.get_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x02\x03', 'get_modified', (), None)
-        self.set_curr_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.set_curr_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.get_curr_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x05', 'get_curr_handle', (), None)
-        self.get_curr_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x06', 'get_curr_name', (), None)
-        self.get_name_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.get_handle_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.delete_all_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x09', 'delete_all', (), None)
-        self.delete_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0A', 'delete_curr', (), None)
-        self.delete_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.rename_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.rename_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
-        self.tag_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0E', 'tag', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_tag_bitmap_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x0F', 'get_tag_bitmap', (), None)
-        self.get_modified_name_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x10', 'get_modified_name', (), None)
-        self.get_modified_state_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x11', 'get_modified_state', (), None)
-        self.delete_tagged_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.create_new_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x40', 'create_new', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.STRING), None)
-        self.add_keygroups_to_current_cmd = aksy.devices.akai.sysex.Command('_', '\x14\x41', 'add_keygroups_to_current', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_group_id_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x01', 'get_group_id', (), None)
-        self.get_type_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x03', 'get_type', (), None)
-        self.get_genre_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x04', 'get_genre', (), None)
-        self.get_program_no_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x08', 'get_program_no', (), None)
-        self.get_no_keygroups_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x09', 'get_no_keygroups', (), None)
-        self.get_keygroup_xfade_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x0A', 'get_keygroup_xfade', (), None)
-        self.get_keygroup_xfade_type_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x0B', 'get_keygroup_xfade_type', (), None)
-        self.get_level_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x0C', 'get_level', (), None)
-        self.get_polyphony_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x10', 'get_polyphony', (), None)
-        self.get_reassignment_method_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x11', 'get_reassignment_method', (), None)
-        self.get_softpedal_loudness_reduction_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x12', 'get_softpedal_loudness_reduction', (), None)
-        self.get_softpedal_attack_stretch_cmd = aksy.devices.akai.sysex.Command('_', '\x17\x13', 'get_softpedal_attack_stretch', (), None)
-        self.set_group_id_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_type_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x03', 'set_type', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_genre_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x04', 'set_genre', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.set_program_no_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x08', 'set_program_no', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.set_no_keygroups_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x09', 'set_no_keygroups', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.set_keygroup_xfade_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x0A', 'set_keygroup_xfade', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_keygroup_xfade_type_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x0B', 'set_keygroup_xfade_type', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_level_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x0C', 'set_level', (aksy.devices.akai.sysex_types.SWORD,), None)
-        self.set_polyphony_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x10', 'set_polyphony', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_reassignment_method_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x11', 'set_reassignment_method', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_softpedal_loudness_reduction_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x12', 'set_softpedal_loudness_reduction', (), None)
-        self.set_softpedal_attack_stretch_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x13', 'set_softpedal_attack_stretch', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_softpedal_filter_close_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x14', 'set_softpedal_filter_close', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_midi_transpose_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x15', 'set_midi_transpose', (aksy.devices.akai.sysex_types.SBYTE,), None)
-        self.set_mpc_pad_assignment_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x18', 'set_mpc_pad_assignment', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_modulation_conn_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x20', 'set_modulation_conn', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
-        self.set_modulation_src_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x21', 'set_modulation_src', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
-        self.set_modulation_dest_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x22', 'set_modulation_dest', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
-        self.set_modulation_level_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x23', 'set_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
-        self.set_midi_ctrl_no_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x24', 'set_midi_ctrl_no', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_edit_keygroup_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x25', 'set_edit_keygroup', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
-        self.set_edit_kegyroup_modulation_level_cmd = aksy.devices.akai.sysex.Command('_', '\x16\x26', 'set_edit_kegyroup_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_no_items_cmd = Command('_', '\x14\x01', 'get_no_items', (), None)
+        self.get_handles_cmd = Command('_', '\x14\x02\x00', 'get_handles', (), None)
+        self.get_names_cmd = Command('_', '\x14\x02\x01', 'get_names', (), None)
+        self.get_handles_names_cmd = Command('_', '\x14\x02\x02', 'get_handles_names', (), None)
+        self.get_modified_cmd = Command('_', '\x14\x02\x03', 'get_modified', (), None)
+        self.set_curr_by_handle_cmd = Command('_', '\x14\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.set_curr_by_name_cmd = Command('_', '\x14\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.get_curr_handle_cmd = Command('_', '\x14\x05', 'get_curr_handle', (), None)
+        self.get_curr_name_cmd = Command('_', '\x14\x06', 'get_curr_name', (), None)
+        self.get_name_by_handle_cmd = Command('_', '\x14\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.get_handle_by_name_cmd = Command('_', '\x14\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.delete_all_cmd = Command('_', '\x14\x09', 'delete_all', (), None)
+        self.delete_curr_cmd = Command('_', '\x14\x0A', 'delete_curr', (), None)
+        self.delete_by_handle_cmd = Command('_', '\x14\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.rename_curr_cmd = Command('_', '\x14\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.rename_by_handle_cmd = Command('_', '\x14\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
+        self.tag_cmd = Command('_', '\x14\x0E', 'tag', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_tag_bitmap_cmd = Command('_', '\x14\x0F', 'get_tag_bitmap', (), None)
+        self.get_modified_name_cmd = Command('_', '\x14\x10', 'get_modified_name', (), None)
+        self.get_modified_state_cmd = Command('_', '\x14\x11', 'get_modified_state', (), None)
+        self.delete_tagged_cmd = Command('_', '\x14\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.create_new_cmd = Command('_', '\x14\x40', 'create_new', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.STRING), None)
+        self.add_keygroups_to_current_cmd = Command('_', '\x14\x41', 'add_keygroups_to_current', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.delete_keygroup_cmd = Command('_', '\x14\x42', 'delete_keygroup', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.delete_blank_keygroups_cmd = Command('_', '\x14\x43', 'delete_blank_keygroups', (), None)
+        self.arrange_keygroups_cmd = Command('_', '\x14\x44', 'arrange_keygroups', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.copy_keygroup_cmd = Command('_', '\x14\x45', 'copy_keygroup', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.copy_program_cmd = Command('_', '\x14\x48', 'copy_program', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.merge_programs_cmd = Command('_', '\x14\x48', 'merge_programs', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.DWORD), None)
+        self.add_keygroup_sample_cmd = Command('_', '\x14\x4A', 'add_keygroup_sample', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.STRING), None)
+        self.copy_temperament_to_user_cmd = Command('_', '\x14\x50', 'copy_temperament_to_user', (), None)
+        self.get_no_modulation_connections_cmd = Command('_', '\x14\x54', 'get_no_modulation_connections', (), None)
+        self.get_no_modulation_sources_cmd = Command('_', '\x14\x55', 'get_no_modulation_sources', (), None)
+        self.no_modulation_destinations_cmd = Command('_', '\x14\x56', 'no_modulation_destinations', (), None)
+        self.get_name_modulation_source_cmd = Command('_', '\x14\x57', 'get_name_modulation_source', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_name_modulation_dest_cmd = Command('_', '\x14\x58', 'get_name_modulation_dest', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_group_id_cmd = Command('_', '\x17\x01', 'get_group_id', (), None)
+        self.get_type_cmd = Command('_', '\x17\x03', 'get_type', (), None)
+        self.get_genre_cmd = Command('_', '\x17\x04', 'get_genre', (), None)
+        self.get_program_no_cmd = Command('_', '\x17\x08', 'get_program_no', (), None)
+        self.get_no_keygroups_cmd = Command('_', '\x17\x09', 'get_no_keygroups', (), None)
+        self.get_keygroup_xfade_cmd = Command('_', '\x17\x0A', 'get_keygroup_xfade', (), None)
+        self.get_keygroup_xfade_type_cmd = Command('_', '\x17\x0B', 'get_keygroup_xfade_type', (), None)
+        self.get_level_cmd = Command('_', '\x17\x0C', 'get_level', (), None)
+        self.get_polyphony_cmd = Command('_', '\x17\x10', 'get_polyphony', (), None)
+        self.get_reassignment_method_cmd = Command('_', '\x17\x11', 'get_reassignment_method', (), None)
+        self.get_softpedal_loudness_reduction_cmd = Command('_', '\x17\x12', 'get_softpedal_loudness_reduction', (), None)
+        self.get_softpedal_attack_stretch_cmd = Command('_', '\x17\x13', 'get_softpedal_attack_stretch', (), None)
+        self.get_softpedal_filter_close_cmd = Command('_', '\x17\x14', 'get_softpedal_filter_close', (), None)
+        self.get_midi_transpose_cmd = Command('_', '\x17\x15', 'get_midi_transpose', (), None)
+        self.get_mpc_pad_assignment (pad index)_cmd = Command('_', '\x17\x18', 'get_mpc_pad_assignment (pad index)', (), None)
+        self.get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)_cmd = Command('_', '\x17\x20', 'get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_modulation_source_type (pin number)_cmd = Command('_', '\x17\x21', 'get_modulation_source_type (pin number)', (), None)
+        self.get_modulation_destination_type (pin number)_cmd = Command('_', '\x17\x22', 'get_modulation_destination_type (pin number)', (), None)
+        self.get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)_cmd = Command('_', '\x17\x23', 'get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_midi_controller_number (pin number - only available if source=CTRL)_cmd = Command('_', '\x17\x24', 'get_midi_controller_number (pin number - only available if source=CTRL)', (), None)
+        self.set_group_id_cmd = Command('_', '\x16\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_type_cmd = Command('_', '\x16\x03', 'set_type', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_genre_cmd = Command('_', '\x16\x04', 'set_genre', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.set_program_no_cmd = Command('_', '\x16\x08', 'set_program_no', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_no_keygroups_cmd = Command('_', '\x16\x09', 'set_no_keygroups', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_keygroup_xfade_cmd = Command('_', '\x16\x0A', 'set_keygroup_xfade', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_keygroup_xfade_type_cmd = Command('_', '\x16\x0B', 'set_keygroup_xfade_type', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_level_cmd = Command('_', '\x16\x0C', 'set_level', (aksy.devices.akai.sysex_types.SWORD,), None)
+        self.set_polyphony_cmd = Command('_', '\x16\x10', 'set_polyphony', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_reassignment_method_cmd = Command('_', '\x16\x11', 'set_reassignment_method', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_softpedal_loudness_reduction_cmd = Command('_', '\x16\x12', 'set_softpedal_loudness_reduction', (), None)
+        self.set_softpedal_attack_stretch_cmd = Command('_', '\x16\x13', 'set_softpedal_attack_stretch', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_softpedal_filter_close_cmd = Command('_', '\x16\x14', 'set_softpedal_filter_close', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_midi_transpose_cmd = Command('_', '\x16\x15', 'set_midi_transpose', (aksy.devices.akai.sysex_types.SBYTE,), None)
+        self.set_mpc_pad_assignment_cmd = Command('_', '\x16\x18', 'set_mpc_pad_assignment', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_modulation_conn_cmd = Command('_', '\x16\x20', 'set_modulation_conn', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
+        self.set_modulation_src_cmd = Command('_', '\x16\x21', 'set_modulation_src', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_modulation_dest_cmd = Command('_', '\x16\x22', 'set_modulation_dest', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_modulation_level_cmd = Command('_', '\x16\x23', 'set_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
+        self.set_midi_ctrl_no_cmd = Command('_', '\x16\x24', 'set_midi_ctrl_no', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_edit_keygroup_cmd = Command('_', '\x16\x25', 'set_edit_keygroup', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_edit_kegyroup_modulation_level_cmd = Command('_', '\x16\x26', 'set_edit_kegyroup_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
 
     def get_no_items(self):
         """Get number of items in memory
@@ -215,6 +238,86 @@ class Programtools:
         """
         return self.z48.execute(self.add_keygroups_to_current_cmd, (arg0, ))
 
+    def delete_keygroup(self, arg0):
+        """Delete Keygroup (keygroup index)
+        """
+        return self.z48.execute(self.delete_keygroup_cmd, (arg0, ))
+
+    def delete_blank_keygroups(self):
+        """Delete Blank Keygroups
+        """
+        return self.z48.execute(self.delete_blank_keygroups_cmd, ())
+
+    def arrange_keygroups(self, arg0):
+        """Arrange Keygroups (note 0:orig 1:low 2:high)
+        """
+        return self.z48.execute(self.arrange_keygroups_cmd, (arg0, ))
+
+    def copy_keygroup(self, arg0):
+        """Copy Keygroup (keygroup  index)
+        """
+        return self.z48.execute(self.copy_keygroup_cmd, (arg0, ))
+
+    def copy_program(self, arg0):
+        """Copy Program (program name)
+        """
+        return self.z48.execute(self.copy_program_cmd, (arg0, ))
+
+    def merge_programs(self, arg0, arg1):
+        """Merge Programs (program handle1, handle2)
+        """
+        return self.z48.execute(self.merge_programs_cmd, (arg0, arg1, ))
+
+    def add_keygroup_sample(self, arg0, arg1, arg2, arg3, arg4):
+        """Add Keygroup Sample (low note, high note, zone, keytrack, sample name)
+        """
+        return self.z48.execute(self.add_keygroup_sample_cmd, (arg0, arg1, arg2, arg3, arg4, ))
+
+    def copy_temperament_to_user(self):
+        """Copies Program Temperament to User Temperament
+        """
+        return self.z48.execute(self.copy_temperament_to_user_cmd, ())
+
+    def get_no_modulation_connections(self):
+        """Get number of Modulation Connections
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_no_modulation_connections_cmd, ())
+
+    def get_no_modulation_sources(self):
+        """Get number of Modulation Sources
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.get_no_modulation_sources_cmd, ())
+
+    def no_modulation_destinations(self):
+        """Get number of Modulation Destinations
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.no_modulation_destinations_cmd, ())
+
+    def get_name_modulation_source(self, arg0):
+        """Get Name of Modulation Source (source index)
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.get_name_modulation_source_cmd, (arg0, ))
+
+    def get_name_modulation_dest(self, arg0):
+        """Get Name of Modulation Destination (dest index)
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.get_name_modulation_dest_cmd, (arg0, ))
+
     def get_group_id(self):
         """Get Group ID
 
@@ -310,6 +413,72 @@ class Programtools:
             BYTE
         """
         return self.z48.execute(self.get_softpedal_attack_stretch_cmd, ())
+
+    def get_softpedal_filter_close(self):
+        """Soft Pedal Filter Close
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_softpedal_filter_close_cmd, ())
+
+    def get_midi_transpose(self):
+        """Get midi transpose
+
+        Returns:
+            SBYTE
+        """
+        return self.z48.execute(self.get_midi_transpose_cmd, ())
+
+    def get_mpc_pad_assignment (pad index)(self):
+        """BYTE
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_mpc_pad_assignment (pad index)_cmd, ())
+
+    def get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)(self, arg0):
+        """BYTE
+
+        Returns:
+            WORD
+            WORD
+            SBYTE
+        """
+        return self.z48.execute(self.get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)_cmd, (arg0, ))
+
+    def get_modulation_source_type (pin number)(self):
+        """BYTE
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.get_modulation_source_type (pin number)_cmd, ())
+
+    def get_modulation_destination_type (pin number)(self):
+        """BYTE
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.get_modulation_destination_type (pin number)_cmd, ())
+
+    def get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)(self, arg0):
+        """BYTE
+
+        Returns:
+            SBYTE
+        """
+        return self.z48.execute(self.get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)_cmd, (arg0, ))
+
+    def get_midi_controller_number (pin number - only available if source=CTRL)(self):
+        """BYTE
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_midi_controller_number (pin number - only available if source=CTRL)_cmd, ())
 
     def set_group_id(self, arg0):
         """Set Group ID

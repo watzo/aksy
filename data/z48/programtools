@@ -45,6 +45,32 @@ BYTE
 
 \x14	\x41	add_keygroups_to_current	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE
 
+\x14	\x42	delete_keygroup	Delete Keygroup (keygroup index)	BYTE
+
+\x14	\x43	delete_blank_keygroups	Delete Blank Keygroups
+
+\x14	\x44	arrange_keygroups	Arrange Keygroups (note 0:orig 1:low 2:high)	BYTE
+
+\x14	\x45	copy_keygroup	Copy Keygroup (keygroup  index)	BYTE
+
+\x14	\x48	copy_program	Copy Program (program name)	STRING
+
+\x14	\x48	merge_programs	Merge Programs (program handle1, handle2)	DWORD	DWORD
+
+\x14	\x4A	add_keygroup_sample	Add Keygroup Sample (low note, high note, zone, keytrack, sample name)	BYTE	BYTE	BYTE	BOOL	STRING
+
+\x14	\x50	copy_temperament_to_user	Copies Program Temperament to User Temperament
+
+\x14	\x54	get_no_modulation_connections	Get number of Modulation Connections
+BYTE
+\x14	\x55	get_no_modulation_sources	Get number of Modulation Sources
+WORD
+\x14	\x56	no_modulation_destinations	Get number of Modulation Destinations
+WORD
+\x14	\x57	get_name_modulation_source	Get Name of Modulation Source (source index)	WORD
+WORD
+\x14	\x58	get_name_modulation_dest	Get Name of Modulation Destination (dest index)	WORD
+WORD
 \x17	\x01	get_group_id	Get Group ID
 BYTE
 \x17	\x03	get_type	Get Program Type <Reply> = (0=KEYGROUP, 1=DRUM)
@@ -68,6 +94,22 @@ BYTE
 \x17	\x12	get_softpedal_loudness_reduction	Soft Pedal Loudness Reduction
 BYTE
 \x17	\x13	get_softpedal_attack_stretch	Soft Pedal Attack Stretch
+BYTE
+\x17	\x14	get_softpedal_filter_close	Soft Pedal Filter Close
+BYTE
+\x17	\x15	get_midi_transpose	Get midi transpose
+SBYTE
+\x17	\x18	get_mpc_pad_assignment (pad index)	BYTE
+BYTE
+\x17	\x20	get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)	BYTE	WORD
+WORD	WORD	SBYTE
+\x17	\x21	get_modulation_source_type (pin number)	BYTE
+WORD
+\x17	\x22	get_modulation_destination_type (pin number)	BYTE
+WORD
+\x17	\x23	get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)	BYTE	WORD
+SBYTE
+\x17	\x24	get_midi_controller_number (pin number - only available if source=CTRL)	BYTE
 BYTE
 \x16	\x01	set_group_id	Set Group ID	BYTE
 
