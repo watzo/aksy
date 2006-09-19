@@ -13,7 +13,45 @@ STRING
 DWORD
 \x24	\x24	get_param_index_output_ctrl	Get Parameter Index for Output Control <Data1> = index of effect	WORD
 BYTE
-\x27	\x20	is_channel_muted	Get Mute Status of Channel <Reply> = (0=ON, 1=MUTE) BYTE
+\x24	\x30	get_number_of_parameters	Get Number of Parameters (channel, module)	BYTE	BYTE
+BYTE
+\x24	\x31	get_parameter_minimum	Get Parameter Minimum (channel, module, param)	BYTE	BYTE	BYTE
+SDWORD
+\x24	\x32	get_parameter_maximum	Get Parameter Maximum (channel, module, param)	BYTE	BYTE	BYTE
+SDWORD
+\x24	\x33	get_parameter_name	Get Parameter Name (channel, module, param)	BYTE	BYTE	BYTE
+STRING
+\x24	\x34	get_parameter_units	Get Parameter Units (channel, module, param)	BYTE	BYTE	BYTE
+STRING
+\x24	\x35	get_parameter_type	Get Parameter TYPE (channel, module, param)	BYTE	BYTE	BYTE
+BYTE
+\x24	\x36	get_display_template	Get Parameter Template (channel, module, param)	BYTE	BYTE	BYTE
+STRING
+\x24	\x38	get_parameter_display_id	Get Parameter Display ID (channel, module, param)	BYTE	BYTE	BYTE
+BYTE
+\x24	\x40	get_number_of_parameter_groups	Get Number of Parameter Groups (channel, module)	BYTE	BYTE
+BYTE
+\x24	\x41	get_group_name	Get Parameter Group name (channel, module, group index)	BYTE	BYTE	BYTE
+STRING
+\x24	\x42	get_group_index_of_parameter	Get Parameter Group Index (channel, module, param)	BYTE	BYTE	BYTE
+BYTE
+\x26	\x20	set_channel_mute	Set Mute (channel, mute status)	BYTE	BOOL
+
+\x26	\x21	set_channel_input	Set Channel Input (channel, input)	BYTE	BYTE
+
+\x26	\x22	set_channel_output	Set Channel Output (channel, output)	BYTE	BYTE
+
+\x26	\x30	set_effect_by_name	Set Effect on specified Channel (channel, module, effect)	BYTE	BYTE	STRING
+
+\x26	\x31	set_effect_by_index	Set Effect on specified Channel (channel, module, effect)	BYTE	BYTE	BYTE
+
+\x26	\x40	enable_fx_module	Enable FX Module (channel, module, enabled)	BYTE	BYTE	BOOL
+
+\x26	\x50	set_parameter_value	Set Parameter value (channel, module, param index, value)	BYTE	BYTE	BYTE	SDWORD
+
+\x26	\x52	map_qlink_control	Maps QLink control to a Parameter (channel, module, param index, qlink no)	BYTE	BYTE	BYTE	BYTE
+
+\x27	\x20	is_channel_muted	Get Mute Status of Channel <Reply> = (0=ON, 1=MUTE)	BYTE
 BOOL
 \x27	\x21	get_channel_input	Get Channel Input <Reply> = input	BYTE
 BYTE
