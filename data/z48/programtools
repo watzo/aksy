@@ -99,17 +99,17 @@ BYTE
 BYTE
 \x17	\x15	get_midi_transpose	Get midi transpose
 SBYTE
-\x17	\x18	get_mpc_pad_assignment (pad index)	BYTE
+\x17	\x18	get_mpc_pad_assignment	Get the midi pad assignment (pad index)	BYTE
 BYTE
-\x17	\x20	get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)	BYTE	WORD
+\x17	\x20	get_modulation_connection	Get the modulation connection(pin number, keygroup for level - note 0 or 'all' is not supported)	BYTE	WORD
 WORD	WORD	SBYTE
-\x17	\x21	get_modulation_source_type (pin number)	BYTE
+\x17	\x21	get_modulation_source_type	Get the modulation source type (pin number)	BYTE
 WORD
-\x17	\x22	get_modulation_destination_type (pin number)	BYTE
+\x17	\x22	get_modulation_destination_type	Get the modulation dest type (pin number)	BYTE
 WORD
-\x17	\x23	get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)	BYTE	WORD
+\x17	\x23	get_modulation_level	Get the modulation level (pin number, keygroup number - note 0 or 'all' is not supported)	BYTE	WORD
 SBYTE
-\x17	\x24	get_midi_controller_number (pin number - only available if source=CTRL)	BYTE
+\x17	\x24	get_midi_controller_number	Get the midi controller number (pin number - only available if source=CTRL)	BYTE
 BYTE
 \x16	\x01	set_group_id	Set Group ID	BYTE
 

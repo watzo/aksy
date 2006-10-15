@@ -64,12 +64,12 @@ class Programtools:
         self.get_softpedal_attack_stretch_cmd = Command('_', '\x17\x13', 'get_softpedal_attack_stretch', (), None)
         self.get_softpedal_filter_close_cmd = Command('_', '\x17\x14', 'get_softpedal_filter_close', (), None)
         self.get_midi_transpose_cmd = Command('_', '\x17\x15', 'get_midi_transpose', (), None)
-        self.get_mpc_pad_assignment (pad index)_cmd = Command('_', '\x17\x18', 'get_mpc_pad_assignment (pad index)', (), None)
-        self.get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)_cmd = Command('_', '\x17\x20', 'get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.get_modulation_source_type (pin number)_cmd = Command('_', '\x17\x21', 'get_modulation_source_type (pin number)', (), None)
-        self.get_modulation_destination_type (pin number)_cmd = Command('_', '\x17\x22', 'get_modulation_destination_type (pin number)', (), None)
-        self.get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)_cmd = Command('_', '\x17\x23', 'get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.get_midi_controller_number (pin number - only available if source=CTRL)_cmd = Command('_', '\x17\x24', 'get_midi_controller_number (pin number - only available if source=CTRL)', (), None)
+        self.get_mpc_pad_assignment_cmd = Command('_', '\x17\x18', 'get_mpc_pad_assignment', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_modulation_connection_cmd = Command('_', '\x17\x20', 'get_modulation_connection', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.get_modulation_source_type_cmd = Command('_', '\x17\x21', 'get_modulation_source_type', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_modulation_destination_type_cmd = Command('_', '\x17\x22', 'get_modulation_destination_type', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_modulation_level_cmd = Command('_', '\x17\x23', 'get_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.get_midi_controller_number_cmd = Command('_', '\x17\x24', 'get_midi_controller_number', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_group_id_cmd = Command('_', '\x16\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_type_cmd = Command('_', '\x16\x03', 'set_type', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_genre_cmd = Command('_', '\x16\x04', 'set_genre', (aksy.devices.akai.sysex_types.STRING,), None)
@@ -430,55 +430,55 @@ class Programtools:
         """
         return self.z48.execute(self.get_midi_transpose_cmd, ())
 
-    def get_mpc_pad_assignment (pad index)(self):
-        """BYTE
+    def get_mpc_pad_assignment(self, arg0):
+        """Get the midi pad assignment (pad index)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_mpc_pad_assignment (pad index)_cmd, ())
+        return self.z48.execute(self.get_mpc_pad_assignment_cmd, (arg0, ))
 
-    def get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)(self, arg0):
-        """BYTE
+    def get_modulation_connection(self, arg0, arg1):
+        """Get the modulation connection(pin number, keygroup for level - note 0 or 'all' is not supported)
 
         Returns:
             WORD
             WORD
             SBYTE
         """
-        return self.z48.execute(self.get_modulation_connection (connection pin number, keygroup for level - note 0 or 'all' is not supported)_cmd, (arg0, ))
+        return self.z48.execute(self.get_modulation_connection_cmd, (arg0, arg1, ))
 
-    def get_modulation_source_type (pin number)(self):
-        """BYTE
-
-        Returns:
-            WORD
-        """
-        return self.z48.execute(self.get_modulation_source_type (pin number)_cmd, ())
-
-    def get_modulation_destination_type (pin number)(self):
-        """BYTE
+    def get_modulation_source_type(self, arg0):
+        """Get the modulation source type (pin number)
 
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_modulation_destination_type (pin number)_cmd, ())
+        return self.z48.execute(self.get_modulation_source_type_cmd, (arg0, ))
 
-    def get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)(self, arg0):
-        """BYTE
+    def get_modulation_destination_type(self, arg0):
+        """Get the modulation dest type (pin number)
+
+        Returns:
+            WORD
+        """
+        return self.z48.execute(self.get_modulation_destination_type_cmd, (arg0, ))
+
+    def get_modulation_level(self, arg0, arg1):
+        """Get the modulation level (pin number, keygroup number - note 0 or 'all' is not supported)
 
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_modulation_level (pin number, keygroup number - note 0 or 'all' is not supported)_cmd, (arg0, ))
+        return self.z48.execute(self.get_modulation_level_cmd, (arg0, arg1, ))
 
-    def get_midi_controller_number (pin number - only available if source=CTRL)(self):
-        """BYTE
+    def get_midi_controller_number(self, arg0):
+        """Get the midi controller number (pin number - only available if source=CTRL)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_midi_controller_number (pin number - only available if source=CTRL)_cmd, ())
+        return self.z48.execute(self.get_midi_controller_number_cmd, (arg0, ))
 
     def set_group_id(self, arg0):
         """Set Group ID
