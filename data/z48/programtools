@@ -65,7 +65,7 @@ BYTE
 BYTE
 \x14	\x55	get_no_modulation_sources	Get number of Modulation Sources
 WORD
-\x14	\x56	no_modulation_destinations	Get number of Modulation Destinations
+\x14	\x56	get_no_modulation_destinations	Get number of Modulation Destinations
 WORD
 \x14	\x57	get_name_modulation_source	Get Name of Modulation Source (source index)	WORD
 WORD
@@ -111,6 +111,40 @@ WORD
 SBYTE
 \x17	\x24	get_midi_controller_number	Get the midi controller number (pin number - only available if source=CTRL)	BYTE
 BYTE
+\x17	\x25	get_edit_keygroup	Get edit keygroup
+BYTE	WORD
+\x17	\x26	get_modulation_level_edit_keygroup	Get Modulation Level of Edit Keygroup
+SBYTE
+\x17	\x30	get_tune	Get Cents Tune
+TUNE
+\x17	\x31	get_temperament_template	Get Temperament Template, where <Reply1> = template (see Table 22)
+BYTE
+\x17	\x32	get_program_temperament	Get Program Temperament
+SBYTE
+\x17	\x33	get_key	Get Key
+BYTE
+\x17	\x34	get_user_temperament_note	Get User Temperament Note	BYTE
+TUNE
+\x17	\x40	get_pitchbend_up	Get Pitch Bend Up
+BYT
+\x17	\x41	get_pitchbend_down	Get Pitch Bend down
+BYTE
+\x17	\x42	get_pitchbend_mode	Get Pitch Bend Mode (normal, held)
+BYTE
+\x17	\x43	get_aftertouch_value	Get Aftertouch Value
+SBYTE
+\x17	\x44	get_legato	Get Legato Setting (off, pitch, loop
+BYTE
+\x17	\x45	get_portamento_enabled	Get Portamento Enabled
+BOOL
+\x17	\x46	get_portamento_mode	Get portamento mode (time, rate)
+BYTE
+\x17	\x47	get_portamento_time	Get portamento time
+BYTE
+\x17	\x48	get_glissando_mode	Get Glissando Mode
+BYTE
+\x17	\x49	get_aftertouch_mode	Get Aftertouch Type
+BYTE
 \x16	\x01	set_group_id	Set Group ID	BYTE
 
 \x16	\x03	set_type	Set Program Type <Data1> = (0=KEYGROUP, 1=DRUM)	BYTE
@@ -154,4 +188,34 @@ BYTE
 \x16	\x25	set_edit_keygroup	Set Edit Keygroup (used to edit level) <Data2> = Edit Keygroup	BYTE	WORD
 
 \x16	\x26	set_edit_kegyroup_modulation_level	Set Modulation Level of Edit Keygroup	BYTE	BYTE
+
+\x16	\x30	set_tune	Set Cents Tune	TUNE
+
+\x16	\x31	set_temperament_template	Set Temperament Template, where <Data1> = template (see Table 22)	BYTE
+
+\x16	\x32	set_program_temperament	Set Program Temperament 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B	SBYTE	
+
+\x16	\x33	set_key	Set Key 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B	BYTE	
+
+\x16	\x34	set_user_temperament_note	Set User Temperament Note (note, cents)	BYTE	SBYTE
+
+\x16	\x40	set_pitchbend_up	Set pitchbend up (semitones)	BYTE
+
+\x16	\x41	set_pitchbend_down	Set pitchbend down (semitones)	BYTE
+
+\x16	\x42	set_pitchbend_mode	Set bend mode (held=true)	BOOL
+
+\x16	\x43	set_aftertouch_value	Set aftertouch value	SBYTE
+
+\x16	\x44	set_legato	Set legato setting (off, pitch, loop)	BYTE
+
+\x16	\x45	set_portamento_enabled	Enable portamento	BOOL
+
+\x16	\x46	set_portamento_mode	Set portamento mode (time, rate)	BYTE
+
+\x16	\x47	set_portamento_time	Set portamento time	BYTE
+
+\x16	\x48	set_glissando_mode	Set glissando mode (portamento, glissando)	BYTE
+
+\x16	\x49	set_aftertouch_mode	Set aftertouch (channel, poly)	BYTE
 

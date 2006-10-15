@@ -47,7 +47,7 @@ class Programtools:
         self.copy_temperament_to_user_cmd = Command('_', '\x14\x50', 'copy_temperament_to_user', (), None)
         self.get_no_modulation_connections_cmd = Command('_', '\x14\x54', 'get_no_modulation_connections', (), None)
         self.get_no_modulation_sources_cmd = Command('_', '\x14\x55', 'get_no_modulation_sources', (), None)
-        self.no_modulation_destinations_cmd = Command('_', '\x14\x56', 'no_modulation_destinations', (), None)
+        self.get_no_modulation_destinations_cmd = Command('_', '\x14\x56', 'get_no_modulation_destinations', (), None)
         self.get_name_modulation_source_cmd = Command('_', '\x14\x57', 'get_name_modulation_source', (aksy.devices.akai.sysex_types.WORD,), None)
         self.get_name_modulation_dest_cmd = Command('_', '\x14\x58', 'get_name_modulation_dest', (aksy.devices.akai.sysex_types.WORD,), None)
         self.get_group_id_cmd = Command('_', '\x17\x01', 'get_group_id', (), None)
@@ -70,6 +70,23 @@ class Programtools:
         self.get_modulation_destination_type_cmd = Command('_', '\x17\x22', 'get_modulation_destination_type', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_modulation_level_cmd = Command('_', '\x17\x23', 'get_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
         self.get_midi_controller_number_cmd = Command('_', '\x17\x24', 'get_midi_controller_number', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_edit_keygroup_cmd = Command('_', '\x17\x25', 'get_edit_keygroup', (), None)
+        self.get_modulation_level_edit_keygroup_cmd = Command('_', '\x17\x26', 'get_modulation_level_edit_keygroup', (), None)
+        self.get_tune_cmd = Command('_', '\x17\x30', 'get_tune', (), None)
+        self.get_temperament_template_cmd = Command('_', '\x17\x31', 'get_temperament_template', (), None)
+        self.get_program_temperament_cmd = Command('_', '\x17\x32', 'get_program_temperament', (), None)
+        self.get_key_cmd = Command('_', '\x17\x33', 'get_key', (), None)
+        self.get_user_temperament_note_cmd = Command('_', '\x17\x34', 'get_user_temperament_note', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_pitchbend_up_cmd = Command('_', '\x17\x40', 'get_pitchbend_up', (), None)
+        self.get_pitchbend_down_cmd = Command('_', '\x17\x41', 'get_pitchbend_down', (), None)
+        self.get_pitchbend_mode_cmd = Command('_', '\x17\x42', 'get_pitchbend_mode', (), None)
+        self.get_aftertouch_value_cmd = Command('_', '\x17\x43', 'get_aftertouch_value', (), None)
+        self.get_legato_cmd = Command('_', '\x17\x44', 'get_legato', (), None)
+        self.get_portamento_enabled_cmd = Command('_', '\x17\x45', 'get_portamento_enabled', (), None)
+        self.get_portamento_mode_cmd = Command('_', '\x17\x46', 'get_portamento_mode', (), None)
+        self.get_portamento_time_cmd = Command('_', '\x17\x47', 'get_portamento_time', (), None)
+        self.get_glissando_mode_cmd = Command('_', '\x17\x48', 'get_glissando_mode', (), None)
+        self.get_aftertouch_mode_cmd = Command('_', '\x17\x49', 'get_aftertouch_mode', (), None)
         self.set_group_id_cmd = Command('_', '\x16\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_type_cmd = Command('_', '\x16\x03', 'set_type', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_genre_cmd = Command('_', '\x16\x04', 'set_genre', (aksy.devices.akai.sysex_types.STRING,), None)
@@ -92,6 +109,21 @@ class Programtools:
         self.set_midi_ctrl_no_cmd = Command('_', '\x16\x24', 'set_midi_ctrl_no', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_edit_keygroup_cmd = Command('_', '\x16\x25', 'set_edit_keygroup', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
         self.set_edit_kegyroup_modulation_level_cmd = Command('_', '\x16\x26', 'set_edit_kegyroup_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_tune_cmd = Command('_', '\x16\x30', 'set_tune', (aksy.devices.akai.sysex_types.TUNE,), None)
+        self.set_temperament_template_cmd = Command('_', '\x16\x31', 'set_temperament_template', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_program_temperament_cmd = Command('_', '\x16\x32', 'set_program_temperament', (aksy.devices.akai.sysex_types.SBYTE,), None)
+        self.set_key_cmd = Command('_', '\x16\x33', 'set_key', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_user_temperament_note_cmd = Command('_', '\x16\x34', 'set_user_temperament_note', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SBYTE), None)
+        self.set_pitchbend_up_cmd = Command('_', '\x16\x40', 'set_pitchbend_up', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_pitchbend_down_cmd = Command('_', '\x16\x41', 'set_pitchbend_down', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_pitchbend_mode_cmd = Command('_', '\x16\x42', 'set_pitchbend_mode', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_aftertouch_value_cmd = Command('_', '\x16\x43', 'set_aftertouch_value', (aksy.devices.akai.sysex_types.SBYTE,), None)
+        self.set_legato_cmd = Command('_', '\x16\x44', 'set_legato', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_portamento_enabled_cmd = Command('_', '\x16\x45', 'set_portamento_enabled', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_portamento_mode_cmd = Command('_', '\x16\x46', 'set_portamento_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_portamento_time_cmd = Command('_', '\x16\x47', 'set_portamento_time', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_glissando_mode_cmd = Command('_', '\x16\x48', 'set_glissando_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_aftertouch_mode_cmd = Command('_', '\x16\x49', 'set_aftertouch_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
 
     def get_no_items(self):
         """Get number of items in memory
@@ -294,13 +326,13 @@ class Programtools:
         """
         return self.z48.execute(self.get_no_modulation_sources_cmd, ())
 
-    def no_modulation_destinations(self):
+    def get_no_modulation_destinations(self):
         """Get number of Modulation Destinations
 
         Returns:
             WORD
         """
-        return self.z48.execute(self.no_modulation_destinations_cmd, ())
+        return self.z48.execute(self.get_no_modulation_destinations_cmd, ())
 
     def get_name_modulation_source(self, arg0):
         """Get Name of Modulation Source (source index)
@@ -480,6 +512,143 @@ class Programtools:
         """
         return self.z48.execute(self.get_midi_controller_number_cmd, (arg0, ))
 
+    def get_edit_keygroup(self):
+        """Get edit keygroup
+
+        Returns:
+            BYTE
+            WORD
+        """
+        return self.z48.execute(self.get_edit_keygroup_cmd, ())
+
+    def get_modulation_level_edit_keygroup(self):
+        """Get Modulation Level of Edit Keygroup
+
+        Returns:
+            SBYTE
+        """
+        return self.z48.execute(self.get_modulation_level_edit_keygroup_cmd, ())
+
+    def get_tune(self):
+        """Get Cents Tune
+
+        Returns:
+            TUNE
+        """
+        return self.z48.execute(self.get_tune_cmd, ())
+
+    def get_temperament_template(self):
+        """Get Temperament Template, where <Reply1> = template (see Table 22)
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_temperament_template_cmd, ())
+
+    def get_program_temperament(self):
+        """Get Program Temperament
+
+        Returns:
+            SBYTE
+        """
+        return self.z48.execute(self.get_program_temperament_cmd, ())
+
+    def get_key(self):
+        """Get Key
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_key_cmd, ())
+
+    def get_user_temperament_note(self, arg0):
+        """Get User Temperament Note
+
+        Returns:
+            TUNE
+        """
+        return self.z48.execute(self.get_user_temperament_note_cmd, (arg0, ))
+
+    def get_pitchbend_up(self):
+        """Get Pitch Bend Up
+
+        Returns:
+            BYT
+        """
+        return self.z48.execute(self.get_pitchbend_up_cmd, ())
+
+    def get_pitchbend_down(self):
+        """Get Pitch Bend down
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_pitchbend_down_cmd, ())
+
+    def get_pitchbend_mode(self):
+        """Get Pitch Bend Mode (normal, held)
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_pitchbend_mode_cmd, ())
+
+    def get_aftertouch_value(self):
+        """Get Aftertouch Value
+
+        Returns:
+            SBYTE
+        """
+        return self.z48.execute(self.get_aftertouch_value_cmd, ())
+
+    def get_legato(self):
+        """Get Legato Setting (off, pitch, loop
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_legato_cmd, ())
+
+    def get_portamento_enabled(self):
+        """Get Portamento Enabled
+
+        Returns:
+            BOOL
+        """
+        return self.z48.execute(self.get_portamento_enabled_cmd, ())
+
+    def get_portamento_mode(self):
+        """Get portamento mode (time, rate)
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_portamento_mode_cmd, ())
+
+    def get_portamento_time(self):
+        """Get portamento time
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_portamento_time_cmd, ())
+
+    def get_glissando_mode(self):
+        """Get Glissando Mode
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_glissando_mode_cmd, ())
+
+    def get_aftertouch_mode(self):
+        """Get Aftertouch Type
+
+        Returns:
+            BYTE
+        """
+        return self.z48.execute(self.get_aftertouch_mode_cmd, ())
+
     def set_group_id(self, arg0):
         """Set Group ID
         """
@@ -589,4 +758,79 @@ class Programtools:
         """Set Modulation Level of Edit Keygroup
         """
         return self.z48.execute(self.set_edit_kegyroup_modulation_level_cmd, (arg0, arg1, ))
+
+    def set_tune(self, arg0):
+        """Set Cents Tune
+        """
+        return self.z48.execute(self.set_tune_cmd, (arg0, ))
+
+    def set_temperament_template(self, arg0):
+        """Set Temperament Template, where <Data1> = template (see Table 22)
+        """
+        return self.z48.execute(self.set_temperament_template_cmd, (arg0, ))
+
+    def set_program_temperament(self, arg0):
+        """Set Program Temperament 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B
+        """
+        return self.z48.execute(self.set_program_temperament_cmd, (arg0, ))
+
+    def set_key(self, arg0):
+        """Set Key 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B
+        """
+        return self.z48.execute(self.set_key_cmd, (arg0, ))
+
+    def set_user_temperament_note(self, arg0, arg1):
+        """Set User Temperament Note (note, cents)
+        """
+        return self.z48.execute(self.set_user_temperament_note_cmd, (arg0, arg1, ))
+
+    def set_pitchbend_up(self, arg0):
+        """Set pitchbend up (semitones)
+        """
+        return self.z48.execute(self.set_pitchbend_up_cmd, (arg0, ))
+
+    def set_pitchbend_down(self, arg0):
+        """Set pitchbend down (semitones)
+        """
+        return self.z48.execute(self.set_pitchbend_down_cmd, (arg0, ))
+
+    def set_pitchbend_mode(self, arg0):
+        """Set bend mode (held=true)
+        """
+        return self.z48.execute(self.set_pitchbend_mode_cmd, (arg0, ))
+
+    def set_aftertouch_value(self, arg0):
+        """Set aftertouch value
+        """
+        return self.z48.execute(self.set_aftertouch_value_cmd, (arg0, ))
+
+    def set_legato(self, arg0):
+        """Set legato setting (off, pitch, loop)
+        """
+        return self.z48.execute(self.set_legato_cmd, (arg0, ))
+
+    def set_portamento_enabled(self, arg0):
+        """Enable portamento
+        """
+        return self.z48.execute(self.set_portamento_enabled_cmd, (arg0, ))
+
+    def set_portamento_mode(self, arg0):
+        """Set portamento mode (time, rate)
+        """
+        return self.z48.execute(self.set_portamento_mode_cmd, (arg0, ))
+
+    def set_portamento_time(self, arg0):
+        """Set portamento time
+        """
+        return self.z48.execute(self.set_portamento_time_cmd, (arg0, ))
+
+    def set_glissando_mode(self, arg0):
+        """Set glissando mode (portamento, glissando)
+        """
+        return self.z48.execute(self.set_glissando_mode_cmd, (arg0, ))
+
+    def set_aftertouch_mode(self, arg0):
+        """Set aftertouch (channel, poly)
+        """
+        return self.z48.execute(self.set_aftertouch_mode_cmd, (arg0, ))
 

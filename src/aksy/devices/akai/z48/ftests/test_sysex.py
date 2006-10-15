@@ -4,10 +4,7 @@ from aksy.devices.akai import sysex, sysex_types, sampler
 from aksy.devices.akai.z48 import sampler
 
 log = logging.getLogger("aksy")
-AKSY_RUN_INTEG_TESTS = bool(os.environ.get("AKSY_RUN_INTEG_TESTS", False))
-
-if AKSY_RUN_INTEG_TESTS:
-    z48 = sampler.Z48()
+z48 = sampler.Z48()
 
 class TestUserRef(unittest.TestCase):
     def testEncodeDecode(self):
@@ -46,6 +43,4 @@ class TestUserRef(unittest.TestCase):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    if AKSY_RUN_INTEG_TESTS:
-     return testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_sysex_integ')
-    return None
+    return testloader.loadTestsFromName('aksy.devices.akai.z48.ftests.test_sysex_integ')
