@@ -1,16 +1,10 @@
 import asynchat, asyncore, socket, time
-import OSC
+import osc
+from handler import SamplerCallbackManager
 
 """
 OSCServer 
-TODO: 
-* register aksy methods.
-* typemapping
-
 """
-def foobar(*args):
-    print "FOOBAR ", repr(args)
-
 class OSCChannel(asynchat.async_chat):
     COMMAND = 0
     DATA = 1
@@ -26,10 +20,10 @@ class OSCChannel(asynchat.async_chat):
         print 'Peer:', repr(self.__peer)
 
 class OSCServer(asyncore.dispatcher):
-     def __init__(self, address, port):
+     def __init__(self, address, port, callbackManager):
         self._address = address
         self._port = port
-        self._callbackMgr = OSC.CallbackManager()
+        self._callbackMgr = callbackManager
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.set_reuse_addr()
@@ -38,28 +32,19 @@ class OSCServer(asyncore.dispatcher):
             self.__class__.__name__, time.ctime(time.time()),
             address)
 
-     def addHandler(self, func, name):
-        self._callbackMgr.add(func, name)
-
      def handle_write (self):
         pass
 
      def handle_read(self):
         data = self.recv(8192)
-        print self._callbackMgr.callbacks
         self._callbackMgr.handle(data)
-        print "=" * 40
 
      def handle_connect(self):
         pass
 
 
 if __name__ == "__main__":
-    # z48 = Devices.get_instance('z48', 'usb')
-    o = OSCServer('localhost', 8888)
-    # for cmd in z48.getAllCommands():
-    #   cmd.getPath()
-    
-    o.addHandler(foobar, '/foo/bar')
+    z48 = Devices.get_instance('z48', 'usb')
+    OSCServer('localhost', 8888,  SamplerCallbackManager(z48))
     asyncore.loop()
 
