@@ -1,26 +1,10 @@
-import asynchat, asyncore, socket, time
-import osc
+import asyncore, socket, time
+from osc import OSCMessage
 from handler import SamplerCallbackManager
-
-"""
-OSCServer 
-"""
-class OSCChannel(asynchat.async_chat):
-    COMMAND = 0
-    DATA = 1
-
-    def __init__(self, server, conn, addr):
-        asynchat.async_chat.__init__(self, conn)
-        self.__server = server
-        self.__conn = conn
-        self.__addr = addr
-        self.__line = []
-        self.__state = self.COMMAND
-        self.__peer = conn.getpeername()
-        print 'Peer:', repr(self.__peer)
+from aksy.device import Devices
 
 class OSCServer(asyncore.dispatcher):
-     def __init__(self, address, port, callbackManager):
+    def __init__(self, address, port, callbackManager):
         self._address = address
         self._port = port
         self._callbackMgr = callbackManager
@@ -28,23 +12,28 @@ class OSCServer(asyncore.dispatcher):
         self.create_socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.set_reuse_addr()
         self.bind((address, port))
+        self.response = ''
         print '%s started at %s\n\tLocal addr: %s\n' % (
-            self.__class__.__name__, time.ctime(time.time()),
-            address)
+           self.__class__.__name__, time.ctime(time.time()),
+           address)
 
-     def handle_write (self):
+    def writeable(self):
+        return len(self.response) > 0
+
+    def handle_write (self):
+        if (self.writeable()):
+            self.sendto(self.response, 0, self.address)
+            self.response = ''
+
+    def handle_read(self):
+        data, self.address = self.recvfrom(8192)
+        self.response = self._callbackMgr.handle(data)
+
+    def handle_connect(self):
         pass
-
-     def handle_read(self):
-        data = self.recv(8192)
-        self._callbackMgr.handle(data)
-
-     def handle_connect(self):
-        pass
-
 
 if __name__ == "__main__":
-    z48 = Devices.get_instance('z48', 'usb')
+    z48 = Devices.get_instance('mock_z48', None)
     OSCServer('localhost', 8888,  SamplerCallbackManager(z48))
     asyncore.loop()
 
