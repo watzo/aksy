@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """Aksy setup module
 """
 from distutils.core import setup, Extension
