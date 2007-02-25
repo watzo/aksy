@@ -27,7 +27,11 @@ class SamplerCallbackManager(CallbackManager):
         address = message[0]
         section, cmd_name = self.parse_cmd_name(address)
         # skip address, typetag
-        result = self.sampler.execute_by_cmd_name(section, cmd_name, message[2:])
+        try:
+            result = self.sampler.execute_by_cmd_name(section, cmd_name, message[2:])
+        except AttributeError, e:
+            raise DispatchException(e)
+
         msg = OSCMessage()
         if not hasattr(result, '__iter__'):
             result = [result]

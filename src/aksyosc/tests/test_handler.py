@@ -3,10 +3,13 @@ from aksyosc.handler import SamplerCallbackManager
 from aksyosc.osc import OSCMessage
 
 class RecordingSampler:
-    def __init__(self, response=None):
+    def __init__(self, response=None, exc=None):
         self.recorded = []
+        self.exc = exc
         self.response = response
     def execute_by_cmd_name(self, s, c, args):
+        if self.exc is not None:
+            raise self.exc
         self.recorded.append([s, c, args])
         return self.response
         
@@ -33,6 +36,16 @@ class SamplerCallbackManagerTest(TestCase):
         # should not throw
         # TODO assert log contents
         self.handler.handle(message.getBinary())
+        self.assertEquals([], self.sampler.recorded);
+
+    def testDispatchUnknownCommand(self):
+        message = OSCMessage()
+        message.setAddress("/sample/play")
+        sampler = RecordingSampler((1,2,'a string'), AttributeError('a'))
+        handler = SamplerCallbackManager(sampler)
+        # should not throw
+        # TODO assert log contents
+        handler.handle(message.getBinary())
         self.assertEquals([], self.sampler.recorded);
         
 def test_suite():
