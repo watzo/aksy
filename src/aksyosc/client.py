@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import asyncore, socket
 from aksyosc.osc import OSCMessage
 
@@ -26,7 +28,7 @@ class OSCClient(asyncore.dispatcher):
 
 if __name__ == "__main__":
     m = OSCMessage()
-    m.setAddress("/test/me")
+    m.setAddress("/systemtools/get_sampler_name")
     c = OSCClient('localhost', 8888, m.getBinary())
 
     asyncore.loop()

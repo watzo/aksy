@@ -25,7 +25,7 @@ class SamplerCallbackManagerTest(TestCase):
         expected.append(1)
         expected.append(2)
         expected.append('a string')
-        self.assertEquals(str(expected), str(response))
+        self.assertEquals(str(expected), response)
 
     def testDispatchInvalidAddress(self):
         message = OSCMessage()

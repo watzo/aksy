@@ -34,7 +34,7 @@ class SamplerCallbackManager(CallbackManager):
 
         for arg in result:
             msg.append(arg) 
-        return msg
+        return msg.getBinary()
 
     def parse_cmd_name(self, address):
         comps = address.split('/')

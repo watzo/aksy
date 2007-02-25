@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import asyncore, socket, time
 from handler import SamplerCallbackManager
 from aksy.device import Devices
@@ -36,13 +37,15 @@ class OSCServer(asyncore.dispatcher):
 
     def handle_read(self):
         data, address = self.recvfrom(8192)
-        self.response = Envelope(address, self._callbackMgr.handle(data))
+        resp_data = self._callbackMgr.handle(data)
+        if resp_data is not None:
+            self.response = Envelope(address, resp_data)
 
     def handle_connect(self):
         pass
 
 if __name__ == "__main__":
-    z48 = Devices.get_instance('mock_z48', None)
+    z48 = Devices.get_instance('z48', 'usb')
     OSCServer('localhost', 8888,  SamplerCallbackManager(z48))
     asyncore.loop()
 
