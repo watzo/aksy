@@ -3,17 +3,17 @@
 
 * complete and tested command coverage
 * working S56k transfers
+* OSC support
 
+0.3
+---
+
+* a few useful scripts (backup, beat slicing)
 aksyfsview
 * basic functionality working
 	* debug load/delete/rename operations
 	* copy/paste, drag-n-drop (80% done)
 	
-0.3
----
-
-* a few useful scripts (backup, beat slicing)
-
 0.4
 
 * command loop implementation with userref support using OSC; investigate async
