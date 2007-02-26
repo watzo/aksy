@@ -18,7 +18,8 @@ class SamplerCallbackManager(CallbackManager):
             decoded = decodeOSC(data)
             return self.dispatch(decoded)
         except DispatchException, e:
-            LOG.error("Failed to execute command ", e)
+            return create_error_msg("Failed to execute command %s" %
+decoded[0], e)
 
     """
         Override base class method.
@@ -32,17 +33,28 @@ class SamplerCallbackManager(CallbackManager):
         except AttributeError, e:
             raise DispatchException(e)
 
-        msg = OSCMessage()
-        if not hasattr(result, '__iter__'):
-            result = [result]
+        if result is None:
+            return None
 
-        for arg in result:
-            msg.append(arg) 
-        return msg.getBinary()
+        return create_response_msg(result)
 
     def parse_cmd_name(self, address):
         comps = address.split('/')
         if len(comps) != 3:
-            raise DispatchException("Unknown address: %s, should have two components", address)
+            raise DispatchException("Invalid address: '%s', should have two components" % address)
         return comps[1:3]
         
+def create_response_msg(result):
+    msg = OSCMessage()
+    if not hasattr(result, '__iter__'):
+        result = [result]
+
+    for arg in result:
+        msg.append(arg) 
+    return msg.getBinary()
+
+def create_error_msg(text, exception):
+    msg = OSCMessage()
+    msg.append(text)
+    msg.append("Cause: " + str(exception))
+    return msg.getBinary()
