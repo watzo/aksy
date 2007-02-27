@@ -1,34 +1,29 @@
 #!/usr/bin/python
 
-import asyncore, socket
+import socket
 from aksyosc.osc import OSCMessage
 
-class OSCClient(asyncore.dispatcher):
-    def __init__(self, host, port, message):
-        asyncore.dispatcher.__init__(self)
-        self.create_socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.connect( (host, port) )
-        self.message = message 
+def snd_recv(cmd):
+    m = OSCMessage()
+    m.setAddress(cmd)
+    s.sendall(m.getBinary())
+    print s.recv(8192)
 
-    def handle_connect(self):
-        pass
-
-    def handle_close(self):
-        self.close()
-
-    def handle_read(self):
-        print self.recv(8192)
-
-    def writable(self):
-        return (len(self.message) > 0)
-
-    def handle_write(self):
-        self.send(self.message)
-        self.message = ''
+def show_banner():
+    print "Aksyosc\n * Enter an osc address at the prompt,\
+ e.g. '/systemtools/get_sampler_name'\n * Use 'quit' to exit"
 
 if __name__ == "__main__":
-    m = OSCMessage()
-    m.setAddress("/systemtools/get_sampler_name")
-    c = OSCClient('localhost', 8888, m.getBinary())
-
-    asyncore.loop()
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('localhost', 8888))
+    show_banner()
+    try:
+        while 1:
+            cmd = raw_input("aksyosc> ")
+            if not cmd:
+                continue
+            if cmd == 'quit':
+                break
+            snd_recv(cmd)
+    finally:
+        s.shutdown(1)
