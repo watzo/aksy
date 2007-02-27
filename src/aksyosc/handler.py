@@ -55,6 +55,7 @@ def create_response_msg(result):
 
 def create_error_msg(text, exception):
     msg = OSCMessage()
+    msg.setAddress('/sampler/error')
     msg.append(text)
     msg.append("Cause: " + str(exception))
     return msg.getBinary()
