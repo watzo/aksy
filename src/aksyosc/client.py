@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
 import socket
-from aksyosc.osc import OSCMessage
+from aksyosc.osc import OSCMessage, decodeOSC
 
 def snd_recv(cmd):
     m = OSCMessage()
     m.setAddress(cmd)
     s.sendall(m.getBinary())
-    print s.recv(8192)
+    print decodeOSC(s.recv(8192))
 
 def show_banner():
     print "Aksyosc\n * Enter an osc address at the prompt,\
