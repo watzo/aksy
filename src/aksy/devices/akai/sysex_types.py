@@ -421,8 +421,14 @@ class TypedCompositeType(object):
 class DiskInfo(object):
     def __init__(self, (handle, type, format, scsi_id, writable, name)):
         self.handle = handle
+
+        # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
         self.type = type
+
+        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND.
+        # MSX format=8 => no disk inserted
         self.format = format
+
         self.scsi_id = scsi_id
         self.writable = bool(writable)
         self.name = name
