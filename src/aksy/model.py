@@ -27,13 +27,17 @@ class Disk(object):
 
     def has_children(self):
         self.set_current()
-        return self.root.has_children()
+        if self.info.format != 8:
+            return self.root.has_children()
+        return False
 
     def get_handle(self):
         return self.info.handle
 
     def set_current(self):
-        handlers[Disk].select_disk(self.get_handle())
+        if self.info.format != 8: # ejected disk!
+            handlers[Disk].select_disk(self.get_handle())
+        return None
 
     def get_name(self):
         return self.info.name
@@ -198,12 +202,13 @@ class Folder(File):
 
         file_names = handlers[Disk].get_filenames()
         if file_names:
-            files = [ File(self.path + (name,)) for name in
+            files = [ File((self.path + name,)) for name in
                 file_names]
             self.children.extend(files)
         return self.children
 
     def has_children(self):
+
         return (len(self.children) > 0 or handlers[Disk].get_no_files() > 0 or
             handlers[Disk].get_no_folders() > 0)
 
@@ -432,9 +437,10 @@ class Memory(Storage):
         if len(self.children) > 0:
             return True
         return (
-            handlers[Program].get_no_items() > 0 or
-            handlers[Sample].get_no_items() > 0 or
-            handlers[Multi].get_no_items() > 0)
+            (handlers.has_key(Program) and handlers[Program].get_no_items() > 0) or
+            (handlers.has_key(Sample) and handlers[Sample].get_no_items() > 0) or
+            (handlers.has_key(Multi) and handlers[Multi].get_no_items() > 0) )
+
 
     def get_children(self):
         if len(self.children) > 0:
