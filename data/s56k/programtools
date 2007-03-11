@@ -27,39 +27,72 @@ programtools	Methods	to manipulate in-memory programs
 
 \x0a	\x12	get_index	Get Current Program Index (i.e., its position in memory)
 \x0a	\x13	get_name	Get Current Program Name
+
 \x0a	\x14	get_no_keygroups	Get Number of Keygroups in Current Program
+
 \x0a	\x15	get_keygroup_xfade	Get Keygroup Crossfade
+
 \x0a	\x18	get_program_numbers	Get the “Program Numbers” of all the Programs in memory
 \x0a	\x19	get_names	Get the names of all of the Programs in memory
+
 \x0a	\x20	set_loudness	Set Loudness. <Data1> = loudness value.
+
 \x0a	\x21	set_velocity_sens	Set Velocity Sensitivity. Values range from −100 to +100, <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.
+
 \x0a	\x22	set_amp_modulation_source	Set Amp Mod Source. <Data1> = Amp Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)
+
 \x0a	\x23	set_amp_modulation_value	Set Amp Mod Value. <Data1> = Amp Mod (1 or 2) <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
+
 \x0a	\x24	set_pan_modulation_source	Set Pan Mod Source. <Data1> = Pan Mod (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)
+
 \x0a	\x25	set_pan_modulation_value	Set Pan Mod Value. <Data1> = Pan Mod (1, 2 or 3) <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
+
 \x0a	\x28	get_loudness	Get Loudness.
+
 \x0a	\x29	get_velocity_sens	Get Velocity Sensitivity.
+
 \x0a	\x2A	get_amp_modulation_source	Get Amp Mod Source. <Data1> = Amp Mod (1 or 2)
+
 \x0a	\x2B	get_amp_modulation_value	Get Amp Mod Value. <Data1> = Amp Mod (1 or 2)
+
 \x0a	\x2C	get_pan_modulation_source	Get Pan Mod Source. <Data1> = Pan Mod (1, 2 or 3)
+
 \x0a	\x2D	get_pan_modulation_value	Get Pan Mod Value. <Data1> = Pan Mod (1, 2 or 3)
+
 \x0a	\x30	set_emitone_tune	Semitone Tune. <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.
+
 \x0a	\x31	set_fine_tune	Fine Tune. <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.
+
 \x0a	\x32	set_tune_template	Tune Template, where <Data1> = template. 0=USER, 1=EVEN-TEMPERED, 2=ORCHESTRAL, 3=WERKMEISTER, 4=1/5 MEANTONE, 5=1/4 MEANTONE, 6=JUST, 7=ARABIAN.
+
 \x0a	\x33	set_user_tune_template	Set User Tune Template.	All the values are sent one after the other starting at C. The format of each value is the same as for Item &31{49}. (i.e., 24 data bytes are representing all 12 notes.)
+
 \x0a	\x34	set_key	Set Key = <Data1> where: 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B
+
 \x0a	\x38	get_semitone_tune	Get Semitone Tune.
+
 \x0a	\x39	get_fine_tune	Get Fine Tune.
+
 \x0a	\x3A	get_tune_template	Get Tune Template.
+
 \x0a	\x3B	get_user_tune_template	Get User Tune Template.
+
 \x0a	\x3C	get_key	Get Key.
+
 \x0a	\x40	set_pitch_bend_up	Set Pitch Bend Up. <Data1> = semitones
+
 \x0a	\x41	set_pitch_bend_down	Set Pitch Bend Down. <Data1> = semitones
+
 \x0a	\x42	set_bend_mode	Set Bend Mode. <Data1> = mode, where 0=NORMAL, 1=HELD \x0a	\x43	0, 1 0–12 Set Aftertouch Value.	<Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.
+
 \x0a	\x44	set_legato_setting	Set Legato Setting <Data1> = mode, where 0=OFF, 1=ON
+
 \x0a	\x45	set_portamento_enabled	Set Portamento Enable <Data1> = mode, where 0=OFF, 1=ON
+
 \x0a	\x46	set_portamento_mode	Set Portamento Mode <Data1> = mode, where 0=TIME, 1=RATE
+
 \x0a	\x47	set_portamento_time	Set Portamento Time
+
 \x0a	\x48	get_pitch_bend_up	Get Pitch Bend Up
 
 \x0a	\x49	get_pitch_bend_down	Get Pitch Bend Down
@@ -82,16 +115,27 @@ programtools	Methods	to manipulate in-memory programs
 \x0a	\x53	set_lfo_waveform	Set LFO Waveform. <Data2> = waveform, where: 0=SINE, 1=TRIANGLE, 2=SQUARE, 3=SQUARE+, 4=SQUARE−, 5=SAW BI, 6=SAW UP, 7=SAW DOWN, 8=RANDOM
 \x0a	\x54	set_lfo_sync	Set LFO Sync. <Data2> = (0=OFF, 1=ON). (LFO1 only)
 \x0a	\x55	set_lfo_retrigger	Set LFO Re-trigger. <Data2> = (0=OFF, 1=ON). (LFO2 only)
+
 \x0a	\x56	set_rate_modulation_source	Set Rate Mod Source <Data2> = Modulation Source. (see Table 15)
+
 \x0a	\x57	set_rate_modulation_value	Set Rate Mod Value <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value.	<Data3>0–100
+
 \x0a	\x58	set_delay_modulation_source	Set Delay Mod Source <Data2> = Modulation Source. (see Table 15)
+
 \x0a	\x59	set_delay_modulation_value	Set Delay Mod Value	<Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
+
 \x0a	\x5A	set_depth_modulation_source	Set Depth Mod Source <Data2> = Modulation Source. (see Table 15)
+
 \x0a	\x5B	set_depth_modulation_value	Set Depth Mod Value	<Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
+
 \x0a	\x5C	set_modwheel	Set Modwheel <Data2> = value (LFO1 only)
+
 \x0a	\x5D	set_aftertouch	Set Aftertouch <Data2> = value (LFO1 only)
+
 \x0a	\x5E	enable_midi_clock_sync	Set MIDI Clock Sync Enable <Data2> = (0=OFF, 1=ON) (LFO2 only)
+
 \x0a	\x5F	set_midi_clock_sync_division	Set MIDI Clock Sync Division (LFO2 only) <Data2> = value, where	0=8cy/bt, 1=6cy/bt, 2=4cy/bt, 3=3cy/bt, 4=2cy/bt, 5=1cy/bt 6=2bt/cy, 7=3bt/cy, 68=64bt/cy
+
 \x0a	\x60	get_lfo_rate	Get LFO Rate
 
 \x0a	\x61	get_lfo_delay	Get LFO Delay
