@@ -181,6 +181,7 @@ typedef struct akai_usb_device {
     int get_program_cmd_id;
     int get_multi_cmd_id;
     int (*get_handle_by_name)(struct akai_usb_device*, const char*, byte_array, int*, const int);
+    char* (*get_sysex_error_msg)(int code);
 } *akai_usb_device;
 
 
@@ -197,8 +198,6 @@ typedef struct akai_usb_device {
  *
  */
 int aksyxusb_device_init(const akai_usb_device akai_dev);
-
-char* aksyxusb_get_sysex_error_msg(int code);
 
 /* resets a akai usb device */
 int aksyxusb_device_reset(const akai_usb_device akai_dev);
@@ -227,10 +226,15 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char* cmd, co
  */
 int z48_get_handle_by_name(akai_usb_device akai_dev,
     const char* name, byte_array handle, int* sysex_error, const int timeout);
-
 int s56k_get_handle_by_name(akai_usb_device akai_dev,
 			   const char* name, byte_array handle, int* sysex_error, const int timeout);
 
+/*
+ * Return an error message corresponding to the specified code.
+ */
+char* z48_get_sysex_error_msg(int code);
+char* s56k_get_sysex_error_msg(int code);
+ 
 /* uploads a file to the sampler. location is LOC_MEMORY or LOC_DISK
  * The current path must be set explicitly if the file is transferred to
  * disk

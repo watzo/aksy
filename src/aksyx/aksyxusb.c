@@ -107,6 +107,7 @@ init_z48(akai_usb_device akai_dev, struct usb_device *dev) {
     akai_dev->get_program_cmd_id = Z48_CMD_MEMORY_GET_PROGRAM;
     akai_dev->get_multi_cmd_id = Z48_CMD_MEMORY_GET_MULTI;
     akai_dev->get_handle_by_name = &z48_get_handle_by_name;
+    akai_dev->get_sysex_error_msg = &z48_get_sysex_error_msg;
     return AKSY_SUCCESS;
 }
 
@@ -126,6 +127,7 @@ static int init_s56k(akai_usb_device akai_dev, struct usb_device *dev) {
     akai_dev->get_program_cmd_id = S56K_CMD_MEMORY_GET_PROGRAM;
     akai_dev->get_multi_cmd_id = S56K_CMD_MEMORY_GET_MULTI;
     akai_dev->get_handle_by_name = &s56k_get_handle_by_name;
+    akai_dev->get_sysex_error_msg = &s56k_get_sysex_error_msg;
     return AKSY_SUCCESS;
 }
 
@@ -244,43 +246,77 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char *cmd, co
 }
 
 char*
-aksyxusb_get_sysex_error_msg(int code) {
+z48_get_sysex_error_msg(int code) {
     switch (code) {
-	case 0x00: return "The <Section> <Item> supplied are not supported";
-	case 0x01: return "Checksum invalid";
-	case 0x02: return "Unknown error";
-	case 0x03: return "Invalid message format";
-	case 0x04: return "Parameter out of range";
-	case 0x05: return "Operation is pending";
-	case 0x80: return "Unknown system error";
-	case 0x81: return "Operation had no effect";
-	case 0x82: return "Fatal error";
-	case 0x83: return "CPU memory is full";
-	case 0x84: return "WAVE memory is full";
-	case 0x100: return "Unknown item error";
-	case 0x101: return "Item not found";
-	case 0x102: return "Item in use";
-	case 0x103: return "Invalid item handle";
-	case 0x104: return "Invalid item name";
-	case 0x105: return "Maximum number of items of a particular type reached";
-	case 0x120: return "Keygroup not found";
-	case 0x180: return "Unknown disk error";
-	case 0x181: return "No Disks";
-	case 0x182: return "Disk is invalid";
-	case 0x183: return "Load error";
-	case 0x184: return "Create error";
-	case 0x185: return "Directory not empty";
-	case 0x186: return "Delete error";
-	case 0x187: return "Disk is write-protected";
-	case 0x188: return "Disk is not writable";
-	case 0x189: return "Disk full";
-	case 0x18A: return "Disk abort";
-	case 0x200: return "Unknown file error";
-	case 0x201: return "File format is not supported";
-	case 0x202: return "WAV format is incorrect";
-	case 0x203: return "File not found";
-	case 0x204: return "File already exists";
-	default: return "Unknown error code";
+		case 0x00: return "The <Section> <Item> supplied are not supported";
+		case 0x01: return "Checksum invalid";
+		case 0x02: return "Unknown error";
+		case 0x03: return "Invalid message format";
+		case 0x04: return "Parameter out of range";
+		case 0x05: return "Operation is pending";
+		case 0x80: return "Unknown system error";
+		case 0x81: return "Operation had no effect";
+		case 0x82: return "Fatal error";
+		case 0x83: return "CPU memory is full";
+		case 0x84: return "WAVE memory is full";
+		case 0x100: return "Unknown item error";
+		case 0x101: return "Item not found";
+		case 0x102: return "Item in use";
+		case 0x103: return "Invalid item handle";
+		case 0x104: return "Invalid item name";
+		case 0x105: return "Maximum number of items of a particular type reached";
+		case 0x120: return "Keygroup not found";
+		case 0x180: return "Unknown disk error";
+		case 0x181: return "No Disks";
+		case 0x182: return "Disk is invalid";
+		case 0x183: return "Load error";
+		case 0x184: return "Create error";
+		case 0x185: return "Directory not empty";
+		case 0x186: return "Delete error";
+		case 0x187: return "Disk is write-protected";
+		case 0x188: return "Disk is not writable";
+		case 0x189: return "Disk full";
+		case 0x18A: return "Disk abort";
+		case 0x200: return "Unknown file error";
+		case 0x201: return "File format is not supported";
+		case 0x202: return "WAV format is incorrect";
+		case 0x203: return "File not found";
+		case 0x204: return "File already exists";
+		default: return "Unknown error code";
+    }
+}
+
+char*
+s56k_get_sysex_error_msg(int code) {
+    switch (code) {
+		case 0x00: return "The <Section> <Item> supplied are not supported";
+		case 0x01: return "Invalid Message Format — insufficient data supplied";
+		case 0x02: return "Parameter out of Range";
+		case 0x03: return "Unknown Error — could not complete command for some reason";
+		case 0x04: return "Requested program/multi/sample/etc., could not be found";
+		case 0x05: return "new element could not be created";
+		case 0x06: return "Deletion of requested item could not be completed";
+		case 0x81: return "Checksum Invalid";
+		case 0x101: return "Disk Error — Selected Disk is Invalid";
+		case 0x102: return "Disk Error — Error During Load";
+		case 0x103: return "Disk Error — Item Not Found";
+		case 0x104: return "Disk Error — Unable to Create";
+		case 0x105: return "Disk Error — Folder Not Empty";
+		case 0x106: return "Disk Error — Unable to Delete";
+		case 0x107: return "Disk Error — Unknown Error";
+		case 0x108: return "Disk Error — Error During Save";
+		case 0x109: return "Disk Error — Insufficient disk space";
+		case 0x10A: return "Disk Error — Error During Save";
+		case 0x10B: return "Disk Error — Media is write-protected";
+		case 0x10C: return "Disk Error — Invalid Disk Handle";
+		case 0x10D: return "Disk Error — Disk is Empty";
+		case 0x10E: return "Disk Error — Disk Operation was Aborted";
+		case 0x10F: return "Disk Error — Failed on Open";
+		case 0x110: return "Disk Error — Read Error";
+		case 0x111: return "Disk Error — Disk Not Ready";
+		case 0x112: return "Disk Error — SCSI Error";
+		case 0x181: return "Requested Keygroup Does not exist in Current Program";
+		default: return "Unknown error code";
     }
 }
 

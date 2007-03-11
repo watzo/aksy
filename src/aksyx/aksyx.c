@@ -152,7 +152,7 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
                 case AKSY_TRANSMISSION_ERROR:
                     return PyErr_Format(USBException, "USB transmission error");
                 case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(SysexException, aksyxusb_get_sysex_error_msg(sysex_error));
+                    return PyErr_Format(SysexException, self->sampler->get_sysex_error_msg(sysex_error));
                 default:
                     return PyErr_Format(TransferException, "Unknown exception during transfer");
             }
@@ -197,7 +197,7 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
                 case AKSY_TRANSMISSION_ERROR:
                     return PyErr_Format(USBException, "USB transmission error");
                 case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(SysexException, aksyxusb_get_sysex_error_msg(rc));
+                    return PyErr_Format(SysexException, self->sampler->get_sysex_error_msg(rc));
                 default:
                     return PyErr_Format(TransferException, "Unknown error");
             }
