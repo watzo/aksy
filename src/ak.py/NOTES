@@ -1,0 +1,9 @@
+Program Creation from Samples
+--
+This function creates drum or keygroup programs w/ selected samples.
+Drum programs use gm drum map (to facilitate using w/ an mpc or trigger finger midi controller). 90% functional.
+Future feature for this would be reading sample name to determine which note range to assign sample to.
+
+Modulation Matrix
+--
+The editors ak.sys and the z4/z8 os provide for the modulation matrix are very cumbersome and yet the feature itself is very powerful, i'm hoping to fix this. this will ultimately be a quick interface to envelopes + lfos and the amount they modulate any given control i.e. click 'mod' by cutoff slider, mod matrix window pops up, all sliders on the screen change modulation amount for cutoff. envelope editors and lfo editors affect the envelopes and lfos of the keygroup

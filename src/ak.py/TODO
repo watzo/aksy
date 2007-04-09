@@ -1,0 +1,52 @@
+- better controls: knobs, more compact sliders
+- multifx editor w/ glade
+- recording tools
+- multi editor
+- main menu: create new program, add/delete keygroup,  
+- mpc pad editor (custom widget)
+- widget for a low to high range, use for zone vel and kg notes (should be easy..?)
+- simpler interface for grabbing a widget by path and adding it into a parent widget
+- reading akp files to figure out what samples they need
+    In trunk/.../z48/akptools.py
+    - Program / p = Program('filename', 'r')
+    - p.keygroups[].zones[]
+- reading akm files to figure out what akp files they need
+- delayed loading of program editor sections
+- batching commands?
+- cache fx names + parameters
+
+Prioritized:
+- Modulation Matrix Shortcuts
+- Modulation Matrix
+- Refactor the various editors (program and keygroup specifically) to use new base classes.
+- Create range widget w/ start/end/min/max like 0 [--O=======O----] 127.
+
+Modulation Matrix:
+- Read each pin, keep settings in list
+
+Q-Link:
+- destinations correlate w/ modulation matrix
+- fx destinations are list of params (indices are available)
+
+Impulse Tracker Module Functions
+  Austin has informed me that his postmod function for exporting samples from an .it module is simple:
+  import itx; it = ITX(fname="baobao.it");  it.exportSamples("c:\\proswell\\temp")
+- this would be a neat way to grab samples quickly and create programs
+- UPDATE: this is working
+
+Keygroup Visualizer
+  I want to be able to quickly see keygroups by range and perhaps other information such as whether there's a sample in a zone.
+
+    # NOTES          ZONES
+      C1 ...... C5 | 1 2 3 4
+    0    _________   ^ - _
+    1 __________     # # -      <-  adjust keygroup range from first section
+                                    on hover, display information such as zones
+                                    click open keygroup editor
+                                    on right click, provide shortcuts, cut+paste, etc
+                                    possible zone velocity range display by filling up vertically
+                                    maybe hover over zone to see what sample is in there
+                                    click to jump to zone editor
+                                    context menu to assign a sample quickly to a zone, cut+paste, etc
+                                    collapse keygroup range if possible
+                                    option to hide empty zone keygroups (for drum programs)

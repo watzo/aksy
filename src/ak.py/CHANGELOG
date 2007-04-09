@@ -1,0 +1,23 @@
+0.45
+- added impulse tracker module sample ripping -> uploading via Austin Luminais's Postmod code (in ./postmod) - note that this does not yet upsample 8-bit samples and this is an issue
+- switched out samplerobject.update(), now this uses __getattribute__ to pull attributes and caches the results, update() claears the cache
+- UI.filechooser.upload()
+- UI.filechooser.open() - added switch for upload, now its possible to use this to get a simple list
+0.4
+- started using glade-3 (shouldn't affect much)
+- refactored into UI / ak (sampler objects) / utils, this will probably change again
+- removed many redundant imports
+- added context menu under 'samples' tab in main screen
+- added 'create program' to samples context menu (see NOTES for more info)
+- reorganized program editor into gtk.Expanders, much more compact
+- reorganized keygroup editor to use gtk.Expanders and removed some redundant code
+- added context menu under 'programs' tab in main screen, currently the only feature is 'add keygroups'
+- updated 'programs' and 'samples' list to support multiple selections
+- added 'upload' function under 'file' menu, uploads akm/akp/wav/aiff etc files and appends them to lists on main screen
+- began designing mod matrix interface (see NOTES for more info)
+- began implementing recording interface, 50% functional. having some trouble w/ arm+start+stop, sometimes hangs.
+
+0.1-0.3x
+- editors functional: program, keygroup, zone, envelopes, filter
+- basic lcd screen functionality w/ mouse and keyboard
+- multifx functional (but disconnected)

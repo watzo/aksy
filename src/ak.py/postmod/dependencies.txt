@@ -1,0 +1,14 @@
+Python 2.4
+wxPython
+psyco
+ctypes
+pyrex
+NumPy
+BASS
+libmodplug
+itc.pyd
+dumbwav
+mikwav
+
+
+
