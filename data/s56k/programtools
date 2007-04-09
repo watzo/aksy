@@ -1,17 +1,17 @@
 programtools	Methods	to manipulate in-memory programs
-\x0a	\x02	create_empty	Create Program: <Data1…0> = Name
+\x0a	\x02	create_empty	Create Program: <Data1…0> = Name	STRING
 
-\x0a	\x03	create_new	Create Program with keygroups. <Data1> = number of keygroups, <Data2…0> = Name
+\x0a	\x03	create_new	Create Program with keygroups. <Data1> = number of keygroups, <Data2…0> = Name	BYTE STRING
 
-\x0a	\x05	set_curr_by_name	Select Program (by name) to be current: <Data1…0> = Name
+\x0a	\x05	set_curr_by_name	Select Program (by name) to be current: <Data1…0> = Name	STRING
 
-\x0a	\x06	set_curr_by_index	Select Program (by index) to be current: <Data1> = MSB; <Data2> = LSB (index = LSB +128× MSB).
+\x0a	\x06	set_curr_by_index	Select Program (by index) to be current: <Data1> = MSB; <Data2> = LSB (index = LSB +128× MSB).	WORD
 
 \x0a	\x07	delete_all	Delete ALL programs from memory
 
 \x0a	\x08	delete_curr	Delete the currently selected Program from memory
 
-\x0a	\x09	rename_curr	Rename currently selected Program: <Data1…0> = Name	0–127
+\x0a	\x09	rename_curr	Rename currently selected Program: <Data1…0> = Name		STRING
 
 \x0a	\x0A	set_program_no	Set “Program Number”. <Data1>: 0=OFF; 1=ON. <Data2>=program number (ony required if <Data1>=1).
 

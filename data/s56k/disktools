@@ -1,4 +1,4 @@
-disktools	Methods to manipulate the samplers filesystem
+disktools	Methods to manipulate the sampler's filesystem
 \x10	\x01	update_disklist	Update the list of disks connected
 
 \x10	\x02	select_disk	Select Disk <Data1> = Disk Handle	WORD

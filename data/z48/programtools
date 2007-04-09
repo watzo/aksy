@@ -43,7 +43,7 @@ BYTE
 
 \x14	\x40	create_new	Create New Program <Data1> = number of keygroups;<Data2> = name.	WORD	STRING
 
-\x14	\x41	add_keygroups_to_current	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE
+\x14	\x41	add_keygroups	Add Keygroups to Program <Data1> = number of keygroups to add	BYTE
 
 \x14	\x42	delete_keygroup	Delete Keygroup (keygroup index)	BYTE
 

@@ -23,17 +23,17 @@ class Keygrouptools:
         self.get_mute_group_cmd = Command('_', '\x13\x06', 'get_mute_group', (), None)
         self.get_fx_override_cmd = Command('_', '\x13\x07 ', 'get_fx_override', (), None)
         self.get_fx_send_level_cmd = Command('_', '\x13\x08', 'get_fx_send_level', (), None)
-        self.get_zone_crossfade_cmd = Command('_', '\x13\x09', 'get_zone_crossfade', (), None)
-        self.get_crossfade_type_cmd = Command('_', '\x13\x0A', 'get_crossfade_type', (), None)
-        self.get_polyphoy_cmd = Command('_', '\x13\x0E', 'get_polyphoy', (), None)
-        self.get_zone_crossfade_ctrl_no_cmd = Command('_', '\x13\x0F', 'get_zone_crossfade_ctrl_no', (), None)
+        self.get_zone_xfade_cmd = Command('_', '\x13\x09', 'get_zone_xfade', (), None)
+        self.get_zone_xfade_type_cmd = Command('_', '\x13\x0A', 'get_zone_xfade_type', (), None)
+        self.get_polyphony_cmd = Command('_', '\x13\x0E', 'get_polyphony', (), None)
+        self.get_zone_xfade_ctrl_no_cmd = Command('_', '\x13\x0F', 'get_zone_xfade_ctrl_no', (), None)
         self.get_tune_cmd = Command('_', '\x13\x10', 'get_tune', (), None)
         self.get_level_cmd = Command('_', '\x13\x11 ', 'get_level', (), None)
         self.get_play_trigger_cmd = Command('_', '\x13\x18', 'get_play_trigger', (), None)
-        self.get_player_trigger_velocity_cmd = Command('_', '\x13\x19', 'get_player_trigger_velocity', (), None)
+        self.get_play_trigger_velocity_cmd = Command('_', '\x13\x19', 'get_play_trigger_velocity', (), None)
         self.get_play_toggle_note_cmd = Command('_', '\x13\x1A ', 'get_play_toggle_note', (), None)
         self.get_filter_cmd = Command('_', '\x13\x20', 'get_filter', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_filter_cutoff_cmd = Command('_', '\x13\x21', 'get_filter_cutoff', (), None)
+        self.get_filter_cutoff_cmd = Command('_', '\x13\x21', 'get_filter_cutoff', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_filter_resonance_cmd = Command('_', '\x13\x22', 'get_filter_resonance', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_filter_attenuation_cmd = Command('_', '\x13\x23', 'get_filter_attenuation', (), None)
         self.get_envelope_rate1_cmd = Command('_', '\x13\x30', 'get_envelope_rate1', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -64,7 +64,7 @@ class Keygrouptools:
         self.set_fx_override_cmd = Command('_', '\x12\x07', 'set_fx_override', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_fx_send_level_cmd = Command('_', '\x12\x08', 'set_fx_send_level', (aksy.devices.akai.sysex_types.SWORD,), None)
         self.set_zone_xfade_cmd = Command('_', '\x12\x09', 'set_zone_xfade', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_xfade_type_cmd = Command('_', '\x12\x0A', 'set_xfade_type', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_zone_xfade_type_cmd = Command('_', '\x12\x0A', 'set_zone_xfade_type', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_polyphony_cmd = Command('_', '\x12\x0E', 'set_polyphony', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_zone_xfade_ctrl_no_cmd = Command('_', '\x12\x0F', 'set_zone_xfade_ctrl_no', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_tune_cmd = Command('_', '\x12\x10', 'set_tune', (aksy.devices.akai.sysex_types.SWORD,), None)
@@ -161,37 +161,37 @@ class Keygrouptools:
         """
         return self.z48.execute(self.get_fx_send_level_cmd, ())
 
-    def get_zone_crossfade(self):
+    def get_zone_xfade(self):
         """Get Zone Crossfade <Reply1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_zone_crossfade_cmd, ())
+        return self.z48.execute(self.get_zone_xfade_cmd, ())
 
-    def get_crossfade_type(self):
+    def get_zone_xfade_type(self):
         """Get Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_crossfade_type_cmd, ())
+        return self.z48.execute(self.get_zone_xfade_type_cmd, ())
 
-    def get_polyphoy(self):
+    def get_polyphony(self):
         """Get Polyphony
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_polyphoy_cmd, ())
+        return self.z48.execute(self.get_polyphony_cmd, ())
 
-    def get_zone_crossfade_ctrl_no(self):
+    def get_zone_xfade_ctrl_no(self):
         """Get Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_zone_crossfade_ctrl_no_cmd, ())
+        return self.z48.execute(self.get_zone_xfade_ctrl_no_cmd, ())
 
     def get_tune(self):
         """Get Cents Tune
@@ -217,13 +217,13 @@ class Keygrouptools:
         """
         return self.z48.execute(self.get_play_trigger_cmd, ())
 
-    def get_player_trigger_velocity(self):
+    def get_play_trigger_velocity(self):
         """Get Play Trigger Velocity (0�129) <Reply> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)
 
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_player_trigger_velocity_cmd, ())
+        return self.z48.execute(self.get_play_trigger_velocity_cmd, ())
 
     def get_play_toggle_note(self):
         """Get Play Toggle Note <Reply> = (0=OFF, 1=ON)
@@ -241,13 +241,13 @@ class Keygrouptools:
         """
         return self.z48.execute(self.get_filter_cmd, (arg0, ))
 
-    def get_filter_cutoff(self):
-        """Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100) BYTE
+    def get_filter_cutoff(self, arg0):
+        """Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100)
 
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_filter_cutoff_cmd, ())
+        return self.z48.execute(self.get_filter_cutoff_cmd, (arg0, ))
 
     def get_filter_resonance(self, arg0):
         """Get Filter Resonance (0-3) (0-60)
@@ -465,10 +465,10 @@ class Keygrouptools:
         """
         return self.z48.execute(self.set_zone_xfade_cmd, (arg0, ))
 
-    def set_xfade_type(self, arg0):
+    def set_zone_xfade_type(self, arg0):
         """Set Crossfade type <Data1> = (0=LIN, 1=EXP, 2=LOG)
         """
-        return self.z48.execute(self.set_xfade_type_cmd, (arg0, ))
+        return self.z48.execute(self.set_zone_xfade_type_cmd, (arg0, ))
 
     def set_polyphony(self, arg0):
         """Set Polyphony

@@ -17,13 +17,13 @@ BYTE
 BYTE
 \x13	\x08	get_fx_send_level	Get FX Send Level <Reply1> = level in 10�dB (-600�+60)
 SWORD
-\x13	\x09	get_zone_crossfade	Get Zone Crossfade <Reply1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)
+\x13	\x09	get_zone_xfade	Get Zone Crossfade <Reply1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)
 BYTE
-\x13	\x0A	get_crossfade_type	Get Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
+\x13	\x0A	get_zone_xfade_type	Get Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
 BYTE
-\x13	\x0E	get_polyphoy	Get Polyphony
+\x13	\x0E	get_polyphony	Get Polyphony
 BYTE
-\x13	\x0F	get_zone_crossfade_ctrl_no	Get Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)
+\x13	\x0F	get_zone_xfade_ctrl_no	Get Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)
 BYTE
 \x13	\x10	get_tune	Get Cents Tune
 SWORD
@@ -31,13 +31,13 @@ SWORD
 SWORD
 \x13	\x18	get_play_trigger	Get Play Trigger <Reply> = (0=NOTE ON, 1=NOTE OFF)
 BYTE
-\x13	\x19	get_player_trigger_velocity	Get Play Trigger Velocity (0�129) <Reply> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)
+\x13	\x19	get_play_trigger_velocity	Get Play Trigger Velocity (0�129) <Reply> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)
 WORD
 \x13	\x1A 	get_play_toggle_note	Get Play Toggle Note <Reply> = (0=OFF, 1=ON)
 BYTE
 \x13	\x20	get_filter	Get Filter <Data1> = Filter block 	BYTE
 BYTE
-\x13	\x21	get_filter_cutoff	Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100) BYTE
+\x13	\x21	get_filter_cutoff	Get Filter Cutoff Frequency. Data1= filter 0-3 reply: (0-100)	BYTE
 BYTE
 \x13	\x22	get_filter_resonance	Get Filter Resonance (0-3) (0-60)	BYTE
 BYTE
@@ -99,7 +99,7 @@ BYTE
 
 \x12	\x09	set_zone_xfade	Set Zone Crossfade <Data1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)	BYTE
 
-\x12	\x0A	set_xfade_type	Set Crossfade type <Data1> = (0=LIN, 1=EXP, 2=LOG)	BYTE
+\x12	\x0A	set_zone_xfade_type	Set Crossfade type <Data1> = (0=LIN, 1=EXP, 2=LOG)	BYTE
 
 \x12	\x0E	set_polyphony	Set Polyphony	BYTE
 
