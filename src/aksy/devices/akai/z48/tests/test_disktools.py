@@ -7,14 +7,10 @@ from aksy.devices.akai import sysex_types
 
 TESTDIR = os.path.abspath(os.path.split(__file__)[0])
 TESTFOLDER_NAME = "test%s" % time.time()
-AKSY_RUN_INTEG_TESTS = bool(os.environ.get("AKSY_RUN_INTEG_TESTS", False))
 AKSY_RUN_SLOW_TESTS =  bool(os.environ.get("AKSY_RUN_SLOW_TESTS", False))
 LOG = logging.getLogger('aksy')
 
-if AKSY_RUN_INTEG_TESTS: 
-    z48 = Devices.get_instance('z48', 'usb')
-else:
-    z48 = Devices.get_instance('mock_z48')
+z48 = Devices.get_instance('mock_z48')
 
 class TestDisktools(TestCase):
     def setUp(self):
@@ -120,6 +116,4 @@ class TestDisktools(TestCase):
 
 def test_suite():
     testloader = TestLoader()
-    if AKSY_RUN_INTEG_TESTS:
-        return testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_disktools')
-    return None
+    return testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_disktools')

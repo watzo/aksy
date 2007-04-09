@@ -1,5 +1,5 @@
 from StringIO import StringIO
-import struct, os.path
+import struct, os.path, os
 
 """
 Reading/writing AKP files
@@ -10,7 +10,7 @@ Based on http://mda.smartelectronix.com/akai/AKPspec.html
 WAVE_FORMAT_PCM = 0x0001
 
 class Sample:
-    """ Models a modern S5/6000/Z series sample
+    """ Models a S5/6000/Z series sample
     which is an ordinary wave file with sampler chunks.
     -dwords manufacturer, product, period
     -midi note
@@ -104,9 +104,8 @@ class Base:
         self._chunks = chunks
         self._chunk_index = 0
         if chunks is not None:
-            pass
-            #self.setvalues()
-            self.setdefaults()
+            self.setvalues()
+            #self.setdefaults()
         else:
             self.setdefaults()
             for kw, value in kwargs.iteritems():
@@ -125,7 +124,12 @@ class Base:
         if index is None:
             index = self.curr_index(index)
         fh.seek(index)
-        length = struct.unpack('<l',fh.read(4))[0]
+        
+        bytes_read = fh.read(4)
+        assert len(bytes_read) > 0
+        
+        length = struct.unpack('<l', bytes_read)[0]
+
         return length, fh.read(length) 
 
     def read_byte(self, index=None):
@@ -137,7 +141,7 @@ class Base:
             chunk = self._chunk
         index = self.curr_index(index) 
         if length is None:
-            length = struct.unpack('<b', chunk[index])
+            length = struct.unpack('<b', chunk[index])[0]
             index = self.curr_index(index) 
 
         self.curr_index(index, length) 
@@ -258,34 +262,37 @@ class Program(Base):
     >>> rp = Program('smstrings.akp', 'r')
 
     """
-    def __init__(self, filename, mode='r', **kwargs):
+    def __init__(self, filename=None, mode='r', **kwargs):
         self.filename = filename
         self._chunks = {}
         chunk = None
-        if os.path.exists(filename):
-            self.fh = file(filename, mode)
-            sys.stderr.writelines(self.fh.read())
-            if mode == 'r':
-                self._read_chunks() 
+        if filename is not None and not os.path.exists(filename):
+            raise IOError("File not found: " + filename)
+        
+        self.fh = file(filename, mode)
+        self._read_chunks(self.get_file_length())
                 # need more subchunks here
-        Base.__init__(self, chunks, **kwargs)
+        Base.__init__(self, self._chunks, **kwargs)
         self.keygroups = []
 
+    def get_file_length(self):
+        return os.stat(self.filename).st_size
+        
     def __del__(self):
         self.fh.close()
 
-    def _read_chunks(self):
+    def _read_chunks(self, filelength):
         # collects all chunks adding them to a dict with key chunk label,
         # data value. label and data length bytes are stripped.
         # first bytes are not according to standard, so start with prg chunk
         # prg
         offset = 0x15
         self.fh.seek(0, 1)
-        sys.stderr.writelines("FH %i\n" % self.fh.tell())
         length, self._chunks["prg "] = self.read_chunk(self.fh, offset)
         # prg length
         offset += length
-        while 1:
+        self._chunk = self._chunks["prg "]
+        while offset < filelength:
             length = self.add_chunk(offset)
             if length == 0: break
             offset += length
@@ -293,12 +300,13 @@ class Program(Base):
     def add_chunk(self, offset):
         length, chunk = self.read_chunk(self.fh, offset)
         chunk_label = self.read_string(chunk, offset)
-        print chunk_label
         self._chunks[chunk_label] = chunk[offset+4:]
         return length
 
     def setvalues(self):
-        assert self.read_string(0x0, 4) == "APRG"
+        label = self.read_string(index=0x0, length=4)
+        print repr(self._chunk)
+        assert label == "APRG"
         assert self.read_string(0x5, 4) == "prg "
         self.midi_prog_no = self.read_byte(0x15) 
         self.no_keygrps = self.read_byte(0x16)
@@ -423,12 +431,6 @@ class Program(Base):
         file.write(self.create_chunk())
         for kg in self.keygroups:
             file.write(kg.create_chunk())
-        file.close()
-
-    def readfile(self):
-        """Move to constructor?
-        """
-        file = open(self.filename, 'rb')
         file.close()
 
     def __repr__(self):

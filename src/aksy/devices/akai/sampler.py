@@ -47,3 +47,7 @@ class Sampler(AkaiSampler):
             log.debug("Command: %s Reply %s\n" % (command.name, sysex.byte_repr(result_bytes)))
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
+    
+    @staticmethod
+    def get_supported_file_types():
+        return ('wav', 'aif', 'aiff', 'akp', 'akm', 'mid',)

@@ -36,7 +36,7 @@ class Programtools:
         self.get_modified_state_cmd = Command('_', '\x14\x11', 'get_modified_state', (), None)
         self.delete_tagged_cmd = Command('_', '\x14\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.create_new_cmd = Command('_', '\x14\x40', 'create_new', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.STRING), None)
-        self.add_keygroups_to_current_cmd = Command('_', '\x14\x41', 'add_keygroups_to_current', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.add_keygroups_cmd = Command('_', '\x14\x41', 'add_keygroups', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.delete_keygroup_cmd = Command('_', '\x14\x42', 'delete_keygroup', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.delete_blank_keygroups_cmd = Command('_', '\x14\x43', 'delete_blank_keygroups', (), None)
         self.arrange_keygroups_cmd = Command('_', '\x14\x44', 'arrange_keygroups', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -265,10 +265,10 @@ class Programtools:
         """
         return self.z48.execute(self.create_new_cmd, (arg0, arg1, ))
 
-    def add_keygroups_to_current(self, arg0):
+    def add_keygroups(self, arg0):
         """Add Keygroups to Program <Data1> = number of keygroups to add
         """
-        return self.z48.execute(self.add_keygroups_to_current_cmd, (arg0, ))
+        return self.z48.execute(self.add_keygroups_cmd, (arg0, ))
 
     def delete_keygroup(self, arg0):
         """Delete Keygroup (keygroup index)
