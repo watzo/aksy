@@ -62,16 +62,16 @@ class Disk(object):
     
 def get_file_type(name):
         if RE_MULTI.search(name) is not None:
-            return File.MULTI
+            return FileRef.MULTI
         if RE_PROGRAM.search(name) is not None:
-            return File.PROGRAM
+            return FileRef.PROGRAM
         if RE_SAMPLE.search(name) is not None:
-            return File.SAMPLE
+            return FileRef.SAMPLE
         
         log.error("No support for file type: ", name)
-        return File.SAMPLE
+        return FileRef.SAMPLE
     
-class File(object):
+class FileRef(object):
     FOLDER = 0
     MULTI = 1
     PROGRAM = 2
@@ -173,12 +173,12 @@ class File(object):
     def get_actions(self):
         return ('load', 'delete', 'download',)
 
-class Folder(File):
+class Folder(FileRef):
     def __init__(self, path):
         """ TODO: find a nice solution for the primitive folder selection
         """
         self.path = path
-        self.type = File.FOLDER
+        self.type = FileRef.FOLDER
         self.children = []
 
     def refresh(self):
@@ -202,7 +202,7 @@ class Folder(File):
 
         file_names = handlers[Disk].get_filenames()
         if file_names:
-            files = [ File((self.path + name,)) for name in
+            files = [ FileRef((self.path + name,)) for name in
                 file_names]
             self.children.extend(files)
         return self.children
@@ -264,7 +264,7 @@ class Folder(File):
         self.set_current()
         name = os.path.basename(path)
         handlers[Disk].z48.put(path, name, destination=AkaiSampler.DISK)
-        item = File(self.path + (name,))
+        item = FileRef(self.path + (name,))
         self.children.append(item)
         return item
 
@@ -274,7 +274,7 @@ class Folder(File):
         """
         self.set_current()
         handlers[Disk].save(item.get_handle(), item.type, True, False)
-        item = File(self.path + (name,))
+        item = FileRef(self.path + (item.name,))
         self.children.append(item)
         return item
 
@@ -290,16 +290,16 @@ class Folder(File):
                 log.debug("download to dir: %s" % repr(path))
                 item.download(os.path.join(path, item.get_name()))
 
-class InMemoryFile(File):
+class InMemoryFile(FileRef):
     def get_instance(name):
         type = get_file_type(name)
-        if type == File.MULTI:
+        if type == FileRef.MULTI:
             return Multi(name)
-        if type == File.PROGRAM:
+        if type == FileRef.PROGRAM:
             return Program(name)
-        if type == File.SAMPLE:
+        if type == FileRef.SAMPLE:
             return Sample(name)
-        if type == File.SONG:
+        if type == FileRef.SONG:
             return Song(name)
         log.error("Unknown file type: %s" % repr(name))
         return InMemoryFile(name)
@@ -311,7 +311,7 @@ class InMemoryFile(File):
     
     def __init__(self, name):
         self.name = name
-        File.__init__(self, (name,))
+        FileRef.__init__(self, (name,))
 
     def get_actions(self):
         return ('delete', 'download',)
@@ -342,9 +342,6 @@ class InMemoryFile(File):
     def save(self, overwrite, children=False):
         handlers[Disk].save_file(self.get_handle(), self.type, overwrite, children)
 
-    def set_current(self):
-        handlers[self.__class__].set_curr_by_name(self.get_name())
-
     def download(self, dest_path):
         pass
 
@@ -355,17 +352,17 @@ class InMemoryFile(File):
 class Multi(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
-        self.type = File.MULTI
+        self.type = FileRef.MULTI
 
 class Program(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
-        self.type = File.PROGRAM
+        self.type = FileRef.PROGRAM
 
 class Sample(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
-        self.type = File.SAMPLE
+        self.type = FileRef.SAMPLE
 
     def get_size(self):
         handlers[Sample].get_sample_length()
@@ -375,7 +372,7 @@ class Sample(InMemoryFile):
 class Song(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
-        self.type = File.SONG
+        self.type = FileRef.SONG
 
     def get_size(self):
         raise NotImplementedError()
@@ -388,7 +385,7 @@ class Storage:
         self.name = name
         self.path = name
         self.actions = None
-        self.type = File.FOLDER
+        self.type = FileRef.FOLDER
         self.children = []
 
     def refresh(self):

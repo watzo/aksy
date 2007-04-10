@@ -17,7 +17,7 @@ class S56K(Sampler):
         self.sysextools = sysextools.Sysextools(self)
 
         model.register_handlers({model.Disk: self.disktools,
-                        model.File: self.disktools})
+                        model.FileRef: self.disktools})
 
         self.disks = model.Storage('disk')
         self.disks.set_children([model.Disk(disk) for disk

@@ -3,7 +3,7 @@ from wx.lib.mixins import listctrl
 
 from aksy import model
 from aksyx import USBException
-from aksy.device import Device, Devices
+from aksy.device import Devices
 import os.path, traceback, sys, copy
 
 ID_TREE_PANEL = wx.NewId()
