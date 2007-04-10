@@ -2,6 +2,7 @@
 
 import socket
 from aksyosc.osc import OSCMessage, decodeOSC
+from oscoptions import create_option_parser
 
 def snd_recv(cmd):
     m = OSCMessage()
@@ -14,8 +15,10 @@ def show_banner():
  e.g. '/systemtools/get_sampler_name'\n * Use 'quit' to exit"
 
 if __name__ == "__main__":
+    parser = create_option_parser()
+    options = parser.parse_args()[0]
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('localhost', 8888))
+    s.connect((options.address, options.port))
     show_banner()
     try:
         while 1:
