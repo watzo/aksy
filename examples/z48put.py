@@ -6,7 +6,7 @@ from optparse import OptionParser
 
 from aksy.device import Devices
 from aksy.devices.akai.sampler import Sampler
-from aksy.devices.akai import akparser
+from aksy.devices.akai import fileparser
 import aksy.fileutils
 
 __author__ = 'Joseph Misra/Walco van Loon'
@@ -107,7 +107,7 @@ def process_cmdline():
 def upload_files(z48, to_upload, filterProgram=None):
     if filterProgram is not None:
         filtered = []
-        program = akparser.ProgramParser().parse(filterProgram)
+        program = fileparser.ProgramParser().parse(filterProgram)
         for kg in program.keygroups:
             for zone in kg.zones:
                 if zone.samplename:
