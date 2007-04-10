@@ -237,8 +237,6 @@ class Modulation(Base):
 
        
 NOTE_NAMES = 'a','b', 'bes','c', 'cis', 'd' 'es', 'e', 'f', 'fis', 'g', 'gis'
-class Chunk:
-    pass
 
 class Program(Base):
     """
@@ -434,8 +432,8 @@ class Program(Base):
         file.close()
 
     def __repr__(self):
-        string_repr = StringIO(
-        string_repr.write('<Akai Program'))
+        string_repr = StringIO()
+        string_repr.write('<Akai Program')
         string_repr.write(''.join(['property: %s, val %s\n' % (item, val) 
                                 for item,val in self.__dict__.iteritems()]))
         string_repr.write('>')
