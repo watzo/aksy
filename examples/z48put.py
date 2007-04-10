@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: latin-1 -*-
 import os,os.path,re,logging,sys,struct,math,traceback, inspect
 import types
@@ -6,7 +6,7 @@ from optparse import OptionParser
 
 from aksy.device import Devices
 from aksy.devices.akai.sampler import Sampler
-from aksy.devices.akai.z48 import akptools, akparser
+from aksy.devices.akai import akparser
 import aksy.fileutils
 
 __author__ = 'Joseph Misra/Walco van Loon'
