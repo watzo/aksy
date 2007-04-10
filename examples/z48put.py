@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin-1 -*-
-import os,os.path,re,logging,sys,struct,math,traceback, inspect
-import types
+import os,os.path
 from optparse import OptionParser
 
 from aksy.device import Devices
@@ -11,8 +10,6 @@ import aksy.fileutils
 
 __author__ = 'Joseph Misra/Walco van Loon'
 __version__ = '0.01'
-
-import sys
 
 def create_option_parser(): 
     usage = "%prog [files|folders]"
