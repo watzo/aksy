@@ -22,18 +22,17 @@ class OSCServer(asyncore.dispatcher):
         self.set_reuse_addr()
         self.bind((address, port))
         self.response = None 
-        print '%s started at %s\n\tLocal addr: %s\n' % (
+        print '%s started at %s\n\tLocal addr: %s:%i\n' % (
            self.__class__.__name__, time.ctime(time.time()),
-           address)
+           address, port)
 
-    def writeable(self):
+    def writable(self):
         return self.response is not None
 
-    def handle_write (self):
-        if (self.writeable()):
-            self.sendto(self.response.get_message(), 0, 
-                self.response.get_address())
-            self.response = None
+    def handle_write(self):
+        self.sendto(self.response.get_message(), 0, 
+            self.response.get_address())
+        self.response = None
 
     def handle_read(self):
         data, address = self.recvfrom(8192)
@@ -41,11 +40,8 @@ class OSCServer(asyncore.dispatcher):
         if resp_data is not None:
             self.response = Envelope(address, resp_data)
 
-    def handle_connect(self):
-        pass
-
 if __name__ == "__main__":
-    z48 = Devices.get_instance('z48', 'usb')
+    z48 = Devices.get_instance('mock_z48', None)
     OSCServer('localhost', 8888,  SamplerCallbackManager(z48))
     asyncore.loop()
 
