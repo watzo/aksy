@@ -32,7 +32,7 @@ def collect_files(args):
         elif os.path.isdir(f):
             collected.extend(collect_dir(f))
         else:
-            raise FileNotFoundError(f)
+            raise IOError("File not found: " + repr(f))
     return collected
 
 def collect_dir(args):
