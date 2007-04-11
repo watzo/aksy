@@ -1,22 +1,18 @@
 1. REQUIREMENTS/DEPENDENCIES
 
-Aksy has the following dependencies:
+Aksy (core lib) has the following dependencies:
 
-* Python: version > 2.2
+* Python: version >= 2.4
 
 * libusb: libusb.sourceforge.net
   (win32 port is available at libusb-win32.sourceforge.net)
 
+The extension has been tested with python 2.4, libusb 0.1.8 and libusb-0.1.10
+
 optional dependencies
 ---------------------
 
-To run some of the scripts, some more packages are needed.
-
-* wxPython
-
-* aubio
-
-The extension has been tested with python 2.3.5, libusb 0.1.8 and libusb-0.1.10
+To run aksyfsview, wxPython is needed. Ak.py (by Joseph Misra) needs a recent GTK and its python bindings.
 
 If you're running linux and want to be able to run aksy as normal user
 (recommended), install hotplug.
