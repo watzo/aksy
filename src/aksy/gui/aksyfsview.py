@@ -117,11 +117,11 @@ def create_icons(ilist):
         "file": ilist.Add(wx.ArtProvider_GetBitmap(wx.ART_REPORT_VIEW, wx.ART_OTHER, (16,16))),
         "disk": ilist.Add(wx.Image(os.path.join(img_path, 'harddisk.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
         "memory": ilist.Add(wx.Image(os.path.join(img_path, 'memory.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
-        model.File.FOLDER: ilist.Add(wx.Image(os.path.join(img_path, 'folder.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
-        "%i%s" %(model.File.FOLDER, "-open"): ilist.Add(wx.Image(os.path.join(img_path, 'folder-open.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
-        model.File.PROGRAM: ilist.Add(wx.Image(os.path.join(img_path, 'program.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
-        model.File.MULTI: ilist.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
-        model.File.SAMPLE: ilist.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+        model.FileRef.FOLDER: ilist.Add(wx.Image(os.path.join(img_path, 'folder.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        "%i%s" %(model.FileRef.FOLDER, "-open"): ilist.Add(wx.Image(os.path.join(img_path, 'folder-open.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.FileRef.PROGRAM: ilist.Add(wx.Image(os.path.join(img_path, 'program.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.FileRef.MULTI: ilist.Add(wx.Image(os.path.join(img_path, 'multi.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap()),
+        model.FileRef.SAMPLE: ilist.Add(wx.Image(os.path.join(img_path, 'sample.png'), wx.BITMAP_TYPE_PNG).ConvertToBitmap())
     }
               
 class Config(wx.FileConfig):
@@ -277,7 +277,7 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
     def OnItemBeginDrag(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
-        if isinstance(item, model.File):
+        if isinstance(item, model.FileRef):
             self.draggedItem = item
             print "BeginDrag ", self.draggedItem.get_name()
             evt.Allow()
@@ -313,9 +313,9 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
         
         #wx.EVT_MENU(self.listpanel, action.id, action.execute)
  
-        if isinstance(item, model.File):
-            if item.type == model.File.FOLDER:
-                self.SetItemImage(child, self.icon_map["%i%s" %(model.File.FOLDER, "-open")], which = wx.TreeItemIcon_Expanded)
+        if isinstance(item, model.FileRef):
+            if item.type == model.FileRef.FOLDER:
+                self.SetItemImage(child, self.icon_map["%i%s" %(model.FileRef.FOLDER, "-open")], which = wx.TreeItemIcon_Expanded)
             self.SetItemImage(child, self.icon_map[item.type], which = wx.TreeItemIcon_Normal)
         elif isinstance(item, model.Memory):
             self.SetItemImage(child, self.icon_map['memory'], which = wx.TreeItemIcon_Normal)
