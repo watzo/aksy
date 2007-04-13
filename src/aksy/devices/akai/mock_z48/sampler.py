@@ -7,10 +7,10 @@ log = logging.getLogger('aksy')
 class MockZ48(Z48):
     def __init__(self, debug=1):
         self.debug = debug
-        self.setupTools()
+        self.setup_tools()
         def get_disklist(): return []
         self.disktools.get_disklist = get_disklist
-        self.setupModel()
+        self.setup_model()
 
         mellotron_folder = model.Folder(('', 'Mellotron',))
         choir_folder = model.Folder(('', 'Choir',))

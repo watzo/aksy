@@ -33,8 +33,8 @@ class Z48(Sampler):
 
     def setup_model(self):
         model.register_handlers({model.Disk: self.disktools,
-                        model.File: self.disktools,
-                        model.FileRefram: self.programtools,
+                        model.FileRef: self.disktools,
+                        model.Program: self.programtools,
                         model.Sample: self.sampletools,
                         model.Multi: self.multitools})
 
