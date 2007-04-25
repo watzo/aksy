@@ -1,25 +1,30 @@
 #!/usr/bin/python
 """Aksy setup module
 """
-from distutils.core import setup, Extension
+from distutils.core import setup, run_setup, Extension
+from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
-import platform
+import platform, os.path
 
-library_dirs = []
-include_dirs = []
-libraries = ["usb"]
-extra_compile_args = []
-extra_link_args = []
 # macros= [("_DEBUG", 0), ('AKSY_DEBUG', '1')]
 macros= [("AKSY_DEBUG", 1)]
+libusb_install_dir = "C:\Program Files\LibUSB-Win32"
 
 def customize_for_platform(ext, compiler_type):
+    ext.libraries = ['usb']
+    if platform.system() == "Windows":
+	ext.include_dirs =[os.path.join(libusb_install_dir, 'include')]
+
     if platform.system() == "Darwin":
         ext.extra_link_args = ['-framework CoreFoundation IOKit']
+
     if compiler_type == "msvc":
         ext.libraries = ["libusb"]
         ext.extra_compile_args = ["/O2"]
-        ext.library_dirs = ["C:\Program Files\LibUSB-Win32-0.1.10.1\lib\msvc"]
+	ext.library_dirs =[os.path.join(libusb_install_dir, 'lib', 'msvc')]
+    if compiler_type == "mingw32":
+        ext.libraries.append("mingw32")
+	ext.library_dirs =[os.path.join(libusb_install_dir, 'lib', 'gcc')]
 
 class build_akyx(build_ext):
     def build_extension(self, ext):
@@ -27,7 +32,7 @@ class build_akyx(build_ext):
         build_ext.build_extension(self, ext)
         
 setup(name = "aksy", 
-      version = "0.1.2", 
+      version = "0.2-dev", 
       author = "Walco van Loon", 
       author_email = "walco at n--tree.net", 
       package_dir= {'': 'src'}, 
@@ -40,16 +45,11 @@ setup(name = "aksy",
       url = 'http://walco.n--tree.net/projects/aksy', 
       # scripts=['scripts/checkout.py'],
       ext_modules = [
-          Extension("aksyx", 
-              sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c", ], 
-              define_macros = macros, 
-              library_dirs = library_dirs, 
-              include_dirs = include_dirs, 
-              extra_compile_args = extra_compile_args, 
-              extra_link_args = extra_link_args, 
-              libraries = libraries, 
-          ), 
-      ], 
+          Extension("aksyx",
+              sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c",],
+              define_macros= macros
+          ),
+      ],
       cmdclass = {
          "build_ext": build_akyx, 
       }
