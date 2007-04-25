@@ -13,18 +13,19 @@ extra_link_args = []
 # macros= [("_DEBUG", 0), ('AKSY_DEBUG', '1')]
 macros= [("AKSY_DEBUG", 1)]
 
-if platform.system() == "Darwin":
-    extra_link_args = ['-framework CoreFoundation IOKit']
-if platform.system() == "Windows":
-    libraries = ["libusb"]
-    include_dirs = ["include"]
-    extra_compile_args = ["/O2"]
-    library_dirs = ["C:\Program Files\LibUSB-Win32-0.1.10.1\lib\msvc"]
+def customize_for_platform(ext, compiler_type):
+    if platform.system() == "Darwin":
+        ext.extra_link_args = ['-framework CoreFoundation IOKit']
+    if compiler_type == "msvc":
+        ext.libraries = ["libusb"]
+        ext.extra_compile_args = ["/O2"]
+        ext.library_dirs = ["C:\Program Files\LibUSB-Win32-0.1.10.1\lib\msvc"]
 
 class build_akyx(build_ext):
-    def finalize_options(self):
-        build_ext.finalize_options(self)
-
+    def build_extension(self, ext):
+        customize_for_platform(ext, self.compiler.compiler_type)
+        build_ext.build_extension(self, ext)
+        
 setup(name = "aksy", 
       version = "0.1.2", 
       author = "Walco van Loon", 
