@@ -21,7 +21,7 @@ static PyObject* SysexException;
 static PyObject* TransferException;
 static PyObject* USBException;
 
-static void
+static PyObject*
 AkaiSampler_dealloc(AkaiSampler* self) {
     int rc;
     if (self->sampler) {
@@ -36,7 +36,11 @@ AkaiSampler_dealloc(AkaiSampler* self) {
 		{
 		    perror("WARN: Device was not succesfully closed:\n");
 		}
+
     }
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static int
@@ -84,17 +88,17 @@ AkaiSampler_init(AkaiSampler *self, PyObject *args) {
     return 0;
 }
 
-static int
+static PyObject*
 AkaiSampler_reset_usb(AkaiSampler* self)
 {
-    int rc;
-
-    rc = aksyxusb_device_reset(self->sampler);
+    int rc = aksyxusb_device_reset(self->sampler);
     if (rc == AKSY_USB_RESET_ERROR) {
         PyErr_Format(USBException, "Exeption during USB reset");
-		return -1;
+		return NULL;
     }
-    return 0;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 /* Gets a file from the sampler. Any existing file with the same name will be overwritten */
@@ -108,7 +112,7 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
     if (!self->sampler)
     {
         PyErr_Format(USBException, "Device is not initialized.");
-	return NULL;
+		return NULL;
     }
 
 
@@ -259,8 +263,8 @@ static PyMemberDef AkaiSampler_members[] = {
 
 static PyMethodDef AkaiSampler_methods[] =
 {
-    {"_reset", (PyCFunction)AkaiSampler_reset_usb, METH_NOARGS, "Resets USB device and interface."},
-    {"close", (PyCFunction)AkaiSampler_dealloc, METH_NOARGS, "Dealloc 	USB device and interface."},
+    {"reset", (PyCFunction)AkaiSampler_reset_usb, METH_NOARGS, "Resets USB device and interface."},
+    {"close", (PyCFunction)AkaiSampler_dealloc, METH_NOARGS, "Closes USB device and interface."},
     {"_get", (PyCFunction)AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", (PyCFunction)AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
     {"_execute", (PyCFunction)AkaiSampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},
