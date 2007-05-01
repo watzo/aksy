@@ -172,12 +172,12 @@ int aksyxusb_device_init(const akai_usb_device akai_dev) {
 int aksyxusb_device_close(const akai_usb_device akai_dev) {
     int rc = usb_release_interface(akai_dev->dev, 0);
     rc = usb_close(akai_dev->dev)|rc;
-    return rc < 0? AKSY_USB_CLOSE_ERROR: AKSY_SUCCESS;
+    return rc < 0 ? AKSY_USB_CLOSE_ERROR: AKSY_SUCCESS;
 }
 
 int aksyxusb_device_reset(const akai_usb_device akai_dev) {
    int rc = usb_reset(akai_dev->dev);
-   return rc < 0? AKSY_USB_RESET_ERROR: AKSY_SUCCESS;
+   return rc < 0 ? AKSY_USB_RESET_ERROR: AKSY_SUCCESS;
 }
 
 int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char *cmd, const byte_array arg_data,
@@ -300,8 +300,7 @@ char* s56k_get_sysex_error_msg(int code) {
     }
 }
 
-int aksyxusb_device_exec_finishlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout)
-{
+int aksyxusb_device_exec_finishlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout) {
     int rc;
 
     rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
