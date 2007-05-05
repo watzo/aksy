@@ -1,21 +1,21 @@
 zonetools	Manipulate the zones of a keygroup
 \x0F	\x01	get_sample	Get Zone Sample (Data1=zone number 1-4)	BYTE
 STRING
-\x0F	\x02	get_level	Get Zone Level <Reply> = level in 10×dB	BYTE
+\x0F	\x02	get_level	Get Zone Level <Reply> = level in 10 dB	BYTE
 LEVEL
 \x0F	\x03	get_pan	Get Zone Pan (0-100)	BYTE
 BYTE
 \x0F	\x04	get_output	Get Zone Output(0-15)	BYTE
 BYTE
-\x0F	\x05	get_filter	Get Zone Filter (0 ­ ±100)	BYTE
+\x0F	\x05	get_filter	Get Zone Filter (0 +-100)	BYTE
 SBYTE
-\x0F	\x06	get_tune	Get Zone Cents Tune(0 ­ ±3600)	BYTE
+\x0F	\x06	get_tune	Get Zone Cents Tune(0 +-3600)	BYTE
 SBYTE
 \x0F	\x07	get_keyboard_track	Get Zone Keyboard Track	BYTE
 BOOL
 \x0F	\x08	get_playback	Get Zone Playback	BYTE
 BYTE
-\x0F	\x09	get_mod_start	Get Zone ModStart(0 ­ ± 99 99)	BYTE
+\x0F	\x09	get_mod_start	Get Zone ModStart(0 +- 9999)	BYTE
 SWORD
 \x0F	\x0A	get_low_velocity	Get Zone Low Velocity	BYTE
 BYTE
@@ -25,13 +25,13 @@ BYTE
 BOOL
 \x0F	\x0D	get_solo	Get Zone Solo	BYTE
 BOOL
-\x0E	\x01	set_sample	Set Zone Sample <Data2...0> = name of sample to assign to zone. (0, 1­4)	BYTE	STRING
+\x0E	\x01	set_sample	Set Zone Sample <Data2...0> = name of sample to assign to zone. (0, 1-4)	BYTE	STRING
 
-\x0E	\x02	set_level	Set Zone Level <Data1> = Zone number, <Data2> = level in 10xdB (0, 1­4)	BYTE	SWORD
+\x0E	\x02	set_level	Set Zone Level <Data1> = Zone number, <Data2> = level in 10xdB (0, 1-4)	BYTE	SWORD
 
-\x0E	\x03	set_pan	Set Zone Pan/Balance <Data2> = Pan/Bal where (0­100 = L50­R50);	BYTE	BYTE
+\x0E	\x03	set_pan	Set Zone Pan/Balance <Data2> = Pan/Bal where (0-100 = L50-R50);	BYTE	BYTE
 
-\x0E	\x04	set_output	Set Zone Output <Data2> = output, where 0=MULTI, 1 = L/R; 2­5 = op1/2­op7/8; 6­15 = L, R, op1-op8	BYTE	BYTE
+\x0E	\x04	set_output	Set Zone Output <Data2> = output, where 0=MULTI, 1 = L/R; 2-5 = op1/2;op7/8; 6-15 = L, R, op1-op8	BYTE	BYTE
 
 \x0E	\x05	set_filter	Set Zone Filter	BYTE	SBYTE
 

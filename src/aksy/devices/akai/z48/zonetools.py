@@ -50,7 +50,7 @@ class Zonetools:
         return self.z48.execute(self.get_sample_cmd, (arg0, ))
 
     def get_level(self, arg0):
-        """Get Zone Level <Reply> = level in 10×dB
+        """Get Zone Level <Reply> = level in 10 dB
 
         Returns:
             LEVEL
@@ -74,7 +74,7 @@ class Zonetools:
         return self.z48.execute(self.get_output_cmd, (arg0, ))
 
     def get_filter(self, arg0):
-        """Get Zone Filter (0 ­ ±100)
+        """Get Zone Filter (0 +-100)
 
         Returns:
             SBYTE
@@ -82,7 +82,7 @@ class Zonetools:
         return self.z48.execute(self.get_filter_cmd, (arg0, ))
 
     def get_tune(self, arg0):
-        """Get Zone Cents Tune(0 ­ ±3600)
+        """Get Zone Cents Tune(0 +-3600)
 
         Returns:
             SBYTE
@@ -106,7 +106,7 @@ class Zonetools:
         return self.z48.execute(self.get_playback_cmd, (arg0, ))
 
     def get_mod_start(self, arg0):
-        """Get Zone ModStart(0 ­ ± 99 99)
+        """Get Zone ModStart(0 +- 9999)
 
         Returns:
             SWORD
@@ -146,22 +146,22 @@ class Zonetools:
         return self.z48.execute(self.get_solo_cmd, (arg0, ))
 
     def set_sample(self, arg0, arg1):
-        """Set Zone Sample <Data2...0> = name of sample to assign to zone. (0, 1­4)
+        """Set Zone Sample <Data2...0> = name of sample to assign to zone. (0, 1-4)
         """
         return self.z48.execute(self.set_sample_cmd, (arg0, arg1, ))
 
     def set_level(self, arg0, arg1):
-        """Set Zone Level <Data1> = Zone number, <Data2> = level in 10xdB (0, 1­4)
+        """Set Zone Level <Data1> = Zone number, <Data2> = level in 10xdB (0, 1-4)
         """
         return self.z48.execute(self.set_level_cmd, (arg0, arg1, ))
 
     def set_pan(self, arg0, arg1):
-        """Set Zone Pan/Balance <Data2> = Pan/Bal where (0­100 = L50­R50);
+        """Set Zone Pan/Balance <Data2> = Pan/Bal where (0-100 = L50-R50);
         """
         return self.z48.execute(self.set_pan_cmd, (arg0, arg1, ))
 
     def set_output(self, arg0, arg1):
-        """Set Zone Output <Data2> = output, where 0=MULTI, 1 = L/R; 2­5 = op1/2­op7/8; 6­15 = L, R, op1-op8
+        """Set Zone Output <Data2> = output, where 0=MULTI, 1 = L/R; 2-5 = op1/2;op7/8; 6-15 = L, R, op1-op8
         """
         return self.z48.execute(self.set_output_cmd, (arg0, arg1, ))
 

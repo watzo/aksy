@@ -67,7 +67,7 @@ BYTE
 SDWORD
 \x27	\x51	get_param_string	Get parameter string of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE	BYTE
 STRING
-\x27	\x52	get_param_qlinkctrl	Get Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1要 = Qlink 1要)	BYTE	BYTE	BYTE
+\x27	\x52	get_param_qlinkctrl	Get Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1-n = Qlink 1-n)	BYTE	BYTE	BYTE
 BYTE
 \x26	\x20	set_channel_mute	Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)	BYTE	BOOL
 
@@ -83,5 +83,5 @@ BYTE
 
 \x26	\x50	set_param_value	Set parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = parameter value	BYTE	BYTE	BYTE	BYTE
 
-\x26	\x52	set_param_qlinkctrl	Set Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = Qlink control (0=NONE, 1要 = Qlink 1要)	BYTE	BYTE	BYTE	BYTE
+\x26	\x52	set_param_qlinkctrl	Set Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = Qlink control (0=NONE, 1-n = Qlink 1-n)	BYTE	BYTE	BYTE	BYTE
 

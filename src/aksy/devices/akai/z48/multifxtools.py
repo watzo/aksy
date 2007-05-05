@@ -308,7 +308,7 @@ class Multifxtools:
         return self.z48.execute(self.get_param_string_cmd, (arg0, arg1, arg2, ))
 
     def get_param_qlinkctrl(self, arg0, arg1, arg2):
-        """Get Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1要 = Qlink 1要)
+        """Get Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Reply> = Qlink control (0=NONE, 1-n = Qlink 1-n)
 
         Returns:
             BYTE
@@ -351,7 +351,7 @@ class Multifxtools:
         return self.z48.execute(self.set_param_value_cmd, (arg0, arg1, arg2, arg3, ))
 
     def set_param_qlinkctrl(self, arg0, arg1, arg2, arg3):
-        """Set Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = Qlink control (0=NONE, 1要 = Qlink 1要)
+        """Set Qlink control used to control the parameter <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = Qlink control (0=NONE, 1-n = Qlink 1-n)
         """
         return self.z48.execute(self.set_param_qlinkctrl_cmd, (arg0, arg1, arg2, arg3, ))
 

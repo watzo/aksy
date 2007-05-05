@@ -375,7 +375,7 @@ class Programtools:
         return self.z48.execute(self.get_genre_cmd, ())
 
     def get_program_no(self):
-        """Get Program Number <Reply1> = (0=OFF, 1­128)
+        """Get Program Number <Reply1> = (0=OFF, 1=128)
 
         Returns:
             WORD
@@ -407,7 +407,7 @@ class Programtools:
         return self.z48.execute(self.get_keygroup_xfade_type_cmd, ())
 
     def get_level(self):
-        """Get Program Level <Reply1> = level in 10×dB
+        """Get Program Level <Reply1> = level in 10 dB
 
         Returns:
             SWORD
@@ -665,7 +665,7 @@ class Programtools:
         return self.z48.execute(self.set_genre_cmd, (arg0, ))
 
     def set_program_no(self, arg0):
-        """Set Program Number <Data1> = (0=OFF, 1­128)
+        """Set Program Number <Data1> = (0=OFF, 1=128)
         """
         return self.z48.execute(self.set_program_no_cmd, (arg0, ))
 
@@ -685,7 +685,7 @@ class Programtools:
         return self.z48.execute(self.set_keygroup_xfade_type_cmd, (arg0, ))
 
     def set_level(self, arg0):
-        """Set Program Level <Data1> = level in 10×dB (-600 ­ +60)
+        """Set Program Level <Data1> = level in 10dB (-600 +60)
         """
         return self.z48.execute(self.set_level_cmd, (arg0, ))
 
@@ -715,7 +715,7 @@ class Programtools:
         return self.z48.execute(self.set_softpedal_filter_close_cmd, (arg0, ))
 
     def set_midi_transpose(self, arg0):
-        """Midi Transpose (-36 ­ +36)
+        """Midi Transpose (-36 +36)
         """
         return self.z48.execute(self.set_midi_transpose_cmd, (arg0, ))
 
@@ -725,7 +725,7 @@ class Programtools:
         return self.z48.execute(self.set_mpc_pad_assignment_cmd, (arg0, arg1, ))
 
     def set_modulation_conn(self, arg0, arg1, arg2, arg3, arg4):
-        """Set Modulation Connection <Data1> = connection (pin) number;<Data2> = keygroup number (0=ALL, 1­128=KEYGROUP) <Data3> = source (see Table 24); <Data4> = destination (see Table 25); <Data5> = level.  If Source or Destination is zero, the connection will be cleared.
+        """Set Modulation Connection <Data1> = connection (pin) number;<Data2> = keygroup number (0=ALL, 1-128=KEYGROUP) <Data3> = source (see Table 24); <Data4> = destination (see Table 25); <Data5> = level.  If Source or Destination is zero, the connection will be cleared.
         """
         return self.z48.execute(self.set_modulation_conn_cmd, (arg0, arg1, arg2, arg3, arg4, ))
 
@@ -740,7 +740,7 @@ class Programtools:
         return self.z48.execute(self.set_modulation_dest_cmd, (arg0, arg1, ))
 
     def set_modulation_level(self, arg0, arg1, arg2):
-        """Set Modulation Level <Data1> = pin number; <Data2> = (0=ALL, 1­128=KEYGROUP); <Data3> = level
+        """Set Modulation Level <Data1> = pin number; <Data2> = (0=ALL, 1-128=KEYGROUP); <Data3> = level
         """
         return self.z48.execute(self.set_modulation_level_cmd, (arg0, arg1, arg2, ))
 

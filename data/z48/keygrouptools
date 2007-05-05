@@ -11,11 +11,11 @@ BYTE
 BYTE
 \x13	\x05	get_high_note	Get High Note
 BYTE
-\x13	\x06	get_mute_group	Get Mute Group <Reply1> = (0=OFF, 1�64=value)
+\x13	\x06	get_mute_group	Get Mute Group <Reply1> = (0=OFF, 1-64=value)
 BYTE
 \x13	\x07 	get_fx_override	Get FX override <Reply1> = (0=OFF, 1=A, 2=B, 3=C, 4=D, 5=AB, 6=CD, 7=MULTI)
 BYTE
-\x13	\x08	get_fx_send_level	Get FX Send Level <Reply1> = level in 10�dB (-600�+60)
+\x13	\x08	get_fx_send_level	Get FX Send Level <Reply1> = level in 10 dB (-600 +60)
 SWORD
 \x13	\x09	get_zone_xfade	Get Zone Crossfade <Reply1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)
 BYTE
@@ -27,11 +27,11 @@ BYTE
 BYTE
 \x13	\x10	get_tune	Get Cents Tune
 SWORD
-\x13	\x11 	get_level	Get Keygroup Level (RT) <Reply> = value in 10�dB
+\x13	\x11 	get_level	Get Keygroup Level (RT) <Reply> = value in 10 dB
 SWORD
 \x13	\x18	get_play_trigger	Get Play Trigger <Reply> = (0=NOTE ON, 1=NOTE OFF)
 BYTE
-\x13	\x19	get_play_trigger_velocity	Get Play Trigger Velocity (0�129) <Reply> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)
+\x13	\x19	get_play_trigger_velocity	Get Play Trigger Velocity (0 129) <Reply> = (0=ON VEL, 1=OFF VEL, 2-129=0-127)
 WORD
 \x13	\x1A 	get_play_toggle_note	Get Play Toggle Note <Reply> = (0=OFF, 1=ON)
 BYTE
@@ -43,7 +43,7 @@ BYTE
 BYTE
 \x13	\x23	get_filter_attenuation	Get Filter Attenuation (one setting for all filters) <Reply> = (0, 1, 2, 3, 4, 5 = 0dB, 6dB, 12dB, 18dB, 24dB, 30dB)
 BYTE
-\x13	\x30	get_envelope_rate1	Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0�100) Get Envelope Rate 1 (for AMP = Attack)	BYTE
+\x13	\x30	get_envelope_rate1	Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0-100) Get Envelope Rate 1 (for AMP = Attack)	BYTE
 BYTE
 \x13	\x31	get_envelope_level1	Get Envelope Level 1 (FILTER and AUX only)	BYTE
 BYTE
@@ -91,11 +91,11 @@ BYTE
 
 \x12	\x05	set_high_note	Set High Note	BYTE
 
-\x12	\x06	set_mute_group	Set Mute Group <Data1> = (0=OFF, 1�64=value)	BYTE
+\x12	\x06	set_mute_group	Set Mute Group <Data1> = (0=OFF, 1-64=value)	BYTE
 
 \x12	\x07	set_fx_override	Set FX override <Data1> = (0=OFF, 1=A, 2=B, 3=C, 4=D, 5=AB, 6=CD, 7=MULTI)	BYTE
 
-\x12	\x08	set_fx_send_level	Set FX Send Level <Data1> = level in 10�dB (-600�+60)	SWORD
+\x12	\x08	set_fx_send_level	Set FX Send Level <Data1> = level in 10 dB (-600 +60)	SWORD
 
 \x12	\x09	set_zone_xfade	Set Zone Crossfade <Data1> = (0=OFF, 1=VELOCITY, 2=REAL-TIME)	BYTE
 
@@ -105,13 +105,13 @@ BYTE
 
 \x12	\x0F	set_zone_xfade_ctrl_no	Set Zone Crossfade Source Controller Number (only used when Zone Crossfade Source is MIDI CTRL)	BYTE
 
-\x12	\x10	set_tune	Set Cents Tune (0 � �36)	SWORD
+\x12	\x10	set_tune	Set Cents Tune (0 +- 36)	SWORD
 
-\x12	\x11	set_level	Set Keygroup Level <Data1> = value in 10�dB	SWORD
+\x12	\x11	set_level	Set Keygroup Level <Data1> = value in 10 dB	SWORD
 
 \x12	\x18	set_play_trigger	Set Play Trigger <Data1> = (0=NOTE ON, 1=NOTE OFF)
 
-\x12	\x19	set_play_trigger_vel	Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)	BYTE
+\x12	\x19	set_play_trigger_vel	Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2-129=0-127)	BYTE
 
 \x12	\x1A 	set_play_toggle_note	Set Play Toggle Note <Data1> = (0=OFF, 1=ON)	BYTE
 

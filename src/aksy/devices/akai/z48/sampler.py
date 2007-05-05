@@ -13,10 +13,11 @@ class Z48(Sampler):
     def __init__(self, debug=1, usb_product_id=Sampler.Z48):
         Sampler.__init__(self, usb_product_id, debug)
         self.setup_tools()
-        self.setup_model()
 
         self.sysextools.enable_msg_notification(False)
         self.sysextools.enable_item_sync(False)
+        
+        self.setup_model()
 
     def setup_tools(self):
         self.disktools = disktools.Disktools(self)

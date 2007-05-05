@@ -1,4 +1,4 @@
-programtools	Methods	to manipulate in-memory programs
+programtools	Methods to manipulate in-memory programs
 \x0a	\x02	create_empty	Create Program: <Data1…0> = Name	STRING
 
 \x0a	\x03	create_new	Create Program with keygroups. <Data1> = number of keygroups, <Data2…0> = Name	BYTE STRING
@@ -13,42 +13,44 @@ programtools	Methods	to manipulate in-memory programs
 
 \x0a	\x09	rename_curr	Rename currently selected Program: <Data1…0> = Name		STRING
 
-\x0a	\x0A	set_program_no	Set “Program Number”. <Data1>: 0=OFF; 1=ON. <Data2>=program number (ony required if <Data1>=1).
+\x0a	\x0A	set_program_no	Set “Program Number”. <Data1>: 0=OFF; 1=ON. <Data2>=program number (ony required if <Data1>=1).	BYTE
 
-\x0a	\x0B	add_keygroups	Add Keygroups to Program <Data1> = Number of Keygroups to add.
+\x0a	\x0B	add_keygroups	Add Keygroups to Program <Data1> = Number of Keygroups to add.	BYTE
 
-\x0a	\x0C	delete_keygroup	Delete Keygroup from Program: <Data1> = Number of the keygroup to delete. (zero-based)
+\x0a	\x0C	delete_keygroup	Delete Keygroup from Program: <Data1> = Number of the keygroup to delete. (zero-based)	BYTE
 
-\x0a	\x0D	set_keygroup_xfade	Set Keygroup Crossfade <Data1>: 0=OFF; 1=ON
+\x0a	\x0D	set_keygroup_xfade	Set Keygroup Crossfade <Data1>: 0=OFF; 1=ON	BYTE	BOOL
 
 \x0a	\x10	get_no_programs	Get Number of Programs in memory
-
+WORD
 \x0a	\x11	get_program_no	Get Current Program’s “Program Number”
-
+BOOL	BYTE
 \x0a	\x12	get_index	Get Current Program Index (i.e., its position in memory)
+WORD
 \x0a	\x13	get_name	Get Current Program Name
-
+STRING
 \x0a	\x14	get_no_keygroups	Get Number of Keygroups in Current Program
-
+BYTE
 \x0a	\x15	get_keygroup_xfade	Get Keygroup Crossfade
-
+BOOL
 \x0a	\x18	get_program_numbers	Get the “Program Numbers” of all the Programs in memory
+BYTE
 \x0a	\x19	get_names	Get the names of all of the Programs in memory
+STRINGARRAY
+\x0a	\x20	set_loudness	Set Loudness. <Data1> = loudness value.	BYTE
 
-\x0a	\x20	set_loudness	Set Loudness. <Data1> = loudness value.
+\x0a	\x21	set_velocity_sens	Set Velocity Sensitivity. Values range from −100 to +100, <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.	SBYTE
 
-\x0a	\x21	set_velocity_sens	Set Velocity Sensitivity. Values range from −100 to +100, <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.
+\x0a	\x22	set_amp_modulation_source	Set Amp Mod Source. <Data1> = Amp Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)	BYTE
 
-\x0a	\x22	set_amp_modulation_source	Set Amp Mod Source. <Data1> = Amp Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)
+\x0a	\x23	set_amp_modulation_value	Set Amp Mod Value. <Data1> = Amp Mod (1 or 2)	BYTE	SBYTE
 
-\x0a	\x23	set_amp_modulation_value	Set Amp Mod Value. <Data1> = Amp Mod (1 or 2) <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
-
-\x0a	\x24	set_pan_modulation_source	Set Pan Mod Source. <Data1> = Pan Mod (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)
+\x0a	\x24	set_pan_modulation_source	Set Pan Mod Source. <Data1> = Pan Mod (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)	BYTE	SBYTE
 
 \x0a	\x25	set_pan_modulation_value	Set Pan Mod Value. <Data1> = Pan Mod (1, 2 or 3) <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
 
 \x0a	\x28	get_loudness	Get Loudness.
-
+BYTE
 \x0a	\x29	get_velocity_sens	Get Velocity Sensitivity.
 
 \x0a	\x2A	get_amp_modulation_source	Get Amp Mod Source. <Data1> = Amp Mod (1 or 2)
@@ -110,10 +112,15 @@ programtools	Methods	to manipulate in-memory programs
 \x0a	\x4F	get_portamento_time	Get Portamento Time
 
 \x0a	\x50	set_lfo_rate	Set LFO Rate. <Data2> = rate
+
 \x0a	\x51	set_lfo_delay	Set LFO Delay. <Data2> = delay
+
 \x0a	\x52	set_lfo_depth	Set LFO Depth. <Data2> = depth
+
 \x0a	\x53	set_lfo_waveform	Set LFO Waveform. <Data2> = waveform, where: 0=SINE, 1=TRIANGLE, 2=SQUARE, 3=SQUARE+, 4=SQUARE−, 5=SAW BI, 6=SAW UP, 7=SAW DOWN, 8=RANDOM
+
 \x0a	\x54	set_lfo_sync	Set LFO Sync. <Data2> = (0=OFF, 1=ON). (LFO1 only)
+
 \x0a	\x55	set_lfo_retrigger	Set LFO Re-trigger. <Data2> = (0=OFF, 1=ON). (LFO2 only)
 
 \x0a	\x56	set_rate_modulation_source	Set Rate Mod Source <Data2> = Modulation Source. (see Table 15)

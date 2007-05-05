@@ -7,115 +7,117 @@ Methods to manipulate system parameters
 __author__ =  'Walco van Loon'
 __version__=  '$Rev$'
 
-import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
+from aksy.devices.akai.sysex import Command
+
+import aksy.devices.akai.sysex_types
 
 class Systemtools:
     def __init__(self, z48):
         self.z48 = z48
-        self.get_os_software_version_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x00', 'get_os_software_version', (), None)
-        self.get_os_subversion_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x01', 'get_os_subversion', (), None)
-        self.get_sampler_model_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x04', 'get_sampler_model', (), None)
-        self.get_supported_filetypes_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x08', 'get_supported_filetypes', (), None)
-        self.get_perc_free_wave_mem_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x10', 'get_perc_free_wave_mem', (), None)
-        self.get_perc_free_cpu_mem_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x11', 'get_perc_free_cpu_mem', (), None)
-        self.get_wave_mem_size_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x12', 'get_wave_mem_size', (), None)
-        self.get_free_wave_mem_size_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x13', 'get_free_wave_mem_size', (), None)
-        self.clear_sampler_mem_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x18', 'clear_sampler_mem', (), None)
-        self.purge_unused_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x19', 'purge_unused', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.tag_unused_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x1A', 'tag_unused', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.compact_wave_mem_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x20', 'compact_wave_mem', (), None)
-        self.cancel_compact_wave_mem_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x21', 'cancel_compact_wave_mem', (), None)
-        self.get_compact_wave_mem_progress_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x22 ', 'get_compact_wave_mem_progress', (), None)
-        self.get_async_operation_state_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x30 ', 'get_async_operation_state', (), None)
-        self.cancel_curr_async_operation_cmd = aksy.devices.akai.sysex.Command('_', '\x04\x31 ', 'cancel_curr_async_operation', (), None)
-        self.get_sampler_name_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x01', 'get_sampler_name', (), None)
-        self.get_scsi_id_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x02', 'get_scsi_id', (), None)
-        self.get_master_tune_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x03', 'get_master_tune', (), None)
-        self.get_master_level_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x04', 'get_master_level', (), None)
-        self.get_midi_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x05', 'get_midi_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.is_qlink_local_ctrl_enabled_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x06', 'is_qlink_local_ctrl_enabled', (), None)
-        self.is_default_items_enabled_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x07', 'is_default_items_enabled', (), None)
-        self.get_midi_file_save_format_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x08', 'get_midi_file_save_format', (), None)
-        self.get_cdr_write_speed_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x09', 'get_cdr_write_speed', (), None)
-        self.get_cdr_write_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x0A', 'get_cdr_write_mode', (), None)
-        self.is_front_panel_locked_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x10', 'is_front_panel_locked', (), None)
-        self.get_display_contrast_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x11', 'get_display_contrast', (), None)
-        self.get_note_display_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x12', 'get_note_display', (), None)
-        self.get_date_format_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x13', 'get_date_format', (), None)
-        self.get_time_format_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x14', 'get_time_format', (), None)
-        self.get_waveform_view_scale_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x18', 'get_waveform_view_scale', (), None)
-        self.get_waveform_view_type_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x19', 'get_waveform_view_type', (), None)
-        self.get_waveform_view_fill_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x1A', 'get_waveform_view_fill', (), None)
-        self.get_item_sort_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x1B', 'get_item_sort_mode', (), None)
-        self.get_year_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x20', 'get_year', (), None)
-        self.get_month_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x21', 'get_month', (), None)
-        self.get_day_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x22', 'get_day', (), None)
-        self.get_day_of_week_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x23', 'get_day_of_week', (), None)
-        self.get_hours_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x24', 'get_hours', (), None)
-        self.get_mins_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x25', 'get_mins', (), None)
-        self.get_secs_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x26', 'get_secs', (), None)
-        self.get_system_clock_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x30', 'get_system_clock', (), None)
-        self.get_dig_sync_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x31', 'get_dig_sync', (), None)
-        self.get_dig_format_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x32', 'get_dig_format', (), None)
-        self.get_adat_main_out_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x33', 'get_adat_main_out', (), None)
-        self.get_play_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x40', 'get_play_mode', (), None)
-        self.get_prog_monitor_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x41', 'get_prog_monitor_mode', (), None)
-        self.get_sample_monitor_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x42', 'get_sample_monitor_mode', (), None)
-        self.get_play_key_note_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x48', 'get_play_key_note', (), None)
-        self.get_play_key_velocity_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x49', 'get_play_key_velocity', (), None)
-        self.get_play_key_midi_channel_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x4a', 'get_play_key_midi_channel', (), None)
-        self.get_play_key_echo_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x4b', 'get_play_key_echo', (), None)
-        self.get_prog_change_enable_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x4c', 'get_prog_change_enable', (), None)
-        self.get_autoload_enable_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x4d', 'get_autoload_enable', (), None)
-        self.get_global_pad_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x50', 'get_global_pad_mode', (), None)
-        self.get_pad_midi_channel_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x51', 'get_pad_midi_channel', (), None)
-        self.get_pad_sensitivity_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x52', 'get_pad_sensitivity', (), None)
-        self.get_def_note_assign_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x53', 'get_def_note_assign', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_chrom_start_note_cmd = aksy.devices.akai.sysex.Command('_', '\x07\x54', 'get_chrom_start_note', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_sampler_name_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x01', 'set_sampler_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.set_scsi_id_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x02', 'set_scsi_id', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_master_tune_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x03', 'set_master_tune', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_master_level_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x04', 'set_master_level', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_midi_out_thru_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x05', 'set_midi_out_thru', (), None)
-        self.set_qlink_local_control_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x06', 'set_qlink_local_control', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_create_default_items_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x07', 'set_create_default_items', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_midi_file_save_format_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x08', 'set_midi_file_save_format', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_cdr_write_speed_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x09', 'set_cdr_write_speed', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_cdr_write_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x0a', 'set_cdr_write_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_front_panel_lockout_state_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x10', 'set_front_panel_lockout_state', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_display_contrast_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x11', 'set_display_contrast', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_note_display_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x12', 'set_note_display', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_date_display_format_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x13', 'set_date_display_format', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_time_display_format_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x14', 'set_time_display_format', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_waveform_view_scale_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x18', 'set_waveform_view_scale', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_waveform_view_type_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x19', 'set_waveform_view_type', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_waveform_view_fill_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x1a', 'set_waveform_view_fill', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_item_sort_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x1b', 'set_item_sort_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_year_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x20', 'set_year', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_month_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x21', 'set_month', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_day_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x22', 'set_day', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_day_of_week_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x23', 'set_day_of_week', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_hours_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x24', 'set_hours', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_minutes_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x25', 'set_minutes', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_seconds_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x26', 'set_seconds', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_system_clock_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x30', 'set_system_clock', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_digital_out_sync_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x31', 'set_digital_out_sync', (), None)
-        self.set_digital_format_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x32', 'set_digital_format', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_adat_main_out_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x33', 'set_adat_main_out', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_play_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x40', 'set_play_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_program_monitor_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x41', 'set_program_monitor_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_sample_monitor_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x42', 'set_sample_monitor_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_play_key_note_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x48', 'set_play_key_note', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_play_key_velocity_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x49', 'set_play_key_velocity', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_play_key_midi_channel_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x4a', 'set_play_key_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_play_key_echo_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x4b', 'set_play_key_echo', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_program_change_enable_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x4c', 'set_program_change_enable', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_autoload_enable_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x4d', 'set_autoload_enable', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_global_pad_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x05\x50', 'set_global_pad_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_pad_midi_channel_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x51', 'set_pad_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_pad_sensitivity_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x52', 'set_pad_sensitivity', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_default_note_assignment_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x53', 'set_default_note_assignment', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_chromatic_start_note_cmd = aksy.devices.akai.sysex.Command('_', '\x06\x54', 'set_chromatic_start_note', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_os_software_version_cmd = Command('_', '\x04\x00', 'get_os_software_version', (), None)
+        self.get_os_subversion_cmd = Command('_', '\x04\x01', 'get_os_subversion', (), None)
+        self.get_sampler_model_cmd = Command('_', '\x04\x04', 'get_sampler_model', (), None)
+        self.get_supported_filetypes_cmd = Command('_', '\x04\x08', 'get_supported_filetypes', (), None)
+        self.get_perc_free_wave_mem_cmd = Command('_', '\x04\x10', 'get_perc_free_wave_mem', (), None)
+        self.get_perc_free_cpu_mem_cmd = Command('_', '\x04\x11', 'get_perc_free_cpu_mem', (), None)
+        self.get_wave_mem_size_cmd = Command('_', '\x04\x12', 'get_wave_mem_size', (), None)
+        self.get_free_wave_mem_size_cmd = Command('_', '\x04\x13', 'get_free_wave_mem_size', (), None)
+        self.clear_sampler_mem_cmd = Command('_', '\x04\x18', 'clear_sampler_mem', (), None)
+        self.purge_unused_cmd = Command('_', '\x04\x19', 'purge_unused', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.tag_unused_cmd = Command('_', '\x04\x1A', 'tag_unused', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.compact_wave_mem_cmd = Command('_', '\x04\x20', 'compact_wave_mem', (), None)
+        self.cancel_compact_wave_mem_cmd = Command('_', '\x04\x21', 'cancel_compact_wave_mem', (), None)
+        self.get_compact_wave_mem_progress_cmd = Command('_', '\x04\x22 ', 'get_compact_wave_mem_progress', (), None)
+        self.get_async_operation_state_cmd = Command('_', '\x04\x30 ', 'get_async_operation_state', (), None)
+        self.cancel_curr_async_operation_cmd = Command('_', '\x04\x31 ', 'cancel_curr_async_operation', (), None)
+        self.get_sampler_name_cmd = Command('_', '\x07\x01', 'get_sampler_name', (), None)
+        self.get_scsi_id_cmd = Command('_', '\x07\x02', 'get_scsi_id', (), None)
+        self.get_master_tune_cmd = Command('_', '\x07\x03', 'get_master_tune', (), None)
+        self.get_master_level_cmd = Command('_', '\x07\x04', 'get_master_level', (), None)
+        self.get_midi_mode_cmd = Command('_', '\x07\x05', 'get_midi_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.is_qlink_local_ctrl_enabled_cmd = Command('_', '\x07\x06', 'is_qlink_local_ctrl_enabled', (), None)
+        self.is_default_items_enabled_cmd = Command('_', '\x07\x07', 'is_default_items_enabled', (), None)
+        self.get_midi_file_save_format_cmd = Command('_', '\x07\x08', 'get_midi_file_save_format', (), None)
+        self.get_cdr_write_speed_cmd = Command('_', '\x07\x09', 'get_cdr_write_speed', (), None)
+        self.get_cdr_write_mode_cmd = Command('_', '\x07\x0A', 'get_cdr_write_mode', (), None)
+        self.is_front_panel_locked_cmd = Command('_', '\x07\x10', 'is_front_panel_locked', (), None)
+        self.get_display_contrast_cmd = Command('_', '\x07\x11', 'get_display_contrast', (), None)
+        self.get_note_display_cmd = Command('_', '\x07\x12', 'get_note_display', (), None)
+        self.get_date_format_cmd = Command('_', '\x07\x13', 'get_date_format', (), None)
+        self.get_time_format_cmd = Command('_', '\x07\x14', 'get_time_format', (), None)
+        self.get_waveform_view_scale_cmd = Command('_', '\x07\x18', 'get_waveform_view_scale', (), None)
+        self.get_waveform_view_type_cmd = Command('_', '\x07\x19', 'get_waveform_view_type', (), None)
+        self.get_waveform_view_fill_cmd = Command('_', '\x07\x1A', 'get_waveform_view_fill', (), None)
+        self.get_item_sort_mode_cmd = Command('_', '\x07\x1B', 'get_item_sort_mode', (), None)
+        self.get_year_cmd = Command('_', '\x07\x20', 'get_year', (), None)
+        self.get_month_cmd = Command('_', '\x07\x21', 'get_month', (), None)
+        self.get_day_cmd = Command('_', '\x07\x22', 'get_day', (), None)
+        self.get_day_of_week_cmd = Command('_', '\x07\x23', 'get_day_of_week', (), None)
+        self.get_hours_cmd = Command('_', '\x07\x24', 'get_hours', (), None)
+        self.get_mins_cmd = Command('_', '\x07\x25', 'get_mins', (), None)
+        self.get_secs_cmd = Command('_', '\x07\x26', 'get_secs', (), None)
+        self.get_system_clock_cmd = Command('_', '\x07\x30', 'get_system_clock', (), None)
+        self.get_dig_sync_cmd = Command('_', '\x07\x31', 'get_dig_sync', (), None)
+        self.get_dig_format_cmd = Command('_', '\x07\x32', 'get_dig_format', (), None)
+        self.get_adat_main_out_cmd = Command('_', '\x07\x33', 'get_adat_main_out', (), None)
+        self.get_play_mode_cmd = Command('_', '\x07\x40', 'get_play_mode', (), None)
+        self.get_prog_monitor_mode_cmd = Command('_', '\x07\x41', 'get_prog_monitor_mode', (), None)
+        self.get_sample_monitor_mode_cmd = Command('_', '\x07\x42', 'get_sample_monitor_mode', (), None)
+        self.get_play_key_note_cmd = Command('_', '\x07\x48', 'get_play_key_note', (), None)
+        self.get_play_key_velocity_cmd = Command('_', '\x07\x49', 'get_play_key_velocity', (), None)
+        self.get_play_key_midi_channel_cmd = Command('_', '\x07\x4a', 'get_play_key_midi_channel', (), None)
+        self.get_play_key_echo_cmd = Command('_', '\x07\x4b', 'get_play_key_echo', (), None)
+        self.get_prog_change_enable_cmd = Command('_', '\x07\x4c', 'get_prog_change_enable', (), None)
+        self.get_autoload_enable_cmd = Command('_', '\x07\x4d', 'get_autoload_enable', (), None)
+        self.get_global_pad_mode_cmd = Command('_', '\x07\x50', 'get_global_pad_mode', (), None)
+        self.get_pad_midi_channel_cmd = Command('_', '\x07\x51', 'get_pad_midi_channel', (), None)
+        self.get_pad_sensitivity_cmd = Command('_', '\x07\x52', 'get_pad_sensitivity', (), None)
+        self.get_def_note_assign_cmd = Command('_', '\x07\x53', 'get_def_note_assign', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_chrom_start_note_cmd = Command('_', '\x07\x54', 'get_chrom_start_note', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_sampler_name_cmd = Command('_', '\x06\x01', 'set_sampler_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.set_scsi_id_cmd = Command('_', '\x06\x02', 'set_scsi_id', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_master_tune_cmd = Command('_', '\x06\x03', 'set_master_tune', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_master_level_cmd = Command('_', '\x06\x04', 'set_master_level', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_midi_out_thru_cmd = Command('_', '\x06\x05', 'set_midi_out_thru', (), None)
+        self.set_qlink_local_control_cmd = Command('_', '\x06\x06', 'set_qlink_local_control', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_create_default_items_cmd = Command('_', '\x06\x07', 'set_create_default_items', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_midi_file_save_format_cmd = Command('_', '\x06\x08', 'set_midi_file_save_format', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_cdr_write_speed_cmd = Command('_', '\x06\x09', 'set_cdr_write_speed', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_cdr_write_mode_cmd = Command('_', '\x06\x0a', 'set_cdr_write_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_front_panel_lockout_state_cmd = Command('_', '\x06\x10', 'set_front_panel_lockout_state', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_display_contrast_cmd = Command('_', '\x06\x11', 'set_display_contrast', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_note_display_cmd = Command('_', '\x06\x12', 'set_note_display', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_date_display_format_cmd = Command('_', '\x06\x13', 'set_date_display_format', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_time_display_format_cmd = Command('_', '\x06\x14', 'set_time_display_format', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_waveform_view_scale_cmd = Command('_', '\x06\x18', 'set_waveform_view_scale', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_waveform_view_type_cmd = Command('_', '\x06\x19', 'set_waveform_view_type', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_waveform_view_fill_cmd = Command('_', '\x06\x1a', 'set_waveform_view_fill', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_item_sort_mode_cmd = Command('_', '\x06\x1b', 'set_item_sort_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_year_cmd = Command('_', '\x06\x20', 'set_year', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_month_cmd = Command('_', '\x06\x21', 'set_month', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_day_cmd = Command('_', '\x06\x22', 'set_day', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_day_of_week_cmd = Command('_', '\x06\x23', 'set_day_of_week', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_hours_cmd = Command('_', '\x06\x24', 'set_hours', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_minutes_cmd = Command('_', '\x06\x25', 'set_minutes', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_seconds_cmd = Command('_', '\x06\x26', 'set_seconds', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_system_clock_cmd = Command('_', '\x06\x30', 'set_system_clock', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_digital_out_sync_cmd = Command('_', '\x06\x31', 'set_digital_out_sync', (), None)
+        self.set_digital_format_cmd = Command('_', '\x06\x32', 'set_digital_format', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_adat_main_out_cmd = Command('_', '\x06\x33', 'set_adat_main_out', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_play_mode_cmd = Command('_', '\x06\x40', 'set_play_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_program_monitor_mode_cmd = Command('_', '\x06\x41', 'set_program_monitor_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_sample_monitor_mode_cmd = Command('_', '\x06\x42', 'set_sample_monitor_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_play_key_note_cmd = Command('_', '\x06\x48', 'set_play_key_note', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_play_key_velocity_cmd = Command('_', '\x06\x49', 'set_play_key_velocity', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_play_key_midi_channel_cmd = Command('_', '\x06\x4a', 'set_play_key_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_play_key_echo_cmd = Command('_', '\x06\x4b', 'set_play_key_echo', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_program_change_enable_cmd = Command('_', '\x06\x4c', 'set_program_change_enable', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_autoload_enable_cmd = Command('_', '\x06\x4d', 'set_autoload_enable', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.set_global_pad_mode_cmd = Command('_', '\x05\x50', 'set_global_pad_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_pad_midi_channel_cmd = Command('_', '\x06\x51', 'set_pad_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_pad_sensitivity_cmd = Command('_', '\x06\x52', 'set_pad_sensitivity', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_default_note_assignment_cmd = Command('_', '\x06\x53', 'set_default_note_assignment', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_chromatic_start_note_cmd = Command('_', '\x06\x54', 'set_chromatic_start_note', (aksy.devices.akai.sysex_types.BYTE,), None)
 
     def get_os_software_version(self):
         """Get Operating System Software Version
@@ -253,7 +255,7 @@ class Systemtools:
         return self.z48.execute(self.get_master_tune_cmd, ())
 
     def get_master_level(self):
-        """Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
+        """Get Master Level <Reply> = (-42 dB - 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
 
         Returns:
             BYTE
@@ -293,7 +295,7 @@ class Systemtools:
         return self.z48.execute(self.get_midi_file_save_format_cmd, ())
 
     def get_cdr_write_speed(self):
-        """Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
+        """Get CD-R write speed (0=*1, 1=*2, 2=*4, 3=*6, 4=*8, 5=*12, 6=*16, 7=MAX)
 
         Returns:
             BYTE
@@ -437,7 +439,7 @@ class Systemtools:
         return self.z48.execute(self.get_secs_cmd, ())
 
     def get_system_clock(self):
-        """Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
+        """Get System Clock <Reply> = (0=44.1kHz, 1=48kHz, 2=96kHz)
 
         Returns:
             BYTE
@@ -557,7 +559,7 @@ class Systemtools:
         return self.z48.execute(self.get_pad_midi_channel_cmd, ())
 
     def get_pad_sensitivity(self):
-        """Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
+        """Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0-100 = 100%-200%)
 
         Returns:
             BYTE
@@ -596,7 +598,7 @@ class Systemtools:
         return self.z48.execute(self.set_master_tune_cmd, (arg0, ))
 
     def set_master_level(self, arg0):
-        """Set Master Level <Data1> = (-42dB ­ 0dB in 6dB * 7 steps)
+        """Set Master Level <Data1> = (-42dB - 0dB in 6dB * 7 steps)
         """
         return self.z48.execute(self.set_master_level_cmd, (arg0, ))
 
@@ -621,7 +623,7 @@ class Systemtools:
         return self.z48.execute(self.set_midi_file_save_format_cmd, (arg0, ))
 
     def set_cdr_write_speed(self, arg0):
-        """Set CD-R write speed <Data1> = (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
+        """Set CD-R write speed <Data1> = (0=*1, 1=*2, 2=*4, 3=*6, 4=*8, 5=*12, 6=*16, 7=MAX)
         """
         return self.z48.execute(self.set_cdr_write_speed_cmd, (arg0, ))
 
@@ -711,7 +713,7 @@ class Systemtools:
         return self.z48.execute(self.set_seconds_cmd, (arg0, ))
 
     def set_system_clock(self, arg0):
-        """Set System Clock <Data1> = (0=44·1kHz, 1=48kHz, 2=96kHz)
+        """Set System Clock <Data1> = (0=44.1kHz, 1=48kHz, 2=96kHz)
         """
         return self.z48.execute(self.set_system_clock_cmd, (arg0, ))
 
@@ -786,7 +788,7 @@ class Systemtools:
         return self.z48.execute(self.set_pad_midi_channel_cmd, (arg0, ))
 
     def set_pad_sensitivity(self, arg0, arg1):
-        """Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0­100 = 100%­200%)
+        """Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0-100 = 100%-200%)
         """
         return self.z48.execute(self.set_pad_sensitivity_cmd, (arg0, arg1, ))
 

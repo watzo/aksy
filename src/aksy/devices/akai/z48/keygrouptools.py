@@ -138,7 +138,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_high_note_cmd, ())
 
     def get_mute_group(self):
-        """Get Mute Group <Reply1> = (0=OFF, 1�64=value)
+        """Get Mute Group <Reply1> = (0=OFF, 1-64=value)
 
         Returns:
             BYTE
@@ -154,7 +154,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_fx_override_cmd, ())
 
     def get_fx_send_level(self):
-        """Get FX Send Level <Reply1> = level in 10�dB (-600�+60)
+        """Get FX Send Level <Reply1> = level in 10 dB (-600 +60)
 
         Returns:
             SWORD
@@ -202,7 +202,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_tune_cmd, ())
 
     def get_level(self):
-        """Get Keygroup Level (RT) <Reply> = value in 10�dB
+        """Get Keygroup Level (RT) <Reply> = value in 10 dB
 
         Returns:
             SWORD
@@ -218,7 +218,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_play_trigger_cmd, ())
 
     def get_play_trigger_velocity(self):
-        """Get Play Trigger Velocity (0�129) <Reply> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)
+        """Get Play Trigger Velocity (0 129) <Reply> = (0=ON VEL, 1=OFF VEL, 2-129=0-127)
 
         Returns:
             WORD
@@ -266,7 +266,7 @@ class Keygrouptools:
         return self.z48.execute(self.get_filter_attenuation_cmd, ())
 
     def get_envelope_rate1(self, arg0):
-        """Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0�100) Get Envelope Rate 1 (for AMP = Attack)
+        """Get Envelope Rate1 <Data1> = Envelope (0=AMP, 1=FILTER, 2=AUX) 0-100) Get Envelope Rate 1 (for AMP = Attack)
 
         Returns:
             BYTE
@@ -446,7 +446,7 @@ class Keygrouptools:
         return self.z48.execute(self.set_high_note_cmd, (arg0, ))
 
     def set_mute_group(self, arg0):
-        """Set Mute Group <Data1> = (0=OFF, 1�64=value)
+        """Set Mute Group <Data1> = (0=OFF, 1-64=value)
         """
         return self.z48.execute(self.set_mute_group_cmd, (arg0, ))
 
@@ -456,7 +456,7 @@ class Keygrouptools:
         return self.z48.execute(self.set_fx_override_cmd, (arg0, ))
 
     def set_fx_send_level(self, arg0):
-        """Set FX Send Level <Data1> = level in 10�dB (-600�+60)
+        """Set FX Send Level <Data1> = level in 10 dB (-600 +60)
         """
         return self.z48.execute(self.set_fx_send_level_cmd, (arg0, ))
 
@@ -481,12 +481,12 @@ class Keygrouptools:
         return self.z48.execute(self.set_zone_xfade_ctrl_no_cmd, (arg0, ))
 
     def set_tune(self, arg0):
-        """Set Cents Tune (0 � �36)
+        """Set Cents Tune (0 +- 36)
         """
         return self.z48.execute(self.set_tune_cmd, (arg0, ))
 
     def set_level(self, arg0):
-        """Set Keygroup Level <Data1> = value in 10�dB
+        """Set Keygroup Level <Data1> = value in 10 dB
         """
         return self.z48.execute(self.set_level_cmd, (arg0, ))
 
@@ -496,7 +496,7 @@ class Keygrouptools:
         return self.z48.execute(self.set_play_trigger_cmd, ())
 
     def set_play_trigger_vel(self, arg0):
-        """Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2�129=0�127)
+        """Set Play Trigger Velocity <Data1> = (0=ON VEL, 1=OFF VEL, 2-129=0-127)
         """
         return self.z48.execute(self.set_play_trigger_vel_cmd, (arg0, ))
 

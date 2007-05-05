@@ -37,7 +37,7 @@ STRING
 BYTE
 \x07	\x03	get_master_tune	Get Master Tune
 SWORD
-\x07	\x04	get_master_level	Get Master Level <Reply> = (-42 dB ­ 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
+\x07	\x04	get_master_level	Get Master Level <Reply> = (-42 dB - 0dB in 6dB steps)(0=-42 dB, 1=-36dB, ..., 7=0dB)
 BYTE
 \x07	\x05	get_midi_mode	Get MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B) <Reply> = (0=OUT, 1=THRUA, 2=THRUB)	BYTE
 BYTE
@@ -47,7 +47,7 @@ BYTE
 BYTE
 \x07	\x08	get_midi_file_save_format	Get MIDI file save format
 BYTE
-\x07	\x09	get_cdr_write_speed	Get CD-R write speed (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)
+\x07	\x09	get_cdr_write_speed	Get CD-R write speed (0=*1, 1=*2, 2=*4, 3=*6, 4=*8, 5=*12, 6=*16, 7=MAX)
 BYTE
 \x07	\x0A	get_cdr_write_mode	Get CD-R write mode <Reply> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)
 BYTE
@@ -83,7 +83,7 @@ BYTE
 BYTE
 \x07	\x26	get_secs	Get Seconds
 BYTE
-\x07	\x30	get_system_clock	Get System Clock <Reply> = (0=44·1kHz, 1=48kHz, 2=96kHz)
+\x07	\x30	get_system_clock	Get System Clock <Reply> = (0=44.1kHz, 1=48kHz, 2=96kHz)
 BYTE
 \x07	\x31	get_dig_sync	Get Digital Out Sync (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK)
 BYTE
@@ -113,7 +113,7 @@ BOOL
 BYTE
 \x07	\x51	get_pad_midi_channel	Get MIDI Channel for MPC Pad
 BYTE
-\x07	\x52	get_pad_sensitivity	Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0­100 = 100%­200%)
+\x07	\x52	get_pad_sensitivity	Get Pad Sensitivity <Data1> = Pad <Reply> = Sensitivity (0-100 = 100%-200%)
 BYTE
 \x07	\x53	get_def_note_assign	Get Default Note Assignment <Data1> = Pad	BYTE 
 BYTE
@@ -125,7 +125,7 @@ BYTE
 
 \x06	\x03	set_master_tune	Set Master Tune	BYTE
 
-\x06	\x04	set_master_level	Set Master Level <Data1> = (-42dB ­ 0dB in 6dB * 7 steps)	BYTE
+\x06	\x04	set_master_level	Set Master Level <Data1> = (-42dB - 0dB in 6dB * 7 steps)	BYTE
 
 \x06	\x05	set_midi_out_thru	Set MIDI OUT/THRU <Data1> = MIDI port (0=A, 1=B), <Data2> = (0=OUT, 1=THRUA, 2=THRUB)
 
@@ -135,7 +135,7 @@ BYTE
 
 \x06	\x08	set_midi_file_save_format	Set MIDI file save format	BYTE
 
-\x06	\x09	set_cdr_write_speed	Set CD-R write speed <Data1> = (0=×1, 1=×2, 2=×4, 3=×6, 4=×8, 5=×12, 6=×16, 7=MAX)	BYTE
+\x06	\x09	set_cdr_write_speed	Set CD-R write speed <Data1> = (0=*1, 1=*2, 2=*4, 3=*6, 4=*8, 5=*12, 6=*16, 7=MAX)	BYTE
 
 \x06	\x0a	set_cdr_write_mode	Set CD-R write mode <Data1> = (0=TEST+WRITE, 1=TEST ONLY, 2=WRITE ONLY)	BYTE
 
@@ -171,7 +171,7 @@ BYTE
 
 \x06	\x26	set_seconds	Set Seconds	BYTE
 
-\x06	\x30	set_system_clock	Set System Clock <Data1> = (0=44·1kHz, 1=48kHz, 2=96kHz)	BYTE
+\x06	\x30	set_system_clock	Set System Clock <Data1> = (0=44.1kHz, 1=48kHz, 2=96kHz)	BYTE
 
 \x06	\x31	set_digital_out_sync	Set Digital Out Sync <Data1> = (0=INTERNAL, 1=DIGITAL IN, 2=ADAT IN, 3=WORDCLOCK) BYTE
 
@@ -201,7 +201,7 @@ BYTE
 
 \x06	\x51	set_pad_midi_channel	Set MIDI Channel	BYTE
 
-\x06	\x52	set_pad_sensitivity	Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0­100 = 100%­200%)	BYTE	BYTE
+\x06	\x52	set_pad_sensitivity	Set Pad Sensitivity <Data1> = Pad <Data2> = Sensitivity (0-100 = 100%-200%)	BYTE	BYTE
 
 \x06	\x53	set_default_note_assignment	Set Default Note Assignment <Data1> = Pad, <Data2> = Note	BYTE	BYTE
 

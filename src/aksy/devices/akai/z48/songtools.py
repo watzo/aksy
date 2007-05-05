@@ -7,52 +7,54 @@ Song
 __author__ =  'Walco van Loon'
 __version__=  '$Rev$'
 
-import aksy.devices.akai.sysex,aksy.devices.akai.sysex_types
+from aksy.devices.akai.sysex import Command
+
+import aksy.devices.akai.sysex_types
 
 class Songtools:
     def __init__(self, z48):
         self.z48 = z48
-        self.get_no_items_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x01', 'get_no_items', (), None)
-        self.get_handles_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x00', 'get_handles', (), None)
-        self.get_names_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x01', 'get_names', (), None)
-        self.get_handles_names_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x02', 'get_handles_names', (), None)
-        self.get_handles_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_curr_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.set_curr_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.get_curr_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x05', 'get_curr_handle', (), None)
-        self.get_curr_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x06', 'get_curr_name', (), None)
-        self.get_name_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.get_handle_by_name_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.delete_all_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x09', 'delete_all', (), None)
-        self.delete_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0A', 'delete_curr', (), None)
-        self.delete_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
-        self.rename_curr_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.rename_by_handle_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
-        self.set_tag_bit_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0E', 'set_tag_bit', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_tag_bitmap_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x0F', 'get_tag_bitmap', (), None)
-        self.get_curr_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'get_curr_modified', (), None)
-        self.get_modified_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x11 ', 'get_modified', (), None)
-        self.delete_tagged_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.play_song_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x40', 'play_song', (), None)
-        self.pause_song_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x41', 'pause_song', (), None)
-        self.stop_song_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x42', 'stop_song', (), None)
-        self.set_group_id_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_from_bar_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'set_from_bar', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.set_to_bar_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'set_to_bar', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.set_tempo_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x12', 'set_tempo_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_manual_tempo_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x13', 'set_manual_tempo', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.set_midi_output_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'set_midi_output', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.get_group_id_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x01', 'get_group_id', (), None)
-        self.get_from_bar_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x10', 'get_from_bar', (), None)
-        self.get_to_bar_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x11', 'get_to_bar', (), None)
-        self.get_tempo_mode_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x12', 'get_tempo_mode', (), None)
-        self.get_manual_tempo_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x13', 'get_manual_tempo', (), None)
-        self.get_midi_output_port_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x18', 'get_midi_output_port', (), None)
-        self.get_time_signature_beat_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x20', 'get_time_signature_beat', (), None)
-        self.get_time_sig_beat_no_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x21', 'get_time_sig_beat_no', (), None)
-        self.get_curr_beat_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x22', 'get_curr_beat', (), None)
-        self.get_curr_bar_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x23', 'get_curr_bar', (), None)
-        self.get_curr_tempo_cmd = aksy.devices.akai.sysex.Command('_', '\x28\x24', 'get_curr_tempo', (), None)
+        self.get_no_items_cmd = Command('_', '\x28\x01', 'get_no_items', (), None)
+        self.get_handles_cmd = Command('_', '\x28\x02\x00', 'get_handles', (), None)
+        self.get_names_cmd = Command('_', '\x28\x02\x01', 'get_names', (), None)
+        self.get_handles_names_cmd = Command('_', '\x28\x02\x02', 'get_handles_names', (), None)
+        self.get_handles_modified_cmd = Command('_', '\x28\x02\x03', 'get_handles_modified', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_curr_by_handle_cmd = Command('_', '\x28\x03', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.set_curr_by_name_cmd = Command('_', '\x28\x04', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.get_curr_handle_cmd = Command('_', '\x28\x05', 'get_curr_handle', (), None)
+        self.get_curr_name_cmd = Command('_', '\x28\x06', 'get_curr_name', (), None)
+        self.get_name_by_handle_cmd = Command('_', '\x28\x07', 'get_name_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.get_handle_by_name_cmd = Command('_', '\x28\x08', 'get_handle_by_name', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.delete_all_cmd = Command('_', '\x28\x09', 'delete_all', (), None)
+        self.delete_curr_cmd = Command('_', '\x28\x0A', 'delete_curr', (), None)
+        self.delete_by_handle_cmd = Command('_', '\x28\x0B', 'delete_by_handle', (aksy.devices.akai.sysex_types.DWORD,), None)
+        self.rename_curr_cmd = Command('_', '\x28\x0C', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.rename_by_handle_cmd = Command('_', '\x28\x0D', 'rename_by_handle', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.STRING), None)
+        self.set_tag_bit_cmd = Command('_', '\x28\x0E', 'set_tag_bit', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_tag_bitmap_cmd = Command('_', '\x28\x0F', 'get_tag_bitmap', (), None)
+        self.get_curr_modified_cmd = Command('_', '\x28\x10', 'get_curr_modified', (), None)
+        self.get_modified_cmd = Command('_', '\x28\x11 ', 'get_modified', (), None)
+        self.delete_tagged_cmd = Command('_', '\x28\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.play_song_cmd = Command('_', '\x28\x40', 'play_song', (), None)
+        self.pause_song_cmd = Command('_', '\x28\x41', 'pause_song', (), None)
+        self.stop_song_cmd = Command('_', '\x28\x42', 'stop_song', (), None)
+        self.set_group_id_cmd = Command('_', '\x28\x01', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_from_bar_cmd = Command('_', '\x28\x10', 'set_from_bar', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_to_bar_cmd = Command('_', '\x28\x10', 'set_to_bar', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_tempo_mode_cmd = Command('_', '\x28\x12', 'set_tempo_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.set_manual_tempo_cmd = Command('_', '\x28\x13', 'set_manual_tempo', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_midi_output_cmd = Command('_', '\x28\x18', 'set_midi_output', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.get_group_id_cmd = Command('_', '\x28\x01', 'get_group_id', (), None)
+        self.get_from_bar_cmd = Command('_', '\x28\x10', 'get_from_bar', (), None)
+        self.get_to_bar_cmd = Command('_', '\x28\x11', 'get_to_bar', (), None)
+        self.get_tempo_mode_cmd = Command('_', '\x28\x12', 'get_tempo_mode', (), None)
+        self.get_manual_tempo_cmd = Command('_', '\x28\x13', 'get_manual_tempo', (), None)
+        self.get_midi_output_port_cmd = Command('_', '\x28\x18', 'get_midi_output_port', (), None)
+        self.get_time_signature_beat_cmd = Command('_', '\x28\x20', 'get_time_signature_beat', (), None)
+        self.get_time_sig_beat_no_cmd = Command('_', '\x28\x21', 'get_time_sig_beat_no', (), None)
+        self.get_curr_beat_cmd = Command('_', '\x28\x22', 'get_curr_beat', (), None)
+        self.get_curr_bar_cmd = Command('_', '\x28\x23', 'get_curr_bar', (), None)
+        self.get_curr_tempo_cmd = Command('_', '\x28\x24', 'get_curr_tempo', (), None)
 
     def get_no_items(self):
         """Get number of items in memory
@@ -222,7 +224,7 @@ class Songtools:
         return self.z48.execute(self.set_tempo_mode_cmd, (arg0, ))
 
     def set_manual_tempo(self, arg0):
-        """Set Manual Tempo <Data1> = (tempo×10)bpm
+        """Set Manual Tempo <Data1> = (tempo*10)bpm
         """
         return self.z48.execute(self.set_manual_tempo_cmd, (arg0, ))
 
@@ -312,7 +314,7 @@ class Songtools:
         return self.z48.execute(self.get_curr_bar_cmd, ())
 
     def get_curr_tempo(self):
-        """Get Current Tempo <Reply> = (tempo×10)bpm
+        """Get Current Tempo <Reply> = (tempo*10)bpm
 
         Returns:
             WORD
