@@ -3,3 +3,6 @@ def is_file_type_supported(supported_file_types, filename):
         if filename.lower().endswith(type):
             return True
     return False
+
+def is_dirpath(path):
+    return path.count('.') == 0

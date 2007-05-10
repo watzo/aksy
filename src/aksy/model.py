@@ -5,6 +5,7 @@ Offers a high level sampler API
 """
 import re, os.path, sys, logging
 from aksyx import AkaiSampler
+from aksy import fileutils
 
 RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
@@ -31,16 +32,20 @@ class Disk(object):
             return self.root.has_children()
         return False
 
+    def find_folder(self, path):
+        self.set_current()
+        self.root.find_folder(path)
+            
     def get_handle(self):
         return self.info.handle
 
     def set_current(self):
         if self.info.format != 8: # ejected disk!
             handlers[Disk].select_disk(self.get_handle())
-        return None
 
     def get_name(self):
         return self.info.name
+    
     def get_short_name(self):
         return self.get_name()
     
@@ -186,7 +191,16 @@ class Folder(FileRef):
 
     def get_actions(self):
         return ('load', 'delete', 'download',)
-        
+
+    def find(self, rel_path):
+        if fileutils.isdirpath(rel_path):
+            folder = Folder(rel_path)
+            folder.set_current()
+            return folder
+    
+        folder = Folder(os.path.dirname(rel_path))
+        return folder.get_child(os.path.basename(rel_path))
+
     def get_children(self):
         """Gets the children of this folder
         or returns a cached version when already retrieved.
@@ -207,8 +221,13 @@ class Folder(FileRef):
             self.children.extend(files)
         return self.children
 
+    def get_child(self, filename):
+        for child in self.get_children():
+            if child.get_name() == filename:
+                return child
+        return None
+    
     def has_children(self):
-
         return (len(self.children) > 0 or handlers[Disk].get_no_files() > 0 or
             handlers[Disk].get_no_folders() > 0)
 
@@ -413,6 +432,12 @@ class Storage:
         # maybe implement an info action?
         return ()
 
+class RootDisk(Storage):
+    def __init__(self, name, *disk_list):
+        Storage.__init__(self, name)
+        self.set_children([Disk(disk) for disk 
+            in disk_list])
+
 class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
@@ -436,8 +461,10 @@ class Memory(Storage):
         return (
             (handlers.has_key(Program) and handlers[Program].get_no_items() > 0) or
             (handlers.has_key(Sample) and handlers[Sample].get_no_items() > 0) or
-            (handlers.has_key(Multi) and handlers[Multi].get_no_items() > 0) )
+            (handlers.has_key(Multi) and handlers[Multi].get_no_items() > 0))
 
+    def get_dir(self, rel_path):
+        return None
 
     def get_children(self):
         if len(self.children) > 0:

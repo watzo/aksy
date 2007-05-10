@@ -2,6 +2,7 @@ from aksy.devices.akai import sysex
 from aksyx import AkaiSampler
 
 from aksy import model
+from aksy import fileutils
 
 import os.path, logging
 
@@ -12,6 +13,9 @@ class Sampler(AkaiSampler):
     """
     def __init__(self, usb_product_id=0, debug=1):
         AkaiSampler.__init__(self, usb_product_id)
+        self.disks = model.RootDisk('disk', self.disktools.get_disklist())
+        self.memory = model.Memory('memory')
+
         self.debug = debug
 
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
@@ -47,7 +51,11 @@ class Sampler(AkaiSampler):
             log.debug("Command: %s Reply %s\n" % (command.name, sysex.byte_repr(result_bytes)))
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
-    
+
+    @staticmethod
+    def is_filetype_supported(fname):
+        return fileutils.is_file_type_supported(Sampler.get_supported_file_types(), fname)
+
     @staticmethod
     def get_supported_file_types():
         return ('wav', 'aif', 'aiff', 'akp', 'akm', 'mid',)

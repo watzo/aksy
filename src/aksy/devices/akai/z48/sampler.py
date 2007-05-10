@@ -39,9 +39,7 @@ class Z48(Sampler):
                         model.Sample: self.sampletools,
                         model.Multi: self.multitools})
 
-        self.disks = model.Storage('disk')
-        self.disks.set_children([model.Disk(disk) for disk 
-            in self.disktools.get_disklist()])
+        self.disks = model.RootDisk('disks', self.disktools.get_disklist())
         self.memory = model.Memory('memory')
 
 class MPC4K(Z48):

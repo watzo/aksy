@@ -19,10 +19,5 @@ class S56K(Sampler):
         model.register_handlers({model.Disk: self.disktools,
                         model.FileRef: self.disktools})
 
-        self.disks = model.Storage('disk')
-        self.disks.set_children([model.Disk(disk) for disk
-             in self.disktools.get_disklist()])
-        self.memory = model.Memory('memory')
-
         self.sysextools.enable_msg_notification(False)
         self.sysextools.enable_item_sync(False)

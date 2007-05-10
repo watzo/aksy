@@ -107,7 +107,7 @@ class Reply:
             b1, b2 = struct.unpack('2B', self.bytes[i:i+2])
             code = (b2 << 7) + b1
             raise SamplerException(
-                "code %02x (%s)" % (code, errors.get(code, "Unknown")))
+                errors.get(code, "Unknown"), code)
         elif reply_id == REPLY_ID_REPLY:
             # continue
             pass
@@ -131,7 +131,12 @@ class ParseException(Exception):
 class SamplerException(Exception):
     """ Exception raised by the sampler
     """
-    pass
+    def __init(self, msg, code):
+        Exception.__init__(self, msg)
+        self.code = code
+
+    def get_code(self):
+        return self.code
 
 class Error(Exception):
     """ Exception raised when system exclusive fails
