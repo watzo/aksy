@@ -1,7 +1,7 @@
 from unittest import TestCase, TestLoader
 import logging, time, os.path, os
 
-from aksyxusb import AkaiSampler
+from aksyx import AkaiSampler
 from aksy.device import Devices
 from aksy.devices.akai import sysex_types
 
