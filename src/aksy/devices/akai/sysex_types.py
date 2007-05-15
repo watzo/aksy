@@ -37,6 +37,12 @@ class SysexType(object):
         """
         self.max_val = value
 
+    def _encode(self, value):
+        raise NotImplementedError("_encode")
+
+    def _decode(self, value):
+        raise NotImplementedError("_decode")
+    
     def encode(self, value):
         """Encodes a value as sysex byte string
         """
@@ -59,7 +65,8 @@ class SysexType(object):
                             % (self.__class__.__name__, repr(value)))
                 value = value[1:]
             elif self.size != len(value):
-                raise DecodeException("Length of string to decode %s <> %s" % (repr(value), repr(self.size)))
+                raise DecodeException("Length of string to decode %s <> %s" % 
+                          (repr(value), repr(self.size)))
 
         return self._decode(value)
 
@@ -425,8 +432,7 @@ class DiskInfo(object):
         # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
         self.type = type
 
-        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND.
-        # MSX format=8 => no disk inserted
+        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND, 8=CD-AUDIO, 100=EMPTY
         self.format = format
 
         self.scsi_id = scsi_id
