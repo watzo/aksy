@@ -8,7 +8,9 @@ class MockZ48(Z48):
     def __init__(self, debug=1):
         self.debug = debug
         self.setup_tools()
-        def get_disklist(): return []
+        def get_disklist(): return [sysex_types.DiskInfo((256, 1, 0, 3, True, "Samples disk")),
+            sysex_types.DiskInfo((512, 1, 0, 3, False, "Cdrom"))]
+        
         self.disktools.get_disklist = get_disklist
         self.setup_model()
 
@@ -23,14 +25,28 @@ class MockZ48(Z48):
             (choir_folder,
             model.FileRef(('', 'Mellotron', 'Sample.AKP',)),
             model.FileRef(('', 'Mellotron', 'Sample.wav',)),))
-        disks = [model.Disk(info) for info in
-            sysex_types.DiskInfo((256, 1, 0, 3, True, "Samples disk")),
-            sysex_types.DiskInfo((512, 1, 0, 3, False, "Cdrom"))]
-        disks[0].root.children = [model.Folder(('', 'Autoload',)),
+        first_disk = self.disks.get_children()[0] 
+        first_disk.root.children = [model.Folder(('', 'Autoload',)),
              model.Folder(('', 'Songs',))]
-        disks[1].root.children = [mellotron_folder]
+        self.disks.get_children()[1].root.children = [mellotron_folder]
+        
+        def get_subdir(obj, path):
+            for c in obj.get_children():
+                if c.get_name() == path:
+                    return c
 
-        self.disks.set_children(disks)
+        def get_dir(path):
+            segments = path.split('/')
+            folder = self.disks
+            while segments and folder is not None:
+                print segments
+                folder = get_subdir(folder, segments.pop(0))
+            print folder
+            return folder
+
+
+        self.disks.get_dir = get_dir
+           
         memory_items = [model.Sample("Boo.wav"),
             model.Multi("Default.akm"),]
         for i in range(0, 100):

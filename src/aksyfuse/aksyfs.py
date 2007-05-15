@@ -4,71 +4,91 @@ from fuse import Fuse
 
 from time import time
 
-from stat import *
+import stat
 import os
 import os.path
 import errno
 
 from aksy.device import Devices
-from aksy import fileutils, model
-from aksy.devices.akai.sampler import Sampler
+from aksy import fileutils
+from aksy.devices.akai import sampler, sysex_types
 
-    
+MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
+MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
+
+EOF = '\x00' 
+
 def stat_inode(mode, size, child_count, uid, gid, writable=False):
         
     info = [None] * 10
-    info[ST_DEV] = 0 # TODO: figure out whether required to provide unique value
-    info[ST_INO] = 0 # TODO: figure out whether required to provide unique value
-    info[ST_MODE] = mode|S_IRUSR|S_IRGRP
+    info[stat.ST_DEV] = 0 # TODO: figure out whether required to provide unique value
+    info[stat.ST_INO] = 0 # TODO: figure out whether required to provide unique value
+    info[stat.ST_MODE] = mode|stat.S_IRUSR|stat.S_IRGRP
     if writable:
-        info[ST_MODE] = info[ST_MODE]|S_IWUSR
-    info[ST_SIZE] = size
-    info[ST_ATIME] = int(time())
-    info[ST_CTIME] = info[ST_ATIME]
-    info[ST_MTIME] = info[ST_ATIME]
-    info[ST_NLINK] = child_count
-
-    info[ST_UID] = uid
-    info[ST_GID] = gid
+        info[stat.ST_MODE] = info[stat.ST_MODE]|stat.S_IWUSR
+    info[stat.ST_SIZE] = size
+    info[stat.ST_ATIME] = int(time())
+    info[stat.ST_CTIME] = info[stat.ST_ATIME]
+    info[stat.ST_MTIME] = info[stat.ST_ATIME]
+    info[stat.ST_NLINK] = child_count
+    info[stat.ST_UID] = uid
+    info[stat.ST_GID] = gid
     return info
 
 def stat_dir(uid, gid, child_count=1):
-    return stat_inode(S_IFDIR|S_IEXEC, 4096L, child_count, uid, gid)
+    return stat_inode(stat.S_IFDIR|stat.S_IEXEC, 4096L, child_count, uid, gid)
 
-def stat_file(uid, gid):
-    return stat_inode(S_IFREG, 0L, 0, uid, gid)
+# TODO: provide real values for samples (other sizes can't be determined
+def stat_file(uid, gid, path):
+    if fileutils.is_sample(path):
+        size = MAX_FILE_SIZE_SAMPLE
+    else:
+        size = MAX_FILE_SIZE_OTHER
+    return stat_inode(stat.S_IFREG, size, 0, uid, gid)
 
 class FSRoot(object):
-    def __init__(self, z48):
-        self.z48 = z48
+    def __init__(self, sampler):
+        self.sampler = sampler
     def get_children(self):
-        return [self.z48.memory, self.z48.disks]
+        return [self.sampler.memory, self.sampler.disks]
+
+    def find_child(self, path):
+        store_name, rel_path  = path.split('/', 2)[1:]
+        for store in self.get_children():
+            if store.get_name() == store_name:
+                return store
+        return None
 
     def get_dir(self, path):
         if path == '/':
             return self
         
         store_name, rel_path  = path.split('/', 2)[1:]
-        for child in self.get_children():
-            if child.get_name() == store_name:
-                if child.get_dir(rel_path) is None:
-                    raiseException(errno.ENOENT)
-                folder = model.Folder(rel_path)
-                folder.set_current()
-                return folder
+        store = self.find_child(path)
+        if store is None:
+            raiseException(errno.ENOENT)        
         
-        raiseException(errno.ENOENT)
-
-class DiskNode(model.Disk):
-    def list_children(self):
-        pass
+        if not hasattr(store, 'get_dir'):
+            raiseException(errno.ENOENT)
+        subdir = store.get_dir(rel_path)
+        if subdir is None:
+            raiseException(errno.ENOENT)
+        
+        return subdir
+        
+    def mkdir(self, path):
+        store = self.find_child(path)
+        print store
+        if not hasattr(store, 'create_folder'):
+            raiseException(errno.EINVAL)
+        store.create_folder(path)
     
 class AksyFS(Fuse):
     def __init__(self, z48, **args):
         self.flags = 0
         self.multithreaded = 0
-        #self.debug = True
-        Fuse.__init__(self, [], **args)
+        self.debug = True
+        Fuse.__init__(self, [], direct_io=True)
 
         self.z48 = z48
         self.root = FSRoot(z48)
@@ -76,33 +96,27 @@ class AksyFS(Fuse):
         self.cache['/memory'] = z48.memory
         self.cache['/disks'] = z48.disks
         stat_home = os.stat(os.path.expanduser('~'))
-        self.uid = stat_home[ST_UID]
-        self.gid = stat_home[ST_GID]
+        self.uid = stat_home[stat.ST_UID]
+        self.gid = stat_home[stat.ST_GID]
 
-    def find_file(self, path):
-        parent = os.path.dirname(path)
-        dir = self.find_directory(parent)
-        return dir
-        
-    def find_directory(self, path):
-        return self.cache[path]
-    
     def stat_directory(self, path):
         if self.cache.get(path) is None:
             self.cache[path] = self.root.get_dir(path)
-        
         return stat_dir(self.uid, self.gid)
 
-    def stat_file(self, path):
-        if not Sampler.is_filetype_supported(path):
-            raiseException(errno.ENOENT)
+    def get_parent(self, path):
         parent = os.path.dirname(path)
-        parent_dir = self.cache[parent]
+        return self.cache[parent]
+        
+    def stat_file(self, path):
+        if not sampler.Sampler.is_filetype_supported(path):
+            raiseException(errno.ENOENT)
+        parent_dir = self.get_parent(path)
         file_name = os.path.basename(path)
         
         for child in parent_dir.get_children():
             if child.get_name() == file_name:
-                return stat_file(self.uid, self.gid)
+                return stat_file(self.uid, self.gid, path)
         
         raiseException(errno.ENOENT)
 
@@ -128,19 +142,20 @@ class AksyFS(Fuse):
         raiseUnsupportedOperationException()
 
     def mkdir(self, path, mode):
-        print '*** mkdir', path, oct(mode)
-        # TODO
-        raiseUnsupportedOperationException()
+        print '*** mkdir', path, mode
+        self.root.mkdir(path)
 
     def open(self, path, flags):
         print '*** open', path, flags
         # TODO
-        raiseUnsupportedOperationException()
+        #self.z48.get()
+        #raiseUnsupportedOperationException()
 
     def read(self, path, length, offset):
         print '*** read', path, length, offset
+        return 'abc-1' + EOF
         # TODO
-        raiseUnsupportedOperationException()
+        #raiseUnsupportedOperationException()
 
     def readlink(self, path):
         print '*** readlink', path
@@ -148,7 +163,7 @@ class AksyFS(Fuse):
 
     def release(self, path, flags):
         print '*** release', path, flags
-        raiseUnsupportedOperationException()
+        #raiseUnsupportedOperationException()
 
     def rename(self, oldPath, newPath):
         print '*** rename', oldPath, newPath
@@ -193,6 +208,8 @@ class AksyFS(Fuse):
         raiseUnsupportedOperationException()
 
     def mknod(self, path, mode, dev):
+        print '*** mknod ', path, mode, dev
+        #TODO
         raiseUnsupportedOperationException()
 
 def raiseUnsupportedOperationException():

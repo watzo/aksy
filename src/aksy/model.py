@@ -7,10 +7,6 @@ import re, os.path, sys, logging
 from aksyx import AkaiSampler
 from aksy import fileutils
 
-RE_MULTI = re.compile("\.[aA][kK][mM]$")
-RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
-RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
-RE_SONG = re.compile("\.[mM][iI][dD]$")
 
 handlers = {}
 log = logging.getLogger("aksy")
@@ -32,13 +28,15 @@ class Disk(object):
             return self.root.has_children()
         return False
 
-    def find_folder(self, path):
-        self.set_current()
-        self.root.find_folder(path)
-            
     def get_handle(self):
         return self.info.handle
 
+    def create_folder(self, path):
+        if not self.info.writable:
+            raise IOError("Disk is not writable")
+        self.set_current()
+        
+        
     def set_current(self):
         if self.info.format != 8: # ejected disk!
             handlers[Disk].select_disk(self.get_handle())
@@ -58,6 +56,15 @@ class Disk(object):
     def get_modified(self):
         return None
 
+    def get_dir(self, rel_path):
+        if fileutils.is_dirpath(rel_path):
+            folder = Folder(rel_path)
+            folder.set_current()
+            return folder
+    
+        folder = Folder(os.path.dirname(rel_path))
+        return folder.get_child(os.path.basename(rel_path))
+
     def get_children(self):
         self.set_current()
         return self.root.get_children()
@@ -66,15 +73,17 @@ class Disk(object):
         return ('upload',)
     
 def get_file_type(name):
-        if RE_MULTI.search(name) is not None:
-            return FileRef.MULTI
-        if RE_PROGRAM.search(name) is not None:
-            return FileRef.PROGRAM
-        if RE_SAMPLE.search(name) is not None:
-            return FileRef.SAMPLE
-        
-        log.error("No support for file type: ", name)
+    if fileutils.is_multi(name):
+        return FileRef.MULTI
+    if fileutils.is_program(name):
+        return FileRef.PROGRAM
+    if fileutils.is_sample(name):
         return FileRef.SAMPLE
+    if fileutils.is_song(name):
+        return FileRef.SONG
+    
+    log.error("No support for file type: ", name)
+    return FileRef.SAMPLE
     
 class FileRef(object):
     FOLDER = 0
@@ -192,15 +201,6 @@ class Folder(FileRef):
     def get_actions(self):
         return ('load', 'delete', 'download',)
 
-    def find(self, rel_path):
-        if fileutils.isdirpath(rel_path):
-            folder = Folder(rel_path)
-            folder.set_current()
-            return folder
-    
-        folder = Folder(os.path.dirname(rel_path))
-        return folder.get_child(os.path.basename(rel_path))
-
     def get_children(self):
         """Gets the children of this folder
         or returns a cached version when already retrieved.
@@ -235,10 +235,12 @@ class Folder(FileRef):
         return self.path[-1]
 
     def set_current(self):
-        log.debug("Current folder before set_current: %s" % handlers[Disk].get_curr_path())
+        log.debug("Current folder before set_current: %s" % 
+                  handlers[Disk].get_curr_path())
         for item in self.path:
             handlers[Disk].open_folder(item)
-        log.debug("Current folder after set_current: %s" % handlers[Disk].get_curr_path())
+        log.debug("Current folder after set_current: %s" % 
+                  handlers[Disk].get_curr_path())
 
     def copy(self, dest_path, recursive=True):
         """Copies a folder, default is including all its children
@@ -267,8 +269,8 @@ class Folder(FileRef):
         # could be optimized by using dicts instead of lists
         for item in self.get_parent().get_children():
             if item.get_name() == self.get_name():
-               del item
-               break
+                del item
+                break
 
     def create_folder(self, name):
         """
@@ -311,14 +313,14 @@ class Folder(FileRef):
 
 class InMemoryFile(FileRef):
     def get_instance(name):
-        type = get_file_type(name)
-        if type == FileRef.MULTI:
+        file_type = get_file_type(name)
+        if file_type == FileRef.MULTI:
             return Multi(name)
-        if type == FileRef.PROGRAM:
+        if file_type == FileRef.PROGRAM:
             return Program(name)
-        if type == FileRef.SAMPLE:
+        if file_type == FileRef.SAMPLE:
             return Sample(name)
-        if type == FileRef.SONG:
+        if file_type == FileRef.SONG:
             return Song(name)
         log.error("Unknown file type: %s" % repr(name))
         return InMemoryFile(name)
@@ -359,7 +361,8 @@ class InMemoryFile(FileRef):
         handlers[self.__class__].delete_curr()
 
     def save(self, overwrite, children=False):
-        handlers[Disk].save_file(self.get_handle(), self.type, overwrite, children)
+        handlers[Disk].save_file(self.get_handle(), self.type, 
+                                 overwrite, children)
 
     def download(self, dest_path):
         pass
@@ -433,10 +436,24 @@ class Storage:
         return ()
 
 class RootDisk(Storage):
-    def __init__(self, name, *disk_list):
+    def __init__(self, name, disk_list):
         Storage.__init__(self, name)
         self.set_children([Disk(disk) for disk 
             in disk_list])
+
+    def create_folder(self, path):
+        parent = os.path.dirname(path.split('/', 2)[2])
+        folder = self.get_dir(parent)
+        if folder is None:
+            raise IOError("Folder ", parent, " does not exist")
+        folder.create_folder(path)
+        
+    def get_dir(self, path):
+        for child in self.get_children():
+            if child.get_name() == path:
+                child.set_current()
+                return child
+        return None
 
 class Memory(Storage):
     def __init__(self, name):
@@ -459,12 +476,12 @@ class Memory(Storage):
         if len(self.children) > 0:
             return True
         return (
-            (handlers.has_key(Program) and handlers[Program].get_no_items() > 0) or
-            (handlers.has_key(Sample) and handlers[Sample].get_no_items() > 0) or
-            (handlers.has_key(Multi) and handlers[Multi].get_no_items() > 0))
-
-    def get_dir(self, rel_path):
-        return None
+            (handlers.has_key(Program) 
+             and handlers[Program].get_no_items() > 0) or
+            (handlers.has_key(Sample) 
+             and handlers[Sample].get_no_items() > 0) or
+            (handlers.has_key(Multi) 
+             and handlers[Multi].get_no_items() > 0))
 
     def get_children(self):
         if len(self.children) > 0:
