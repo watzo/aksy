@@ -20,14 +20,11 @@ def create_option_parser():
           help="Create and upload a new drum program from files using a specific naming scheme")
     return parser
 
-def is_supported(fname):
-    return aksy.fileutils.is_file_type_supported(Sampler.get_supported_file_types(), fname)
-
 def collect_files(args):
     collected = []
     for f in args:
         if os.path.isfile(f):
-            if is_supported(f):
+            if Sampler.is_filetype_supported(f):
                 collected.append(f)
         elif os.path.isdir(f):
             collected.extend(collect_dir(f))
@@ -38,7 +35,7 @@ def collect_files(args):
 def collect_dir(args):
     for root, dir, files in os.walk(args):
         for found in files:
-            if is_supported(found):
+            if Sampler.is_filetype_supported(found):
                 yield os.path.join(root, found)
                   
 def process_cmdline():
