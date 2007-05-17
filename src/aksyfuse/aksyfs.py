@@ -11,7 +11,7 @@ import errno
 
 from aksy.device import Devices
 from aksy import fileutils
-from aksy.devices.akai import sampler, sysex_types
+from aksy.devices.akai import sampler
 
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
@@ -46,24 +46,36 @@ def stat_file(uid, gid, path):
         size = MAX_FILE_SIZE_OTHER
     return stat_inode(stat.S_IFREG, size, 0, uid, gid)
 
+def _splitpath(path):
+    return path.split('/', 2)[1:]
+
+def _create_cache_path(path):
+    cache_path = os.path.join(os.path.expanduser('~'), '.aksy/cache', path)
+    parent_dir = os.path.dirname(cache_path)
+    if not os.path.exists(parent_dir):
+        os.makedirs(parent_dir)
+    return cache_path
+
 class FSRoot(object):
     def __init__(self, sampler):
         self.sampler = sampler
+        self.file_cache = {} 
+        
     def get_children(self):
         return [self.sampler.memory, self.sampler.disks]
 
     def find_child(self, path):
-        store_name, rel_path  = path.split('/', 2)[1:]
+        store_name, rel_path  = _splitpath(path)
         for store in self.get_children():
             if store.get_name() == store_name:
                 return store
         return None
 
+
     def get_dir(self, path):
         if path == '/':
             return self
-        
-        store_name, rel_path  = path.split('/', 2)[1:]
+        store_name, rel_path  = _splitpath(path)
         store = self.find_child(path)
         if store is None:
             raiseException(errno.ENOENT)        
@@ -78,23 +90,52 @@ class FSRoot(object):
         
     def mkdir(self, path):
         store = self.find_child(path)
-        print store
         if not hasattr(store, 'create_folder'):
             raiseException(errno.EINVAL)
         store.create_folder(path)
+        
+    def open(self, path, flags):
+        location, path = _splitpath(path)
+        if location == "memory":
+            source = sampler.AkaiSampler.MEMORY
+        elif location == "disks":
+            source = sampler.AkaiSampler.DISK
+        else:
+            raiseException(errno.ENOENT)
+        
+        filename = os.path.basename(path)
+        dest = _create_cache_path(path)
+        self.sampler.get(filename, dest, source)    
+        self.file_cache[path] = os.open(dest, flags)
+        
+    def close(self, path):
+        handle = self.file_cache.get(path, None)
+        if handle is not None:
+            os.close(handle)
+            del self.file_cache[path]
+            
+    def read(self, path, length, offset):
+        handle = self.file_cache[path]
+        os.lseek(handle, offset, 0)
+        read = os.read(handle, length)
+        if len(read) < length:
+            return read + EOF
+        else:
+            return read
     
 class AksyFS(Fuse):
-    def __init__(self, z48, **args):
+    def __init__(self, sampler, **args):
         self.flags = 0
         self.multithreaded = 0
         self.debug = True
-        Fuse.__init__(self, [], direct_io=True)
+        Fuse.__init__(self, [], args)
 
-        self.z48 = z48
-        self.root = FSRoot(z48)
+        self.root = FSRoot(sampler)
+        
         self.cache = {}
-        self.cache['/memory'] = z48.memory
-        self.cache['/disks'] = z48.disks
+        self.cache['/memory'] = sampler.memory
+        self.cache['/disks'] = sampler.disks
+        
         stat_home = os.stat(os.path.expanduser('~'))
         self.uid = stat_home[stat.ST_UID]
         self.gid = stat_home[stat.ST_GID]
@@ -147,15 +188,11 @@ class AksyFS(Fuse):
 
     def open(self, path, flags):
         print '*** open', path, flags
-        # TODO
-        #self.z48.get()
-        #raiseUnsupportedOperationException()
+        self.root.open(path, flags)
 
     def read(self, path, length, offset):
         print '*** read', path, length, offset
-        return 'abc-1' + EOF
-        # TODO
-        #raiseUnsupportedOperationException()
+        return self.root.read(path, length, offset)
 
     def readlink(self, path):
         print '*** readlink', path
@@ -163,7 +200,7 @@ class AksyFS(Fuse):
 
     def release(self, path, flags):
         print '*** release', path, flags
-        #raiseUnsupportedOperationException()
+        self.root.close(path)
 
     def rename(self, oldPath, newPath):
         print '*** rename', oldPath, newPath

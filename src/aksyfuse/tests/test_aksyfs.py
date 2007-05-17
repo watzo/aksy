@@ -1,10 +1,13 @@
 from unittest import TestCase, TestLoader
+import logging
+
 from aksyfuse import aksyfs
 from aksy.device import Devices
-from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE
-import os
+from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR, S_IRGRP
+import os, errno, tempfile
 
 z48 = Devices.get_instance('mock_z48', None)
+log = logging.getLogger('aksy')
 
 class TestModuleTest(TestCase):
     def test_stat_directory(self):
@@ -83,6 +86,34 @@ class AksyFSTest(TestCase):
         self.fs.mkdir('/disks/Samples disk/Songs/test', 'mode_ignored')
         self.assertEquals([('/disks/Samples disk/Songs/test', 0)], self.fs.getdir('/disks/Samples disk/Songs'))
 
+    def test_open(self):
+        self.assertRaises(OSError, self.fs.open, '/memory/Sample99.wav', S_IRUSR)
+
+        try:
+            self.fs.open('/disks/Cdrom/Mellotron/Choir/Choir.AKP', S_IRUSR)
+            self.fail()
+        except OSError, (exc):
+            self.assertEquals(errno.ENOENT, exc.errno)
+            self.assertTrue(
+                exc.filename.endswith('.aksy/cache/Cdrom/Mellotron/Choir/Choir.AKP'))
+
+    def test_release(self):
+        # should not throw
+        self.fs.release('/non-existent', 'ignored')
+    
+    def test_read(self):
+        tmp_file = self._prep_file()
+        try:
+            read = self.fs.read('file', 3, 0)
+            self.assertEquals('abc', read)
+        finally:
+            os.close(tmp_file)
+
+    def _prep_file(self):
+        tmp_file = tempfile.mkstemp('test')[0]
+        os.write(tmp_file, 'abc')
+        self.fs.root.file_cache['file'] = tmp_file
+        return tmp_file
 
 def test_suite():
     testloader = TestLoader()
