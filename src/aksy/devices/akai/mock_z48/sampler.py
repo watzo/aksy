@@ -53,7 +53,7 @@ class MockZ48(Z48):
             memory_items.append(model.Sample("Sample%i.wav" %i))
         self.memory.set_children(memory_items)
 
-    def get(self, filename, destpath=None):
+    def get(self, filename, destpath=None, destination=Z48.MEMORY):
         if self.debug > 0:
             log.debug("Transferring file %s to host" % filename)
 
