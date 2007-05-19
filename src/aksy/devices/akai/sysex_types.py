@@ -239,7 +239,8 @@ class StringType(object):
 
     def decode(self, string):
         index = string.find(STRING_TERMINATOR)
-        if index == -1: raise ValueError
+        if index == -1: 
+            raise ValueError
         if string[0] == self.id:
             start = 1
         else:
@@ -247,8 +248,6 @@ class StringType(object):
         return index + 1, struct.unpack( str(index-start) + 's', string[start:index])[0]
 
 class StringArrayType(object):
-    """
-    """
     def __init__(self):
         self.size = None # variable size, parsed length is returned in result
 
@@ -414,10 +413,10 @@ class TypedCompositeType(object):
         result = []
         offset = 0
         while offset < (len(string) - 1):
-            type = get_type(string[offset])
+            sysex_type = get_type(string[offset])
             log.debug("Parsing type %s" % type);
             offset += 1
-            len_parsed, part = parse_byte_string(string, type, offset)
+            len_parsed, part = parse_byte_string(string, sysex_type, offset)
             if part is not None:
                 result.append(part)
                 offset += len_parsed
@@ -426,13 +425,14 @@ class TypedCompositeType(object):
         return offset, tuple(result)
 
 class DiskInfo(object):
-    def __init__(self, (handle, type, format, scsi_id, writable, name)):
+    def __init__(self, (handle, disk_type, format, scsi_id, writable, name)):
         self.handle = handle
 
         # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
-        self.type = type
+        self.type = disk_type
 
-        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND, 8=CD-AUDIO, 100=EMPTY
+        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND, 
+        # 8=CD-AUDIO, 100=EMPTY
         self.format = format
 
         self.scsi_id = scsi_id
@@ -440,7 +440,8 @@ class DiskInfo(object):
         self.name = name
 
     def __eq__(self, other):
-        if other is None: return False
+        if other is None: 
+            return False
         return self.handle == other.handle
 
     def __ne__(self, other):
@@ -469,25 +470,25 @@ class DisklistType(object):
             index += length
         return index, tuple(result)
 
-def parse_byte_string(data, type, offset=0):
+def parse_byte_string(data, sysex_type, offset=0):
     """ Parses a byte string
     """
 
     len_parsed_data = 0
-    if type.size is not None:
-        result = type.decode(data[offset:offset+type.size])
-        len_parsed_data = type.size
+    if sysex_type.size is not None:
+        result = sysex_type.decode(data[offset:offset+sysex_type.size])
+        len_parsed_data = sysex_type.size
     else:
         # TODO: use a factory which returns instances with a size set ?
-        len_parsed_data, result = type.decode(data[offset:])
+        len_parsed_data, result = sysex_type.decode(data[offset:])
         if len_parsed_data == 0:
             result = None
 
     return len_parsed_data, result
 
 class CompositeByteType(SysexType):
-    def __init__(self, size, id):
-        super(CompositeByteType, self).__init__(size, False, id)
+    def __init__(self, size, type_id):
+        super(CompositeByteType, self).__init__(size, False, type_id)
         self.set_min_val(0)
         self.set_max_val(127)
     def encode(self, *args):
@@ -497,21 +498,24 @@ class CompositeByteType(SysexType):
             self.validate_encode(byte)
 
         return struct.pack("%iB" %self.size, *args)
+
+    def _encode(self, string):
+        pass # no-op, as encode itself is overridden
+    
     def _decode(self, string):
         return struct.unpack("%iB" %self.size, string)
 
-
 class TwoByteType(CompositeByteType):
-     def __init__(self):
-         super(TwoByteType, self).__init__(2, '\x09')
+    def __init__(self):
+        super(TwoByteType, self).__init__(2, '\x09')
 
 class ThreeByteType(CompositeByteType):
-     def __init__(self):
-         super(ThreeByteType, self).__init__(3, '\x0a')
+    def __init__(self):
+        super(ThreeByteType, self).__init__(3, '\x0a')
 
 class FourByteType(CompositeByteType):
-     def __init__(self):
-         super(FourByteType, self).__init__(4, '\x0b')
+    def __init__(self):
+        super(FourByteType, self).__init__(4, '\x0b')
 
 # Base Sysex types
 BYTE        = ByteType()
