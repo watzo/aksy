@@ -3,7 +3,7 @@
 Offers a high level sampler API
 
 """
-import re, os.path, sys, logging
+import os.path, sys, logging
 from aksyx import AkaiSampler
 from aksy import fileutils
 
@@ -35,7 +35,6 @@ class Disk(object):
         if not self.info.writable:
             raise IOError("Disk is not writable")
         self.set_current()
-        
         
     def set_current(self):
         if self.info.format != 8: # ejected disk!
@@ -163,23 +162,14 @@ class FileRef(object):
         # XXX: remove the reference to the sampler
         handlers[Disk].z48.get(self.get_name(), path)
 
-    def get_children(self):
-        """
-        """
-        return []
-
     def get_parent(self):
         return Folder(self.path[:-1])
 
     def delete(self):
-        """
-        """
         self.get_parent().set_current()
         handlers[Disk].delete_file(self.get_name())
 
     def rename(self, new_name):
-        """
-        """
         self.get_parent().set_current()
         handlers[Disk].rename_file(self.get_name(), new_name)
         self.path = self.path[:-1] + (new_name,)

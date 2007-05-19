@@ -3,10 +3,11 @@ import logging
 
 from aksyfuse import aksyfs
 from aksy.device import Devices
-from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR, S_IRGRP
+from aksy.test import testutil
+from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
 import os, errno, tempfile
 
-z48 = Devices.get_instance('mock_z48', None)
+z48 = Devices.get_instance('mock_z48', None, sampleFile=testutil.get_test_resource('test.wav'))
 log = logging.getLogger('aksy')
 
 class TestModuleTest(TestCase):
@@ -21,7 +22,7 @@ class TestModuleTest(TestCase):
         self.assertEquals(len(os.stat('/')), len(info))
         self.assertEquals(16*1024, info[ST_SIZE])
 
-class AksyFSTest(TestCase):
+class AksyFSTest(TestCase): #IGNORE:R0904
     def _assertdir(self, info):
         self.assertTrue(S_ISDIR(info[ST_MODE]))
         
@@ -84,18 +85,28 @@ class AksyFSTest(TestCase):
         self.fs.getattr('/disks/Samples disk/Songs')
         self.assertEquals([], self.fs.getdir('/disks/Samples disk/Songs'))
         self.fs.mkdir('/disks/Samples disk/Songs/test', 'mode_ignored')
-        self.assertEquals([('/disks/Samples disk/Songs/test', 0)], self.fs.getdir('/disks/Samples disk/Songs'))
+        self.assertEquals([('/disks/Samples disk/Songs/test', 0)], 
+                          self.fs.getdir('/disks/Samples disk/Songs'))
 
-    def test_open(self):
-        self.assertRaises(OSError, self.fs.open, '/memory/Sample99.wav', S_IRUSR)
+    def test_open_memory(self):
+        path = '/memory/Sample99.wav'
+        try:
+            self.fs.open(path, S_IRUSR)
+            info = self.fs.root.file_cache[path]
+            self.assertEquals(os.stat(testutil.get_test_resource('test.wav'))[ST_SIZE], 
+                              os.fstat(info.get_handle())[ST_SIZE])
+        finally:
+            self.fs.release(path, 'ignored')
+            self.assertEquals(None, self.fs.root.file_cache.get(path, None))
 
+    def test_open_disk(self):
         try:
             self.fs.open('/disks/Cdrom/Mellotron/Choir/Choir.AKP', S_IRUSR)
             self.fail()
         except OSError, (exc):
             self.assertEquals(errno.ENOENT, exc.errno)
             self.assertTrue(
-                exc.filename.endswith('.aksy/cache/Cdrom/Mellotron/Choir/Choir.AKP'))
+                exc.filename.endswith('.aksy/cache/disks/Cdrom/Mellotron/Choir/Choir.AKP'))
 
     def test_release(self):
         # should not throw
@@ -104,15 +115,23 @@ class AksyFSTest(TestCase):
     def test_read(self):
         tmp_file = self._prep_file()
         try:
-            read = self.fs.read('file', 3, 0)
-            self.assertEquals('abc', read)
+            read = self.fs.read('file', 10, 0)
+            self.assertEquals('abc' + aksyfs.EOF, read)
         finally:
             os.close(tmp_file)
 
+    def test_mknod_write(self):
+        path = '/memory/Sample100.wav'
+        self.fs.mknod(path, os.O_CREAT|os.O_RDWR, 'ignored')
+        self.fs.open('/memory/Sample100.wav', S_IRUSR)
+        self.fs.write(path, 'abc', 0)
+        self.assertEquals('abc', self.fs.read('/memory/Sample100.wav', 3, 0))
+        self.fs.release(path, 'ignored')
+    
     def _prep_file(self):
-        tmp_file = tempfile.mkstemp('test')[0]
+        tmp_file = tempfile.mkstemp('aksy_test')[0]
         os.write(tmp_file, 'abc')
-        self.fs.root.file_cache['file'] = tmp_file
+        self.fs.root.file_cache['file'] = aksyfs.FileInfo('/memory/sample.wav', False, handle=tmp_file)
         return tmp_file
 
 def test_suite():

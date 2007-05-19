@@ -10,16 +10,17 @@ import os.path
 import errno
 
 from aksy.device import Devices
-from aksy import fileutils
-from aksy.devices.akai import sampler
+from aksy import fileutils, model
+from aksy.devices.akai import sampler as samplermod
 
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
 
-EOF = '\x00' 
+EOF = '\x00'
+
+START_TIME = time()
 
 def stat_inode(mode, size, child_count, uid, gid, writable=False):
-        
     info = [None] * 10
     info[stat.ST_DEV] = 0 # TODO: figure out whether required to provide unique value
     info[stat.ST_INO] = 0 # TODO: figure out whether required to provide unique value
@@ -27,7 +28,7 @@ def stat_inode(mode, size, child_count, uid, gid, writable=False):
     if writable:
         info[stat.ST_MODE] = info[stat.ST_MODE]|stat.S_IWUSR
     info[stat.ST_SIZE] = size
-    info[stat.ST_ATIME] = int(time())
+    info[stat.ST_ATIME] = int(START_TIME)
     info[stat.ST_CTIME] = info[stat.ST_ATIME]
     info[stat.ST_MTIME] = info[stat.ST_ATIME]
     info[stat.ST_NLINK] = child_count
@@ -40,22 +41,62 @@ def stat_dir(uid, gid, child_count=1):
 
 # TODO: provide real values for samples (other sizes can't be determined
 def stat_file(uid, gid, path):
-    if fileutils.is_sample(path):
+    cache_path = _get_cache_path(path)
+    if os.path.exists(cache_path):
+        size = os.stat(cache_path)[stat.ST_SIZE]
+    elif fileutils.is_sample(path):
         size = MAX_FILE_SIZE_SAMPLE
     else:
         size = MAX_FILE_SIZE_OTHER
-    return stat_inode(stat.S_IFREG, size, 0, uid, gid)
+    return stat_inode(stat.S_IFREG|stat.S_IWUSR, size, 0, uid, gid)
 
 def _splitpath(path):
     return path.split('/', 2)[1:]
 
+def _get_cache_path(path):
+    return os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
+
 def _create_cache_path(path):
-    cache_path = os.path.join(os.path.expanduser('~'), '.aksy/cache', path)
+    cache_path = os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
     parent_dir = os.path.dirname(cache_path)
     if not os.path.exists(parent_dir):
         os.makedirs(parent_dir)
     return cache_path
 
+class FileInfo(object):
+    def __init__(self, path, upload, handle=None, flags=None):
+        location = _splitpath(path)[0]
+        if location == "memory":
+            self.location = samplermod.AkaiSampler.MEMORY
+        elif location == "disks":
+            self.location = samplermod.AkaiSampler.DISK
+        else:
+            raiseException(errno.ENOENT)
+        
+        self.name = os.path.basename(path)
+        self.path = _create_cache_path(path)
+        self.upload = upload
+
+        if handle is None:
+            self.handle = os.open(self.path, flags)
+        else:
+            self.handle = handle
+        
+    def get_name(self):
+        return self.name
+    
+    def get_path(self):
+        return self.path
+    
+    def get_handle(self):
+        return self.handle
+    
+    def is_upload(self):
+        return self.upload
+    
+    def get_location(self):
+        return self.location
+        
 class FSRoot(object):
     def __init__(self, sampler):
         self.sampler = sampler
@@ -65,7 +106,7 @@ class FSRoot(object):
         return [self.sampler.memory, self.sampler.disks]
 
     def find_child(self, path):
-        store_name, rel_path  = _splitpath(path)
+        store_name  = _splitpath(path)[0]
         for store in self.get_children():
             if store.get_name() == store_name:
                 return store
@@ -75,7 +116,7 @@ class FSRoot(object):
     def get_dir(self, path):
         if path == '/':
             return self
-        store_name, rel_path  = _splitpath(path)
+        rel_path  = _splitpath(path)[1]
         store = self.find_child(path)
         if store is None:
             raiseException(errno.ENOENT)        
@@ -95,27 +136,28 @@ class FSRoot(object):
         store.create_folder(path)
         
     def open(self, path, flags):
-        location, path = _splitpath(path)
-        if location == "memory":
-            source = sampler.AkaiSampler.MEMORY
-        elif location == "disks":
-            source = sampler.AkaiSampler.DISK
-        else:
-            raiseException(errno.ENOENT)
-        
-        filename = os.path.basename(path)
-        dest = _create_cache_path(path)
-        self.sampler.get(filename, dest, source)    
-        self.file_cache[path] = os.open(dest, flags)
+        info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags))
+        if not info.is_upload():
+            self.sampler.get(info.get_name(), info.get_path(), info.get_location())
         
     def close(self, path):
-        handle = self.file_cache.get(path, None)
-        if handle is not None:
-            os.close(handle)
+        info = self.file_cache.get(path, None)
+        if info is not None:
+            if info.is_upload():
+                self.sampler.put(info.get_name(), None, info.get_location())
+            os.close(info.get_handle())
             del self.file_cache[path]
-            
+
+    def mknod(self, path, mode):
+        self.file_cache[path] = FileInfo(path, True, flags=mode)
+        
+    def write(self, path, buf, offset):
+        handle = self.file_cache[path].get_handle()
+        os.lseek(handle, offset, 0)
+        return os.write(handle, buf)
+
     def read(self, path, length, offset):
-        handle = self.file_cache[path]
+        handle = self.file_cache[path].get_handle()
         os.lseek(handle, offset, 0)
         read = os.read(handle, length)
         if len(read) < length:
@@ -123,7 +165,7 @@ class FSRoot(object):
         else:
             return read
     
-class AksyFS(Fuse):
+class AksyFS(Fuse): #IGNORE:R0904
     def __init__(self, sampler, **args):
         self.flags = 0
         self.multithreaded = 0
@@ -150,8 +192,13 @@ class AksyFS(Fuse):
         return self.cache[parent]
         
     def stat_file(self, path):
-        if not sampler.Sampler.is_filetype_supported(path):
+        if not samplermod.Sampler.is_filetype_supported(path):
             raiseException(errno.ENOENT)
+        
+        cached = self.cache.get(path, None)
+        if cached is not None:
+            return cached
+        
         parent_dir = self.get_parent(path)
         file_name = os.path.basename(path)
         
@@ -170,17 +217,8 @@ class AksyFS(Fuse):
 
     def getdir(self, path):
         print '*** getdir', path
-        dir = self.cache[path]
-        return [(child.get_name(), 0) for child in dir.get_children()]
-
-    def fsync(self, path, isFsyncFile):
-        print '*** fsync', path, isFsyncFile
-        # TODO
-        raiseUnsupportedOperationException()
-
-    def link(self, targetPath, linkPath):
-        print '*** link', targetPath, linkPath
-        raiseUnsupportedOperationException()
+        folder = self.cache[path]
+        return [(child.get_name(), 0) for child in folder.get_children()]
 
     def mkdir(self, path, mode):
         print '*** mkdir', path, mode
@@ -194,10 +232,6 @@ class AksyFS(Fuse):
         print '*** read', path, length, offset
         return self.root.read(path, length, offset)
 
-    def readlink(self, path):
-        print '*** readlink', path
-        raiseUnsupportedOperationException()
-
     def release(self, path, flags):
         print '*** release', path, flags
         self.root.close(path)
@@ -208,14 +242,7 @@ class AksyFS(Fuse):
 
     def rmdir(self, path):
         print '*** rmdir', path
-        raiseUnsupportedOperationException()
-
-    def statfs(self):
-        print '*** statfs'
-        raiseUnsupportedOperationException()
-
-    def symlink(self, targetPath, linkPath):
-        print '*** symlink', targetPath, linkPath
+        #TODO
         raiseUnsupportedOperationException()
 
     def unlink(self, path):
@@ -223,39 +250,20 @@ class AksyFS(Fuse):
         # TODO
         raiseUnsupportedOperationException()
 
-    def utime(self, path, times):
-        print '*** utime', path, times
-        raiseUnsupportedOperationException()
-
-    def write(self, path, buf, offset):
-        print '*** write', path, buf, offset
-        # TODO
-        raiseUnsupportedOperationException()
-
-    def truncate(self, path, size):
-        raiseUnsupportedOperationException()
-
-    def mythread(self):
-        raiseUnsupportedOperationException()
-
-    def chmod(self, path, mode):
-        raiseUnsupportedOperationException()
-
-    def chown(self, path, uid, gid):
-        raiseUnsupportedOperationException()
-
     def mknod(self, path, mode, dev):
         print '*** mknod ', path, mode, dev
-        #TODO
-        raiseUnsupportedOperationException()
+        self.cache[path] = stat_file(self.uid, self.gid, path)
+        self.root.mknod(path, mode)
 
+    def write(self, path, buf, offset):
+        print '*** write', path, len(buf), offset
+        return self.root.write(path, buf, offset)
+    
 def raiseUnsupportedOperationException():
     raiseException(errno.ENOSYS)
 
 def raiseException(err):
-    e = OSError()
-    e.errno = err
-    raise e
+    raise OSError(err, 'Exception occurred')
 
 if __name__ == '__main__':
     z48 = Devices.get_instance('mock_z48', None)

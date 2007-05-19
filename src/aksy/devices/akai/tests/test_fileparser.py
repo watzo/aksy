@@ -1,9 +1,10 @@
 from aksy.devices.akai import fileparser
-import unittest, os.path
+from aksy.test import testutil
+import unittest
 
 class TestProgram(unittest.TestCase):
     def testRead(self):
-        pfile = os.path.join(os.path.dirname(__file__), '221 Angel.akp')
+        pfile = testutil.get_test_resource('221 Angel.akp')
         
         parser = fileparser.ProgramParser()
         program = parser.parse(pfile)

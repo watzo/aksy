@@ -1,12 +1,8 @@
 import unittest, os, os.path, md5
-from aksy.devices.akai import sampler
+from aksy.devices.akai import sampler as sampler_mod
+from aksy.test import testutil
 
-TESTDIR = os.path.abspath(os.path.split(__file__)[0])
-
-AKSY_RUN_INTEG_TESTS = bool(os.environ.get("AKSY_RUN_INTEG_TESTS", False))
-
-if AKSY_RUN_INTEG_TESTS:
-    sampler = sampler.Sampler()
+sampler = sampler_mod.Sampler()
     
 class TestSampler(unittest.TestCase):
     def testTransfers(self):
@@ -14,29 +10,26 @@ class TestSampler(unittest.TestCase):
         self._testTransfer('test.wav')
 
     def _testTransfer(self, filename):
-
-        fullpath = os.path.join(TESTDIR, filename)
+        fullpath = testutil.get_test_resource(filename)
         sampler.put(fullpath)
         actualfilename = 'cp' + filename
         sampler.get(filename, actualfilename)
         expected = open(fullpath, 'rb')
         actual = open(actualfilename, 'rb')
-        self.assertTrue(md5sum(expected), md5sum(actual))
+        self.assertEquals(md5sum(expected), md5sum(actual))
         expected.close()
         actual.close()
         os.remove(actualfilename)
 
-def md5sum(fh):
-    m = md5.new()
+def md5sum(fhandle):
+    digester = md5.new()
     while True:
-        d = fh.read(8096)
-        if not d:
+        read = fhandle.read(8096)
+        if not read:
             break
-        m.update(d)
-    return m.hexdigest()
+        digester.update(read)
+    return digester.hexdigest()
 
 def test_suite():
     testloader = unittest.TestLoader()
-    if AKSY_RUN_INTEG_TESTS:
-        return testloader.loadTestsFromName('aksy.devices.akai.tests.test_transfers')
-    return None
+    return testloader.loadTestsFromName('aksy.devices.akai.ftests.test_transfers')
