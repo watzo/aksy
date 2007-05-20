@@ -4,6 +4,7 @@ RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
 RE_SONG = re.compile("\.[mM][iI][dD]$")
+RE_WORD = re.compile("[\w.]+$")
 
 def is_file_type_supported(supported_file_types, filename):
     for file_type in supported_file_types:
@@ -25,3 +26,6 @@ def is_program(path):
 
 def is_song(path):
     return RE_SONG.search(path) is not None
+
+def is_valid_name(name):
+    return RE_WORD.match(name) is not None

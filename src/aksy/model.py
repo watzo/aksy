@@ -196,12 +196,12 @@ class Folder(FileRef):
         folder_names = handlers[Disk].get_folder_names()
         if folder_names:
             self.children = [Folder(os.path.join(self.path, folder_name))
-                for folder_name in folder_names]
+                for folder_name in folder_names if fileutils.is_valid_name(folder_name)]
 
         file_names = handlers[Disk].get_filenames()
         if file_names:
             files = [ FileRef((os.path.join(self.path, name))) for name in
-                file_names]
+                file_names if fileutils.is_valid_name(name)]
             self.children.extend(files)
         print "RETURN ", repr(self.children)
         return self.children
@@ -222,8 +222,10 @@ class Folder(FileRef):
     def set_current(self):
         log.debug("Current folder before set_current: %s" % 
                   handlers[Disk].get_curr_path())
-        for item in self.path:
-            handlers[Disk].open_folder(item)
+        handlers[Disk].open_folder('')
+        segments = self.path.split('/')
+        for segment in segments:
+            handlers[Disk].open_folder(segment)
         log.debug("Current folder after set_current: %s" % 
                   handlers[Disk].get_curr_path())
 
@@ -330,14 +332,19 @@ class InMemoryFile(FileRef):
 
     def get_name(self):
         return self.name
+    
+    def get_short_name(self):
+        """ Returns name without extension
+        """
+        return os.path.splitext(self.get_name())[0]
 
     def get_handle(self):
         """Returns the handle
         """
-        return handlers[self.__class__].get_handle_by_name(self.get_name())
+        return handlers[self.__class__].get_handle_by_name(self.get_short_name())
 
     def set_current(self):
-        handlers[self.__class__].set_curr_by_name(self.get_name())
+        handlers[self.__class__].set_curr_by_name(self.get_short_name())
 
     def delete(self):
         log.info("InMemoryFile.delete() %s" % repr(self.get_name()))
@@ -447,11 +454,14 @@ class RootDisk(Storage):
             raise IOError("Folder ", parent, " does not exist")
         return folder.create_folder(path)
         
-    def get_dir(self, path):
+    def get_dir(self, rel_path):
+        segments = rel_path.split('/', 1)
         for child in self.get_children():
-            if child.get_name() == path:
+            if child.get_name() == segments[0]:
                 child.set_current()
-                return child
+                if len(segments) == 1:
+                    return child
+                return child.get_dir(segments[1])
         return None
 
 class Memory(Storage):

@@ -112,7 +112,6 @@ class FSRoot(object):
                 return store
         return None
 
-
     def get_dir(self, path):
         if path == '/':
             return self
