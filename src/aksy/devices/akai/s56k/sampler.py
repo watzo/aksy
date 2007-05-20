@@ -21,3 +21,7 @@ class S56K(Sampler):
 
         self.sysextools.enable_msg_notification(False)
         self.sysextools.enable_item_sync(False)
+        
+        self.disks = model.RootDisk('disks', self.disktools.get_disklist())
+        self.memory = model.Memory('memory')
+

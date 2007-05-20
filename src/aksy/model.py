@@ -93,13 +93,11 @@ class FileRef(object):
         """Initializes a file object - A multi, program or sample before it
         is loaded into memory
         """
-
-        assert isinstance(path, tuple) or isinstance(path, list)
         self.path = path
         self.type = get_file_type(self.get_name())
 
     def get_name(self):
-        return self.path[-1]
+        return os.path.basename(self.path)
     
     def get_short_name(self):
         """ Returns name without extension
@@ -159,7 +157,7 @@ class FileRef(object):
         handlers[Disk].z48.get(self.get_name(), path)
 
     def get_parent(self):
-        return Folder(self.path[:-1])
+        return Folder(os.path.dirname(self.path))
 
     def delete(self):
         self.get_parent().set_current()
@@ -168,7 +166,7 @@ class FileRef(object):
     def rename(self, new_name):
         self.get_parent().set_current()
         handlers[Disk].rename_file(self.get_name(), new_name)
-        self.path = self.path[:-1] + (new_name,)
+        self.path = os.path.join(os.path.dirname(self.path, new_name))
 
     def get_actions(self):
         return ('load', 'delete', 'download',)
@@ -197,14 +195,15 @@ class Folder(FileRef):
 
         folder_names = handlers[Disk].get_folder_names()
         if folder_names:
-            self.children = [Folder(self.path + (subfolder,))
-                for subfolder in folder_names]
+            self.children = [Folder(os.path.join(self.path, folder_name))
+                for folder_name in folder_names]
 
         file_names = handlers[Disk].get_filenames()
         if file_names:
-            files = [ FileRef((self.path + name,)) for name in
+            files = [ FileRef((os.path.join(self.path, name))) for name in
                 file_names]
             self.children.extend(files)
+        print "RETURN ", repr(self.children)
         return self.children
 
     def get_child(self, filename):
@@ -218,7 +217,7 @@ class Folder(FileRef):
             handlers[Disk].get_no_folders() > 0)
 
     def get_name(self):
-        return self.path[-1]
+        return os.path.basename(self.path)
 
     def set_current(self):
         log.debug("Current folder before set_current: %s" % 
@@ -362,18 +361,28 @@ class Multi(InMemoryFile):
         InMemoryFile.__init__(self, name)
         self.type = FileRef.MULTI
 
+    def get_name(self):
+        return InMemoryFile.get_name(self) + ".akm"
+
 class Program(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
         self.type = FileRef.PROGRAM
+    def get_name(self):
+        return InMemoryFile.get_name(self) + ".akp"
 
 class Sample(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
         self.type = FileRef.SAMPLE
 
+    def get_name(self):
+        # TODO!
+        return InMemoryFile.get_name(self) + ".wav"
+
     def get_size(self):
         handlers[Sample].get_sample_length()
+        
     def get_used_by(self):
         return None
 
@@ -384,6 +393,10 @@ class Song(InMemoryFile):
 
     def get_size(self):
         raise NotImplementedError()
+
+    def get_name(self):
+        # TODO!
+        return InMemoryFile.get_name(self) + ".mid"
     
     def get_used_by(self):
         return None

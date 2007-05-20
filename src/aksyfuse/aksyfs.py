@@ -136,7 +136,7 @@ class FSRoot(object):
         return store.create_folder(path)
         
     def open(self, path, flags):
-        info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags))
+        info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags|os.O_CREAT))
         if not info.is_upload():
             self.sampler.get(info.get_name(), info.get_path(), info.get_location())
         
@@ -144,7 +144,11 @@ class FSRoot(object):
         info = self.file_cache.get(path, None)
         if info is not None:
             if info.is_upload():
-                self.sampler.put(info.get_name(), None, info.get_location())
+                try:
+                    self.sampler.put(info.get_path(), None, info.get_location())
+                except IOError, exc:
+                    # TODO: move to a method where we can raise exceptions
+                    print "Exception occurred: ", repr(exc)
             os.close(info.get_handle())
             del self.file_cache[path]
 
@@ -224,7 +228,9 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def getdir(self, path):
         print '*** getdir', path
         folder = self.cache[path]
-        return [(child.get_name(), 0) for child in folder.get_children()]
+        list =  [(child.get_name(), 0) for child in folder.get_children()]
+        print repr(list)
+        return list
 
     def mkdir(self, path, mode):
         print '*** mkdir', path, mode
@@ -279,7 +285,8 @@ def raiseException(err):
     raise OSError(err, 'Exception occurred')
 
 if __name__ == '__main__':
-    z48 = Devices.get_instance('mock_z48', None)
+    # z48 = Devices.get_instance('mock_z48', None)
+    z48 = Devices.get_instance('z48', 'usb')
     fs = AksyFS(z48)
     fs.mountpoint = '/tmp/aksy'
     fs.main()

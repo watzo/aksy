@@ -13,9 +13,6 @@ class Sampler(AkaiSampler):
     """
     def __init__(self, usb_product_id=0, debug=1):
         AkaiSampler.__init__(self, usb_product_id)
-        self.disks = model.RootDisk('disk', self.disktools.get_disklist())
-        self.memory = model.Memory('memory')
-
         self.debug = debug
 
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
