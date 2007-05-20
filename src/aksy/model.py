@@ -31,11 +31,9 @@ class Disk(object):
     def get_handle(self):
         return self.info.handle
 
-    def create_folder(self, path):
-        if not self.info.writable:
-            raise IOError("Disk is not writable")
-        self.set_current()
-        
+    def is_writable(self):
+        return self.info.writable
+    
     def set_current(self):
         if self.info.format != 8: # ejected disk!
             handlers[Disk].select_disk(self.get_handle())
@@ -97,8 +95,6 @@ class FileRef(object):
         """
 
         assert isinstance(path, tuple) or isinstance(path, list)
-
-        log.debug(repr(path))
         self.path = path
         self.type = get_file_type(self.get_name())
 
@@ -436,7 +432,7 @@ class RootDisk(Storage):
         folder = self.get_dir(parent)
         if folder is None:
             raise IOError("Folder ", parent, " does not exist")
-        folder.create_folder(path)
+        return folder.create_folder(path)
         
     def get_dir(self, path):
         for child in self.get_children():

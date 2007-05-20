@@ -7,7 +7,6 @@ from aksy.test import testutil
 from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
 import os, errno, tempfile
 
-z48 = Devices.get_instance('mock_z48', None, sampleFile=testutil.get_test_resource('test.wav'))
 log = logging.getLogger('aksy')
 
 class TestModuleTest(TestCase):
@@ -27,6 +26,9 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.assertTrue(S_ISDIR(info[ST_MODE]))
         
     def setUp(self):
+        z48 = Devices.get_instance('mock_z48', None, 
+                                   debug=0, 
+                                   sampleFile=testutil.get_test_resource('test.wav'))
         self.fs = aksyfs.AksyFS(z48)
         
     def test_getattr(self):
@@ -35,22 +37,22 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     
     def test_getattr_unsupported(self):
         self.assertRaises(OSError, self.fs.getattr, '/test.doc')
+
+    def test_getattr_memory(self):
+        self.fs.getattr('/memory')
+        info = self.fs.getattr('/memory/Boo.wav')
+        self.assertTrue(S_ISREG(info[ST_MODE]))
         
     def test_getdir(self):
         self.fs.getattr('/')
         root = self.fs.getdir('/')
         self.assertEquals([('memory', 0), ('disks', 0)], root)
-    
+
     def test_getdir_memory(self):
         self.fs.getattr('/memory')
         memory = self.fs.getdir('/memory')
         self.assertEquals(102, len(memory))
         self.assertEquals(('Boo.wav', 0), memory[0])
-        
-    def test_getattr_memory(self):
-        self.fs.getattr('/memory')
-        info = self.fs.getattr('/memory/Boo.wav')
-        self.assertTrue(S_ISREG(info[ST_MODE]))
 
     def test_getattr_memory_non_existing(self):
         self.assertRaises(OSError, self.fs.getattr, '/memory/subdir')
@@ -78,15 +80,18 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     def test_mkdir_unsupported(self):
         self.assertRaises(OSError, self.fs.mkdir, '/memory/subdir', 'mode_ignored')
 
-    def test_mkdir_readonly_fs(self):
+    def not_test_mkdir_readonly_fs(self):
         self.assertRaises(IOError, self.fs.mkdir, '/disks/Cdrom/test', 'mode_ignored')
     
     def test_mkdir(self):
         self.fs.getattr('/disks/Samples disk/Songs')
         self.assertEquals([], self.fs.getdir('/disks/Samples disk/Songs'))
-        self.fs.mkdir('/disks/Samples disk/Songs/test', 'mode_ignored')
+        newdir = '/disks/Samples disk/Songs/test'
+        self.fs.mkdir(newdir, 'mode_ignored')
         self.assertEquals([('/disks/Samples disk/Songs/test', 0)], 
                           self.fs.getdir('/disks/Samples disk/Songs'))
+        self.assertNotEquals(None, self.fs.getattr(newdir))
+
 
     def test_open_memory(self):
         path = '/memory/Sample99.wav'
@@ -98,6 +103,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         finally:
             self.fs.release(path, 'ignored')
             self.assertEquals(None, self.fs.root.file_cache.get(path, None))
+
 
     def test_open_disk(self):
         try:
@@ -111,7 +117,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     def test_release(self):
         # should not throw
         self.fs.release('/non-existent', 'ignored')
-    
+
     def test_read(self):
         tmp_file = self._prep_file()
         try:
@@ -127,11 +133,27 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.fs.write(path, 'abc', 0)
         self.assertEquals('abc', self.fs.read('/memory/Sample100.wav', 3, 0))
         self.fs.release(path, 'ignored')
+
+    def test_rmdir(self):
+        self.fs.getattr('/disks/Samples disk/Songs')
+        path = '/disks/Samples disk/Songs/test'
+        self.fs.mkdir(path, 'ignored')
+        self.fs.getattr(path)
+        self.fs.rmdir(path)
+        self.assertRaises(OSError, self.fs.getattr, path)
+    
+    def test_unlink(self):
+        self.fs.getattr('/memory')
+        path = '/memory/Boo.wav'
+        self.fs.getattr(path)
+        self.fs.unlink(path)
+        self.assertRaises(OSError, self.fs.getattr, path)
     
     def _prep_file(self):
         tmp_file = tempfile.mkstemp('aksy_test')[0]
         os.write(tmp_file, 'abc')
-        self.fs.root.file_cache['file'] = aksyfs.FileInfo('/memory/sample.wav', False, handle=tmp_file)
+        self.fs.root.file_cache['file'] = aksyfs.FileInfo('/memory/sample.wav', 
+                                                          False, handle=tmp_file)
         return tmp_file
 
 def test_suite():

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from fuse import Fuse
+import fuse
 
 from time import time
 
@@ -13,11 +13,11 @@ from aksy.device import Devices
 from aksy import fileutils, model
 from aksy.devices.akai import sampler as samplermod
 
+fuse.fuse_python_api = (0, 1) # TODO: migrate to 0.2
+
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
-
 EOF = '\x00'
-
 START_TIME = time()
 
 def stat_inode(mode, size, child_count, uid, gid, writable=False):
@@ -37,7 +37,7 @@ def stat_inode(mode, size, child_count, uid, gid, writable=False):
     return info
 
 def stat_dir(uid, gid, child_count=1):
-    return stat_inode(stat.S_IFDIR|stat.S_IEXEC, 4096L, child_count, uid, gid)
+    return stat_inode(stat.S_IFDIR|stat.S_IWRITE|stat.S_IEXEC, 4096L, child_count, uid, gid)
 
 # TODO: provide real values for samples (other sizes can't be determined
 def stat_file(uid, gid, path):
@@ -133,7 +133,7 @@ class FSRoot(object):
         store = self.find_child(path)
         if not hasattr(store, 'create_folder'):
             raiseException(errno.EINVAL)
-        store.create_folder(path)
+        return store.create_folder(path)
         
     def open(self, path, flags):
         info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags))
@@ -148,8 +148,8 @@ class FSRoot(object):
             os.close(info.get_handle())
             del self.file_cache[path]
 
-    def mknod(self, path, mode):
-        self.file_cache[path] = FileInfo(path, True, flags=mode)
+    def mknod(self, path):
+        self.file_cache[path] = FileInfo(path, True, flags=os.O_CREAT|os.O_RDWR)
         
     def write(self, path, buf, offset):
         handle = self.file_cache[path].get_handle()
@@ -165,12 +165,12 @@ class FSRoot(object):
         else:
             return read
     
-class AksyFS(Fuse): #IGNORE:R0904
+class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, sampler, **args):
         self.flags = 0
         self.multithreaded = 0
         self.debug = True
-        Fuse.__init__(self, [], args)
+        fuse.Fuse.__init__(self, [], args)
 
         self.root = FSRoot(sampler)
         
@@ -191,22 +191,28 @@ class AksyFS(Fuse): #IGNORE:R0904
         parent = os.path.dirname(path)
         return self.cache[parent]
         
-    def stat_file(self, path):
+    def get_file(self, path):
         if not samplermod.Sampler.is_filetype_supported(path):
             raiseException(errno.ENOENT)
-        
-        cached = self.cache.get(path, None)
-        if cached is not None:
-            return cached
-        
+
         parent_dir = self.get_parent(path)
         file_name = os.path.basename(path)
         
         for child in parent_dir.get_children():
             if child.get_name() == file_name:
-                return stat_file(self.uid, self.gid, path)
+                return child
+        return None
+
+    def stat_file(self, path):
+        cached = self.cache.get(path, None)
+        if cached is not None:
+            return cached
         
-        raiseException(errno.ENOENT)
+        file_obj = self.get_file(path)
+        if file_obj is None:
+            raiseException(errno.ENOENT)
+        else:
+            return stat_file(self.uid, self.gid, path)
 
     def getattr(self, path):
         print '*** getattr', path
@@ -222,7 +228,8 @@ class AksyFS(Fuse): #IGNORE:R0904
 
     def mkdir(self, path, mode):
         print '*** mkdir', path, mode
-        self.root.mkdir(path)
+        folder = self.root.mkdir(path)
+        self.cache[path] = folder
 
     def open(self, path, flags):
         print '*** open', path, flags
@@ -242,23 +249,29 @@ class AksyFS(Fuse): #IGNORE:R0904
 
     def rmdir(self, path):
         print '*** rmdir', path
-        #TODO
-        raiseUnsupportedOperationException()
+        self.cache[path].delete()
+        del self.cache[path]
 
     def unlink(self, path):
         print '*** unlink', path
-        # TODO
-        raiseUnsupportedOperationException()
+        file_obj = self.get_file(path)
+        file_obj.delete()
+        self.get_parent(path).refresh()
 
     def mknod(self, path, mode, dev):
         print '*** mknod ', path, mode, dev
         self.cache[path] = stat_file(self.uid, self.gid, path)
-        self.root.mknod(path, mode)
+        self.root.mknod(path)
+        self.get_parent(path).refresh()
 
     def write(self, path, buf, offset):
         print '*** write', path, len(buf), offset
         return self.root.write(path, buf, offset)
-    
+
+    def truncate(self, path, size): #IGNORE:W0212
+        print "*** truncate ", path, size
+        pass
+
 def raiseUnsupportedOperationException():
     raiseException(errno.ENOSYS)
 
