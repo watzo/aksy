@@ -152,7 +152,7 @@ class FSRoot(object):
             del self.file_cache[path]
 
     def mknod(self, path):
-        self.file_cache[path] = FileInfo(path, True, flags=os.O_CREAT|os.O_RDWR)
+        self.file_cache[path] = FileInfo(path, True, flags=os.O_CREAT|os.O_WRONLY)
         
     def write(self, path, buf, offset):
         handle = self.file_cache[path].get_handle()
@@ -246,9 +246,19 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         print '*** release', path, flags
         self.root.close(path)
 
-    def rename(self, oldPath, newPath):
-        print '*** rename', oldPath, newPath
-        raiseUnsupportedOperationException()
+    def rename(self, old_path, new_path):
+        print '*** rename', old_path, new_path
+        if os.path.dirname(old_path) != os.path.dirname(new_path):
+            raiseUnsupportedOperationException()
+        new_name = os.path.basename(new_path)
+        if fileutils.is_dirpath(old_path):
+            folder = self.cache[old_path]
+            folder.rename(new_name)
+            self.cache[new_path] = folder
+            del self.cache[old_path]
+        else: 
+            file_obj = self.get_file(path)
+            file_obj.rename(new_name)
 
     def rmdir(self, path):
         print '*** rmdir', path

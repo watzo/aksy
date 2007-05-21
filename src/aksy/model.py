@@ -238,7 +238,7 @@ class Folder(FileRef):
     def rename(self, new_name):
         self.get_parent().set_current()
         handlers[Disk].rename_folder(self.get_name(), new_name)
-        self.path = self.path[:-1] + (new_name,)
+        self.path = self.path.replace(self.get_name(), new_name)
 
     def load(self):
         """
