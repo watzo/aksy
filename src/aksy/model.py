@@ -264,7 +264,7 @@ class Folder(FileRef):
         """
         self.get_parent().set_current()
         handlers[Disk].create_folder(name)
-        folder = Folder(self.path + (name,))
+        folder = Folder(os.path.join(self.path, name))
         self.children.append(folder)
         return folder
 
@@ -448,11 +448,11 @@ class RootDisk(Storage):
             in disk_list])
 
     def create_folder(self, path):
-        parent = os.path.dirname(path.split('/', 2)[2])
+        parent = os.path.dirname(path)
         folder = self.get_dir(parent)
         if folder is None:
-            raise IOError("Folder ", parent, " does not exist")
-        return folder.create_folder(path)
+            raise IOError("Folder '%s' does not exist" % parent)
+        return folder.create_folder(os.path.basename(path))
         
     def get_dir(self, rel_path):
         segments = rel_path.split('/', 1)

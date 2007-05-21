@@ -39,26 +39,26 @@ class MockZ48(Z48):
         return None
 
     def _populate_fs(self):
-        mellotron_folder = model.Folder(('', 'Mellotron',))
-        choir_folder = model.Folder(('', 'Choir',))
+        mellotron_folder = model.Folder('Mellotron')
+        choir_folder = model.Folder('Choir')
         choir_folder.children.extend(
-            (model.FileRef(('', 'Mellotron', 'Choir', 'Choir.AKM',)),
-            model.FileRef(('', 'Mellotron', 'Choir', 'Choir.AKP',)),
-            model.FileRef(('', 'Mellotron', 'Choir', 'Vox1.wav',)),))
+            (model.FileRef('Mellotron/Choir/Choir.AKM'),
+            model.FileRef('Mellotron/Choir/Choir.AKP'),
+            model.FileRef('Mellotron/Choir/Vox1.wav'),))
 
         mellotron_folder.children.extend(
             (choir_folder,
-            model.FileRef(('', 'Mellotron', 'Sample.AKP',)),
-            model.FileRef(('', 'Mellotron', 'Sample.wav',)),))
+            model.FileRef('Mellotron/Sample.AKP'),
+            model.FileRef('Mellotron/Sample.wav'),))
         first_disk = self.disks.get_children()[0] 
-        first_disk.root.children = [model.Folder(('', 'Autoload',)),
-             model.Folder(('', 'Songs',))]
+        first_disk.root.children = [model.Folder('Autoload'),
+             model.Folder('Songs')]
         self.disks.get_children()[1].root.children = [mellotron_folder]
 
-        memory_items = [model.Sample("Boo.wav"),
-            model.Multi("Default.akm"),]
+        memory_items = [model.Sample("Boo"),
+            model.Multi("Default"),]
         for i in range(0, 100):
-            memory_items.append(model.Sample("Sample%i.wav" %i))
+            memory_items.append(model.Sample("Sample%i" %i))
         self.memory.set_children(memory_items)
 
     def _patch_disktools_get_disklist(self):

@@ -132,7 +132,7 @@ class FSRoot(object):
         store = self.find_child(path)
         if not hasattr(store, 'create_folder'):
             raiseException(errno.EINVAL)
-        return store.create_folder(path)
+        return store.create_folder(_splitpath(path)[1])
         
     def open(self, path, flags):
         info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags|os.O_CREAT))
@@ -227,9 +227,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def getdir(self, path):
         print '*** getdir', path
         folder = self.cache[path]
-        list =  [(child.get_name(), 0) for child in folder.get_children()]
-        print repr(list)
-        return list
+        return [(child.get_name(), 0) for child in folder.get_children()]
 
     def mkdir(self, path, mode):
         print '*** mkdir', path, mode
