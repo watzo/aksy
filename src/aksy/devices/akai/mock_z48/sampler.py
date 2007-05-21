@@ -58,7 +58,7 @@ class MockZ48(Z48):
         memory_items = [model.Sample("Boo"),
             model.Multi("Default"),]
         for i in range(0, 100):
-            memory_items.append(model.Sample("Sample%i" %i))
+            memory_items.append(model.Sample("Sample%i"))
         self.memory.set_children(memory_items)
 
     def _patch_disktools_get_disklist(self):

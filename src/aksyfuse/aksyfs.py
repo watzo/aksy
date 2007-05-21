@@ -257,12 +257,13 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
             self.cache[new_path] = folder
             del self.cache[old_path]
         else: 
-            file_obj = self.get_file(path)
+            file_obj = self.get_file(old_path)
             file_obj.rename(new_name)
 
     def rmdir(self, path):
         print '*** rmdir', path
-        self.cache[path].delete()
+        folder = self.cache[path]
+        folder.delete()
         del self.cache[path]
 
     def unlink(self, path):
