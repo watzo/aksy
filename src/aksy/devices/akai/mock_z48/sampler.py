@@ -3,7 +3,7 @@ import logging, os.path, shutil
 from aksy.devices.akai import sysex_types, sampler
 from aksy.devices.akai.z48.sampler import Z48
 from aksy import model, fileutils
-
+import errno
 log = logging.getLogger('aksy')
 
 class MockZ48(Z48):
@@ -27,7 +27,7 @@ class MockZ48(Z48):
             if self.sampleFile is not None:
                 shutil.copy(self.sampleFile, destpath)
             else:
-                raise IOError("File %s not found" % destpath)
+                raise IOError(errno.ENOENT, "File not found", destpath)
 
     def put(self, path, remote_name=None, destination=Z48.MEMORY):
         if self.debug > 0:
@@ -58,7 +58,7 @@ class MockZ48(Z48):
         memory_items = [model.Sample("Boo"),
             model.Multi("Default"),]
         for i in range(0, 100):
-            memory_items.append(model.Sample("Sample%i"))
+            memory_items.append(model.Sample("Sample%i" %i))
         self.memory.set_children(memory_items)
 
     def _patch_disktools_get_disklist(self):
