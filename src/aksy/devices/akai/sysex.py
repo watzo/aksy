@@ -1,6 +1,5 @@
-import struct, sys, types, sysex_types, logging
+import struct, sysex_types, logging
 from sysex_types import START_SYSEX, END_SYSEX
-from new import classobj
 # Module vars
 
 AKAI_ID = '\x47'
@@ -17,10 +16,10 @@ log = logging.getLogger("aksy")
 class Command:
     """Represents a system exclusive command.
     """
-    def __init__(self, device_id, id, name, arg_types,
+    def __init__(self, device_id, cmd_id, name, arg_types,
             reply_spec, userref_type=sysex_types.USERREF):
         self.device_id = device_id
-        self.id = id
+        self.id = cmd_id
         self.name = name
         self.arg_types = []
         self.reply_spec = reply_spec
@@ -34,8 +33,8 @@ class Command:
         """Returns the sysex byte sequence for the command arg data -
         """
         bytes = []
-        for type,arg in zip(self.arg_types, args):
-            bytes.append(type.encode(arg))
+        for sysex_type, arg in zip(self.arg_types, args):
+            bytes.append(sysex_type.encode(arg))
 
         if len(bytes) == 0:
             return None
@@ -45,13 +44,9 @@ class Command:
 class Request:
     """ Encapsulates a sysex request
     command: the command to execute
-
     """
     def __init__(self, command, args, request_id=0):
-        bytes = [START_SYSEX, AKAI_ID]
-
-        bytes.append(command.device_id)
-        bytes.append(command.userref_type.encode(request_id))
+        bytes = self._create_start_bytes(command, request_id)
         bytes.append(command.id)
         data = command.create_arg_bytes(args)
         if data is not None:
@@ -60,12 +55,41 @@ class Request:
 
         self.bytes = ''.join(bytes)
 
+    def _create_start_bytes(self, command, request_id):
+        bytes = [START_SYSEX, AKAI_ID]
+        bytes.append(command.device_id)
+        bytes.append(command.userref_type.encode(request_id))
+        return bytes
+        
     def get_bytes(self):
-        return self.bytes;
+        return self.bytes
 
     def __repr__(self):
-        return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', self.bytes)])
-
+        return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', 
+                                                             self.bytes)])
+class AlternativeRequest(Request):
+    def __init__(self, section, handle, commands, args, section_offset=0, index=None, request_id=0):
+        if section_offset > 3:
+            raise SamplerException("Offset should be between 0 and 2")
+        bytes = self._create_start_bytes(commands[0], request_id)
+        bytes.append(sysex_types.BYTE.encode(section))
+        bytes.append(sysex_types.BYTE.encode(section_offset))
+        bytes.append(sysex_types.DWORD.encode(handle))
+        if index is not None:
+            bytes.append(sysex_types.BYTE.encode(index))
+        
+        for command in commands:
+            data = command.create_arg_bytes(args)
+            if data is not None:
+                bytes.append(sysex_types.BYTE.encode(len(data)))
+                bytes.extend(data)
+            else:
+                bytes.append(sysex_types.BYTE.encode(0))
+            bytes.append(command.id[1:])
+                     
+        bytes.append(END_SYSEX)
+        self.bytes = ''.join(bytes)
+    
 class Reply:
     """ Encapsulates a sysex reply
     """
@@ -146,11 +170,11 @@ class Error(Exception):
 def byte_repr(bytes):
     return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
 
-def repr_bytes(byte_repr):
-    return  ''.join([struct.pack('1B', int(byte, 16)) for byte in byte_repr])
+def repr_bytes(bytes):
+    return  ''.join([struct.pack('1B', int(byte, 16)) for byte in bytes])
 
 def _to_string(ordvalues):
-    """Method to quickly scan a string
+    """Method to quickly convert to a string
     >>> ordvalues = (90, 52, 56, 32, 38, 32, 77, 80, 67, 52, 75)
     >>> _to_string(ordvalues)
     'Z48 & MPC4K'

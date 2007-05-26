@@ -43,9 +43,10 @@ class TestRequest(unittest.TestCase):
 
 class TestReply(unittest.TestCase):
     def testCreateReply(self):
-        DEFAULT_USERREF='\x00'
-        bytes =  (sysex.START_SYSEX, sysex.AKAI_ID, sysex.Z48_ID, '\x00', sysex.REPLY_ID_REPLY, '\x20\x05', '\x01', sysex.END_SYSEX)
-        dcmd = sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (),(sysex_types.BYTE,))
+        DEFAULT_USERREF = '\x00'
+        bytes = (sysex.START_SYSEX, sysex.AKAI_ID, sysex.Z48_ID, DEFAULT_USERREF, 
+                 sysex.REPLY_ID_REPLY, '\x20\x05', '\x01', sysex.END_SYSEX)
+        dcmd = sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (), (sysex_types.BYTE,))
         reply = sysex.Reply(''.join(bytes), dcmd)
         self.assertEquals(1, reply.get_return_value())
 
@@ -81,11 +82,13 @@ class TestReply(unittest.TestCase):
 
         # not possible yet how to deal with the dump request replies
         dcmd.reply_spec = ()
-        self.assertRaises(sysex.ParseException,  sysex.Reply, '\xf0G_ ' + '\x00' * 2 + 'R\x10 i\x01\xf7', dcmd)
+        self.assertRaises(sysex.ParseException,  sysex.Reply, '\xf0G_ ' + '\x00' * 2 
+                          + 'R\x10 i\x01\xf7', dcmd)
 
         # reply on 'bulk command 10 05' 10 0a 00 f0 47 5e 20 00 00 10 05 15 f7
         dcmd.id = '\x10\x05'
-        dcmd.reply_spec = (sysex_types.WORD, sysex_types.BYTE, sysex_types.BYTE, sysex_types.BYTE, sysex_types.BYTE, sysex_types.STRING)
+        dcmd.reply_spec = (sysex_types.WORD, sysex_types.BYTE, sysex_types.BYTE, sysex_types.BYTE, 
+                           sysex_types.BYTE, sysex_types.STRING)
         bytes = '\xf0\x47\x5f\x00\x52\x10\x05\x00\x02\x01\x02\x00\x01\x5a\x34\x38\x20\x26\x20\x4d\x50\x43\x34\x4b\x00\xf7'
         reply = sysex.Reply(bytes, dcmd)
         self.assertEquals((256, 1, 2, 0, 1, 'Z48 & MPC4K'), reply.get_return_value())
@@ -148,6 +151,12 @@ class TestReply(unittest.TestCase):
         reply = sysex.Reply(bytes, cmd)
         self.assertEquals(('Dry Kit 02', 'Program 1', 'SynthTest'), reply.get_return_value())
 
+class TestAlternativeRequest(unittest.TestCase):
+    def test_get_bytes(self):
+        cmd = sysex.Command(sysex.Z48_ID, '\x1F\x50', 'get_sample_length', (), None)
+        req = sysex.AlternativeRequest(0x60, 65536, [cmd], [None], section_offset=3)
+        self.assertEquals('\xf0G_\x00`\x03\x00\x00\x04\x00\x00P\xf7', req.get_bytes())
+    
 class TestModuleMethods(unittest.TestCase):
     def test_byte_repr(self):
         bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
