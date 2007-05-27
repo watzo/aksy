@@ -37,6 +37,90 @@ DWORD
 WORD
 \x18	\x10	get_curr_modified	Get name of current item with modified/tagged info.
 STRINGARRAY
+\x18	\x11	get_modified	Get modified state of current item
+BOOL
+\x1A	\x01	set_group_id	Set Group ID	BYTE
+
+\x1A	\x02	set_multi_select_method	Set Multi Select <Data1> = (0=OFF, 1=BANK, 2=PROG CHANGE)	BYTE
+
+\x1A	\x03	set_multi_select_channel	Set Multi Select Channel <Data1> = (1A=0, 2A=1, ..., 16B=31)	BYTE
+
+\x1A	\x04	set_multi_tempo	Set Multi Tempo <Data1> = 10 bpm	WORD
+
+\x1A	\x08	set_multi_program_no	Set Multi Program Number Data1: (0=OFF, 1=128)	BYTE
+
+\x1A	\x09	set_multi_part_by_handle	Set Multi Part by handle <Data1> = Part Number; <Data2> = Handle of program	BYTE	DWORD
+
+\x1A	\x0A	set_multi_part_by_name	Set Multi Part by name	BYTE	STRING
+
+\x1A	\x0F	set_no_parts	Set number of parts	WORD
+
+\x1A	\x10	set_part_midi_channel	Set midi channel of part	BYTE	BYTE
+
+\x1A	\x11	set_part_mute	Set part mute	BYTE	BOOL
+
+\x1A	\x12	set_part_solo	Set part solo	BYTE	BOOL
+
+\x1A	\x13	set_part_level	Set part level	BYTE	SWORD
+
+\x1A	\x14	set_part_output	Set part output	BYTE	BYTE
+
+\x1A	\x15	set_part_pan	Set part pan	BYTE	BYTE
+
+\x1A	\x16	set_part_fx_channel	Set part fx channel	BYTE	BYTE
+
+\x1A	\x17	set_part_fx_send_level	Set part fx send level	BYTE	SWORD
+
+\x1A	\x18	set_part_cents_tune	Set part cents tune	BYTE	SWORD
+
+\x1A	\x1A	set_part_low_note	Set part low note	BYTE	BYTE
+
+\x1A	\x1B	set_part_high_note	Set part high note	BYTE	BYTE
+
+\x1A	\x1C	set_part_priority	Set part priority	BYTE	BYTE
+
+\x1A	\x1D	set_part_program_no	Set part program number	BYTE	BYTE
+
+\x1A	\x1F	set_part_group_id	Set part group id	BYTE	BYTE
+
+\x1A	\x30	set_eq_output_channel	Set EQ Output Channel	BYTE
+
+\x1A	\x31	enable_eq	Enable EQ	BOOL
+
+\x1A	\x32	set_eq_low_gain	Set EQ low gain	SWORD
+
+\x1A	\x33	set_eq_low_freq	Set EQ low freq	WORD
+
+\x1A	\x34	set_eq_mid_gain	Set EQ mid gain	SWORD
+
+\x1A	\x35	set_eq_mid_freq	Set EQ mid freq	WORD
+
+\x1A	\x36	set_eq_high_gain	Set EQ high gain	SWORD
+
+\x1A	\x37	set_eq_high_freq	Set EQ high freq	WORD
+
+\x1A	\x40	enable_midi_filter	Enable midi filter	BOOL
+
+\x1A	\x41	set_midi_filter_by_part	Set midi filter by part	BYTE	BYTE	BYTE
+
+\x1A	\x42	set_midi_filter_by_channel	Set midi filter by channel	BYTE	BYTE	BYTE
+
+\x1A	\x50	set_fx_assign_type	Set fx assign type (1: FX)	BYTE	BYTE
+
+\x1A	\x51	set_target	Set target (part/channel)	BYTE	WORD
+
+\x1A	\x52	set_destination	Set destination	BYTE	WORD
+
+\x1A	\x53	set_change_type	Set Change type (0: replace, 1: offset)	BYTE	BYTE
+
+\x1A	\x54	set_scale_min	Set Scale minimum	BYTE	SBYTE
+
+\x1A	\x55	set_scale_max	Set Scale maximum	BYTE	SBYTE
+
+\x1A	\x56	set_midi_ctl_output	Set Midi controller output (0: off, 1-128)	BYTE	WORD
+
+\x1A	\x57	set_midi_channel_output	Set Midi channel output (0: off, 1-128)	BYTE	SBYTE
+
 \x1B	\x01	get_group_id	Get Group ID
 BYTE
 \x1B	\x02	get_multi_select_method	Get Multi Select <Reply1> = (0=OFF, 1=BANK, 2=PROG CHANGE)
@@ -75,15 +159,47 @@ SWORD
 BYTE
 \x1B	\x1B	get_part_high_note	Get Part High Note	BYTE
 BYTE
-\x1A	\x01	set_group_id	Set Group ID	BYTE
-
-\x1A	\x02	set_multi_select_method	Set Multi Select <Data1> = (0=OFF, 1=BANK, 2=PROG CHANGE)	BYTE
-
-\x1A	\x03	set_multi_select_channel	Set Multi Select Channel <Data1> = (1A=0, 2A=1, ..., 16B=31)	BYTE
-
-\x1A	\x04	set_multi_tempo	Set Multi Tempo <Data1> = 10 bpm	WORD
-
-\x1A	\x08	set_multi_program_no	Set Multi Program Number Data1: (0=OFF, 1=128)	BYTE
-
-\x1A	\x09	set_multi_part_by_handle	Set Multi Part by handle <Data1> = Part Number; <Data2> = Handle of program	BYTE	DWORD
-
+\x1B	\x1C	get_part_priority	Get Part Priority	BYTE
+BYTE
+\x1B	\x1D	get_part_prog_no	Get Part Program Number	BYTE
+BYTE
+\x1B	\x1F	get_part_group_id	Get Part Group ID	BYTE
+BYTE
+\x1B	\x30	get_eq_output_channel	Get EQ Output Channel
+BYTE
+\x1B	\x31	is_eq_enabled	Whether EQ is enabled
+BOOL
+\x1B	\x32	get_eq_low_gain	Get EQ low gain
+SWORD
+\x1B	\x33	get_eq_low_freq	Get EQ low freq
+WORD
+\x1B	\x34	get_eq_mid_gain	Get EQ mid gain
+SWORD
+\x1B	\x35	get_eq_mid_freq	Get EQ mid freq
+WORD
+\x1B	\x36	get_eq_high_gain	Get EQ high gain
+SWORD
+\x1B	\x37	get_eq_high_freq	Get EQ high freq
+WORD
+\x1B	\x40	is_midi_filter_enabled	Whether the midi filter is enabled
+BOOL
+\x1B	\x41	get_midi_filter_by_part	Get midi filter by part	BYTE	BYTE
+BYTE
+\x1B	\x42	get_midi_filter_by_channel	Get midi filter by channel	BYTE	BYTE
+BYTE
+\x1B	\x50	get_fx_assign_type	Get fx assign type (1: FX)	BYTE
+BYTE
+\x1B	\x51	get_target	Get target (part/channel)	BYTE
+WORD
+\x1B	\x52	get_destination	Get destination	BYTE
+WORD
+\x1B	\x53	get_change_type	Get Change type (0: replace, 1: offset)	BYTE
+BYTE
+\x1B	\x54	get_scale_min	Get Scale minimum	BYTE
+SBYTE
+\x1B	\x55	get_scale_max	Get Scale maximum	BYTE
+SBYTE
+\x1B	\x56	get_midi_ctl_output	Get Midi controller output (0: off, 1-128)	BYTE
+WORD
+\x1B	\x57	get_midi_channel_output	Get Midi channel output (0: off, 1-128)	BYTE
+SBYTE
