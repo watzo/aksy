@@ -5,7 +5,7 @@ from aksyfuse import aksyfs
 from aksy.device import Devices
 from aksy.test import testutil
 from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
-import os, errno, tempfile
+import os, tempfile
 
 log = logging.getLogger('aksy')
 
@@ -106,6 +106,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
 
 
     def test_open_disk(self):
+        self.fs.getattr('/disks/Cdrom/Mellotron/Choir')
         self.fs.open('/disks/Cdrom/Mellotron/Choir/Choir.AKP', S_IRUSR)
         self.fs.release('/disks/Cdrom/Mellotron/Choir/Choir.AKP', 'ignored')
 
@@ -142,6 +143,9 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         # TODO: fix mock delete()
         # self.assertRaises(OSError, self.fs.getattr, path)
     
+    def test_rmdir_memory(self):
+        self.assertRaises(OSError, self.fs.rmdir, '/memory')
+        
     def test_unlink(self):
         self.fs.getattr('/memory')
         path = '/memory/Boo.wav'

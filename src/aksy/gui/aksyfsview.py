@@ -304,7 +304,7 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
         if parent is None:
             parent = self.root
 
-        print "AppendAksyItem: name: %s, children: %s" % (item.get_name(), repr(item.get_children()))
+        print "AppendAksyItem: name: %s, children: %s" % (item.get_name(), hasattr(item, 'get_children') and repr(item.get_children()) or 'None')
         child = self.AppendItem(parent, item.get_short_name())
         if item.has_children():
             self.SetItemHasChildren(child)
@@ -472,8 +472,10 @@ class DirListCtrl(wx.ListCtrl, ContextMenuHandler):
         self.PopupMenu(menu)
         menu.Destroy()
         
-    def add_items(self, dir):
-        children = dir.get_children()
+    def add_items(self, obj):
+        if not hasattr(obj, 'get_children'):
+            return
+        children = obj.get_children()
         for index in range(len(children)-1, -1, -1):
             child = children[index]
             list_item = wx.ListItem()

@@ -47,9 +47,6 @@ class Disk(object):
     def get_size(self):
         return None
 
-    def get_used_by(self):
-        return None
-
     def get_modified(self):
         return None
 
@@ -105,22 +102,17 @@ class FileRef(object):
         return os.path.splitext(self.get_name())[0]
 
     def get_handle(self):
-        """Returns a unique handle for the file
+        """Returns handle for the file
         """
         return self.path
 
     def get_size(self):
-        return 'Unknown'
+        return None
 
     def get_modified(self):
         """Returns True if this file has been modified
         """
-        return None
-
-    def get_used_by(self):
-        """Returns the parent using this file
-        """
-        return None
+        return True
 
     def has_children(self):
         return False
@@ -161,7 +153,7 @@ class FileRef(object):
 
     def delete(self):
         self.get_parent().set_current()
-        handlers[Disk].delete_file(self.get_name())
+        handlers[Disk].delete(self.get_name())
 
     def rename(self, new_name):
         self.get_parent().set_current()
@@ -252,7 +244,7 @@ class Folder(FileRef):
         """
         """
         self.get_parent().set_current()
-        handlers[Disk].delete_folder(self.get_name())
+        handlers[Disk].delete(self.get_name())
         # could be optimized by using dicts instead of lists
         for item in self.get_parent().get_children():
             if item.get_name() == self.get_name():
@@ -324,12 +316,6 @@ class InMemoryFile(FileRef):
     def get_actions(self):
         return ('delete', 'download',)
     
-    def get_size(self):
-        return 'Unknown'
-
-    def get_used_by(self):
-        return None
-
     def get_name(self):
         return self.name
     
@@ -343,6 +329,10 @@ class InMemoryFile(FileRef):
         """
         return handlers[self.__class__].get_handle_by_name(self.get_short_name())
 
+    def get_modified(self):
+        self.set_current()
+        return handlers[self.__class__].get_modified()
+    
     def set_current(self):
         handlers[self.__class__].set_curr_by_name(self.get_short_name())
 
@@ -390,9 +380,6 @@ class Sample(InMemoryFile):
     def get_size(self):
         handlers[Sample].get_sample_length()
         
-    def get_used_by(self):
-        return None
-
 class Song(InMemoryFile):
     def __init__(self, name):
         InMemoryFile.__init__(self, name)
@@ -405,9 +392,6 @@ class Song(InMemoryFile):
         # TODO!
         return InMemoryFile.get_name(self) + ".mid"
     
-    def get_used_by(self):
-        return None
-
 class Storage:
     def __init__(self, name):
         self.name = name

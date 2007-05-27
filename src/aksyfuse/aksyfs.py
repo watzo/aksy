@@ -20,7 +20,7 @@ MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
 EOF = '\x00'
 START_TIME = time()
 
-def stat_inode(mode, size, child_count, uid, gid, writable=False):
+def stat_inode(mode, size, child_count, uid, gid, writable=False, is_modified=False):
     info = [None] * 10
     info[stat.ST_DEV] = 0 # TODO: figure out whether required to provide unique value
     info[stat.ST_INO] = 0 # TODO: figure out whether required to provide unique value
@@ -30,7 +30,10 @@ def stat_inode(mode, size, child_count, uid, gid, writable=False):
     info[stat.ST_SIZE] = size
     info[stat.ST_ATIME] = int(START_TIME)
     info[stat.ST_CTIME] = info[stat.ST_ATIME]
-    info[stat.ST_MTIME] = info[stat.ST_ATIME]
+    if is_modified:
+        info[stat.ST_MTIME] = int(time())
+    else:
+        info[stat.ST_MTIME] = info[stat.ST_ATIME]
     info[stat.ST_NLINK] = child_count
     info[stat.ST_UID] = uid
     info[stat.ST_GID] = gid
@@ -40,15 +43,19 @@ def stat_dir(uid, gid, child_count=1):
     return stat_inode(stat.S_IFDIR|stat.S_IWRITE|stat.S_IEXEC, 4096L, child_count, uid, gid)
 
 # TODO: provide real values for samples (other sizes can't be determined
-def stat_file(uid, gid, path):
+def stat_file(uid, gid, path, size=None, is_modified=False):
     cache_path = _get_cache_path(path)
-    if os.path.exists(cache_path):
-        size = os.stat(cache_path)[stat.ST_SIZE]
-    elif fileutils.is_sample(path):
-        size = MAX_FILE_SIZE_SAMPLE
-    else:
-        size = MAX_FILE_SIZE_OTHER
-    return stat_inode(stat.S_IFREG|stat.S_IWUSR, size, 0, uid, gid)
+    if size is None:
+        if os.path.exists(cache_path):
+            size = os.stat(cache_path)[stat.ST_SIZE]
+        elif fileutils.is_sample(path):
+            size = MAX_FILE_SIZE_SAMPLE
+        else:
+            size = MAX_FILE_SIZE_OTHER
+    return stat_inode(stat.S_IFREG|stat.S_IWUSR, size, 0, uid, gid, is_modified)
+
+def is_modified(stat_tuple):
+    return stat_tuple[stat.ST_MTIME] > START_TIME
 
 def _splitpath(path):
     return path.split('/', 2)[1:]
@@ -134,9 +141,9 @@ class FSRoot(object):
             raiseException(errno.EINVAL)
         return store.create_folder(_splitpath(path)[1])
         
-    def open(self, path, flags):
+    def open(self, path, flags, is_modified=False):
         info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags|os.O_CREAT))
-        if not info.is_upload():
+        if not info.is_upload() and is_modified:
             self.sampler.get(info.get_name(), info.get_path(), info.get_location())
         
     def close(self, path):
@@ -153,7 +160,10 @@ class FSRoot(object):
 
     def mknod(self, path):
         self.file_cache[path] = FileInfo(path, True, flags=os.O_CREAT|os.O_WRONLY)
-        
+
+    def rename(self, src, dest):
+        pass
+    
     def write(self, path, buf, offset):
         handle = self.file_cache[path].get_handle()
         os.lseek(handle, offset, 0)
@@ -215,7 +225,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         if file_obj is None:
             raiseException(errno.ENOENT)
         else:
-            return stat_file(self.uid, self.gid, path)
+            return stat_file(self.uid, self.gid, path, file_obj.get_size(), file_obj.get_modified())
 
     def getattr(self, path):
         print '*** getattr', path
@@ -236,7 +246,8 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
 
     def open(self, path, flags):
         print '*** open', path, flags
-        self.root.open(path, flags)
+        info = self.stat_file(path)
+        self.root.open(path, flags, is_modified(info))
 
     def read(self, path, length, offset):
         print '*** read', path, length, offset
@@ -263,8 +274,12 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def rmdir(self, path):
         print '*** rmdir', path
         folder = self.cache[path]
-        folder.delete()
-        del self.cache[path]
+        if hasattr(folder, 'delete'):
+            folder.delete()
+            del self.cache[path]
+            return
+
+        raiseException(errno.EPERM)
 
     def unlink(self, path):
         print '*** unlink', path
@@ -293,7 +308,9 @@ def raiseException(err):
     raise OSError(err, 'Exception occurred')
 
 if __name__ == '__main__':
-    # z48 = Devices.get_instance('mock_z48', None)
+#    z48 = Devices.get_instance('mock_z48', None, 
+#                               debug=0, 
+#                               sampleFile='221 angel/angel 01.wav')
     z48 = Devices.get_instance('z48', 'usb')
     fs = AksyFS(z48)
     fs.mountpoint = '/tmp/aksy'

@@ -1,6 +1,6 @@
-import struct, sysex_types, logging
-from sysex_types import START_SYSEX, END_SYSEX
-# Module vars
+import struct, logging
+from aksy.devices.akai import sysex_types
+from aksy.devices.akai.sysex_types import START_SYSEX, END_SYSEX
 
 AKAI_ID = '\x47'
 Z48_ID = '\x5f'
@@ -68,12 +68,11 @@ class Request:
         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', 
                                                              self.bytes)])
 class AlternativeRequest(Request):
-    def __init__(self, section, handle, commands, args, section_offset=0, index=None, request_id=0):
-        if section_offset > 3:
-            raise SamplerException("Offset should be between 0 and 2")
+    def __init__(self, section_id, handle, commands, args, base_section_id, index=None, request_id=0):
         bytes = self._create_start_bytes(commands[0], request_id)
-        bytes.append(sysex_types.BYTE.encode(section))
-        bytes.append(sysex_types.BYTE.encode(section_offset))
+        bytes.append(section_id)
+        # TODO: this is z48 specific
+        bytes.append(self.calc_offset(base_section_id, commands[0].id))
         bytes.append(sysex_types.DWORD.encode(handle))
         if index is not None:
             bytes.append(sysex_types.BYTE.encode(index))
@@ -81,6 +80,7 @@ class AlternativeRequest(Request):
         for command in commands:
             data = command.create_arg_bytes(args)
             if data is not None:
+                # TODO: this is z48 specific
                 bytes.append(sysex_types.BYTE.encode(len(data)))
                 bytes.extend(data)
             else:
@@ -89,6 +89,14 @@ class AlternativeRequest(Request):
                      
         bytes.append(END_SYSEX)
         self.bytes = ''.join(bytes)
+        
+    def calc_offset(self, base_section_id, command_id):
+        base_section_id = sysex_types.BYTE.decode(base_section_id, False)
+        section_id = sysex_types.BYTE.decode(command_id[:1], False)
+        section_offset = section_id - base_section_id
+        if section_offset > 3:
+            raise SamplerException("Offset should be between 0 and 3")
+        return sysex_types.BYTE.encode(section_offset)
     
 class Reply:
     """ Encapsulates a sysex reply
@@ -128,8 +136,8 @@ class Reply:
         elif reply_id == REPLY_ID_DONE:
             return None
         elif reply_id == REPLY_ID_ERROR:
-            b1, b2 = struct.unpack('2B', self.bytes[i:i+2])
-            code = (b2 << 7) + b1
+            byte1, byte2 = struct.unpack('2B', self.bytes[i:i+2])
+            code = (byte2 << 7) + byte1
             raise SamplerException(
                 errors.get(code, "Unknown"), code)
         elif reply_id == REPLY_ID_REPLY:

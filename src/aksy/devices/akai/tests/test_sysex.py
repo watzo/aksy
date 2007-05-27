@@ -154,7 +154,7 @@ class TestReply(unittest.TestCase):
 class TestAlternativeRequest(unittest.TestCase):
     def test_get_bytes(self):
         cmd = sysex.Command(sysex.Z48_ID, '\x1F\x50', 'get_sample_length', (), None)
-        req = sysex.AlternativeRequest(0x60, 65536, [cmd], [None], section_offset=3)
+        req = sysex.AlternativeRequest('\x60', 65536, [cmd], [None], '\x1c')
         self.assertEquals('\xf0G_\x00`\x03\x00\x00\x04\x00\x00P\xf7', req.get_bytes())
     
 class TestModuleMethods(unittest.TestCase):
