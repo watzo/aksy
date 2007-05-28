@@ -10,7 +10,8 @@ import os.path
 import errno
 
 from aksy.device import Devices
-from aksy import fileutils, model
+from aksy import fileutils
+from aksy.devices.akai.sysex import SamplerException
 from aksy.devices.akai import sampler as samplermod
 
 fuse.fuse_python_api = (0, 1) # TODO: migrate to 0.2
@@ -63,8 +64,11 @@ def _splitpath(path):
 def _get_cache_path(path):
     return os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
 
+def _cache_path_exists(path):
+    return os.path.exists(_get_cache_path(path))
+
 def _create_cache_path(path):
-    cache_path = os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
+    cache_path = _get_cache_path(path)
     parent_dir = os.path.dirname(cache_path)
     if not os.path.exists(parent_dir):
         os.makedirs(parent_dir)
@@ -143,7 +147,7 @@ class FSRoot(object):
         
     def open(self, path, flags, is_modified=False):
         info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags|os.O_CREAT))
-        if not info.is_upload() and is_modified:
+        if not info.is_upload() or not _cache_path_exists(path):
             self.sampler.get(info.get_name(), info.get_path(), info.get_location())
         
     def close(self, path):
@@ -197,7 +201,12 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
 
     def stat_directory(self, path):
         if self.cache.get(path) is None:
-            self.cache[path] = self.root.get_dir(path)
+            try:
+                self.cache[path] = self.root.get_dir(path)
+            except SamplerException, exc:
+                # TODO check code
+                print "error occurred " + repr(exc)
+                raiseException(errno.ENOENT)
         return stat_dir(self.uid, self.gid)
 
     def get_parent(self, path):
@@ -308,9 +317,9 @@ def raiseException(err):
     raise OSError(err, 'Exception occurred')
 
 if __name__ == '__main__':
-#    z48 = Devices.get_instance('mock_z48', None, 
-#                               debug=0, 
-#                               sampleFile='221 angel/angel 01.wav')
+    z48 = Devices.get_instance('mock_z48', None, 
+                              debug=0, 
+                              sampleFile='221 angel/angel 01.wav')
     z48 = Devices.get_instance('z48', 'usb')
     fs = AksyFS(z48)
     fs.mountpoint = '/tmp/aksy'

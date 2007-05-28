@@ -58,12 +58,12 @@ class Multitools:
         self.set_part_group_id_cmd = Command('_', '\x1A\x1F', 'set_part_group_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_eq_output_channel_cmd = Command('_', '\x1A\x30', 'set_eq_output_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.enable_eq_cmd = Command('_', '\x1A\x31', 'enable_eq', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.set_eq_low_gain_cmd = Command('_', '\x1A\x32', 'set_eq_low_gain', (aksy.devices.akai.sysex_types.SWORD,), None)
-        self.set_eq_low_freq_cmd = Command('_', '\x1A\x33', 'set_eq_low_freq', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_eq_low_gain_cmd = Command('_', '\x1A\x33', 'set_eq_low_gain', (aksy.devices.akai.sysex_types.SWORD,), None)
+        self.set_eq_low_freq_cmd = Command('_', '\x1A\x32', 'set_eq_low_freq', (aksy.devices.akai.sysex_types.WORD,), None)
         self.set_eq_mid_gain_cmd = Command('_', '\x1A\x34', 'set_eq_mid_gain', (aksy.devices.akai.sysex_types.SWORD,), None)
-        self.set_eq_mid_freq_cmd = Command('_', '\x1A\x35', 'set_eq_mid_freq', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.set_eq_high_gain_cmd = Command('_', '\x1A\x36', 'set_eq_high_gain', (aksy.devices.akai.sysex_types.SWORD,), None)
-        self.set_eq_high_freq_cmd = Command('_', '\x1A\x37', 'set_eq_high_freq', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_eq_mid_freq_cmd = Command('_', '\x1A\x34', 'set_eq_mid_freq', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.set_eq_high_gain_cmd = Command('_', '\x1A\x37', 'set_eq_high_gain', (aksy.devices.akai.sysex_types.SWORD,), None)
+        self.set_eq_high_freq_cmd = Command('_', '\x1A\x36', 'set_eq_high_freq', (aksy.devices.akai.sysex_types.WORD,), None)
         self.enable_midi_filter_cmd = Command('_', '\x1A\x40', 'enable_midi_filter', (aksy.devices.akai.sysex_types.BOOL,), None)
         self.set_midi_filter_by_part_cmd = Command('_', '\x1A\x41', 'set_midi_filter_by_part', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_midi_filter_by_channel_cmd = Command('_', '\x1A\x42', 'set_midi_filter_by_channel', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
@@ -99,12 +99,12 @@ class Multitools:
         self.get_part_group_id_cmd = Command('_', '\x1B\x1F', 'get_part_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_eq_output_channel_cmd = Command('_', '\x1B\x30', 'get_eq_output_channel', (), None)
         self.is_eq_enabled_cmd = Command('_', '\x1B\x31', 'is_eq_enabled', (), None)
-        self.get_eq_low_gain_cmd = Command('_', '\x1B\x32', 'get_eq_low_gain', (), None)
-        self.get_eq_low_freq_cmd = Command('_', '\x1B\x33', 'get_eq_low_freq', (), None)
-        self.get_eq_mid_gain_cmd = Command('_', '\x1B\x34', 'get_eq_mid_gain', (), None)
-        self.get_eq_mid_freq_cmd = Command('_', '\x1B\x35', 'get_eq_mid_freq', (), None)
-        self.get_eq_high_gain_cmd = Command('_', '\x1B\x36', 'get_eq_high_gain', (), None)
-        self.get_eq_high_freq_cmd = Command('_', '\x1B\x37', 'get_eq_high_freq', (), None)
+        self.get_eq_low_gain_cmd = Command('_', '\x1B\x33', 'get_eq_low_gain', (), None)
+        self.get_eq_low_freq_cmd = Command('_', '\x1B\x32', 'get_eq_low_freq', (), None)
+        self.get_eq_mid_gain_cmd = Command('_', '\x1B\x35', 'get_eq_mid_gain', (), None)
+        self.get_eq_mid_freq_cmd = Command('_', '\x1B\x34', 'get_eq_mid_freq', (), None)
+        self.get_eq_high_gain_cmd = Command('_', '\x1B\x37', 'get_eq_high_gain', (), None)
+        self.get_eq_high_freq_cmd = Command('_', '\x1B\x36', 'get_eq_high_freq', (), None)
         self.is_midi_filter_enabled_cmd = Command('_', '\x1B\x40', 'is_midi_filter_enabled', (), None)
         self.get_midi_filter_by_part_cmd = Command('_', '\x1B\x41', 'get_midi_filter_by_part', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_midi_filter_by_channel_cmd = Command('_', '\x1B\x42', 'get_midi_filter_by_channel', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
@@ -686,7 +686,7 @@ class Multitools:
         """Get EQ high gain
 
         Returns:
-            SWORD
+            SWOR
         """
         return self.z48.execute(self.get_eq_high_gain_cmd, ())
 

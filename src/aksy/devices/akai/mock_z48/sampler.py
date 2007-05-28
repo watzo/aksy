@@ -1,6 +1,6 @@
-import logging, os.path, shutil
+import logging, shutil
 
-from aksy.devices.akai import sysex_types, sampler
+from aksy.devices.akai import sysex_types
 from aksy.devices.akai.z48.sampler import Z48
 from aksy import model, fileutils
 import errno
@@ -34,7 +34,7 @@ class MockZ48(Z48):
             log.debug("Transferring file %s to sampler" % path)
 
     def execute(self, command, args, request_id=0):
-        # work with stored sessions later on
+        # TODO: work with stored sessions
         log.debug("Executing command: %s " % command.name)
         return None
 
@@ -60,6 +60,8 @@ class MockZ48(Z48):
         for i in range(0, 100):
             memory_items.append(model.Sample("Sample%i" %i))
         self.memory.set_children(memory_items)
+        print self.memory.get_children()[0]
+        self.memory.get_children()[0].get_modified = lambda : True
 
     def _patch_disktools_get_disklist(self):
         def get_disklist(): 

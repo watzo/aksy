@@ -227,7 +227,7 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
 {
     PyObject *ret;
     struct byte_array sysex, buffer;
-    const int BUFF_SIZE = 4096;
+    const int BUFF_SIZE = 8192;
     int bytes_read = 0, rc;
 
     if(!PyArg_ParseTuple(args, "s#", &sysex.bytes, &sysex.length))

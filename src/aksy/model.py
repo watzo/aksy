@@ -252,8 +252,6 @@ class Folder(FileRef):
                 break
 
     def create_folder(self, name):
-        """
-        """
         self.get_parent().set_current()
         handlers[Disk].create_folder(name)
         folder = Folder(os.path.join(self.path, name))

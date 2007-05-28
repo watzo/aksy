@@ -126,8 +126,8 @@ class WordType(SysexType):
         return struct.pack('2B', value & 0x7f, value >> 7)
 
     def _decode(self, string):
-        b1, b2 = struct.unpack('2B', string)
-        return (b2 << 7) + b1
+        byte1, byte2 = struct.unpack('2B', string)
+        return (byte2 << 7) + byte1
 
 class CompoundWordType(SysexType):
     """ the little endian brother of WordType
@@ -139,8 +139,8 @@ class CompoundWordType(SysexType):
         return struct.pack('2B', value >> 7,  value & 0x7f)
 
     def _decode(self, string):
-        b1, b2 = struct.unpack('2B', string)
-        return (b1 << 7) + b2
+        byte1, byte2 = struct.unpack('2B', string)
+        return (byte1 << 7) + byte2
 
 class SignedWordType(SysexType):
     def __init__(self):

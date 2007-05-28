@@ -92,7 +92,6 @@ class AksyFSTest(TestCase): #IGNORE:R0904
                           self.fs.getdir('/disks/Samples disk/Songs'))
         self.assertNotEquals(None, self.fs.getattr(newdir))
 
-
     def test_open_memory(self):
         path = '/memory/Sample99.wav'
         try:
