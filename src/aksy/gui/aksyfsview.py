@@ -141,7 +141,7 @@ class Config(wx.FileConfig):
             return os.path.expanduser("~")
         if len(self.lastdir) == 1:
             return ""
-        return self.config.Read("%s/%s" % (LASTDIR, key))
+        return self.config.Read("%s/%s" % (Config.LASTDIR, key))
    
     def set_last_dir(self, lastdir, key=None):
         self.Write("%s%s" %(self.LASTDIR, key), lastdir)
@@ -558,9 +558,6 @@ class TreePanel(wx.Panel):
                 elif wx.TheClipboard.GetData(data):
                      print "Clipboard data ", repr(data.GetFilenames())
                 wx.TheClipboard.Close()
-
-    def OnSize(self, e):
-        self.tree.SetSize(self.GetSize())
 
 class ActionMenu(wx.Menu):
     def __init__(self, parent, style):
