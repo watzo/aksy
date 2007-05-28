@@ -87,17 +87,17 @@ BOOL
 
 \x1A	\x31	enable_eq	Enable EQ	BOOL
 
-\x1A	\x32	set_eq_low_gain	Set EQ low gain	SWORD
+\x1A	\x33	set_eq_low_gain	Set EQ low gain	SWORD
 
-\x1A	\x33	set_eq_low_freq	Set EQ low freq	WORD
+\x1A	\x32	set_eq_low_freq	Set EQ low freq	WORD
 
 \x1A	\x34	set_eq_mid_gain	Set EQ mid gain	SWORD
 
-\x1A	\x35	set_eq_mid_freq	Set EQ mid freq	WORD
+\x1A	\x34	set_eq_mid_freq	Set EQ mid freq	WORD
 
-\x1A	\x36	set_eq_high_gain	Set EQ high gain	SWORD
+\x1A	\x37	set_eq_high_gain	Set EQ high gain	SWORD
 
-\x1A	\x37	set_eq_high_freq	Set EQ high freq	WORD
+\x1A	\x36	set_eq_high_freq	Set EQ high freq	WORD
 
 \x1A	\x40	enable_midi_filter	Enable midi filter	BOOL
 
@@ -169,17 +169,17 @@ BYTE
 BYTE
 \x1B	\x31	is_eq_enabled	Whether EQ is enabled
 BOOL
-\x1B	\x32	get_eq_low_gain	Get EQ low gain
+\x1B	\x33	get_eq_low_gain	Get EQ low gain
 SWORD
-\x1B	\x33	get_eq_low_freq	Get EQ low freq
+\x1B	\x32	get_eq_low_freq	Get EQ low freq
 WORD
-\x1B	\x34	get_eq_mid_gain	Get EQ mid gain
+\x1B	\x35	get_eq_mid_gain	Get EQ mid gain
 SWORD
-\x1B	\x35	get_eq_mid_freq	Get EQ mid freq
+\x1B	\x34	get_eq_mid_freq	Get EQ mid freq
 WORD
-\x1B	\x36	get_eq_high_gain	Get EQ high gain
-SWORD
-\x1B	\x37	get_eq_high_freq	Get EQ high freq
+\x1B	\x37	get_eq_high_gain	Get EQ high gain
+SWOR
+\x1B	\x36	get_eq_high_freq	Get EQ high freq
 WORD
 \x1B	\x40	is_midi_filter_enabled	Whether the midi filter is enabled
 BOOL
