@@ -815,7 +815,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
 
     // TODO: fix ppc
     command = (char*) calloc(dest_filename_length+6,  sizeof(char));
-    command[0] = (location)?CMD_MEMORY_PUT:CMD_DISK_PUT;
+    command[0] = (location)? CMD_MEMORY_PUT : CMD_DISK_PUT;
     command[1] = (char)(filesize >> 24);
     command[2] = (char)(filesize >> 16);
     command[3] = (char)(filesize >> 8);
@@ -853,29 +853,30 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
         log_hex(reply_buf, rc, "return code: %i\n", rc);
 #endif
         if (rc == 1) {
-	    if (IS_INVALID_FILE_ERROR(reply_buf)) {
-		retval = AKSY_INVALID_FILE;
-		break;
-	    }
+		    if (IS_INVALID_FILE_ERROR(reply_buf)) {
+				retval = AKSY_INVALID_FILE;
+				break;
+	    	}
 
-	    if (IS_TRANSFER_FINISHED(reply_buf)) {
-		if (akai_dev->sysex_id == S56K_ID) {
-		    // S56k transfer ends here
-		    break;
-		} else {
-		    continue;
+		    if (IS_TRANSFER_FINISHED(reply_buf)) {
+				if (akai_dev->sysex_id == S56K_ID) {
+			    	// S56k transfer ends here
+		   		 	break;
+				} 
+			    continue;
+	    	}
+	    	printf("Unexpected return value %i\n", reply_buf[0]);
+	    	break;
 		}
-	    }
-	    printf("Unexpected return value %i", reply_buf[0]);
-	    break;
-	}
 
         if (rc == 4 && IS_SAMPLER_BUSY(reply_buf)) {
             continue;
         }
         else if (rc == 8) {
             blocksize = GET_BLOCK_SIZE(reply_buf);
-            assert (blocksize <= init_blocksize);
+            if (blocksize > init_blocksize) {
+            	buf = realloc(buf, blocksize * sizeof(char));
+            }
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
 #if (AKSY_DEBUG == 1)
             printf("blocksize: %i\n", blocksize);
@@ -917,6 +918,8 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
     free(reply_buf);
     free(buf);
 
-    print_transfer_stats(tdelta, filesize);
+	if (!rc) {
+	    print_transfer_stats(tdelta, filesize);
+	}
     return retval;
 }
