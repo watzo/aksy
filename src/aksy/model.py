@@ -451,6 +451,9 @@ class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
 
+    def get_dir(self, rel_path):
+        return self
+    
     def get_actions(self):
         return ('upload',)
     
