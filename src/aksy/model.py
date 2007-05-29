@@ -376,6 +376,7 @@ class Sample(InMemoryFile):
         return InMemoryFile.get_name(self) + ".wav"
 
     def get_size(self):
+        self.set_current()
         handlers[Sample].get_sample_length()
         
 class Song(InMemoryFile):
