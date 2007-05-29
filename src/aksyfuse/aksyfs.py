@@ -5,7 +5,7 @@ import fuse
 from time import time
 
 import stat
-import os
+import os, sys
 import os.path
 import errno
 
@@ -183,11 +183,11 @@ class FSRoot(object):
             return read
     
 class AksyFS(fuse.Fuse): #IGNORE:R0904
-    def __init__(self, sampler, **args):
+    def __init__(self, sampler):
         self.flags = 0
         self.multithreaded = 0
         self.debug = True
-        fuse.Fuse.__init__(self, [], args)
+        fuse.Fuse.__init__(self)
 
         self.root = FSRoot(sampler)
         
@@ -317,10 +317,17 @@ def raiseException(err):
     raise OSError(err, 'Exception occurred')
 
 if __name__ == '__main__':
-    z48 = Devices.get_instance('mock_z48', None, 
+    args = sys.argv
+    if len(args) < 3:
+        print "Usage: " + args[0] + " <mount point> <sampler id> [fuse option string]"
+        sys.exit(-1)
+    sampler_id = args.pop(2)
+
+    if sampler_id == "mock_z48":
+        z48 = Devices.get_instance('mock_z48', None, 
                               debug=0, 
                               sampleFile='221 angel/angel 01.wav')
-    z48 = Devices.get_instance('z48', 'usb')
+    else:
+        z48 = Devices.get_instance(sampler_id, 'usb')
     fs = AksyFS(z48)
-    fs.mountpoint = '/tmp/aksy'
     fs.main()
