@@ -326,7 +326,7 @@ if __name__ == '__main__':
     if sampler_id == "mock_z48":
         z48 = Devices.get_instance('mock_z48', None, 
                               debug=0, 
-                              sampleFile='221 angel/angel 01.wav')
+                              sampleFile='src/aksy/test/test.wav')
     else:
         z48 = Devices.get_instance(sampler_id, 'usb')
     fs = AksyFS(z48)

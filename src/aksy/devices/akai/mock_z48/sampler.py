@@ -22,7 +22,7 @@ class MockZ48(Z48):
 
     def get(self, filename, destpath=None, source=Z48.MEMORY):
         if self.debug > 0:
-            log.debug("Transferring file %s to host" % filename)
+            log.debug("Transferring file %s to host from source %i" % (filename, source)) 
         if fileutils.is_sample(destpath):
             if self.sampleFile is not None:
                 shutil.copy(self.sampleFile, destpath)
