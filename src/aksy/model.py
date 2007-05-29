@@ -341,7 +341,7 @@ class InMemoryFile(FileRef):
         handlers[self.__class__].delete_curr()
 
     def save(self, overwrite, children=False):
-        handlers[Disk].save_file(self.get_handle(), self.type, 
+        handlers[Disk].save(self.get_handle(), self.type, 
                                  overwrite, children)
 
     def download(self, dest_path):

@@ -126,13 +126,14 @@ class FSRoot(object):
     def get_dir(self, path):
         if path == '/':
             return self
-        rel_path  = _splitpath(path)[1]
+        try:
+            rel_path  = _splitpath(path)[1]
+        except IndexError:
+            raiseException(errno.ENOENT)
         store = self.find_child(path)
         if store is None:
             raiseException(errno.ENOENT)        
         
-        if not hasattr(store, 'get_dir'):
-            raiseException(errno.ENOENT)
         subdir = store.get_dir(rel_path)
         if subdir is None:
             raiseException(errno.ENOENT)
@@ -165,9 +166,6 @@ class FSRoot(object):
     def mknod(self, path):
         self.file_cache[path] = FileInfo(path, True, flags=os.O_CREAT|os.O_WRONLY)
 
-    def rename(self, src, dest):
-        pass
-    
     def write(self, path, buf, offset):
         handle = self.file_cache[path].get_handle()
         os.lseek(handle, offset, 0)
@@ -246,6 +244,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def getdir(self, path):
         print '*** getdir', path
         folder = self.cache[path]
+        print folder.get_children()
         return [(child.get_name(), 0) for child in folder.get_children()]
 
     def mkdir(self, path, mode):
@@ -268,8 +267,19 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
 
     def rename(self, old_path, new_path):
         print '*** rename', old_path, new_path
-        if os.path.dirname(old_path) != os.path.dirname(new_path):
-            raiseUnsupportedOperationException()
+        new_dir = os.path.dirname(new_path)
+        if os.path.dirname(old_path) != new_dir:
+            file_obj = self.get_file(old_path)
+            if hasattr(file_obj, 'save'):
+                folder = self.cache[new_dir]
+                folder.set_current()
+                file_obj.save(False, False)
+            elif hasattr(file_obj, 'load'):
+                file_obj.load()
+            else:
+                raiseUnsupportedOperationException() 
+            return
+                
         new_name = os.path.basename(new_path)
         if fileutils.is_dirpath(old_path):
             folder = self.cache[old_path]
