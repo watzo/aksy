@@ -55,7 +55,9 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.assertEquals(('Boo.wav', 0), memory[0])
 
     def test_getattr_memory_non_existing(self):
-        self.assertRaises(OSError, self.fs.getattr, '/memory/subdir')
+        self.fs.getattr('/memory/subdir')
+        info = self.fs.getattr('/memory/subdir/Boo.wav')
+        self.assertTrue(S_ISREG(info[ST_MODE]))
 
     def test_getattr_rootdisk(self):
         info = self.fs.getattr('/disks')
