@@ -918,7 +918,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
     free(reply_buf);
     free(buf);
 
-	if (!rc) {
+	if (!retval) {
 	    print_transfer_stats(tdelta, filesize);
 	}
     return retval;
