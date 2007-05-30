@@ -4,8 +4,9 @@ RE_MULTI = re.compile("\.[aA][kK][mM]$")
 RE_PROGRAM = re.compile("\.[aA][kK][pP]$")
 RE_SAMPLE = re.compile("\.[wW][aA][vV]$")
 RE_SONG = re.compile("\.[mM][iI][dD]$")
-RE_WORD = re.compile("[\w.&_-]+$")
+RE_WORD = re.compile("[\w.& _-]+$")
 RE_FILE = re.compile("\.[a-zA-Z]{3}")
+
 
 def is_file_type_supported(supported_file_types, filename):
     for file_type in supported_file_types:

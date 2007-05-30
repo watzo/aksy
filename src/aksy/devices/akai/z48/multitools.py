@@ -5,7 +5,7 @@ Methods to manipulate multis
 """
 
 __author__ =  'Walco van Loon'
-__version__=  '$Rev$'
+__version__ =  '0.2'
 
 from aksy.devices.akai.sysex import Command
 
@@ -13,7 +13,7 @@ import aksy.devices.akai.sysex_types
 
 class Multitools:
     def __init__(self, z48):
-        self.z48 = z48
+        self.sampler = z48
         self.get_no_items_cmd = Command('_', '\x18\x01', 'get_no_items', (), None)
         self.get_handles_cmd = Command('_', '\x18\x02\x00', 'get_handles', (), None)
         self.get_names_cmd = Command('_', '\x18\x02\x01', 'get_names', (), None)
@@ -123,7 +123,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_items_cmd, ())
+        return self.sampler.execute(self.get_no_items_cmd, ())
 
     def get_handles(self):
         """Get handles <Data1>: 0=list of handles
@@ -131,7 +131,7 @@ class Multitools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_handles_cmd, ())
+        return self.sampler.execute(self.get_handles_cmd, ())
 
     def get_names(self):
         """Get names items: <Data1>; 1=list of names;
@@ -139,7 +139,7 @@ class Multitools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_names_cmd, ())
+        return self.sampler.execute(self.get_names_cmd, ())
 
     def get_handles_names(self):
         """Get handles names: <Data1>; 2=list of handle+name
@@ -147,7 +147,7 @@ class Multitools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_handles_names_cmd, ())
+        return self.sampler.execute(self.get_handles_names_cmd, ())
 
     def get_handles_tagged(self):
         """Get handles tagged <Data1> ; 3=list of handle+modified/tagged name
@@ -155,17 +155,17 @@ class Multitools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_handles_tagged_cmd, ())
+        return self.sampler.execute(self.get_handles_tagged_cmd, ())
 
     def set_curr_by_handle(self, arg0):
         """Select by handle
         """
-        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
     def set_curr_by_name(self, arg0):
         """Select by name
         """
-        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_name_cmd, (arg0, ))
 
     def get_curr_handle(self):
         """Get current handle
@@ -173,7 +173,7 @@ class Multitools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_curr_handle_cmd, ())
+        return self.sampler.execute(self.get_curr_handle_cmd, ())
 
     def get_curr_name(self):
         """Get name of current item
@@ -181,7 +181,7 @@ class Multitools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_curr_name_cmd, ())
+        return self.sampler.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
@@ -189,7 +189,7 @@ class Multitools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.get_name_by_handle_cmd, (arg0, ))
 
     def get_handle_by_name(self, arg0):
         """Get item handle from name
@@ -197,37 +197,37 @@ class Multitools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.get_handle_by_name_cmd, (arg0, ))
 
     def delete_all(self):
         """Delete ALL items from memory
         """
-        return self.z48.execute(self.delete_all_cmd, ())
+        return self.sampler.execute(self.delete_all_cmd, ())
 
     def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_curr_cmd, ())
+        return self.sampler.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
-        return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_by_handle_cmd, (arg0, ))
 
     def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
+        return self.sampler.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
         """
-        return self.z48.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
 
     def tag(self, arg0, arg1, arg2):
         """Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) <Data3> = (0=CURRENT, 1=ALL)
         """
-        return self.z48.execute(self.tag_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.tag_cmd, (arg0, arg1, arg2, ))
 
     def get_tag_bitmap(self):
         """Get Tag Bitmap
@@ -235,7 +235,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_tag_bitmap_cmd, ())
+        return self.sampler.execute(self.get_tag_bitmap_cmd, ())
 
     def get_curr_modified(self):
         """Get name of current item with modified/tagged info.
@@ -243,7 +243,7 @@ class Multitools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_curr_modified_cmd, ())
+        return self.sampler.execute(self.get_curr_modified_cmd, ())
 
     def get_modified(self):
         """Get modified state of current item
@@ -251,212 +251,212 @@ class Multitools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_modified_cmd, ())
+        return self.sampler.execute(self.get_modified_cmd, ())
 
     def set_group_id(self, arg0):
         """Set Group ID
         """
-        return self.z48.execute(self.set_group_id_cmd, (arg0, ))
+        return self.sampler.execute(self.set_group_id_cmd, (arg0, ))
 
     def set_multi_select_method(self, arg0):
         """Set Multi Select <Data1> = (0=OFF, 1=BANK, 2=PROG CHANGE)
         """
-        return self.z48.execute(self.set_multi_select_method_cmd, (arg0, ))
+        return self.sampler.execute(self.set_multi_select_method_cmd, (arg0, ))
 
     def set_multi_select_channel(self, arg0):
         """Set Multi Select Channel <Data1> = (1A=0, 2A=1, ..., 16B=31)
         """
-        return self.z48.execute(self.set_multi_select_channel_cmd, (arg0, ))
+        return self.sampler.execute(self.set_multi_select_channel_cmd, (arg0, ))
 
     def set_multi_tempo(self, arg0):
         """Set Multi Tempo <Data1> = 10 bpm
         """
-        return self.z48.execute(self.set_multi_tempo_cmd, (arg0, ))
+        return self.sampler.execute(self.set_multi_tempo_cmd, (arg0, ))
 
     def set_multi_program_no(self, arg0):
         """Set Multi Program Number Data1: (0=OFF, 1=128)
         """
-        return self.z48.execute(self.set_multi_program_no_cmd, (arg0, ))
+        return self.sampler.execute(self.set_multi_program_no_cmd, (arg0, ))
 
     def set_multi_part_by_handle(self, arg0, arg1):
         """Set Multi Part by handle <Data1> = Part Number; <Data2> = Handle of program
         """
-        return self.z48.execute(self.set_multi_part_by_handle_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_multi_part_by_handle_cmd, (arg0, arg1, ))
 
     def set_multi_part_by_name(self, arg0, arg1):
         """Set Multi Part by name
         """
-        return self.z48.execute(self.set_multi_part_by_name_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_multi_part_by_name_cmd, (arg0, arg1, ))
 
     def set_no_parts(self, arg0):
         """Set number of parts
         """
-        return self.z48.execute(self.set_no_parts_cmd, (arg0, ))
+        return self.sampler.execute(self.set_no_parts_cmd, (arg0, ))
 
     def set_part_midi_channel(self, arg0, arg1):
         """Set midi channel of part
         """
-        return self.z48.execute(self.set_part_midi_channel_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_midi_channel_cmd, (arg0, arg1, ))
 
     def set_part_mute(self, arg0, arg1):
         """Set part mute
         """
-        return self.z48.execute(self.set_part_mute_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_mute_cmd, (arg0, arg1, ))
 
     def set_part_solo(self, arg0, arg1):
         """Set part solo
         """
-        return self.z48.execute(self.set_part_solo_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_solo_cmd, (arg0, arg1, ))
 
     def set_part_level(self, arg0, arg1):
         """Set part level
         """
-        return self.z48.execute(self.set_part_level_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_level_cmd, (arg0, arg1, ))
 
     def set_part_output(self, arg0, arg1):
         """Set part output
         """
-        return self.z48.execute(self.set_part_output_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_output_cmd, (arg0, arg1, ))
 
     def set_part_pan(self, arg0, arg1):
         """Set part pan
         """
-        return self.z48.execute(self.set_part_pan_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_pan_cmd, (arg0, arg1, ))
 
     def set_part_fx_channel(self, arg0, arg1):
         """Set part fx channel
         """
-        return self.z48.execute(self.set_part_fx_channel_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_fx_channel_cmd, (arg0, arg1, ))
 
     def set_part_fx_send_level(self, arg0, arg1):
         """Set part fx send level
         """
-        return self.z48.execute(self.set_part_fx_send_level_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_fx_send_level_cmd, (arg0, arg1, ))
 
     def set_part_cents_tune(self, arg0, arg1):
         """Set part cents tune
         """
-        return self.z48.execute(self.set_part_cents_tune_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_cents_tune_cmd, (arg0, arg1, ))
 
     def set_part_low_note(self, arg0, arg1):
         """Set part low note
         """
-        return self.z48.execute(self.set_part_low_note_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_low_note_cmd, (arg0, arg1, ))
 
     def set_part_high_note(self, arg0, arg1):
         """Set part high note
         """
-        return self.z48.execute(self.set_part_high_note_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_high_note_cmd, (arg0, arg1, ))
 
     def set_part_priority(self, arg0, arg1):
         """Set part priority
         """
-        return self.z48.execute(self.set_part_priority_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_priority_cmd, (arg0, arg1, ))
 
     def set_part_program_no(self, arg0, arg1):
         """Set part program number
         """
-        return self.z48.execute(self.set_part_program_no_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_program_no_cmd, (arg0, arg1, ))
 
     def set_part_group_id(self, arg0, arg1):
         """Set part group id
         """
-        return self.z48.execute(self.set_part_group_id_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_part_group_id_cmd, (arg0, arg1, ))
 
     def set_eq_output_channel(self, arg0):
         """Set EQ Output Channel
         """
-        return self.z48.execute(self.set_eq_output_channel_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_output_channel_cmd, (arg0, ))
 
     def enable_eq(self, arg0):
         """Enable EQ
         """
-        return self.z48.execute(self.enable_eq_cmd, (arg0, ))
+        return self.sampler.execute(self.enable_eq_cmd, (arg0, ))
 
     def set_eq_low_gain(self, arg0):
         """Set EQ low gain
         """
-        return self.z48.execute(self.set_eq_low_gain_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_low_gain_cmd, (arg0, ))
 
     def set_eq_low_freq(self, arg0):
         """Set EQ low freq
         """
-        return self.z48.execute(self.set_eq_low_freq_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_low_freq_cmd, (arg0, ))
 
     def set_eq_mid_gain(self, arg0):
         """Set EQ mid gain
         """
-        return self.z48.execute(self.set_eq_mid_gain_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_mid_gain_cmd, (arg0, ))
 
     def set_eq_mid_freq(self, arg0):
         """Set EQ mid freq
         """
-        return self.z48.execute(self.set_eq_mid_freq_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_mid_freq_cmd, (arg0, ))
 
     def set_eq_high_gain(self, arg0):
         """Set EQ high gain
         """
-        return self.z48.execute(self.set_eq_high_gain_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_high_gain_cmd, (arg0, ))
 
     def set_eq_high_freq(self, arg0):
         """Set EQ high freq
         """
-        return self.z48.execute(self.set_eq_high_freq_cmd, (arg0, ))
+        return self.sampler.execute(self.set_eq_high_freq_cmd, (arg0, ))
 
     def enable_midi_filter(self, arg0):
         """Enable midi filter
         """
-        return self.z48.execute(self.enable_midi_filter_cmd, (arg0, ))
+        return self.sampler.execute(self.enable_midi_filter_cmd, (arg0, ))
 
     def set_midi_filter_by_part(self, arg0, arg1, arg2):
         """Set midi filter by part
         """
-        return self.z48.execute(self.set_midi_filter_by_part_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.set_midi_filter_by_part_cmd, (arg0, arg1, arg2, ))
 
     def set_midi_filter_by_channel(self, arg0, arg1, arg2):
         """Set midi filter by channel
         """
-        return self.z48.execute(self.set_midi_filter_by_channel_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.set_midi_filter_by_channel_cmd, (arg0, arg1, arg2, ))
 
     def set_fx_assign_type(self, arg0, arg1):
         """Set fx assign type (1: FX)
         """
-        return self.z48.execute(self.set_fx_assign_type_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_fx_assign_type_cmd, (arg0, arg1, ))
 
     def set_target(self, arg0, arg1):
         """Set target (part/channel)
         """
-        return self.z48.execute(self.set_target_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_target_cmd, (arg0, arg1, ))
 
     def set_destination(self, arg0, arg1):
         """Set destination
         """
-        return self.z48.execute(self.set_destination_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_destination_cmd, (arg0, arg1, ))
 
     def set_change_type(self, arg0, arg1):
         """Set Change type (0: replace, 1: offset)
         """
-        return self.z48.execute(self.set_change_type_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_change_type_cmd, (arg0, arg1, ))
 
     def set_scale_min(self, arg0, arg1):
         """Set Scale minimum
         """
-        return self.z48.execute(self.set_scale_min_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_scale_min_cmd, (arg0, arg1, ))
 
     def set_scale_max(self, arg0, arg1):
         """Set Scale maximum
         """
-        return self.z48.execute(self.set_scale_max_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_scale_max_cmd, (arg0, arg1, ))
 
     def set_midi_ctl_output(self, arg0, arg1):
         """Set Midi controller output (0: off, 1-128)
         """
-        return self.z48.execute(self.set_midi_ctl_output_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_midi_ctl_output_cmd, (arg0, arg1, ))
 
     def set_midi_channel_output(self, arg0, arg1):
         """Set Midi channel output (0: off, 1-128)
         """
-        return self.z48.execute(self.set_midi_channel_output_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_midi_channel_output_cmd, (arg0, arg1, ))
 
     def get_group_id(self):
         """Get Group ID
@@ -464,7 +464,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_group_id_cmd, ())
+        return self.sampler.execute(self.get_group_id_cmd, ())
 
     def get_multi_select_method(self):
         """Get Multi Select <Reply1> = (0=OFF, 1=BANK, 2=PROG CHANGE)
@@ -472,7 +472,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_multi_select_method_cmd, ())
+        return self.sampler.execute(self.get_multi_select_method_cmd, ())
 
     def get_multi_select_channel(self):
         """Get Multi Select Channel <Reply1> = (1A=0, 2A=1, ..., 16B=31)
@@ -480,7 +480,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_multi_select_channel_cmd, ())
+        return self.sampler.execute(self.get_multi_select_channel_cmd, ())
 
     def get_multi_tempo(self):
         """Get Multi Tempo <Reply> = 10 bpm
@@ -488,7 +488,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_multi_tempo_cmd, ())
+        return self.sampler.execute(self.get_multi_tempo_cmd, ())
 
     def get_multi_program_no(self):
         """Get Multi Program Number
@@ -496,7 +496,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_multi_program_no_cmd, ())
+        return self.sampler.execute(self.get_multi_program_no_cmd, ())
 
     def get_multi_part_handle(self, arg0):
         """Get Multi Part handle. <Data1> = Part Number;<Reply> = Handle of program>
@@ -504,7 +504,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_multi_part_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.get_multi_part_handle_cmd, (arg0, ))
 
     def get_multi_part_name(self, arg0):
         """Get Multi Part name. <Data1> = Part Number; <Reply> = Name of part
@@ -512,7 +512,7 @@ class Multitools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_multi_part_name_cmd, (arg0, ))
+        return self.sampler.execute(self.get_multi_part_name_cmd, (arg0, ))
 
     def get_no_parts(self):
         """Get Number of Parts. <Reply> = new number of parts
@@ -520,7 +520,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_no_parts_cmd, ())
+        return self.sampler.execute(self.get_no_parts_cmd, ())
 
     def get_part_midi_channel(self, arg0):
         """Get Part MIDI Channel, (Data1 = Part Number-1a) <Reply> = (1A=0, 2A=1, ..., 16B=31)
@@ -528,7 +528,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_midi_channel_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_midi_channel_cmd, (arg0, ))
 
     def get_part_mute(self, arg0):
         """Get Part Mute, <Reply> = (0=OFF, 1=ON)
@@ -536,7 +536,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_mute_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_mute_cmd, (arg0, ))
 
     def get_part_solo(self, arg0):
         """Get Part Solo, <Reply> = (0=OFF, 1=ON)
@@ -544,7 +544,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_solo_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_solo_cmd, (arg0, ))
 
     def get_part_level(self):
         """Get Part Level, <Reply> = PartLevel in 10 dB
@@ -552,7 +552,7 @@ class Multitools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_part_level_cmd, ())
+        return self.sampler.execute(self.get_part_level_cmd, ())
 
     def get_part_output(self, arg0):
         """Get Part Output, <Reply> = (Output: 0 = L/R; 1-4 = op1/2 op7/8; 5 = 14 = L, R, op1-op8)
@@ -560,7 +560,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_output_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_output_cmd, (arg0, ))
 
     def get_part_pan(self, arg0):
         """Get Part Pan/Balance, <Reply> = Pan/Bal (0-100 = L50-R50); centre=50
@@ -568,7 +568,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_pan_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_pan_cmd, (arg0, ))
 
     def get_part_fx_channel(self, arg0):
         """Get Part Effects Channel: Reply = (0=OFF, 1=FX1, 2=FX2, 3=RV3, 4=RV4)
@@ -576,7 +576,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_fx_channel_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_fx_channel_cmd, (arg0, ))
 
     def get_part_fx_send_level(self):
         """Get Part FX Send Level <Reply> = level in 10 dB
@@ -584,7 +584,7 @@ class Multitools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_part_fx_send_level_cmd, ())
+        return self.sampler.execute(self.get_part_fx_send_level_cmd, ())
 
     def get_part_tune(self, arg0):
         """Get Part Cents Tune
@@ -592,7 +592,7 @@ class Multitools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_part_tune_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_tune_cmd, (arg0, ))
 
     def get_part_low_note(self, arg0):
         """Get Part Low Note
@@ -600,7 +600,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_low_note_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_low_note_cmd, (arg0, ))
 
     def get_part_high_note(self, arg0):
         """Get Part High Note
@@ -608,7 +608,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_high_note_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_high_note_cmd, (arg0, ))
 
     def get_part_priority(self, arg0):
         """Get Part Priority
@@ -616,7 +616,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_priority_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_priority_cmd, (arg0, ))
 
     def get_part_prog_no(self, arg0):
         """Get Part Program Number
@@ -624,7 +624,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_prog_no_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_prog_no_cmd, (arg0, ))
 
     def get_part_group_id(self, arg0):
         """Get Part Group ID
@@ -632,7 +632,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_part_group_id_cmd, (arg0, ))
+        return self.sampler.execute(self.get_part_group_id_cmd, (arg0, ))
 
     def get_eq_output_channel(self):
         """Get EQ Output Channel
@@ -640,7 +640,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_eq_output_channel_cmd, ())
+        return self.sampler.execute(self.get_eq_output_channel_cmd, ())
 
     def is_eq_enabled(self):
         """Whether EQ is enabled
@@ -648,7 +648,7 @@ class Multitools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.is_eq_enabled_cmd, ())
+        return self.sampler.execute(self.is_eq_enabled_cmd, ())
 
     def get_eq_low_gain(self):
         """Get EQ low gain
@@ -656,7 +656,7 @@ class Multitools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_eq_low_gain_cmd, ())
+        return self.sampler.execute(self.get_eq_low_gain_cmd, ())
 
     def get_eq_low_freq(self):
         """Get EQ low freq
@@ -664,7 +664,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_eq_low_freq_cmd, ())
+        return self.sampler.execute(self.get_eq_low_freq_cmd, ())
 
     def get_eq_mid_gain(self):
         """Get EQ mid gain
@@ -672,7 +672,7 @@ class Multitools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_eq_mid_gain_cmd, ())
+        return self.sampler.execute(self.get_eq_mid_gain_cmd, ())
 
     def get_eq_mid_freq(self):
         """Get EQ mid freq
@@ -680,7 +680,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_eq_mid_freq_cmd, ())
+        return self.sampler.execute(self.get_eq_mid_freq_cmd, ())
 
     def get_eq_high_gain(self):
         """Get EQ high gain
@@ -688,7 +688,7 @@ class Multitools:
         Returns:
             SWOR
         """
-        return self.z48.execute(self.get_eq_high_gain_cmd, ())
+        return self.sampler.execute(self.get_eq_high_gain_cmd, ())
 
     def get_eq_high_freq(self):
         """Get EQ high freq
@@ -696,7 +696,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_eq_high_freq_cmd, ())
+        return self.sampler.execute(self.get_eq_high_freq_cmd, ())
 
     def is_midi_filter_enabled(self):
         """Whether the midi filter is enabled
@@ -704,7 +704,7 @@ class Multitools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.is_midi_filter_enabled_cmd, ())
+        return self.sampler.execute(self.is_midi_filter_enabled_cmd, ())
 
     def get_midi_filter_by_part(self, arg0, arg1):
         """Get midi filter by part
@@ -712,7 +712,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_midi_filter_by_part_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.get_midi_filter_by_part_cmd, (arg0, arg1, ))
 
     def get_midi_filter_by_channel(self, arg0, arg1):
         """Get midi filter by channel
@@ -720,7 +720,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_midi_filter_by_channel_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.get_midi_filter_by_channel_cmd, (arg0, arg1, ))
 
     def get_fx_assign_type(self, arg0):
         """Get fx assign type (1: FX)
@@ -728,7 +728,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_fx_assign_type_cmd, (arg0, ))
+        return self.sampler.execute(self.get_fx_assign_type_cmd, (arg0, ))
 
     def get_target(self, arg0):
         """Get target (part/channel)
@@ -736,7 +736,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_target_cmd, (arg0, ))
+        return self.sampler.execute(self.get_target_cmd, (arg0, ))
 
     def get_destination(self, arg0):
         """Get destination
@@ -744,7 +744,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_destination_cmd, (arg0, ))
+        return self.sampler.execute(self.get_destination_cmd, (arg0, ))
 
     def get_change_type(self, arg0):
         """Get Change type (0: replace, 1: offset)
@@ -752,7 +752,7 @@ class Multitools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_change_type_cmd, (arg0, ))
+        return self.sampler.execute(self.get_change_type_cmd, (arg0, ))
 
     def get_scale_min(self, arg0):
         """Get Scale minimum
@@ -760,7 +760,7 @@ class Multitools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_scale_min_cmd, (arg0, ))
+        return self.sampler.execute(self.get_scale_min_cmd, (arg0, ))
 
     def get_scale_max(self, arg0):
         """Get Scale maximum
@@ -768,7 +768,7 @@ class Multitools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_scale_max_cmd, (arg0, ))
+        return self.sampler.execute(self.get_scale_max_cmd, (arg0, ))
 
     def get_midi_ctl_output(self, arg0):
         """Get Midi controller output (0: off, 1-128)
@@ -776,7 +776,7 @@ class Multitools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_midi_ctl_output_cmd, (arg0, ))
+        return self.sampler.execute(self.get_midi_ctl_output_cmd, (arg0, ))
 
     def get_midi_channel_output(self, arg0):
         """Get Midi channel output (0: off, 1-128)
@@ -784,5 +784,5 @@ class Multitools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_midi_channel_output_cmd, (arg0, ))
+        return self.sampler.execute(self.get_midi_channel_output_cmd, (arg0, ))
 

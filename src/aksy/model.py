@@ -478,6 +478,8 @@ class Memory(Storage):
              and handlers[Program].get_no_items() > 0) or
             (handlers.has_key(Sample) 
              and handlers[Sample].get_no_items() > 0) or
+            (handlers.has_key(Song) 
+             and handlers[Song].get_no_items() > 0) or
             (handlers.has_key(Multi) 
              and handlers[Multi].get_no_items() > 0))
 

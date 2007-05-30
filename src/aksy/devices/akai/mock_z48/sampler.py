@@ -13,6 +13,8 @@ class MockZ48(Z48):
         self.setup_tools()
 
         self._patch_disktools_get_disklist()
+        
+        self._patch_systemtools()
 
         self.setup_model()
 
@@ -39,7 +41,7 @@ class MockZ48(Z48):
         return None
 
     def _populate_fs(self):
-        mellotron_folder = model.Folder('Mellotron')
+        mellotron_folder = model.Folder('Mellotron Samples')
         choir_folder = model.Folder('Choir')
         choir_folder.children.extend(
             (model.FileRef('Mellotron/Choir/Choir.AKM'),
@@ -48,8 +50,8 @@ class MockZ48(Z48):
 
         mellotron_folder.children.extend(
             (choir_folder,
-            model.FileRef('Mellotron/Sample.AKP'),
-            model.FileRef('Mellotron/Sample.wav'),))
+            model.FileRef('Mellotron Samples/A Sample.AKP'),
+            model.FileRef('Mellotron Samples/Sample.wav'),))
         first_disk = self.disks.get_children()[0] 
         first_disk.root.children = [model.Folder('Autoload'),
              model.Folder('Songs')]
@@ -70,6 +72,15 @@ class MockZ48(Z48):
         
         self.disktools.get_disklist = get_disklist
 
+    def _patch_systemtools(self):
+        def get_free_mem():
+            return 4
+
+        def get_total_mem():
+            return 16
+        self.systemtools.get_free_wave_mem_size = get_free_mem
+        self.systemtools.get_wave_mem_size = get_total_mem
+        
     def _patch_rootdisk_getdir(self):
         def get_subdir(obj, path):
             for child in obj.get_children():
