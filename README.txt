@@ -77,6 +77,9 @@ on connect. See the config directory in the src distribution for an example
 policy file (copy to /etc/hal/fdi/policy if you're using Ubuntu) and
 permissions script (install in /usr/bin/set-permissions).
 
+FUSE needs the string 'user_allow_other' in /etc/fuse.conf to be able to mount
+as non-root user.
+
 5. Developing
 
 src/aksyx/
