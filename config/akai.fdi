@@ -1,0 +1,8 @@
+<deviceinfo version="0.2">
+ <device>
+  <match key="info.bus" string="usb">
+   <match key="usb.vendor_id" int="2536">
+ 	<append key="info.callouts.add" type="strlist">set-permissions</append>
+   </match>
+ </device>
+</deviceinfo>

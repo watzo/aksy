@@ -67,8 +67,15 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 Setting the USB_DEBUG environment variable can help to obtain more info from
 the low level usb communication.
 
-Common reasons for not being able to set up a USB connection are: device
-permissions are set too restrictive (read-only, root permissions)
+Common reasons for not being able to set up a USB connection are that the
+device permissions are set too restrictive (read-only, root permissions). Eg.
+Ubuntu mounts usb devices under /dev/bus/usb, so one should check
+/dev/bus/usb/<bus id>/<device id> to verify. The output from lsusb can be used
+to determine bus and device id. Highly likely the bus and device ids will
+change when the sampler is reconnected; HAL can be used to automate the chown
+on connect. See the config directory in the src distribution for an example
+policy file (copy to /etc/hal/fdi/policy if you're using Ubuntu) and
+permissions script (install in /usr/bin/set-permissions).
 
 5. Developing
 
