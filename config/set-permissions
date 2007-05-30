@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo $HAL_PROP_USB_BUS_NUMBER > /root/envhal
-console_user = 'user_id'
+console_user="your_user_id"
 
 if [ -z "$HAL_PROP_USB_BUS_NUMBER" -o -z "$HAL_PROP_USB_LINUX_DEVICE_NUMBER" ] ; then
   exit 2 
