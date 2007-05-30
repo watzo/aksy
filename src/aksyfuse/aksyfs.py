@@ -179,6 +179,16 @@ class FSRoot(object):
             return read + EOF
         else:
             return read
+
+    def statfs(self):
+        blocks_size = 1024
+        blocks = self.sampler.systemtools.get_wave_mem_size()
+        blocks_free = self.sampler.systemtools.get_free_wave_mem_size()
+        files = 0
+        files_free = 0
+        blocks_available = blocks_free
+        namelen = 80
+        return (blocks_size, blocks, blocks_free, blocks_available, files, files_free, namelen)
     
 class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, sampler):
@@ -319,6 +329,10 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def truncate(self, path, size): #IGNORE:W0212
         print "*** truncate ", path, size
         pass
+    
+    def statfs(self):
+        print "*** statfs (metrics on memory contents only)"
+        return self.root.statfs()
 
 def raiseUnsupportedOperationException():
     raiseException(errno.ENOSYS)
@@ -334,10 +348,11 @@ if __name__ == '__main__':
     sampler_id = args.pop(2)
 
     if sampler_id == "mock_z48":
-        z48 = Devices.get_instance('mock_z48', None, 
+        sampler = Devices.get_instance('mock_z48', None, 
                               debug=0, 
                               sampleFile='src/aksy/test/test.wav')
     else:
-        z48 = Devices.get_instance(sampler_id, 'usb')
-    fs = AksyFS(z48)
+        sampler = Devices.get_instance(sampler_id, 'usb')
+    fs = AksyFS(sampler)
     fs.main()
+    sampler.close()

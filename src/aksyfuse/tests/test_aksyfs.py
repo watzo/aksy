@@ -68,15 +68,19 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         children = self.fs.getdir('/disks')
         self.assertEquals([('Samples disk', 0), ('Cdrom', 0)], children)
 
+    def test_getdir_with_spaces(self):
+        info  = self.fs.getattr('/disks/Cdrom')
+        self.assertEquals([('Mellotron Samples', 0)], self.fs.getdir('/disks/Cdrom'))
+        
     def test_getdir_disk(self):
         info  = self.fs.getattr('/disks/Samples disk')
         self._assertdir(info)
         children = self.fs.getdir('/disks/Samples disk')
         self.assertEquals([('Autoload', 0), ('Songs', 0)], children)
 
-        info  = self.fs.getattr('/disks/Cdrom/Mellotron')
-        children  = self.fs.getdir('/disks/Cdrom/Mellotron')
-        self.assertEquals([('Choir', 0), ('Sample.AKP', 0), ('Sample.wav', 0)], 
+        info  = self.fs.getattr('/disks/Cdrom/Mellotron Samples')
+        children  = self.fs.getdir('/disks/Cdrom/Mellotron Samples')
+        self.assertEquals([('Choir', 0), ('A Sample.AKP', 0), ('Sample.wav', 0)], 
                           children)
 
     def test_mkdir_unsupported(self):
@@ -107,9 +111,9 @@ class AksyFSTest(TestCase): #IGNORE:R0904
 
 
     def test_open_disk(self):
-        self.fs.getattr('/disks/Cdrom/Mellotron/Choir')
-        self.fs.open('/disks/Cdrom/Mellotron/Choir/Choir.AKP', S_IRUSR)
-        self.fs.release('/disks/Cdrom/Mellotron/Choir/Choir.AKP', 'ignored')
+        self.fs.getattr('/disks/Cdrom/Mellotron Samples/Choir')
+        self.fs.open('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', S_IRUSR)
+        self.fs.release('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', 'ignored')
 
     def test_release(self):
         # should not throw
