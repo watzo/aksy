@@ -59,6 +59,9 @@ class Disk(object):
         folder = Folder(os.path.dirname(rel_path))
         return folder.get_child(os.path.basename(rel_path))
 
+    def create_folder(self, name):
+        self.root.create_folder(name)
+        
     def get_children(self):
         self.set_current()
         return self.root.get_children()
