@@ -143,7 +143,7 @@ class FSRoot(object):
     def mkdir(self, path):
         store = self.find_child(path)
         if not hasattr(store, 'create_folder'):
-            raiseException(errno.EINVAL)
+            return store
         return store.create_folder(_splitpath(path)[1])
         
     def open(self, path, flags, is_modified=False):
@@ -193,6 +193,7 @@ class FSRoot(object):
 class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, sampler):
         self.flags = 0
+        self.direct_io = True
         self.multithreaded = 0
         self.debug = True
         fuse.Fuse.__init__(self)
