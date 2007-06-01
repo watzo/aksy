@@ -77,7 +77,7 @@ file_out.writelines("class %s:\n" % classname_helper(section_name))
 testClassName = "Test%s" % classname_helper(section_name)
 testfile_out.writelines("class %s(TestCase):\n" %testClassName)
 file_out.writelines("%sdef __init__(self, %s):\n" % (indent_block, device_name))
-file_out.writelines("%sself.%s = %s\n" % (indent_block*2, device_name, device_name))
+file_out.writelines("%sself.%s = %s\n" % (indent_block*2, 'sampler', device_name))
 testfile_out.writelines( "%sdef setUp(self):\n" % indent_block)
 testfile_out.writelines( "%sif not hasattr(self, %s):\n" % (indent_block*2,device_name))
 testfile_out.writelines( "%ssetattr(self, %s, Devices.get_instance(%s, 'usb'))\n\n" % (indent_block*3,device_name, device_name))
@@ -137,7 +137,7 @@ while line:
         comm_args = []
         comm_args.extend(args[1:])
         comm_args.append('')
-        methods.writelines( "%sreturn self.%s.execute(%s_cmd, %s)\n\n" % (indent_block*2, device_name, cmd_var_name, '('+ ', '.join(comm_args) + ')'))
+        methods.writelines( "%sreturn self.%s.execute(%s_cmd, %s)\n\n" % (indent_block*2, 'sampler', cmd_var_name, '('+ ', '.join(comm_args) + ')'))
 
         # put the command in a dict with tuple key (section_id, id)
         if userref_type is None:
