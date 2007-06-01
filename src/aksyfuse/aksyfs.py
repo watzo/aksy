@@ -143,7 +143,7 @@ class FSRoot(object):
     def mkdir(self, path):
         store = self.find_child(path)
         if not hasattr(store, 'create_folder'):
-            return store
+            raiseUnsupportedOperationException()
         return store.create_folder(_splitpath(path)[1])
         
     def open(self, path, flags, is_modified=False):
