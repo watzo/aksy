@@ -62,7 +62,6 @@ class MockZ48(Z48):
         for i in range(0, 100):
             memory_items.append(model.Sample("Sample%i" %i))
         self.memory.set_children(memory_items)
-        print self.memory.get_children()[0]
         self.memory.get_children()[0].get_modified = lambda : True
 
     def _patch_disktools_get_disklist(self):
@@ -73,13 +72,8 @@ class MockZ48(Z48):
         self.disktools.get_disklist = get_disklist
 
     def _patch_systemtools(self):
-        def get_free_mem():
-            return 4
-
-        def get_total_mem():
-            return 16
-        self.systemtools.get_free_wave_mem_size = get_free_mem
-        self.systemtools.get_wave_mem_size = get_total_mem
+        self.systemtools.get_free_wave_mem_size = lambda : 4
+        self.systemtools.get_wave_mem_size = lambda : 16
         
     def _patch_rootdisk_getdir(self):
         def get_subdir(obj, path):
@@ -95,3 +89,6 @@ class MockZ48(Z48):
             return folder
 
         self.disks.get_dir = get_dir
+        
+    def close(self):
+        pass
