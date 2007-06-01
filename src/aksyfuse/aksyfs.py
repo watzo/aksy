@@ -193,10 +193,9 @@ class FSRoot(object):
 class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, sampler):
         self.flags = 0
-        self.direct_io = True
         self.multithreaded = 0
         self.debug = True
-        fuse.Fuse.__init__(self)
+        fuse.Fuse.__init__(self, [], fuse_args='-odirect_io')
 
         self.root = FSRoot(sampler)
         
@@ -355,5 +354,7 @@ if __name__ == '__main__':
     else:
         sampler = Devices.get_instance(sampler_id, 'usb')
     fs = AksyFS(sampler)
-    fs.main()
-    sampler.close()
+    try:
+        fs.main()
+    finally:
+        sampler.close()
