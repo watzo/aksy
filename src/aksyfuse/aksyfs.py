@@ -306,6 +306,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         if hasattr(folder, 'delete'):
             folder.delete()
             del self.cache[path]
+            self.get_parent(path).refresh()
             return
 
         raiseException(errno.EPERM)

@@ -48,7 +48,7 @@ class Disk(object):
         return None
 
     def get_modified(self):
-        return None
+        return False
 
     def get_dir(self, rel_path):
         if fileutils.is_dirpath(rel_path):
@@ -61,11 +61,14 @@ class Disk(object):
 
     def create_folder(self, name):
         self.root.create_folder(name)
-        
+    
     def get_children(self):
         self.set_current()
         return self.root.get_children()
     
+    def refresh(self):
+        self.root.refresh()
+        
     def get_actions(self):
         return ('upload',)
     
@@ -201,9 +204,9 @@ class Folder(FileRef):
         print "RETURN ", repr(self.children)
         return self.children
 
-    def get_child(self, filename):
+    def get_child(self, name):
         for child in self.get_children():
-            if child.get_name() == filename:
+            if child.get_name() == name:
                 return child
         return None
     
@@ -236,23 +239,10 @@ class Folder(FileRef):
         self.path = self.path.replace(self.get_name(), new_name)
 
     def load(self):
-        """
-        """
         self.get_parent().set_current()
         handlers[Disk].load_folder(self.get_name())
         log.debug("Loading folder children %s" % repr (self.get_children()))
         return [item for item in self.get_children()]
-
-    def delete(self):
-        """
-        """
-        self.get_parent().set_current()
-        handlers[Disk].delete(self.get_name())
-        # could be optimized by using dicts instead of lists
-        for item in self.get_parent().get_children():
-            if item.get_name() == self.get_name():
-                del item
-                break
 
     def create_folder(self, name):
         self.get_parent().set_current()

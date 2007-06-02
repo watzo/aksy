@@ -143,10 +143,14 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.fs.getattr('/disks/Samples disk/Songs')
         path = '/disks/Samples disk/Songs/test'
         self.fs.mkdir(path, 'ignored')
+        songs = self.fs.get_parent(path)
+        # simulate a refresh
+        def refresh():
+            songs.children = []
+        songs.refresh = refresh
         self.fs.getattr(path)
         self.fs.rmdir(path)
-        # TODO: fix mock delete()
-        # self.assertRaises(OSError, self.fs.getattr, path)
+        self.assertRaises(OSError, self.fs.getattr, path)
     
     def test_rmdir_memory(self):
         self.assertRaises(OSError, self.fs.rmdir, '/memory')
