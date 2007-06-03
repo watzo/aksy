@@ -1,9 +1,9 @@
-import struct, sys, unittest, logging
-from aksy.devices.akai import sysex, sysex_types
+import unittest, logging
+from aksy.devices.akai import sysex, sysex_types, base
 
 log = logging.getLogger("aksy")
 class TestCommand(unittest.TestCase):
-    def test_create_arg_bytes(self):
+    def test_create_arg_bytes(self): #IGNORE:W0212
         dcmd = sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (sysex_types.BYTE,), None)
 
 class TestRequest(unittest.TestCase):
@@ -42,6 +42,9 @@ class TestRequest(unittest.TestCase):
             '\xf0\x47\x5e\x20\x00\x00\x07\x01\xf7', bytes)
 
 class TestReply(unittest.TestCase):
+    def createCommand(self):
+        return sysex.Command(sysex.Z48_ID, '\x20\x05', 'dummy', (), (sysex_types.BYTE,))
+
     def testCreateReply(self):
         DEFAULT_USERREF = '\x00'
         bytes = (sysex.START_SYSEX, sysex.AKAI_ID, sysex.Z48_ID, DEFAULT_USERREF, 
@@ -69,7 +72,7 @@ class TestReply(unittest.TestCase):
         dcmd.id = '\x20\x05'
         dcmd.reply_spec = ()
         bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
-        self.assertRaises(sysex.SamplerException, sysex.Reply, bytes, dcmd)
+        self.assertRaises(base.SamplerException, sysex.Reply, bytes, dcmd)
         # using pad type if we encounter bytes not according to specification
         dcmd.id = '\x20\x10'
         dcmd.reply_spec = None
@@ -112,8 +115,12 @@ class TestReply(unittest.TestCase):
         self.assertEquals('Z8 Sampler', reply.get_return_value())
 
         bytes = '\xf0G_\x00E\x1eJ\x00\x00\xf7'
-        self.assertRaises(sysex.SamplerException, sysex.Reply, bytes, dcmd)
+        self.assertRaises(base.SamplerException, sysex.Reply, bytes, self.createCommand())
 
+    def testParseFileNotFound(self):
+        bytes = '\xf0G_\x00E\x1eJ\x01\x02\xf7'
+        self.assertRaises(IOError, sysex.Reply, bytes, self.createCommand())
+        
     def testParseUserRef(self):
          cmd = sysex.Command(sysex.S56K_ID, '\x07\x01', 'dummy', (), (sysex_types.BYTE,), sysex_types.S56K_USERREF)
          bytes = '\xf0\x47\x5e\x20\x7e\x00\x52\x07\x01\x08\x5a\x38\x20\x53\x61\x6d\x70\x6c\x65\x72\x00\xf7'

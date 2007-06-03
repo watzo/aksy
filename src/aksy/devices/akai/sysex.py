@@ -1,5 +1,5 @@
-import struct, logging
-from aksy.devices.akai import sysex_types
+import struct, logging, errno
+from aksy.devices.akai import sysex_types, base
 from aksy.devices.akai.sysex_types import START_SYSEX, END_SYSEX
 
 AKAI_ID = '\x47'
@@ -95,7 +95,7 @@ class AlternativeRequest(Request):
         section_id = sysex_types.BYTE.decode(command_id[:1], False)
         section_offset = section_id - base_section_id
         if section_offset > 3:
-            raise SamplerException("Offset should be between 0 and 3")
+            raise base.SamplerException("Offset should be between 0 and 3")
         return sysex_types.BYTE.encode(section_offset)
     
 class Reply:
@@ -138,7 +138,7 @@ class Reply:
         elif reply_id == REPLY_ID_ERROR:
             byte1, byte2 = struct.unpack('2B', self.bytes[i:i+2])
             code = (byte2 << 7) + byte1
-            raise SamplerException(
+            raise _create_exception(
                 errors.get(code, "Unknown"), code)
         elif reply_id == REPLY_ID_REPLY:
             # continue
@@ -160,21 +160,6 @@ class ParseException(Exception):
     """
     pass
 
-class SamplerException(Exception):
-    """ Exception raised by the sampler
-    """
-    def __init(self, msg, code):
-        Exception.__init__(self, msg)
-        self.code = code
-
-    def get_code(self):
-        return self.code
-
-class Error(Exception):
-    """ Exception raised when system exclusive fails
-    """
-    pass
-
 def byte_repr(bytes):
     return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
 
@@ -188,6 +173,12 @@ def _to_string(ordvalues):
     'Z48 & MPC4K'
     """
     return ''.join([chr(value) for value in ordvalues])
+
+def _create_exception(msg, code):
+    if code == 0x101 or code == 0x203:
+        return IOError(errno.ENOENT, msg)
+        
+    return base.SamplerException(msg, code)
 
 errors = {
     0x00:"The <Section> <Item> supplied are not supported",
@@ -224,4 +215,4 @@ errors = {
     0x202:"WAV format is incorrect",
     0x203:"File not found",
     0x204:"File already exists",
-    }
+}

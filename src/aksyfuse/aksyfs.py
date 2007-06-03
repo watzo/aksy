@@ -11,7 +11,7 @@ import errno
 
 from aksy.device import Devices
 from aksy import fileutils
-from aksy.devices.akai.sysex import SamplerException
+from aksy.devices.akai.base import SamplerException
 from aksy.devices.akai import sampler as samplermod
 
 fuse.fuse_python_api = (0, 1) # TODO: migrate to 0.2
@@ -209,12 +209,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
 
     def stat_directory(self, path):
         if self.cache.get(path) is None:
-            try:
-                self.cache[path] = self.root.get_dir(path)
-            except SamplerException, exc:
-                # TODO check code
-                print "error occurred " + repr(exc)
-                raiseException(errno.ENOENT)
+            self.cache[path] = self.root.get_dir(path)
         return stat_dir(self.uid, self.gid)
 
     def get_parent(self, path):

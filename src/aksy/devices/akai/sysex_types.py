@@ -1,4 +1,4 @@
-import struct, sys, types, sysex_types, logging
+import struct, logging, types
 
 START_SYSEX = '\xf0'
 STRING_TERMINATOR = '\x00'
@@ -392,9 +392,9 @@ class FileType(ByteType):
         self.set_max_val(4)
 
 class CompositeType(object):
-    def __init__(self, types):
-        log.debug("Initializing types %s" % repr(types));
-        self.types = types
+    def __init__(self, type_list):
+        log.debug("Initializing types %s" % repr(type_list));
+        self.types = type_list
 
     def decode(self, string):
         offset = 0
@@ -453,9 +453,9 @@ class DiskInfo(object):
 class DiskType(CompositeType):
     def __init__(self):
         super(DiskType, self).__init__((
-            sysex_types.WORD, sysex_types.BYTE,
-            sysex_types.BYTE, sysex_types.BYTE,
-            sysex_types.BYTE, sysex_types.STRING,))
+            WORD, BYTE,
+            BYTE, BYTE,
+            BYTE, STRING,))
 
 class DisklistType(object):
     def __init__(self):
@@ -542,7 +542,7 @@ FOUR_BYTES  = FourByteType()
 # derived types
 TYPEBYTE    = TypeByteType()
 BOOL        = BoolType()
-TUNE        =  TuneType()
+TUNE        = TuneType()
 PAN         = PanningType()
 FILETYPE    = FileType()
 LEVEL       = SoundLevelType()
@@ -579,6 +579,7 @@ def get_type(typeId):
         raise UnknownSysexTypeError( "%02x" % struct.unpack('B', typeId))
     return type
 
+# TODO: make HandleNameDictType
 class HandleNameArrayType(object):
     r"""Mixed data type, wrapping handle(DoubleWord) and name (StringType)
 
