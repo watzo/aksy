@@ -171,8 +171,6 @@ class FileRef(object):
 
 class Folder(FileRef):
     def __init__(self, path):
-        """ TODO: find a nice solution for the primitive folder selection
-        """
         self.path = path
         self.type = FileRef.FOLDER
         self.children = []
