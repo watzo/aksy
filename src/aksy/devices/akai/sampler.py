@@ -56,3 +56,4 @@ class Sampler(AkaiSampler):
     @staticmethod
     def get_supported_file_types():
         return ('wav', 'aif', 'aiff', 'akp', 'akm', 'mid',)
+    
