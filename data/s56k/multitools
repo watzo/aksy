@@ -1,0 +1,18 @@
+multitools	Methods to manipulate in-memory multis
+\x0c	\x30	rename	Rename multi
+
+\x0c	\x40	get_no_items	Get Number of Multis in Memory
+WORD
+\x0c	\x42	get_curr_handle	Current Multi Index (i.e., its position in memory)
+WORD
+\x0c	\x43	get_curr_name	Get Current Multi Name
+STRING
+\x0c	\x51	get_names	Get the Names of All Multis in memory
+STRINGARRAY
+\x0c	\x06	set_curr_by_handle	Select by handle	WORD
+
+\x0c	\x05	set_curr_by_name	Select by name	STRING
+
+\x0c	\x07	delete_all	Delete ALL items from memory
+
+\x0c	\x08	delete_curr	Delete current item from memory

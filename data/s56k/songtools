@@ -1,0 +1,18 @@
+songtools	Methods to manipulate in-memory songs
+\x16	\x09	rename	Rename Song
+
+\x16	\x10	get_no_items	Get Number of Songs in Memory
+WORD
+\x16	\x13	get_curr_handle	Current Song Index (i.e., its position in memory)
+WORD
+\x16	\x14	get_curr_name	Get Current Song Name
+STRING
+\x16	\x12	get_names	Get the Names of All Songs in memory
+STRINGARRAY
+\x16	\x06	set_curr_by_handle	Select by handle	WORD
+
+\x16	\x05	set_curr_by_name	Select by name	STRING
+
+\x16	\x07	delete_all	Delete ALL items from memory
+
+\x16	\x08	delete_curr	Delete current item from memory

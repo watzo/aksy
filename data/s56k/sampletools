@@ -1,0 +1,18 @@
+sampletools	Methods to manipulate in-memory samples
+\x0e	\x09	rename	Rename Sample
+
+\x0e	\x10	get_no_items	Get Number of Samples in Memory
+WORD
+\x0e	\x13	get_curr_handle	Current Sample Index (i.e., its position in memory)
+WORD
+\x0e	\x14	get_curr_name	Get Current Sample Name
+STRING
+\x0e	\x12	get_names	Get the Names of All Samples in memory
+STRINGARRAY
+\x0e	\x06	set_curr_by_handle	Select by handle	WORD
+
+\x0e	\x05	set_curr_by_name	Select by name	STRING
+
+\x0e	\x07	delete_all	Delete ALL items from memory
+
+\x0e	\x08	delete_curr	Delete current item from memory
