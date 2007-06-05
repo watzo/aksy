@@ -115,7 +115,7 @@ class TestReply(unittest.TestCase):
         self.assertEquals('Z8 Sampler', reply.get_return_value())
 
         bytes = '\xf0G_\x00E\x1eJ\x00\x00\xf7'
-        self.assertRaises(base.SamplerException, sysex.Reply, bytes, self.createCommand())
+        self.assertRaises(NotImplementedError, sysex.Reply, bytes, self.createCommand())
 
     def testParseFileNotFound(self):
         bytes = '\xf0G_\x00E\x1eJ\x01\x02\xf7'

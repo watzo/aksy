@@ -177,6 +177,8 @@ def _to_string(ordvalues):
 def _create_exception(msg, code):
     if code == 0x101 or code == 0x203:
         return IOError(errno.ENOENT, msg)
+    if code == 0x0:
+        return NotImplementedError(msg)
         
     return base.SamplerException(msg, code)
 
