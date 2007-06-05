@@ -17,7 +17,17 @@ def register_handlers(tools):
     """
     handlers.update(tools)
 
-class Disk(object):
+class Container(object):
+    def get_children(self):
+        raise NotImplementedError()
+
+    def get_child(self, name):
+        for child in self.get_children():
+            if child.get_name() == name:
+                return child
+        return None
+
+class Disk(Container):
     def __init__(self, disk_info):
         self.info = disk_info
         self.root = Folder("")
@@ -49,16 +59,6 @@ class Disk(object):
 
     def get_modified(self):
         return False
-
-    def get_dir(self, rel_path):
-        if fileutils.is_dirpath(rel_path):
-            folder = Folder(rel_path)
-            folder.set_current()
-            folder.set_writable(self.is_writable())
-            return folder
-    
-        folder = Folder(os.path.dirname(rel_path))
-        return folder.get_child(os.path.basename(rel_path))
 
     def get_children(self):
         self.set_current()
@@ -167,7 +167,7 @@ class FileRef(object):
     def get_actions(self):
         return ('load', 'delete', 'download',)
 
-class Folder(FileRef):
+class Folder(FileRef, Container):
     def __init__(self, path):
         self.path = path
         self.type = FileRef.FOLDER
@@ -204,7 +204,6 @@ class Folder(FileRef):
             files = [ FileRef((os.path.join(self.path, name))) for name in
                 file_names if fileutils.is_valid_name(name)]
             self.children.extend(files)
-        print "RETURN ", repr(self.children)
         return self.children
 
     def get_child(self, name):
@@ -387,7 +386,7 @@ class Song(InMemoryFile):
         # TODO!
         return InMemoryFile.get_name(self) + ".mid"
     
-class Storage:
+class Storage(Container):
     def __init__(self, name):
         self.name = name
         self.path = name
@@ -429,25 +428,12 @@ class RootDisk(Storage):
     def is_writable(self):
         return False
 
-    def get_dir(self, rel_path):
-        segments = rel_path.split('/', 1)
-        for child in self.get_children():
-            if child.get_name() == segments[0]:
-                child.set_current()
-                if len(segments) == 1:
-                    return child
-                return child.get_dir(segments[1])
-        return None
-
 class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
 
     def is_writable(self):
         return True
-    
-    def get_dir(self, rel_path):
-        return self
     
     def get_actions(self):
         return ('upload',)
@@ -465,15 +451,10 @@ class Memory(Storage):
     def has_children(self):
         if len(self.children) > 0:
             return True
-        return (
-            (handlers.has_key(Program) 
-             and handlers[Program].get_no_items() > 0) or
-            (handlers.has_key(Sample) 
-             and handlers[Sample].get_no_items() > 0) or
-            (handlers.has_key(Song) 
-             and handlers[Song].get_no_items() > 0) or
-            (handlers.has_key(Multi) 
-             and handlers[Multi].get_no_items() > 0))
+        return (handlers[Program].get_no_items() > 0 or
+             handlers[Sample].get_no_items() > 0 or
+             handlers[Song].get_no_items() > 0 or
+             handlers[Multi].get_no_items() > 0)
 
     def get_children(self):
         if len(self.children) > 0:
@@ -482,20 +463,22 @@ class Memory(Storage):
         multis = []
         samples = []
         songs = []
-        
-        pnames = handlers[Program].get_names()
-        if pnames is not None:
-            programs = [Program(name) for name in pnames ]
-        mnames = handlers[Multi].get_names()
-        if mnames is not None:
-            multis = [Multi(name) for name in mnames ]
-        snames = handlers[Sample].get_names()
-        if snames is not None:
-            samples = [Sample(name) for name in snames ]
+        names = handlers[Program].get_names()
+        if names is not None:
+            programs = [Program(name) for name in names]
+        names = handlers[Multi].get_names()
+        if names is not None:
+            multis = [Multi(name) for name in names]
+        names = handlers[Sample].get_names()
+        if names is not None:
+            samples = [Sample(name) for name in names]
+
+        names = handlers[Song].get_names()
+        if names is not None:
+            songs = [Song(name) for name in names]
         
         self.children.extend(programs)
         self.children.extend(multis)
         self.children.extend(samples)
         self.children.extend(songs)
-        
         return self.children
