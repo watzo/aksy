@@ -37,7 +37,8 @@ class Z48(Sampler):
                         model.FileRef: self.disktools,
                         model.Program: self.programtools,
                         model.Sample: self.sampletools,
-                        model.Multi: self.multitools})
+                        model.Multi: self.multitools,
+                        model.Song: self.songtools})
 
         self.disks = model.RootDisk('disks', self.disktools.get_disklist())
         self.memory = model.Memory('memory')
