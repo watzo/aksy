@@ -225,8 +225,6 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def getdir(self, path):
         print '*** getdir', path
         folder = self.cache[path]
-        print folder
-        print folder.get_children()
         return [(child.get_name(), 0) for child in folder.get_children()]
 
     def mkdir(self, path, mode):
