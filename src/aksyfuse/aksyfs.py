@@ -40,8 +40,8 @@ def stat_inode(mode, size, child_count, uid, gid, writable=False, is_modified=Fa
     info[stat.ST_GID] = gid
     return info
 
-def stat_dir(uid, gid, child_count=1):
-    return stat_inode(stat.S_IFDIR|stat.S_IWRITE|stat.S_IEXEC, 4096L, child_count, uid, gid)
+def stat_dir(uid, gid, writable=True, child_count=1):
+    return stat_inode(stat.S_IFDIR|stat.S_IEXEC, 4096L, child_count, uid, gid, writable)
 
 # TODO: provide real values for samples (other sizes can't be determined
 def stat_file(uid, gid, path, size=None, is_modified=False):
@@ -113,6 +113,9 @@ class FSRoot(object):
         self.sampler = sampler
         self.file_cache = {} 
         
+    def is_writable(self):
+        return False
+    
     def get_children(self):
         return [self.sampler.memory, self.sampler.disks]
 
@@ -139,12 +142,6 @@ class FSRoot(object):
             raiseException(errno.ENOENT)
         
         return subdir
-        
-    def mkdir(self, path):
-        store = self.find_child(path)
-        if not hasattr(store, 'create_folder'):
-            raiseUnsupportedOperationException()
-        return store.create_folder(_splitpath(path)[1])
         
     def open(self, path, flags, is_modified=False):
         info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags|os.O_CREAT))
@@ -208,9 +205,11 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         self.gid = stat_home[stat.ST_GID]
 
     def stat_directory(self, path):
-        if self.cache.get(path) is None:
-            self.cache[path] = self.root.get_dir(path)
-        return stat_dir(self.uid, self.gid)
+        folder = self.cache.get(path)
+        if folder is None:
+            folder = self.root.get_dir(path)
+            self.cache[path] = folder
+        return stat_dir(self.uid, self.gid, folder.is_writable())
 
     def get_parent(self, path):
         parent = os.path.dirname(path)
@@ -249,13 +248,18 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def getdir(self, path):
         print '*** getdir', path
         folder = self.cache[path]
-        print folder.get_children()
         return [(child.get_name(), 0) for child in folder.get_children()]
 
     def mkdir(self, path, mode):
         print '*** mkdir', path, mode
-        folder = self.root.mkdir(path)
-        self.cache[path] = folder
+        folder = self.get_parent(path)
+        if not folder.is_writable():
+            raiseException(errno.EROFS)
+        if not hasattr(folder, 'create_folder'):
+            raiseUnsupportedOperationException()
+        
+        child = folder.create_folder(os.path.basename(path))
+        self.cache[path] = child
 
     def open(self, path, flags):
         print '*** open', path, flags

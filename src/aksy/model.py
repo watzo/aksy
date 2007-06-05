@@ -54,14 +54,12 @@ class Disk(object):
         if fileutils.is_dirpath(rel_path):
             folder = Folder(rel_path)
             folder.set_current()
+            folder.set_writable(self.is_writable())
             return folder
     
         folder = Folder(os.path.dirname(rel_path))
         return folder.get_child(os.path.basename(rel_path))
 
-    def create_folder(self, name):
-        self.root.create_folder(name)
-    
     def get_children(self):
         self.set_current()
         return self.root.get_children()
@@ -174,7 +172,14 @@ class Folder(FileRef):
         self.path = path
         self.type = FileRef.FOLDER
         self.children = []
+        self.writable = True
 
+    def set_writable(self, writable):
+        self.writable = writable
+        
+    def is_writable(self):
+        return self.writable
+    
     def refresh(self):
         del self.children[:]
 
@@ -421,13 +426,9 @@ class RootDisk(Storage):
         self.set_children([Disk(disk) for disk 
             in disk_list])
 
-    def create_folder(self, path):
-        parent = os.path.dirname(path)
-        folder = self.get_dir(parent)
-        if folder is None:
-            raise IOError("Folder '%s' does not exist" % parent)
-        return folder.create_folder(os.path.basename(path))
-        
+    def is_writable(self):
+        return False
+
     def get_dir(self, rel_path):
         segments = rel_path.split('/', 1)
         for child in self.get_children():
@@ -442,6 +443,9 @@ class Memory(Storage):
     def __init__(self, name):
         Storage.__init__(self, name)
 
+    def is_writable(self):
+        return True
+    
     def get_dir(self, rel_path):
         return self
     

@@ -86,8 +86,9 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     def test_mkdir_unsupported(self):
         self.assertRaises(OSError, self.fs.mkdir, '/memory/subdir', 'mode_ignored')
 
-    def not_test_mkdir_readonly_fs(self):
-        self.assertRaises(IOError, self.fs.mkdir, '/disks/Cdrom/test', 'mode_ignored')
+    def test_mkdir_readonly_fs(self):
+        self.fs.getattr('/disks/Cdrom')
+        self.assertRaises(OSError, self.fs.mkdir, '/disks/Cdrom/test', 'mode_ignored')
     
     def test_mkdir(self):
         self.fs.getattr('/disks/Samples disk/Songs')
