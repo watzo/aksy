@@ -1,19 +1,19 @@
 programtools	Methods to manipulate in-memory programs
-\x0a	\x02	create_empty	Create Program: <Data1…0> = Name	STRING
+\x0a	\x02	create_empty	Create Program: <Data1> = Name	STRING
 
-\x0a	\x03	create_new	Create Program with keygroups. <Data1> = number of keygroups, <Data2…0> = Name	BYTE STRING
+\x0a	\x03	create_new	Create Program with keygroups. <Data1> = Name	BYTE	STRING
 
-\x0a	\x05	set_curr_by_name	Select Program (by name) to be current: <Data1…0> = Name	STRING
+\x0a	\x05	set_curr_by_name	Select Program (by name) to be current: <Data1> = Name	STRING
 
-\x0a	\x06	set_curr_by_index	Select Program (by index) to be current: <Data1> = MSB; <Data2> = LSB (index = LSB +128× MSB).	WORD
+\x0a	\x06	set_curr_by_handle	Select Program (by index) to be current: <Data1> = handle.	WORD
 
 \x0a	\x07	delete_all	Delete ALL programs from memory
 
 \x0a	\x08	delete_curr	Delete the currently selected Program from memory
 
-\x0a	\x09	rename_curr	Rename currently selected Program: <Data1…0> = Name		STRING
+\x0a	\x09	rename_curr	Rename currently selected Program: <Data1> = Name	STRING
 
-\x0a	\x0A	set_program_no	Set “Program Number”. <Data1>: 0=OFF; 1=ON. <Data2>=program number (ony required if <Data1>=1).	BYTE
+\x0a	\x0A	set_program_no	Set Program Number. <Data1>=1).	BYTE
 
 \x0a	\x0B	add_keygroups	Add Keygroups to Program <Data1> = Number of Keygroups to add.	BYTE
 
@@ -23,7 +23,7 @@ programtools	Methods to manipulate in-memory programs
 
 \x0a	\x10	get_no_items	Get Number of Programs in memory
 WORD
-\x0a	\x11	get_program_no	Get Current Program’s “Program Number”
+\x0a	\x11	get_program_no	Get Current Programs Program Number
 BOOL	BYTE
 \x0a	\x12	get_index	Get Current Program Index (i.e., its position in memory)
 WORD
@@ -33,21 +33,21 @@ STRING
 BYTE
 \x0a	\x15	get_keygroup_xfade	Get Keygroup Crossfade
 BOOL
-\x0a	\x18	get_program_numbers	Get the “Program Numbers” of all the Programs in memory
+\x0a	\x18	get_program_numbers	Get the Program Numbers of all the Programs in memory
 BYTE
 \x0a	\x19	get_names	Get the names of all of the Programs in memory
 STRINGARRAY
 \x0a	\x20	set_loudness	Set Loudness. <Data1> = loudness value.	BYTE
 
-\x0a	\x21	set_velocity_sens	Set Velocity Sensitivity. Values range from −100 to +100, <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.	SBYTE
+\x0a	\x21	set_velocity_sens	Set Velocity Sensitivity. Values range from 100 to +100, <Data1> = absolute value.	SBYTE
 
-\x0a	\x22	set_amp_modulation_source	Set Amp Mod Source. <Data1> = Amp Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)	BYTE
+\x0a	\x22	set_amp_modulation_source	Set Amp Mod Source. <Data1> = Modulation Source. (see Table 15)	BYTE
 
 \x0a	\x23	set_amp_modulation_value	Set Amp Mod Value. <Data1> = Amp Mod (1 or 2)	BYTE	SBYTE
 
-\x0a	\x24	set_pan_modulation_source	Set Pan Mod Source. <Data1> = Pan Mod (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)	BYTE	SBYTE
+\x0a	\x24	set_pan_modulation_source	Set Pan Mod Source. <Data1> = Modulation Source. (see Table 15)	BYTE	SBYTE
 
-\x0a	\x25	set_pan_modulation_value	Set Pan Mod Value. <Data1> = Pan Mod (1, 2 or 3) <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
+\x0a	\x25	set_pan_modulation_value	Set Pan Mod Value. <Data1>0-100
 
 \x0a	\x28	get_loudness	Get Loudness.
 BYTE
@@ -67,7 +67,7 @@ BYTE
 
 \x0a	\x32	set_tune_template	Tune Template, where <Data1> = template. 0=USER, 1=EVEN-TEMPERED, 2=ORCHESTRAL, 3=WERKMEISTER, 4=1/5 MEANTONE, 5=1/4 MEANTONE, 6=JUST, 7=ARABIAN.	BYTE
 
-\x0a	\x33	set_user_tune_template	Set User Tune Template.	All the values are sent one after the other starting at C. The format of each value is the same as for Item &31{49}. (i.e., 24 data bytes are representing all 12 notes.)
+\x0a	\x33	set_user_tune_template	Set User Tune Template. All the values are sent one after the other starting at C. The format of each value is the same as for Item &31{49}. (i.e., 24 data bytes are representing all 12 notes.)	BYTE
 
 \x0a	\x34	set_key	Set Key = <Data1> where: 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B	BYTE
 
@@ -113,19 +113,19 @@ BOOL
 BYTE
 \x0a	\x4F	get_portamento_time	Get Portamento Time
 BYTE
-\x0a	\x50	set_lfo_rate	Set LFO Rate. <Data2> = rate	BYTE	BYTE
+\x0a	\x50	set_lfo_rate	Set LFO Rate. <Data1> = rate	BYTE	BYTE
 
-\x0a	\x51	set_lfo_delay	Set LFO Delay. <Data2> = delay	BYTE	BYTE
+\x0a	\x51	set_lfo_delay	Set LFO Delay. <Data1> = delay	BYTE	BYTE
 
-\x0a	\x52	set_lfo_depth	Set LFO Depth. <Data2> = depth	BYTE	BYTE
+\x0a	\x52	set_lfo_depth	Set LFO Depth. <Data1> = depth	BYTE	BYTE
 
-\x0a	\x53	set_lfo_waveform	Set LFO Waveform. <Data2> = waveform, where: 0=SINE, 1=TRIANGLE, 2=SQUARE, 3=SQUARE+, 4=SQUARE−, 5=SAW BI, 6=SAW UP, 7=SAW DOWN, 8=RANDOM	BYTE	BYTE
+\x0a	\x53	set_lfo_waveform	Set LFO Waveform. <Data1> = waveform, where: 0=SINE, 1=TRIANGLE, 2=SQUARE, 3=SQUARE+, 4=SQUARE, 5=SAW BI, 6=SAW UP, 7=SAW DOWN, 8=RANDOM	BYTE	BYTE
 
-\x0a	\x54	set_lfo_sync	Set LFO Sync. <Data2> = (0=OFF, 1=ON). (LFO1 only)	BYTE	BOOL
+\x0a	\x54	set_lfo_sync	Set LFO Sync. <Data1> = (0=OFF, 1=ON). (LFO1 only)	BYTE	BOOL
 
-\x0a	\x55	set_lfo_retrigger	Set LFO Re-trigger. <Data2> = (0=OFF, 1=ON). (LFO2 only)	BYTE	BOOL
+\x0a	\x55	set_lfo_retrigger	Set LFO Re-trigger. <Data1> = (0=OFF, 1=ON). (LFO2 only)	BYTE	BOOL
 
-\x0a	\x56	set_rate_modulation_source	Set Rate Mod Source <Data2> = Modulation Source. (see Table 15)	BYTE	BOOL
+\x0a	\x56	set_rate_modulation_source	Set Rate Mod Source <Data1> = Modulation Source. (see Table 15)	BYTE	BOOL
 
 \x0a	\x64	get_lfo_sync	Get LFO Sync (LFO1 only)	BYTE
 
@@ -133,13 +133,13 @@ BYTE
 
 \x0a	\x66	get_rate_modulation_source	Get Rate Mod Source	BYTE
 BYTE
-\x0a	\x67	get_rate_modulation_source	Get Rate Mod Value	BYTE
+\x0a	\x67	get_rate_modulation_value	Get Rate Mod Value	BYTE
 SBYTE
 \x0a	\x68	get_delay_modulation_source	Get Delay Mod Source	BYTE
 BYTE
 \x0a	\x69	get_delay_modulation_value	Get Delay Mod Value	BYTE
 SBYTE
-\x0a	\x6A	get_depth_modulation_source	Get Depth Mod Source	BYTe
+\x0a	\x6A	get_depth_modulation_source	Get Depth Mod Source	BYTE
 BYTE
 \x0a	\x6B	get_depth_modulation_value	Get Depth Mod Value	BYTE
 SBYTE
@@ -151,15 +151,11 @@ BYTE
 BOOL
 \x0a	\x6F	get_midi_clock_sync_division	Get MIDI Clock Sync Division (LFO2 only)	BYTE
 BYTE
-\x0a	\x70	set_pitch_modulation_source	Set Pitch Mod Source. <Data1> = Pitch Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)	BYTE	BYTE
+\x0a	\x70	set_pitch_modulation_source	Set Pitch Mod Source. <Data1> = Modulation Source. (see Table 15)	BYTE	BYTE
 
-\x0a	\x71	set_amp_modulation_source	Set Amp Mod Source. <Data1> = Amp Mod (1 only) <Data2> = Modulation Source. (see Table 15)	BYTE	BYTE
-
-\x0a	\x72	set_filter_modulation_source	Set Filter Mod Input Source. <Data1> = Mod Input (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)	BYTE	BYTE
+\x0a	\x72	set_filter_modulation_source	Set Filter Mod Input Source. <Data1> = Modulation Source. (see Table 15)	BYTE	BYTE
 
 \x0a	\x74	get_pitch_modulation_source	Get Pitch Mod Source. <Data1> = Pitch Mod (1 or 2)	BYTE
-BYTE
-\x0a	\x75	get_amp_modulation_source	Get Amp Mod Source. <Data1> = Amp Mod (1 only)	BYTE
 BYTE
 \x0a	\x76	get_filter_modulation_source	Get Filter Mod Input Source. <Data1> = Mod Input (1, 2 or 3)	BYTE
 BYTE

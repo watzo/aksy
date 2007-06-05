@@ -11,18 +11,18 @@ from aksy.devices.akai.sysex import Command
 
 import aksy.devices.akai.sysex_types
 
-from aksy.devices.akai import aksy_types
+from aksy.devices.akai import base
 
 class Programtools:
     def __init__(self, s56k):
         self.sampler = s56k
         self.create_empty_cmd = Command('^', '\x0a\x02', 'create_empty', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.create_new_cmd = Command('^', '\x0a\x03', 'create_new', (aksy.devices.akai.sysex_types.BYTE STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.create_new_cmd = Command('^', '\x0a\x03', 'create_new', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_curr_by_name_cmd = Command('^', '\x0a\x05', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_by_index_cmd = Command('^', '\x0a\x06', 'set_curr_by_index', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_curr_by_handle_cmd = Command('^', '\x0a\x06', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_all_cmd = Command('^', '\x0a\x07', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_curr_cmd = Command('^', '\x0a\x08', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.rename_curr_cmd = Command('^', '\x0a\x09', 'rename_curr', (aksy.devices.akai.sysex_types., aksy.devices.akai.sysex_types.STRING), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.rename_curr_cmd = Command('^', '\x0a\x09', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_program_no_cmd = Command('^', '\x0a\x0A', 'set_program_no', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.add_keygroups_cmd = Command('^', '\x0a\x0B', 'add_keygroups', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_keygroup_cmd = Command('^', '\x0a\x0C', 'delete_keygroup', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -50,7 +50,7 @@ class Programtools:
         self.set_semitone_tune_cmd = Command('^', '\x0a\x30', 'set_semitone_tune', (aksy.devices.akai.sysex_types.SBYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_fine_tune_cmd = Command('^', '\x0a\x31', 'set_fine_tune', (aksy.devices.akai.sysex_types.SBYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_tune_template_cmd = Command('^', '\x0a\x32', 'set_tune_template', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_user_tune_template_cmd = Command('^', '\x0a\x33', 'set_user_tune_template', (aksy.devices.akai.sysex_types.All the values are sent one after the other starting at C. The format of each value is the same as for Item &31{49}. (i.e., 24 data bytes are representing all 12 notes.),), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_user_tune_template_cmd = Command('^', '\x0a\x33', 'set_user_tune_template', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_key_cmd = Command('^', '\x0a\x34', 'set_key', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_semitone_tune_cmd = Command('^', '\x0a\x38', 'get_semitone_tune', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_fine_tune_cmd = Command('^', '\x0a\x39', 'get_fine_tune', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -83,41 +83,39 @@ class Programtools:
         self.get_lfo_sync_cmd = Command('^', '\x0a\x64', 'get_lfo_sync', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_lfo_retrigger_cmd = Command('^', '\x0a\x65', 'get_lfo_retrigger', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_rate_modulation_source_cmd = Command('^', '\x0a\x66', 'get_rate_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_rate_modulation_source_cmd = Command('^', '\x0a\x67', 'get_rate_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_rate_modulation_value_cmd = Command('^', '\x0a\x67', 'get_rate_modulation_value', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_delay_modulation_source_cmd = Command('^', '\x0a\x68', 'get_delay_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_delay_modulation_value_cmd = Command('^', '\x0a\x69', 'get_delay_modulation_value', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_depth_modulation_source_cmd = Command('^', '\x0a\x6A', 'get_depth_modulation_source', (aksy.devices.akai.sysex_types.BYTe,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_depth_modulation_source_cmd = Command('^', '\x0a\x6A', 'get_depth_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_depth_modulation_value_cmd = Command('^', '\x0a\x6B', 'get_depth_modulation_value', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_modwheel_cmd = Command('^', '\x0a\x6C', 'get_modwheel', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_aftertouch_cmd = Command('^', '\x0a\x6D', 'get_aftertouch', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_midi_clock_sync_enabled_cmd = Command('^', '\x0a\x6E', 'get_midi_clock_sync_enabled', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_midi_clock_sync_division_cmd = Command('^', '\x0a\x6F', 'get_midi_clock_sync_division', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_pitch_modulation_source_cmd = Command('^', '\x0a\x70', 'set_pitch_modulation_source', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_amp_modulation_source_cmd = Command('^', '\x0a\x71', 'set_amp_modulation_source', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_filter_modulation_source_cmd = Command('^', '\x0a\x72', 'set_filter_modulation_source', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_pitch_modulation_source_cmd = Command('^', '\x0a\x74', 'get_pitch_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_amp_modulation_source_cmd = Command('^', '\x0a\x75', 'get_amp_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.get_filter_modulation_source_cmd = Command('^', '\x0a\x76', 'get_filter_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
 
     def create_empty(self, arg0):
-        """Create Program: <Data1…0> = Name
+        """Create Program: <Data1> = Name
         """
         return self.sampler.execute(self.create_empty_cmd, (arg0, ))
 
-    def create_new(self, arg0):
-        """Create Program with keygroups. <Data1> = number of keygroups, <Data2…0> = Name
+    def create_new(self, arg0, arg1):
+        """Create Program with keygroups. <Data1> = Name
         """
-        return self.sampler.execute(self.create_new_cmd, (arg0, ))
+        return self.sampler.execute(self.create_new_cmd, (arg0, arg1, ))
 
     def set_curr_by_name(self, arg0):
-        """Select Program (by name) to be current: <Data1…0> = Name
+        """Select Program (by name) to be current: <Data1> = Name
         """
         return self.sampler.execute(self.set_curr_by_name_cmd, (arg0, ))
 
-    def set_curr_by_index(self, arg0):
-        """Select Program (by index) to be current: <Data1> = MSB; <Data2> = LSB (index = LSB +128× MSB).
+    def set_curr_by_handle(self, arg0):
+        """Select Program (by index) to be current: <Data1> = handle.
         """
-        return self.sampler.execute(self.set_curr_by_index_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
     def delete_all(self):
         """Delete ALL programs from memory
@@ -129,13 +127,13 @@ class Programtools:
         """
         return self.sampler.execute(self.delete_curr_cmd, ())
 
-    def rename_curr(self, arg0, arg1):
-        """Rename currently selected Program: <Data1…0> = Name
+    def rename_curr(self, arg0):
+        """Rename currently selected Program: <Data1> = Name
         """
-        return self.sampler.execute(self.rename_curr_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.rename_curr_cmd, (arg0, ))
 
     def set_program_no(self, arg0):
-        """Set “Program Number”. <Data1>: 0=OFF; 1=ON. <Data2>=program number (ony required if <Data1>=1).
+        """Set Program Number. <Data1>=1).
         """
         return self.sampler.execute(self.set_program_no_cmd, (arg0, ))
 
@@ -163,7 +161,7 @@ class Programtools:
         return self.sampler.execute(self.get_no_items_cmd, ())
 
     def get_program_no(self):
-        """Get Current Program’s “Program Number”
+        """Get Current Programs Program Number
 
         Returns:
             BOOL
@@ -204,7 +202,7 @@ class Programtools:
         return self.sampler.execute(self.get_keygroup_xfade_cmd, ())
 
     def get_program_numbers(self):
-        """Get the “Program Numbers” of all the Programs in memory
+        """Get the Program Numbers of all the Programs in memory
 
         Returns:
             BYTE
@@ -225,12 +223,12 @@ class Programtools:
         return self.sampler.execute(self.set_loudness_cmd, (arg0, ))
 
     def set_velocity_sens(self, arg0):
-        """Set Velocity Sensitivity. Values range from −100 to +100, <Data1> = sign (0 = +ve, 1 = −ve), <Data2> = absolute value.
+        """Set Velocity Sensitivity. Values range from 100 to +100, <Data1> = absolute value.
         """
         return self.sampler.execute(self.set_velocity_sens_cmd, (arg0, ))
 
     def set_amp_modulation_source(self, arg0):
-        """Set Amp Mod Source. <Data1> = Amp Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)
+        """Set Amp Mod Source. <Data1> = Modulation Source. (see Table 15)
         """
         return self.sampler.execute(self.set_amp_modulation_source_cmd, (arg0, ))
 
@@ -240,12 +238,12 @@ class Programtools:
         return self.sampler.execute(self.set_amp_modulation_value_cmd, (arg0, arg1, ))
 
     def set_pan_modulation_source(self, arg0, arg1):
-        """Set Pan Mod Source. <Data1> = Pan Mod (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)
+        """Set Pan Mod Source. <Data1> = Modulation Source. (see Table 15)
         """
         return self.sampler.execute(self.set_pan_modulation_source_cmd, (arg0, arg1, ))
 
     def set_pan_modulation_value(self):
-        """Set Pan Mod Value. <Data1> = Pan Mod (1, 2 or 3) <Data2> = sign (0 = +ve, 1 = −ve), <Data3> = absolute value. <Data3>0–100
+        """Set Pan Mod Value. <Data1>0-100
         """
         return self.sampler.execute(self.set_pan_modulation_value_cmd, ())
 
@@ -313,7 +311,7 @@ class Programtools:
         return self.sampler.execute(self.set_tune_template_cmd, (arg0, ))
 
     def set_user_tune_template(self, arg0):
-        """Set User Tune Template.
+        """Set User Tune Template. All the values are sent one after the other starting at C. The format of each value is the same as for Item &31{49}. (i.e., 24 data bytes are representing all 12 notes.)
         """
         return self.sampler.execute(self.set_user_tune_template_cmd, (arg0, ))
 
@@ -467,37 +465,37 @@ class Programtools:
         return self.sampler.execute(self.get_portamento_time_cmd, ())
 
     def set_lfo_rate(self, arg0, arg1):
-        """Set LFO Rate. <Data2> = rate
+        """Set LFO Rate. <Data1> = rate
         """
         return self.sampler.execute(self.set_lfo_rate_cmd, (arg0, arg1, ))
 
     def set_lfo_delay(self, arg0, arg1):
-        """Set LFO Delay. <Data2> = delay
+        """Set LFO Delay. <Data1> = delay
         """
         return self.sampler.execute(self.set_lfo_delay_cmd, (arg0, arg1, ))
 
     def set_lfo_depth(self, arg0, arg1):
-        """Set LFO Depth. <Data2> = depth
+        """Set LFO Depth. <Data1> = depth
         """
         return self.sampler.execute(self.set_lfo_depth_cmd, (arg0, arg1, ))
 
     def set_lfo_waveform(self, arg0, arg1):
-        """Set LFO Waveform. <Data2> = waveform, where: 0=SINE, 1=TRIANGLE, 2=SQUARE, 3=SQUARE+, 4=SQUARE−, 5=SAW BI, 6=SAW UP, 7=SAW DOWN, 8=RANDOM
+        """Set LFO Waveform. <Data1> = waveform, where: 0=SINE, 1=TRIANGLE, 2=SQUARE, 3=SQUARE+, 4=SQUARE, 5=SAW BI, 6=SAW UP, 7=SAW DOWN, 8=RANDOM
         """
         return self.sampler.execute(self.set_lfo_waveform_cmd, (arg0, arg1, ))
 
     def set_lfo_sync(self, arg0, arg1):
-        """Set LFO Sync. <Data2> = (0=OFF, 1=ON). (LFO1 only)
+        """Set LFO Sync. <Data1> = (0=OFF, 1=ON). (LFO1 only)
         """
         return self.sampler.execute(self.set_lfo_sync_cmd, (arg0, arg1, ))
 
     def set_lfo_retrigger(self, arg0, arg1):
-        """Set LFO Re-trigger. <Data2> = (0=OFF, 1=ON). (LFO2 only)
+        """Set LFO Re-trigger. <Data1> = (0=OFF, 1=ON). (LFO2 only)
         """
         return self.sampler.execute(self.set_lfo_retrigger_cmd, (arg0, arg1, ))
 
     def set_rate_modulation_source(self, arg0, arg1):
-        """Set Rate Mod Source <Data2> = Modulation Source. (see Table 15)
+        """Set Rate Mod Source <Data1> = Modulation Source. (see Table 15)
         """
         return self.sampler.execute(self.set_rate_modulation_source_cmd, (arg0, arg1, ))
 
@@ -519,13 +517,13 @@ class Programtools:
         """
         return self.sampler.execute(self.get_rate_modulation_source_cmd, (arg0, ))
 
-    def get_rate_modulation_source(self, arg0):
+    def get_rate_modulation_value(self, arg0):
         """Get Rate Mod Value
 
         Returns:
             SBYTE
         """
-        return self.sampler.execute(self.get_rate_modulation_source_cmd, (arg0, ))
+        return self.sampler.execute(self.get_rate_modulation_value_cmd, (arg0, ))
 
     def get_delay_modulation_source(self, arg0):
         """Get Delay Mod Source
@@ -592,17 +590,12 @@ class Programtools:
         return self.sampler.execute(self.get_midi_clock_sync_division_cmd, (arg0, ))
 
     def set_pitch_modulation_source(self, arg0, arg1):
-        """Set Pitch Mod Source. <Data1> = Pitch Mod (1 or 2) <Data2> = Modulation Source. (see Table 15)
+        """Set Pitch Mod Source. <Data1> = Modulation Source. (see Table 15)
         """
         return self.sampler.execute(self.set_pitch_modulation_source_cmd, (arg0, arg1, ))
 
-    def set_amp_modulation_source(self, arg0, arg1):
-        """Set Amp Mod Source. <Data1> = Amp Mod (1 only) <Data2> = Modulation Source. (see Table 15)
-        """
-        return self.sampler.execute(self.set_amp_modulation_source_cmd, (arg0, arg1, ))
-
     def set_filter_modulation_source(self, arg0, arg1):
-        """Set Filter Mod Input Source. <Data1> = Mod Input (1, 2 or 3) <Data2> = Modulation Source. (see Table 15)
+        """Set Filter Mod Input Source. <Data1> = Modulation Source. (see Table 15)
         """
         return self.sampler.execute(self.set_filter_modulation_source_cmd, (arg0, arg1, ))
 
@@ -613,14 +606,6 @@ class Programtools:
             BYTE
         """
         return self.sampler.execute(self.get_pitch_modulation_source_cmd, (arg0, ))
-
-    def get_amp_modulation_source(self, arg0):
-        """Get Amp Mod Source. <Data1> = Amp Mod (1 only)
-
-        Returns:
-            BYTE
-        """
-        return self.sampler.execute(self.get_amp_modulation_source_cmd, (arg0, ))
 
     def get_filter_modulation_source(self, arg0):
         """Get Filter Mod Input Source. <Data1> = Mod Input (1, 2 or 3)
