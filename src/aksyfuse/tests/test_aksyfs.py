@@ -30,6 +30,9 @@ class AksyFSTest(TestCase): #IGNORE:R0904
                                    debug=0, 
                                    sampleFile=testutil.get_test_resource('test.wav'))
         self.fs = aksyfs.AksyFS(z48)
+        self.fs.getattr('/')
+        self.fs.getattr('/disks')
+        self.fs.getattr('/memory')
         
     def test_getattr(self):
         info = self.fs.getattr('/')
@@ -39,7 +42,6 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.assertRaises(OSError, self.fs.getattr, '/test.doc')
 
     def test_getattr_memory(self):
-        self.fs.getattr('/memory')
         info = self.fs.getattr('/memory/Boo.wav')
         self.assertTrue(S_ISREG(info[ST_MODE]))
         
@@ -49,22 +51,18 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.assertEquals([('memory', 0), ('disks', 0)], root)
 
     def test_getdir_memory(self):
-        self.fs.getattr('/memory')
         memory = self.fs.getdir('/memory')
         self.assertEquals(102, len(memory))
         self.assertEquals(('Boo.wav', 0), memory[0])
 
     def test_getattr_memory_non_existing(self):
-        self.fs.getattr('/memory/subdir')
-        info = self.fs.getattr('/memory/subdir/Boo.wav')
-        self.assertTrue(S_ISREG(info[ST_MODE]))
+        self.assertRaises(OSError, self.fs.getattr, '/memory/subdir')
 
     def test_getattr_rootdisk(self):
         info = self.fs.getattr('/disks')
         self._assertdir(info)
 
     def test_getdir_rootdisk(self):
-        self.fs.getattr('/disks')
         children = self.fs.getdir('/disks')
         self.assertEquals([('Samples disk', 0), ('Cdrom', 0)], children)
 
@@ -78,6 +76,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         children = self.fs.getdir('/disks/Samples disk')
         self.assertEquals([('Autoload', 0), ('Songs', 0)], children)
 
+        self.fs.getattr('/disks/Cdrom')
         info  = self.fs.getattr('/disks/Cdrom/Mellotron Samples')
         children  = self.fs.getdir('/disks/Cdrom/Mellotron Samples')
         self.assertEquals([('Choir', 0), ('A Sample.AKP', 0), ('Sample.wav', 0)], 
@@ -91,6 +90,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.assertRaises(OSError, self.fs.mkdir, '/disks/Cdrom/test', 'mode_ignored')
     
     def test_mkdir(self):
+        self.fs.getattr('/disks/Samples disk')
         self.fs.getattr('/disks/Samples disk/Songs')
         self.assertEquals([], self.fs.getdir('/disks/Samples disk/Songs'))
         newdir = '/disks/Samples disk/Songs/test'
@@ -112,6 +112,8 @@ class AksyFSTest(TestCase): #IGNORE:R0904
 
 
     def test_open_disk(self):
+        self.fs.getattr('/disks/Cdrom')
+        self.fs.getattr('/disks/Cdrom/Mellotron Samples')
         self.fs.getattr('/disks/Cdrom/Mellotron Samples/Choir')
         self.fs.open('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', S_IRUSR)
         self.fs.release('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', 'ignored')
@@ -141,6 +143,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
             os.close(written)
 
     def test_rmdir(self):
+        self.fs.getattr('/disks/Samples disk')
         self.fs.getattr('/disks/Samples disk/Songs')
         path = '/disks/Samples disk/Songs/test'
         self.fs.mkdir(path, 'ignored')

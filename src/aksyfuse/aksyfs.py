@@ -10,7 +10,7 @@ import os.path
 import errno
 
 from aksy.device import Devices
-from aksy import fileutils
+from aksy import fileutils, model
 from aksy.devices.akai.base import SamplerException
 from aksy.devices.akai import sampler as samplermod
 
@@ -107,8 +107,8 @@ class FileInfo(object):
     
     def get_location(self):
         return self.location
-        
-class FSRoot(object):
+
+class FSRoot(model.Container):
     def __init__(self, sampler):
         self.sampler = sampler
         self.file_cache = {} 
@@ -119,30 +119,6 @@ class FSRoot(object):
     def get_children(self):
         return [self.sampler.memory, self.sampler.disks]
 
-    def find_child(self, path):
-        store_name  = _splitpath(path)[0]
-        for store in self.get_children():
-            if store.get_name() == store_name:
-                return store
-        return None
-
-    def get_dir(self, path):
-        if path == '/':
-            return self
-        try:
-            rel_path  = _splitpath(path)[1]
-        except IndexError:
-            raiseException(errno.ENOENT)
-        store = self.find_child(path)
-        if store is None:
-            raiseException(errno.ENOENT)        
-        
-        subdir = store.get_dir(rel_path)
-        if subdir is None:
-            raiseException(errno.ENOENT)
-        
-        return subdir
-        
     def open(self, path, flags, is_modified=False):
         info = self.file_cache.setdefault(path, FileInfo(path, False, flags=flags|os.O_CREAT))
         if not info.is_upload() or not _cache_path_exists(path):
@@ -189,16 +165,13 @@ class FSRoot(object):
     
 class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, sampler):
-        self.flags = 0
         self.multithreaded = 0
         self.debug = True
-        fuse.Fuse.__init__(self, [], fuse_args='-odirect_io')
+        fuse.Fuse.__init__(self, [], fuse_args='-odirect_io=True')
 
         self.root = FSRoot(sampler)
         
-        self.cache = {}
-        self.cache['/memory'] = sampler.memory
-        self.cache['/disks'] = sampler.disks
+        self.cache = { '/': self.root }
         
         stat_home = os.stat(os.path.expanduser('~'))
         self.uid = stat_home[stat.ST_UID]
@@ -207,7 +180,9 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def stat_directory(self, path):
         folder = self.cache.get(path)
         if folder is None:
-            folder = self.root.get_dir(path)
+            folder = self.get_parent(path).get_child(os.path.basename(path))
+            if folder is None:
+                raiseException(errno.ENOENT)
             self.cache[path] = folder
         return stat_dir(self.uid, self.gid, folder.is_writable())
 
@@ -231,12 +206,14 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         cached = self.cache.get(path, None)
         if cached is not None:
             return cached
+        if _cache_path_exists(path):
+            return os.stat(_create_cache_path(path))
         
         file_obj = self.get_file(path)
         if file_obj is None:
             raiseException(errno.ENOENT)
         else:
-            return stat_file(self.uid, self.gid, path, file_obj.get_size(), file_obj.get_modified())
+            return stat_file(self.uid, self.gid, path, file_obj.get_size(), False)
 
     def getattr(self, path):
         print '*** getattr', path
@@ -248,6 +225,8 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def getdir(self, path):
         print '*** getdir', path
         folder = self.cache[path]
+        print folder
+        print folder.get_children()
         return [(child.get_name(), 0) for child in folder.get_children()]
 
     def mkdir(self, path, mode):
