@@ -9,51 +9,61 @@ import os, tempfile
 
 log = logging.getLogger('aksy')
 
-class TestModuleTest(TestCase):
+class TestStatInfo(TestCase):
+    def test_set_owner(self):
+        aksyfs.StatInfo.set_owner(1, 1)
+        self.assertEquals(1, aksyfs.StatInfo.uid)
+        self.assertEquals(1, aksyfs.StatInfo.gid)
+        info = aksyfs.StatInfo(0, 1)
+        self.assertEquals(1, info.st_uid)
+        self.assertEquals(1, info.st_gid)
+
+class TestDirStatInfo(TestCase):
     def test_stat_directory(self):
-        info = aksyfs.stat_dir(1000, 1000)
-        self.assertTrue(S_ISDIR(info[ST_MODE]))
-        self.assertEquals(len(os.stat('/')), len(info))
+        info = aksyfs.DirStatInfo()
+        self.assertTrue(S_ISDIR(info.st_mode))
 
+class TestFileStatInfo(TestCase):
     def test_stat_file(self):
-        info = aksyfs.stat_file(1000, 1000, 'test.akp')
-        self.assertFalse(S_ISDIR(info[ST_MODE]))
-        self.assertEquals(len(os.stat('/')), len(info))
-        self.assertEquals(16*1024, info[ST_SIZE])
-
+        info = aksyfs.FileStatInfo('test.akp', None)
+        self.assertFalse(S_ISDIR(info.st_mode))
+        self.assertEquals(16*1024, info.st_size)
+        self.assertTrue(S_ISREG(info.st_mode))
+        
 class AksyFSTest(TestCase): #IGNORE:R0904
     def _assertdir(self, info):
-        self.assertTrue(S_ISDIR(info[ST_MODE]))
+        self.assertTrue(S_ISDIR(info.st_mode))
         
     def setUp(self):
         z48 = Devices.get_instance('mock_z48', None, 
                                    debug=0, 
                                    sampleFile=testutil.get_test_resource('test.wav'))
-        self.fs = aksyfs.AksyFS(z48)
+        self.fs = aksyfs.AksyFS()
+        self.fs.init_sampler(z48)
         self.fs.getattr('/')
         self.fs.getattr('/disks')
         self.fs.getattr('/memory')
         
     def test_getattr(self):
         info = self.fs.getattr('/')
-        self.assertTrue(S_ISDIR(info[ST_MODE]))
+        self._assertdir(info)
     
     def test_getattr_unsupported(self):
         self.assertRaises(OSError, self.fs.getattr, '/test.doc')
 
     def test_getattr_memory(self):
         info = self.fs.getattr('/memory/Boo.wav')
-        self.assertTrue(S_ISREG(info[ST_MODE]))
+        self.assertTrue(S_ISREG(info.st_mode))
         
-    def test_getdir(self):
+    def test_readdir(self):
         self.fs.getattr('/')
-        root = self.fs.getdir('/')
-        self.assertEquals([('memory', 0), ('disks', 0)], root)
+        root = self.fs.readdir('/', 0)
+        self.assert_dirlist(('memory', 'disks'), root)
 
-    def test_getdir_memory(self):
-        memory = self.fs.getdir('/memory')
+    def test_readdir_memory(self):
+        memory = list(self.fs.readdir('/memory', 0))
         self.assertEquals(102, len(memory))
-        self.assertEquals(('Boo.wav', 0), memory[0])
+        self.assertEquals('Boo.wav', memory[0].name)
 
     def test_getattr_memory_non_existing(self):
         self.assertRaises(OSError, self.fs.getattr, '/memory/subdir')
@@ -62,26 +72,30 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         info = self.fs.getattr('/disks')
         self._assertdir(info)
 
-    def test_getdir_rootdisk(self):
-        children = self.fs.getdir('/disks')
-        self.assertEquals([('Samples disk', 0), ('Cdrom', 0)], children)
+    def test_readdir_rootdisk(self):
+        children = self.fs.readdir('/disks', 0)
+        self.assert_dirlist(('Samples disk', 'Cdrom',), children)
 
-    def test_getdir_with_spaces(self):
+    def test_readdir_with_spaces(self):
         info  = self.fs.getattr('/disks/Cdrom')
-        self.assertEquals([('Mellotron Samples', 0)], self.fs.getdir('/disks/Cdrom'))
+        self.assert_dirlist(('Mellotron Samples',), self.fs.readdir('/disks/Cdrom', 0))
         
-    def test_getdir_disk(self):
+    def test_readdir_disk(self):
         info  = self.fs.getattr('/disks/Samples disk')
         self._assertdir(info)
-        children = self.fs.getdir('/disks/Samples disk')
-        self.assertEquals([('Autoload', 0), ('Songs', 0)], children)
+        children = self.fs.readdir('/disks/Samples disk', 0)
+        self.assert_dirlist(('Autoload', 'Songs'), children)
 
+    def test_readdir_disk_nested(self):
         self.fs.getattr('/disks/Cdrom')
         info  = self.fs.getattr('/disks/Cdrom/Mellotron Samples')
-        children  = self.fs.getdir('/disks/Cdrom/Mellotron Samples')
-        self.assertEquals([('Choir', 0), ('A Sample.AKP', 0), ('Sample.wav', 0)], 
-                          children)
+        children  = self.fs.readdir('/disks/Cdrom/Mellotron Samples', 0)
+        self.assert_dirlist(('Choir','A Sample.AKP','Sample.wav'), children)
 
+    def assert_dirlist(self, expected, actual):
+        actual = [entry.name for entry in actual]
+        self.assertEquals(tuple(expected), tuple(actual))
+            
     def test_mkdir_unsupported(self):
         self.assertRaises(OSError, self.fs.mkdir, '/memory/subdir', 'mode_ignored')
 
@@ -92,50 +106,34 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     def test_mkdir(self):
         self.fs.getattr('/disks/Samples disk')
         self.fs.getattr('/disks/Samples disk/Songs')
-        self.assertEquals([], self.fs.getdir('/disks/Samples disk/Songs'))
+        self.assert_dirlist([], self.fs.readdir('/disks/Samples disk/Songs', 0))
         newdir = '/disks/Samples disk/Songs/test'
         self.fs.mkdir(newdir, 'mode_ignored')
-        self.assertEquals([('test', 0)], 
-                          self.fs.getdir('/disks/Samples disk/Songs'))
+        self.assert_dirlist(('test',), 
+                          self.fs.readdir('/disks/Samples disk/Songs', 0))
         self.assertNotEquals(None, self.fs.getattr(newdir))
-
-    def test_open_memory(self):
-        path = '/memory/Sample99.wav'
-        try:
-            self.fs.open(path, S_IRUSR)
-            info = self.fs.root.file_cache[path]
-            self.assertEquals(os.stat(testutil.get_test_resource('test.wav'))[ST_SIZE], 
-                              os.fstat(info.get_handle())[ST_SIZE])
-        finally:
-            self.fs.release(path, 'ignored')
-            self.assertEquals(None, self.fs.root.file_cache.get(path, None))
-
 
     def test_open_disk(self):
         self.fs.getattr('/disks/Cdrom')
         self.fs.getattr('/disks/Cdrom/Mellotron Samples')
         self.fs.getattr('/disks/Cdrom/Mellotron Samples/Choir')
-        self.fs.open('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', S_IRUSR)
-        self.fs.release('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', 'ignored')
-
-    def test_release(self):
-        # should not throw
-        self.fs.release('/non-existent', 'ignored')
+        afile = aksyfs.AksyFile('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', S_IRUSR)
+        afile.release('ignored')
 
     def test_read(self):
-        tmp_file = self._prep_file()
+        afile = aksyfs.AksyFile('/memory/Sample100.wav', os.O_RDONLY|S_IRUSR)
         try:
-            read = self.fs.read('file', 10, 0)
-            self.assertEquals('abc' + aksyfs.EOF, read)
+            read = afile.read(4, 0)
+            self.assertEquals('RIFF', read)
         finally:
-            os.close(tmp_file)
+            afile.release('ignored')
 
     def test_mknod_write(self):
         path = '/memory/Sample100.wav'
         self.fs.mknod(path, 0, 'ignored')
-        self.fs.open('/memory/Sample100.wav', S_IRUSR)
-        self.fs.write(path, 'abc', 0)
-        self.fs.release(path, 'ignored')
+        afile = aksyfs.AksyFile('/memory/Sample100.wav', os.O_WRONLY|S_IRUSR)
+        afile.write('abc', 0)
+        afile.release('ignored')
         written = os.open(aksyfs._create_cache_path(path), os.O_RDONLY)
         try:
             self.assertEquals('abc', os.read(written, 3))
@@ -166,13 +164,6 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.fs.unlink(path)
         self.assertRaises(OSError, self.fs.getattr, path)
     
-    def _prep_file(self):
-        tmp_file = tempfile.mkstemp('aksy_test')[0]
-        os.write(tmp_file, 'abc')
-        self.fs.root.file_cache['file'] = aksyfs.FileInfo('/memory/sample.wav', 
-                                                          False, handle=tmp_file)
-        return tmp_file
-
 def test_suite():
     testloader = TestLoader()
     return testloader.loadTestsFromName('aksyfuse.tests.test_aksyfs')
