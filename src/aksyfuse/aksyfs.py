@@ -176,15 +176,12 @@ class AksyFile(fuse.FuseFileInfo):
 
 class FSStatInfo(fuse.StatVfs):
     def __init__(self, mem_total, mem_free):
+        fuse.StatVfs.__init__(self)
         self.f_bsize = 1024
         self.f_frsize = 1024
         self.f_blocks = mem_total
         self.f_bfree = mem_free
         self.f_bavail = mem_free
-        self.f_files = 0
-        self.f_ffree = 0
-        self.f_flag = 0
-        self.f_namemax = 80
 
 class FSRoot(model.Container):
     def __init__(self, sampler):
