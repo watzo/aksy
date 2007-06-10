@@ -59,9 +59,10 @@
 #define GET_S56K_BLOCK_SIZE GET_BYTES_TRANSFERRED
 
 /* Useless facts: 0x41 0x6b 0x61 0x49: AkaI in ascii */
-#define IS_SAMPLER_BUSY(buffer) (buffer[0] == 0x41 && buffer[1] == 0x6b && buffer[2] == 0x61 && buffer[3] == 0x49)
+#define IS_SAMPLER_BUSY(buffer, length) (length == 4 && buffer[0] == 0x41 && buffer[1] == 0x6b && buffer[2] == 0x61 && buffer[3] == 0x49)
 #define IS_INVALID_FILE_ERROR(buffer) (buffer[0] == 0x1)
 #define IS_TRANSFER_FINISHED(buffer) (buffer[0] == 0x0)
+#define CONTAINS_MSG_END(buffer, length) (buffer[length - 1] == -9)
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 #define ENDSWAP_SHORT(x) ((((x)>>8)&0xFF)+(((x)&0xFF)<<8))

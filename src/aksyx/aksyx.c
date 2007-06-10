@@ -111,43 +111,34 @@ AkaiSampler_get(AkaiSampler* self, PyObject* args)
 
     if (!self->sampler)
     {
-        PyErr_Format(USBException, "Device is not initialized.");
-		return NULL;
+        return PyErr_Format(USBException, "Device is not initialized.");
     }
-
 
     if(!PyArg_ParseTuple(args, "ssb", &src, &dest, &location))
     {
         return NULL;
     }
-    else
-    {
-        /* create get request */
-        rc = aksyxusb_device_get(self->sampler, src, dest, location, &sysex_error, USB_TIMEOUT);
 
-        if (rc)
-        {
-            switch(rc)
-            {
-                case AKSY_FILE_NOT_FOUND:
-                    return PyErr_Format(PyExc_IOError, "File not found");
-                case AKSY_INVALID_FILENAME:
-                    return PyErr_Format(TransferException, "Invalid file name");
-                case AKSY_UNSUPPORTED_FILETYPE:
-                    return PyErr_Format(TransferException, "Invalid file type");
-                case AKSY_TRANSMISSION_ERROR:
-                    return PyErr_Format(USBException, "USB transmission error");
-                case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(SysexException, self->sampler->get_sysex_error_msg(sysex_error));
-                default:
-                    return PyErr_Format(TransferException, "Unknown exception during transfer");
-            }
-        }
-        else
-        {
+    /* create get request */
+    rc = aksyxusb_device_get(self->sampler, src, dest, location, &sysex_error, USB_TIMEOUT);
+
+    switch(rc)
+    {
+    	case AKSY_SUCCESS:
             Py_INCREF(Py_None);
-            return Py_None;
-        }
+		    return Py_None;
+        case AKSY_FILE_NOT_FOUND:
+            return PyErr_Format(PyExc_IOError, "File not found");
+        case AKSY_INVALID_FILENAME:
+            return PyErr_Format(TransferException, "Invalid file name");
+        case AKSY_UNSUPPORTED_FILETYPE:
+            return PyErr_Format(TransferException, "Invalid file type");
+        case AKSY_TRANSMISSION_ERROR:
+            return PyErr_Format(USBException, "USB transmission error");
+        case AKSY_SYSEX_ERROR:
+            return PyErr_Format(SysexException, self->sampler->get_sysex_error_msg(sysex_error));
+        default:
+            return PyErr_Format(TransferException, "Unknown exception during transfer");
     }
 }
 
@@ -163,36 +154,30 @@ AkaiSampler_put(AkaiSampler* self, PyObject* args)
     {
         return NULL;
     }
-    else
+ 
+    rc = aksyxusb_device_put(self->sampler, src, dest, location, USB_TIMEOUT);
+ 
+    switch(rc)
     {
-        rc = aksyxusb_device_put(self->sampler, src, dest, location, USB_TIMEOUT);
-        if (rc)
-        {
-            switch(rc)
-            {
-                case AKSY_FILE_NOT_FOUND:
-                    return PyErr_Format(PyExc_IOError, "File not found");
-                case AKSY_FILE_STAT_ERROR:
-                    return PyErr_Format(PyExc_IOError, "Could not get file size");
-                case AKSY_EMPTY_FILE_ERROR:
-                    return PyErr_Format(TransferException, "Cowardly refusing to transfer an empty file");
-                case AKSY_FILE_READ_ERROR:
-                    return PyErr_Format(PyExc_IOError, "Error reading file");
-                case AKSY_INVALID_FILE:
-                    return PyErr_Format(TransferException, "Unsupported type or corrupted file");
-                case AKSY_TRANSMISSION_ERROR:
-                    return PyErr_Format(USBException, "USB transmission error");
-                case AKSY_SYSEX_ERROR:
-                    return PyErr_Format(SysexException, self->sampler->get_sysex_error_msg(rc));
-                default:
-                    return PyErr_Format(TransferException, "Unknown error");
-            }
-        }
-        else
-        {
-            Py_INCREF(Py_None);
-            return Py_None;
-        }
+    	case AKSY_SUCCESS:	
+    	    Py_INCREF(Py_None);
+		    return Py_None;
+        case AKSY_FILE_NOT_FOUND:
+            return PyErr_Format(PyExc_IOError, "File not found");
+        case AKSY_FILE_STAT_ERROR:
+            return PyErr_Format(PyExc_IOError, "Could not get file size");
+        case AKSY_EMPTY_FILE_ERROR:
+            return PyErr_Format(TransferException, "Cowardly refusing to transfer an empty file");
+        case AKSY_FILE_READ_ERROR:
+            return PyErr_Format(PyExc_IOError, "Error reading file");
+        case AKSY_INVALID_FILE:
+            return PyErr_Format(TransferException, "Unsupported type or corrupted file");
+        case AKSY_TRANSMISSION_ERROR:
+            return PyErr_Format(USBException, "USB transmission error");
+        case AKSY_SYSEX_ERROR:
+            return PyErr_Format(SysexException, self->sampler->get_sysex_error_msg(rc));
+        default:
+            return PyErr_Format(TransferException, "Unknown error code: %i", rc);
     }
 }
 
@@ -210,7 +195,7 @@ static PyObject* AkaiSampler_getlcd(AkaiSampler* self)
 
     if (rc == AKSY_TRANSMISSION_ERROR)
     {
-        ret = PyErr_Format(PyExc_Exception, "Timeout waiting for sysex reply.");
+        ret = PyErr_Format(USBException, "Timeout waiting for sysex reply.");
     }
     else
     {
@@ -230,29 +215,35 @@ AkaiSampler_execute(AkaiSampler* self, PyObject* args)
     const int BUFF_SIZE = 8192;
     int bytes_read = 0, rc;
 
-    if(!PyArg_ParseTuple(args, "s#", &sysex.bytes, &sysex.length))
-    {
+    if (!PyArg_ParseTuple(args, "s#", &sysex.bytes, &sysex.length)) {
         return NULL;
+    }
+    
+	/* 
+	 * use malloc() instead of PyMem_Alloc here because aksyxusb_device_exec_sysex() 
+	 * will realloc() the buffer when it needs to grow.
+	 */ 
+	buffer.length = BUFF_SIZE;
+    buffer.bytes = (char*)malloc(buffer.length * sizeof(char));
+
+	if (buffer.bytes == NULL) {
+		return PyErr_NoMemory();
+	}
+	
+    rc = aksyxusb_device_exec_sysex(
+        self->sampler, &sysex, &buffer, &bytes_read, USB_TIMEOUT);
+
+    if (rc == AKSY_TRANSMISSION_ERROR)
+    {
+        ret = PyErr_Format(USBException, "Timeout waiting for sysex reply.");
     }
     else
     {
-	buffer.length = BUFF_SIZE;
-        buffer.bytes = (char*)PyMem_Malloc(buffer.length * sizeof(char));
-
-        rc = aksyxusb_device_exec_sysex(
-            self->sampler, &sysex, &buffer, &bytes_read, USB_TIMEOUT);
-
-        if (rc == AKSY_TRANSMISSION_ERROR)
-        {
-            ret = PyErr_Format(PyExc_Exception, "Timeout waiting for sysex reply.");
-        }
-        else
-        {
-            ret = Py_BuildValue("s#", buffer.bytes, bytes_read);
-        }
-        PyMem_Free(buffer.bytes);
-        return ret;
+        ret = Py_BuildValue("s#", buffer.bytes, bytes_read);
     }
+
+	free(buffer.bytes);
+    return ret;
 }
 
 static PyMemberDef AkaiSampler_members[] = {

@@ -21,9 +21,12 @@
     #define inline _inline
 #endif
 
-static inline int sysex_reply_ok(char* sysex_reply) {
+static inline int sysex_reply_ok(char* sysex_reply, int sysex_reply_length) {
     int userref_length = (sysex_reply[3] >> 4);
     int index = userref_length + 4;
+    if (sysex_reply_length < index) {
+    	return 0;
+    }
     assert(userref_length >=0 && userref_length <= 3);
     return sysex_reply[index] == SYSEX_OK;
 }
@@ -314,12 +317,12 @@ int aksyxusb_device_exec_finishlcd(const akai_usb_device akai_dev, const byte_ar
     log_hex(result_buff->bytes, rc, "Reply 1: ");
 #endif
 
-    while (rc == 4 && IS_SAMPLER_BUSY(result_buff->bytes)) {
+    while (IS_SAMPLER_BUSY(result_buff->bytes, rc)) {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
         log_hex(result_buff->bytes, rc, "Reply: ");
     }
 
-    if (rc > 4 && sysex_reply_ok(result_buff->bytes))
+    if (rc > 4 && sysex_reply_ok(result_buff->bytes, rc))
     {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
 
@@ -367,12 +370,12 @@ int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array
     log_hex(result_buff->bytes, rc, "Reply 1: ");
 #endif
 
-    while (rc == 4 && IS_SAMPLER_BUSY(result_buff->bytes)) {
+    while (IS_SAMPLER_BUSY(result_buff->bytes, rc)) {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
         log_hex(result_buff->bytes, rc, "Reply: ");
     }
 
-    if (rc > 4 && sysex_reply_ok(result_buff->bytes)) {
+    if (rc > 4 && sysex_reply_ok(result_buff->bytes, rc)) {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
 
         if (rc < 0) {
@@ -394,6 +397,7 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     struct byte_array request;
     char byte1 = (char)sysex->length;
     char byte2 = (char)(sysex->length>>8);
+    char* curr_index = NULL;
     request.length = sysex->length+3;
     request.bytes = (char*) malloc(request.length);
     memset(request.bytes, CMD_EXEC_SYSEX, 1);
@@ -409,43 +413,38 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
 
     free(request.bytes);
 
-    if (rc < 0)
-    {
+    if (rc < 0) {
         return AKSY_TRANSMISSION_ERROR;
     }
 
-    rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-
-    if (rc < 0)
-    {
-        return AKSY_TRANSMISSION_ERROR;
-    }
-
+    do {
+    	curr_index = result_buff->bytes + *bytes_read;
+        rc = usb_bulk_read(akai_dev->dev, EP_IN, curr_index, result_buff->length - *bytes_read, timeout);
 #if (AKSY_DEBUG == 1)
-    log_hex(result_buff->bytes, rc, "Reply 1: ");
+		log_hex(curr_index, rc, "Reply (length: %i): ", rc);
 #endif
 
-    while (rc == 4 && IS_SAMPLER_BUSY(result_buff->bytes)) {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-	log_hex(result_buff->bytes, rc, "Reply: ");
-    }
+		if (rc < 0) {
+		    return AKSY_TRANSMISSION_ERROR;
+		}
 
-    if (rc > 4 && sysex_reply_ok(result_buff->bytes))
-    {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
+		if (IS_SAMPLER_BUSY(curr_index, rc) || sysex_reply_ok(curr_index, rc)) {
+			continue;
+		}
+		
+		*bytes_read += rc;
 
-	if (rc < 0) {
-	    return AKSY_TRANSMISSION_ERROR;
-	}
+		if (CONTAINS_MSG_END(curr_index, rc)) {
+		    return AKSY_SUCCESS;
+		}
 
-#if (AKSY_DEBUG == 1)
-	log_hex(result_buff->bytes, rc, "Reply 2: ");
-#endif
+		if (*bytes_read == result_buff->length) {		
+			result_buff->length *= 2;
+			result_buff->bytes = (char*)realloc(result_buff->bytes, result_buff->length * sizeof(char));
+		}
+    } while (1);
 
-    }
-
-    *bytes_read = rc;
-    return AKSY_SUCCESS;
+	return AKSY_TRANSMISSION_ERROR;
 }
 
 int z48_get_handle_by_name(akai_usb_device akai_dev,
@@ -657,7 +656,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	    continue;
 	}
 	else if (rc == 4) {
-	    if (IS_SAMPLER_BUSY(data)) {
+	    if (IS_SAMPLER_BUSY(data, rc)) {
 		continue;
 	    }
 	    /* s56k protocol only returns block size */
@@ -869,7 +868,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
 	    	break;
 		}
 
-        if (rc == 4 && IS_SAMPLER_BUSY(reply_buf)) {
+        if (IS_SAMPLER_BUSY(reply_buf, rc)) {
             continue;
         }
         else if (rc == 8) {
