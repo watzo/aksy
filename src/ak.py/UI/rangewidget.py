@@ -1,5 +1,5 @@
 import pygtk
-import gobject,gtk.glade,gtk,aksy,UI,cairo,urllib,main2
+import gobject,gtk.glade,gtk,aksy,UI,cairo,urllib
 
 from urlparse import urlparse
 from urllib import *
@@ -8,7 +8,6 @@ from UI.hitbox import *
 from UI.widget import *
 from utils.midiutils import *
 from ak import *
-from main2 import Main
 
 class SliderWidget(HitBox):
     def __init__(self, min, max, w, h, value_descriptions = None, is_scaled = True, index = 0):

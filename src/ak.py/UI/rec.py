@@ -1,7 +1,4 @@
-import os,os.path,re,logging,sys,struct,math,traceback
-import pygtk
-import inspect
-import gobject,gtk.glade,gtk
+import gobject, gtk.glade, gtk
 
 from UI.base import base
 
