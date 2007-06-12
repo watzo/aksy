@@ -370,7 +370,7 @@ int aksyxusb_device_read(const akai_usb_device akai_dev,
 			continue;
 		}
 		
-		if (IS_LCD_END_MSG(curr_index)) {
+		if (IS_LCD_END_MSG(curr_index, rc)) {
 			return AKSY_SUCCESS;
 		}
 		
