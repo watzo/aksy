@@ -7,10 +7,9 @@ try:
 except ImportError:
     print "Profiler not available"
 
-import os,os.path,re,logging,sys,struct,math,traceback
 import pygtk
 pygtk.require('2.0')
-import gtk,gtk.glade,gobject
+import gtk, gtk.glade, gobject
 import aksy
 
 # our stuff
@@ -355,8 +354,6 @@ def main():
         z48.close()
 
 if __name__ == "__main__":
-    log = logging.getLogger("aksy")
-
     prof = hotshot.Profile("ak.py.prof")
     prof.runcall(main)
     """
