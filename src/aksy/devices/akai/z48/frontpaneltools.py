@@ -11,6 +11,8 @@ from aksy.devices.akai.sysex import Command
 
 import aksy.devices.akai.sysex_types
 
+from aksy.devices.akai import base
+
 class Frontpaneltools:
     def __init__(self, z48):
         self.sampler = z48
@@ -20,8 +22,8 @@ class Frontpaneltools:
         self.keypress_release_cmd = Command('_', '\x2C\x02', 'keypress_release', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.move_datawheel_cmd = Command('_', '\x2C\x03', 'move_datawheel', (aksy.devices.akai.sysex_types.SBYTE,), None)
         self.set_qlink_control_cmd = Command('_', '\x2C\x04', 'set_qlink_control', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
-        self.asciikeypress_hold_cmd = Command('_', '\x2C\x10', 'asciikeypress_hold', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD), None)
-        self.asciikeypress_release_cmd = Command('_', '\x2C\x11', 'asciikeypress_release', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD), None)
+        self.ascii_keypress_hold_cmd = Command('_', '\x2C\x10', 'ascii_keypress_hold', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD), None)
+        self.ascii_keypress_release_cmd = Command('_', '\x2C\x11', 'ascii_keypress_release', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD), None)
 
     def mouseclick_at_screen(self, arg0, arg1):
         """Perform a mouse click
@@ -53,13 +55,13 @@ class Frontpaneltools:
         """
         return self.sampler.execute(self.set_qlink_control_cmd, (arg0, arg1, ))
 
-    def asciikeypress_hold(self, arg0, arg1):
+    def ascii_keypress_hold(self, arg0, arg1):
         """Perform ascii key hold
         """
-        return self.sampler.execute(self.asciikeypress_hold_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.ascii_keypress_hold_cmd, (arg0, arg1, ))
 
-    def asciikeypress_release(self, arg0, arg1):
+    def ascii_keypress_release(self, arg0, arg1):
         """Perform ascii key release
         """
-        return self.sampler.execute(self.asciikeypress_release_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.ascii_keypress_release_cmd, (arg0, arg1, ))
 
