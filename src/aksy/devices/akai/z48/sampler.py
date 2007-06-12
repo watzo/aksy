@@ -1,7 +1,7 @@
 import logging
 
 import sysextools, disktools, programtools, multitools, songtools, multifxtools
-import sampletools, systemtools, recordingtools, keygrouptools, zonetools
+import sampletools, systemtools, recordingtools, keygrouptools, zonetools, frontpaneltools
 from aksy.devices.akai.sampler import Sampler
 from aksy import model
 
@@ -31,6 +31,7 @@ class Z48(Sampler):
         self.systemtools = systemtools.Systemtools(self)
         self.sysextools = sysextools.Sysextools(self)
         self.recordingtools = recordingtools.Recordingtools(self)
+        self.frontpaneltools = frontpaneltools.Frontpaneltools(self)
 
     def setup_model(self):
         model.register_handlers({model.Disk: self.disktools,
