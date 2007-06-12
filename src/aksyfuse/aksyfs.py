@@ -173,7 +173,6 @@ class AksyFile(fuse.FuseFileInfo):
     def get_location(self):
         return self.location
 
-
 class FSStatInfo(fuse.StatVfs):
     def __init__(self, mem_total, mem_free):
         fuse.StatVfs.__init__(self)
@@ -196,6 +195,7 @@ class FSRoot(model.Container):
 class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, *args, **kw):
         fuse.Fuse.__init__(self, *args, **kw)
+        self.sampler_id = 'mock_z48'
         self.file_class = AksyFile
         stat_home = os.stat(os.path.expanduser('~'))
         StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
