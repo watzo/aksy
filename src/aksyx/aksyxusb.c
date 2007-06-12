@@ -303,101 +303,11 @@ char* s56k_get_sysex_error_msg(int code) {
     }
 }
 
-int aksyxusb_device_exec_finishlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout) {
-    int rc;
-
-    rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-
-    if (rc < 0)
-    {
-        return AKSY_TRANSMISSION_ERROR;
-    }
-
-#if (AKSY_DEBUG == 1)
-    log_hex(result_buff->bytes, rc, "Reply 1: ");
-#endif
-
-    while (IS_SAMPLER_BUSY(result_buff->bytes, rc)) {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-        log_hex(result_buff->bytes, rc, "Reply: ");
-    }
-
-    if (rc > 4 && sysex_reply_ok(result_buff->bytes, rc))
-    {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-
-        if (rc < 0) {
-            return AKSY_TRANSMISSION_ERROR;
-        }
-
-#if (AKSY_DEBUG == 1)
-        log_hex(result_buff->bytes, rc, "Reply 2: ");
-#endif
-    }
-
-    *bytes_read = rc;
-    return AKSY_SUCCESS;
-}
-
-int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout)
-{
-    int rc;
-    struct byte_array request;
-    request.length = 2;
-    request.bytes = (char*) malloc(request.length);
-    memset(request.bytes, 0x01, 1);
-    memset(request.bytes+1, 0x00, 1);
-
-#if (AKSY_DEBUG == 1)
-    log_hex(request.bytes, request.length, "Request: ");
-#endif
-
-    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request.bytes, request.length, timeout);
-
-    free(request.bytes);
-
-    if (rc < 0) {
-        return AKSY_TRANSMISSION_ERROR;
-    }
-
-    rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-
-    if (rc < 0) {
-        return AKSY_TRANSMISSION_ERROR;
-    }
-
-#if (AKSY_DEBUG == 1)
-    log_hex(result_buff->bytes, rc, "Reply 1: ");
-#endif
-
-    while (IS_SAMPLER_BUSY(result_buff->bytes, rc)) {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-        log_hex(result_buff->bytes, rc, "Reply: ");
-    }
-
-    if (rc > 4 && sysex_reply_ok(result_buff->bytes, rc)) {
-        rc = usb_bulk_read(akai_dev->dev, EP_IN, result_buff->bytes, result_buff->length, timeout);
-
-        if (rc < 0) {
-            return AKSY_TRANSMISSION_ERROR;
-        }
-
-#if (AKSY_DEBUG == 1)
-        log_hex(result_buff->bytes, rc, "Reply 2: ");
-#endif
-    }
-
-    *bytes_read = rc;
-    return AKSY_SUCCESS;
-}
-
 int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     const byte_array sysex, const byte_array result_buff, int* const bytes_read, const int timeout) {
-    int rc;
     struct byte_array request;
     char byte1 = (char)sysex->length;
     char byte2 = (char)(sysex->length>>8);
-    char* curr_index = NULL;
     request.length = sysex->length+3;
     request.bytes = (char*) malloc(request.length);
     memset(request.bytes, CMD_EXEC_SYSEX, 1);
@@ -405,17 +315,44 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     memcpy(request.bytes+2, &byte2, 1);
     memcpy(request.bytes+3, sysex->bytes, sysex->length);
 
+	return aksyxusb_device_exec(akai_dev, &request, result_buff, bytes_read, timeout);
+}
+
+int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout) {
+    struct byte_array request;
+    int rc;
+    char* buf = NULL;
+    request.length = 2;
+    request.bytes = (char*) malloc(request.length);
+    memset(request.bytes, 0x01, 1);
+    memset(request.bytes+1, 0x00, 1);
+
+	return aksyxusb_device_exec(akai_dev, &request, result_buff, bytes_read, timeout);
+}
+
+int aksyxusb_device_exec(const akai_usb_device akai_dev,
+    const byte_array request, const byte_array result_buff, int* const bytes_read, const int timeout) {
+    int rc;
+
 #if (AKSY_DEBUG == 1)
-    log_hex(request.bytes, request.length, "Request: ");
+    log_hex(request->bytes, request->length, "Request: ");
 #endif
 
-    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request.bytes, request.length, timeout);
-
-    free(request.bytes);
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request->bytes, request->length, timeout);
 
     if (rc < 0) {
         return AKSY_TRANSMISSION_ERROR;
     }
+
+    free(request->bytes);
+
+	return aksyxusb_device_read(akai_dev, result_buff, bytes_read, timeout);
+}
+
+int aksyxusb_device_read(const akai_usb_device akai_dev,
+    const byte_array result_buff, int* const bytes_read, const int timeout) {
+    char* curr_index = NULL;
+    int rc;
 
     do {
     	curr_index = result_buff->bytes + *bytes_read;
@@ -432,9 +369,13 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
 			continue;
 		}
 		
+		if (IS_LCD_END_MSG(curr_index)) {
+			return AKSY_SUCCESS;
+		}
+		
 		*bytes_read += rc;
 
-		if (CONTAINS_MSG_END(curr_index, rc)) {
+		if (CONTAINS_SYSEX_MSG_END(curr_index, rc)) {
 		    return AKSY_SUCCESS;
 		}
 

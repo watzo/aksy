@@ -62,7 +62,8 @@
 #define IS_SAMPLER_BUSY(buffer, length) (length == 4 && buffer[0] == 0x41 && buffer[1] == 0x6b && buffer[2] == 0x61 && buffer[3] == 0x49)
 #define IS_INVALID_FILE_ERROR(buffer) (buffer[0] == 0x1)
 #define IS_TRANSFER_FINISHED(buffer) (buffer[0] == 0x0)
-#define CONTAINS_MSG_END(buffer, length) (buffer[length - 1] == -9)
+#define CONTAINS_SYSEX_MSG_END(buffer, length) (buffer[length - 1] == -9)
+#define IS_LCD_END_MSG(buffer) (buffer[0] == 0x1 && buffer[1] == 0x0)
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 #define ENDSWAP_SHORT(x) ((((x)>>8)&0xFF)+(((x)&0xFF)<<8))
@@ -213,6 +214,7 @@ int aksyxusb_device_close(const akai_usb_device akai_dev);
  */
 int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev, const byte_array sysex, const byte_array reply, int* const bytes_read, const int timeout);
 int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array reply, int* const bytes_read, const int timeout);
+
 /* executes a system exclusive command on the sampler.
  *
  * the caller is responsible to allocate enough memory to contain the response data, including type bytes
@@ -221,6 +223,14 @@ int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array
  */
 int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char* cmd, const byte_array arg_data,
 			     const byte_array response, int* error, const int timeout);
+
+/* executes a a raw request on the sampler. */
+int aksyxusb_device_exec(const akai_usb_device akai_dev,
+    const byte_array request, const byte_array result_buff, int* const bytes_read, const int timeout);
+
+/* reads a raw response from the sampler. */
+int aksyxusb_device_read(const akai_usb_device akai_dev,
+    const byte_array result_buff, int* const bytes_read, const int timeout);
 
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated byte_array
@@ -250,5 +260,3 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
  */
 int aksyxusb_device_get(const akai_usb_device akai_dev,
     char *src_filename, char *dest_filename, const int location, int* sysex_error, const int timeout);
-
-int aksyxusb_device_exec_finishlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout);
