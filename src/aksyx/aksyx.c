@@ -276,8 +276,9 @@ static PyTypeObject aksyx_AkaiSamplerType = {
     0,                         /* tp_dictoffset */
     (initproc)AkaiSampler_init,/* tp_init */
     0,                         /* tp_alloc */
-    PyType_GenericNew,         /* tp_new */
-};
+    NULL,                      /* tp_new is set on module init to prevent
+                                  compilation failure with Mingw compiler */ 
+    };
 
 static PyMethodDef aksyx_methods[] = { {NULL} };
 
@@ -291,6 +292,8 @@ PyMODINIT_FUNC initaksyx(void) {
     PyObject* z48_usb_id;
     PyObject* s56k_usb_id;
     PyObject* mpc4k_usb_id;
+
+    aksyx_AkaiSamplerType.tp_new = PyType_GenericNew;
 
     if (PyType_Ready(&aksyx_AkaiSamplerType) < 0)
         return;
