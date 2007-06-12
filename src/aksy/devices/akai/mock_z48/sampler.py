@@ -7,7 +7,7 @@ import errno
 log = logging.getLogger('aksy')
 
 class MockZ48(Z48):
-    def __init__(self, debug=1, sampleFile=None):
+    def __init__(self, debug=1, sampleFile=''):
         self.debug = debug
         self.sampleFile = sampleFile
         self.setup_tools()
@@ -25,11 +25,8 @@ class MockZ48(Z48):
     def get(self, filename, destpath=None, source=Z48.MEMORY):
         if self.debug > 0:
             log.debug("Transferring file %s to host from source %i" % (filename, source)) 
-        if fileutils.is_sample(destpath):
-            if self.sampleFile is not None:
-                shutil.copy(self.sampleFile, destpath)
-            else:
-                raise IOError(errno.ENOENT, "File not found", destpath)
+        if fileutils.is_sample(filename):
+            shutil.copy(self.sampleFile, destpath)
 
     def put(self, path, remote_name=None, destination=Z48.MEMORY):
         if self.debug > 0:
