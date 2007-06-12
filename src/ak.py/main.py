@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 import psyco
 psyco.full()
-import hotshot, hotshot.stats
+
+try:
+    import hotshot, hotshot.stats
+except ImportError:
+    print "Profiler not available"
+
 import os,os.path,re,logging,sys,struct,math,traceback
 import pygtk
 pygtk.require('2.0')
@@ -339,12 +344,15 @@ sys.excepthook = exceptionHandler
 
 def main(): 
     z48 = Devices.get_instance("z48", "usb")
-    m = Main(z48)
-    win = gtk.Window()
-    win.add(m.editor)
-    win.show_all()
-    win.connect("delete-event", gtk.main_quit)
-    gtk.main()
+    try:
+       m = Main(z48)
+       win = gtk.Window()
+       win.add(m.editor)
+       win.show_all()
+       win.connect("delete-event", gtk.main_quit)
+       gtk.main()
+    finally:
+        z48.close()
 
 if __name__ == "__main__":
     log = logging.getLogger("aksy")
