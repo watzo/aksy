@@ -1,7 +1,12 @@
-import gtk,pygtk,gobject
+import gtk
 
-from aksy.device import Devices
 from utils.modelutils import *
+
+LCD_PIXELS_WIDTH = 248
+LCD_PIXELS_HEIGHT = 60
+BORDER_PIXELS = 2
+WINDOW_WIDTH = LCD_PIXELS_WIDTH * 2 + BORDER_PIXELS
+WINDOW_HEIGHT = LCD_PIXELS_HEIGHT * 2 + BORDER_PIXELS
 
 w,h = 8,256
 mapmap = {}
@@ -25,6 +30,7 @@ ascii_keymap = {'BackSpace':8,'Delete':127, 'Insert':272, 'Home':288, 'End':289,
 class LCDScreen(gtk.DrawingArea):
     def __init__(self,s):
         gtk.DrawingArea.__init__(self)
+        self.size(WINDOW_WIDTH, WINDOW_HEIGHT)
 
         self.s = s
 
@@ -48,8 +54,6 @@ class LCDScreen(gtk.DrawingArea):
         if self.s:
             lcd = self.s._getlcd()
 
-            w,h = 248,60
-            len = w*h
             xx,yy = 0,0
             ugiv = {}
 
@@ -70,7 +74,7 @@ class LCDScreen(gtk.DrawingArea):
         self.grab_focus()
 
     def handle_keys(self, widget, event, onoff):
-  # We want to ignore irrelevant modifiers like ScrollLock
+        # We want to ignore irrelevant modifiers like ScrollLock
         # window, multi, fx, edit sample, edit program, record, utilities, save, load
         ctrlmap = { 'w':7,'F1':23,'F2':19,'F3':22,'F4':18,'F5':21,'F6':17,'F7':20,'F8':16 }
         wheelmap = { 'F11':-1, 'F12':1 }
@@ -151,11 +155,9 @@ class LCDScreen(gtk.DrawingArea):
         self.grab_focus()
 
     def redraw_canvas(self):
-        if self.window:
-            alloc = self.get_allocation()
-            rect = gtk.gdk.Rectangle(0, 0, alloc.width, alloc.height)
-            self.window.invalidate_rect(rect, True)
-            self.window.process_updates(True)
+        rect = gtk.gdk.Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.window.invalidate_rect(rect, True)
+        self.window.process_updates(True)
 
     def on_realize(self, widget):
         self.gc = widget.window.new_gc()
@@ -167,9 +169,9 @@ class LCDScreen(gtk.DrawingArea):
         off_color = gtk.gdk.Color(0,0,0,1)
 
         if self.bv:
-            for y in range(0,60):
-                for x in range(0,248):
-                    val = self.bv[x + (y*248)] 
+            for y in range(0, LCD_PIXELS_HEIGHT):
+                for x in range(0, LCD_PIXELS_WIDTH):
+                    val = self.bv[x + (y * LCD_PIXELS_WIDTH)] 
                     xx = x * 2
                     yy = y * 2
 
@@ -180,8 +182,3 @@ class LCDScreen(gtk.DrawingArea):
                         self.window.draw_point(self.gc,xx+1,yy)
 
         return False
-
-    def draw(self, context):
-        rect = self.get_allocation()
-
-
