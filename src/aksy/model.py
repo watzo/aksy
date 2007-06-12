@@ -7,6 +7,8 @@ import os.path, sys, logging
 from aksyx import AkaiSampler
 from aksy import fileutils
 
+# TODO: fix module hierarchy
+from aksy.devices.akai.base import SamplerException
 
 handlers = {}
 log = logging.getLogger("aksy")
@@ -33,10 +35,11 @@ class Disk(Container):
         self.root = Folder("")
 
     def has_children(self):
-        self.set_current()
-        if self.info.format != 8:
+        try:
+            self.set_current()
             return self.root.has_children()
-        return False
+        except SamplerException:
+            return False
 
     def get_handle(self):
         return self.info.handle
@@ -45,8 +48,7 @@ class Disk(Container):
         return self.info.writable
     
     def set_current(self):
-        if self.info.format != 8: # ejected disk!
-            handlers[Disk].select_disk(self.get_handle())
+        handlers[Disk].select_disk(self.get_handle())
 
     def get_name(self):
         return self.info.name
