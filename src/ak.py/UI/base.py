@@ -1,7 +1,6 @@
-import os,os.path,re,logging,sys,struct,math,traceback
 import pygtk
 import inspect
-import gobject,gtk.glade,gtk,aksy
+import gtk.glade, gtk
 import ak
 
 class base(object):
