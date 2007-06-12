@@ -308,6 +308,7 @@ char* s56k_get_sysex_error_msg(int code) {
 int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     const byte_array sysex, const byte_array result_buff, int* const bytes_read, const int timeout) {
     struct byte_array request;
+    int rc;
     char byte1 = (char)sysex->length;
     char byte2 = (char)(sysex->length>>8);
     request.length = sysex->length+3;
@@ -317,15 +318,17 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
     memcpy(request.bytes+2, &byte2, 1);
     memcpy(request.bytes+3, sysex->bytes, sysex->length);
 
-	return aksyxusb_device_exec(akai_dev, &request, result_buff, bytes_read, timeout);
+	rc = aksyxusb_device_exec(akai_dev, &request, result_buff, bytes_read, timeout);
+
+	free(request.bytes);
+
+	return rc;
 }
 
 int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout) {
     struct byte_array request;
     request.length = 2;
-    request.bytes = (char*) malloc(request.length);
-    memset(request.bytes, 0x01, 1);
-    memset(request.bytes+1, 0x00, 1);
+    request.bytes = CMD_LCD_GET;
 
 	return aksyxusb_device_exec(akai_dev, &request, result_buff, bytes_read, timeout);
 }
@@ -343,8 +346,6 @@ int aksyxusb_device_exec(const akai_usb_device akai_dev,
     if (rc < 0) {
         return AKSY_TRANSMISSION_ERROR;
     }
-
-    free(request->bytes);
 
 	return aksyxusb_device_read(akai_dev, result_buff, bytes_read, timeout);
 }
