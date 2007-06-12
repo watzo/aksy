@@ -1,0 +1,17 @@
+frontpaneltools	Methods to manipulate the front panel
+\x2C	\x20	mouseclick_at_screen	Perform a mouse click	WORD	WORD
+
+\x2C	\x21	mousedoubleclick_at_screen	Perform a mouse double click	WORD	WORD
+
+\x2C	\x01	keypress_hold	Perform key hold	BYTE
+
+\x2C	\x02	keypress_release	Perform key release	BYTE
+
+\x2C	\x03	move_datawheel	Move datawheel	SBYTE
+
+\x2C	\x04	set_qlink_control	Set the value of a Q-link control	BYTE	WORD
+
+\x2C	\x10	asciikeypress_hold	Perform ascii key hold	WORD	WORD
+
+\x2C	\x11	asciikeypress_release	Perform ascii key release	WORD	WORD
+
