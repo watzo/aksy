@@ -9,7 +9,7 @@ except ImportError:
 
 import pygtk
 pygtk.require('2.0')
-import gtk, gtk.glade, gobject
+import gtk
 import aksy
 
 # our stuff
