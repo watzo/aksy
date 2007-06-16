@@ -1,4 +1,4 @@
-1. REQUIREMENTS/DEPENDENCIES
+1. DEPENDENCIES
 
 Aksy (core lib) has the following dependencies:
 
@@ -12,11 +12,17 @@ The extension has been tested with Python 2.4/2.5, libusb 0.1.8 and libusb-0.1.1
 optional dependencies
 ---------------------
 
-To run aksyfsview, wxPython is needed. Ak.py (by Joseph Misra) needs a recent GTK and its python bindings.
+Ak.py (by Joseph Misra) needs Psyco and a recent GTK and its python bindings.
+These are all available in modern Linux distributions, for Windows it's a bit
+more manual installation work.
 
-If you're running linux and want to be able to run aksy as normal user (recommended), configure hal.
+  * Psyco (http://psyco.sourceforge.net/)
+  * GTK+ runtime 2.10.11 from http://gimp-win.sourceforge.net/
+  * PyGTK (PyCairo/PyGObject/PyGTK) from www.pygtk.org
+  * libglade 2.4.0 (available at http://gladewin32.sourceforge.net/)
 
-To use AksyFS, the python FUSE bindings are required. Version 0.1 is recommended.
+AksyFS:
+  * fuse-python, version 0.2pre3 or higher (available at http://fuse.sf.net)
 
 2. INSTALLATION
 
