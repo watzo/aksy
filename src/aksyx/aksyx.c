@@ -9,7 +9,7 @@
 
 #define USB_TIMEOUT 2000
 
-extern int z48_sysex_reply_ok(char* sysex_reply);
+extern int is_sysex_reply_ok(char* sysex_reply);
 
 typedef struct {
     PyObject_HEAD

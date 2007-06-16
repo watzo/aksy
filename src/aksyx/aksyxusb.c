@@ -21,7 +21,11 @@
     #define inline _inline
 #endif
 
-static inline int sysex_reply_ok(char* sysex_reply, int sysex_reply_length) {
+static inline int is_sysex_reply_ok(char* sysex_reply, int sysex_reply_length) {
+	if (sysex_reply[0] != (char)SYSEX_START) {
+		return 0;
+	}
+
     int userref_length = (sysex_reply[3] >> 4);
     int index = userref_length + 4;
     if (sysex_reply_length < index) {
@@ -366,7 +370,7 @@ int aksyxusb_device_read(const akai_usb_device akai_dev,
 		    return AKSY_TRANSMISSION_ERROR;
 		}
 
-		if (IS_SAMPLER_BUSY(curr_index, rc) || sysex_reply_ok(curr_index, rc)) {
+		if (IS_SAMPLER_BUSY(curr_index, rc) || is_sysex_reply_ok(curr_index, rc)) {
 			continue;
 		}
 		
