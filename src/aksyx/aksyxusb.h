@@ -65,7 +65,7 @@
 #define IS_INVALID_FILE_ERROR(buffer) (buffer[0] == 0x1)
 #define IS_TRANSFER_FINISHED(buffer) (buffer[0] == 0x0)
 #define CONTAINS_SYSEX_MSG_END(buffer, length) (buffer[length - 1] == (char)SYSEX_END)
-#define IS_LCD_END_MSG(buffer, length) ((length == 18) && buffer[1] == 0x0 && buffer[2] == 0x31 && buffer[3] == 0x01)
+#define IS_LCD_END_MSG(buffer, length) ((length == 18) && buffer[0] == 0x01 && buffer[1] == 0x00)
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 #define ENDSWAP_SHORT(x) ((((x)>>8)&0xFF)+(((x)&0xFF)<<8))
