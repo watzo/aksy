@@ -1,9 +1,8 @@
 #!/usr/bin/python
 import asyncore, socket, time
 
-from handler import SamplerCallbackManager
-from aksy.device import Devices
-from oscoptions import create_option_parser
+from aksyosc.handler import SamplerCallbackManager
+from aksyosc.oscoptions import create_option_parser
 
 class Envelope:
     def __init__(self, address, message):
@@ -45,6 +44,7 @@ class OSCServer(asyncore.dispatcher):
 if __name__ == "__main__":
     parser = create_option_parser()
     options = parser.parse_args()[0]
+    from aksy.device import Devices
     z48 = Devices.get_instance('mock_z48', None)
     server = OSCServer(options.address, options.port,  SamplerCallbackManager(z48))
     try:
