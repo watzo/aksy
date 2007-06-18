@@ -1,5 +1,8 @@
 Aksy changes
 	svn trunk
+		* FUSE implementation
+		* ak.py GUI
+		* OSC support
 		* Visual Studio compiler compatibility and win32 distutils support
 		* Multiple (hybrid) sampler support
 		* MPC4K support
