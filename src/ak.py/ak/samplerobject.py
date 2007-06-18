@@ -2,7 +2,6 @@ import os,os.path,re,logging,sys,struct,math,traceback
 import gtk,pygtk,gobject
 import aksy
 
-from aksy.device import Devices
 from utils.modelutils import *
 
 class samplerobject(object):
