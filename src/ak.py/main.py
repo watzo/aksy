@@ -242,7 +242,6 @@ class Main(UI.Base):
     """
     def __init__(self, s):
         self.s = s
-        self.sox = sox()
         self.kgeditwindow = None
         self.program_details_window = None
         UI.Base.__init__(self, None, "vboxMain")
