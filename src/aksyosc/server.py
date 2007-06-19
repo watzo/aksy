@@ -23,9 +23,8 @@ class OSCServer(asyncore.dispatcher):
         self.set_reuse_addr()
         self.bind((address, port))
         self.response = None 
-        print '%s started at %s\n\tLocal addr: %s:%i\n' % (
-           self.__class__.__name__, time.ctime(time.time()),
-           address, port)
+        print '%s started at addr: %s:%i\n' % (
+           self.__class__.__name__, address, port)
 
     def writable(self):
         return self.response is not None

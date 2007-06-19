@@ -11,7 +11,8 @@ import errno
 
 from aksy.device import Devices
 from aksy import fileutils, model
-from aksy.devices.akai.base import SamplerException
+from aksy.concurrent import transaction
+
 from aksy.devices.akai import sampler as samplermod
 
 fuse.fuse_python_api = (0, 2)
@@ -63,40 +64,6 @@ class FileStatInfo(StatInfo):
         StatInfo.__init__(self, stat.S_IFREG|stat.S_IWUSR, size, writable)
         self.st_nlink = 0
         
-def stat_inode(mode, size, child_count, uid, gid, writable=False, is_modified=False):
-    info = [None] * 10
-    info[stat.ST_DEV] = 0 # TODO: figure out whether required to provide unique value
-    info[stat.ST_INO] = 0 # TODO: figure out whether required to provide unique value
-    info[stat.ST_MODE] = mode|stat.S_IRUSR|stat.S_IRGRP
-    if writable:
-        info[stat.ST_MODE] = info[stat.ST_MODE]|stat.S_IWUSR
-    info[stat.ST_SIZE] = size
-    info[stat.ST_ATIME] = int(START_TIME)
-    info[stat.ST_CTIME] = info[stat.ST_ATIME]
-    if is_modified:
-        info[stat.ST_MTIME] = int(time())
-    else:
-        info[stat.ST_MTIME] = info[stat.ST_ATIME]
-    info[stat.ST_NLINK] = child_count
-    info[stat.ST_UID] = uid
-    info[stat.ST_GID] = gid
-    return info
-
-def to_remove_stat_dir(uid, gid, writable=True, child_count=1):
-    return stat_inode(stat.S_IFDIR|stat.S_IEXEC, 4096L, child_count, uid, gid, writable)
-
-# TODO: provide real values for samples (other sizes can't be determined
-def to_remove_stat_file(uid, gid, path, size=None, is_modified=False):
-    cache_path = _get_cache_path(path)
-    if size is None:
-        if os.path.exists(cache_path):
-            size = os.stat(cache_path)[stat.ST_SIZE]
-        elif fileutils.is_sample(path):
-            size = MAX_FILE_SIZE_SAMPLE
-        else:
-            size = MAX_FILE_SIZE_OTHER
-    return stat_inode(stat.S_IFREG|stat.S_IWUSR, size, 0, uid, gid, is_modified)
-
 def is_modified(stat_info):
     return stat_info.st_mtime > START_TIME
 
@@ -120,7 +87,8 @@ class AksyFile(fuse.FuseFileInfo):
     @staticmethod
     def set_sampler(sampler):
         AksyFile.sampler = sampler
-        
+    
+    @transaction(samplermod.Sampler.lock)
     def __init__(self, path, flags, *mode):
         self.direct_io = True
         self.upload = bool(flags & os.O_WRONLY)
@@ -140,7 +108,7 @@ class AksyFile(fuse.FuseFileInfo):
         
         self.handle = os.open(self.path, flags, *mode)
 
-            
+    @transaction(samplermod.Sampler.lock)        
     def release(self, flags):
         if self.is_upload():
             try:
@@ -191,10 +159,12 @@ class FSRoot(model.Container):
     
     def get_children(self):
         return [self.sampler.memory, self.sampler.disks]
-    
+
 class AksyFS(fuse.Fuse): #IGNORE:R0904
     def __init__(self, *args, **kw):
         fuse.Fuse.__init__(self, *args, **kw)
+        self.multithreaded = True
+        self.fuse_args.setmod('foreground')
         self.sampler_id = 'mock_z48'
         self.file_class = AksyFile
         stat_home = os.stat(os.path.expanduser('~'))
@@ -204,10 +174,14 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         print "**access " + path
         pass
     
+    def fetch_parent_folder(self, path):
+        return self.get_parent(path).get_child(os.path.basename(path))
+
+    @transaction(samplermod.Sampler.lock)
     def stat_directory(self, path):
         folder = self.cache.get(path)
         if folder is None:
-            folder = self.get_parent(path).get_child(os.path.basename(path))
+            folder = self.fetch_parent_folder(path)
             if folder is None:
                 raiseException(errno.ENOENT)
             self.cache[path] = folder
@@ -229,6 +203,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
                 return child
         return None
 
+    @transaction(samplermod.Sampler.lock)
     def stat_file(self, path):
         cached = self.cache.get(path, None)
         if cached is not None:
@@ -249,12 +224,14 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         else:
             return self.stat_file(path)
 
+    @transaction(samplermod.Sampler.lock)
     def readdir(self, path, offset):
         print '*** readdir', path, offset
         folder = self.cache[path]
         for child in folder.get_children():
             yield fuse.Direntry(child.get_name())
 
+    @transaction(samplermod.Sampler.lock)
     def mkdir(self, path, mode):
         print '*** mkdir', path, mode
         folder = self.get_parent(path)
@@ -266,6 +243,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         child = folder.create_folder(os.path.basename(path))
         self.cache[path] = child
 
+    @transaction(samplermod.Sampler.lock)
     def rename(self, old_path, new_path):
         print '*** rename', old_path, new_path
         new_dir = os.path.dirname(new_path)
@@ -291,6 +269,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
             file_obj = self.get_file(old_path)
             file_obj.rename(new_name)
 
+    @transaction(samplermod.Sampler.lock)
     def rmdir(self, path):
         print '*** rmdir', path
         folder = self.cache[path]
@@ -302,12 +281,14 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
 
         raiseException(errno.EPERM)
 
+    @transaction(samplermod.Sampler.lock)
     def unlink(self, path):
         print '*** unlink', path
         file_obj = self.get_file(path)
         file_obj.delete()
         self.get_parent(path).refresh()
 
+    @transaction(samplermod.Sampler.lock)
     def mknod(self, path, mode, dev):
         print '*** mknod ', path, mode, dev
         self.cache[path] = FileStatInfo(path, None)
@@ -363,6 +344,8 @@ Aksyfs: mount your sampler as a filesystem
     else:
         sampler = Devices.get_instance(fs.sampler_id, 'usb')
     try:
+        sampler.start_osc_server()
         fs.main(sampler)
     finally:
-        fs.sampler.close()
+        sampler.stop_osc_server()
+        sampler.close()

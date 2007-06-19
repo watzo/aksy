@@ -1,20 +1,27 @@
 from aksy.devices.akai import sysex
 from aksyx import AkaiSampler
 
-from aksy import model
 from aksy import fileutils
+from aksy.concurrent import transaction
 
-import os.path, logging
+from aksyosc.server import OSCServer
+from aksyosc.handler import SamplerCallbackManager
+
+import os.path, logging, asyncore
+
+from threading import Lock, Thread
 
 log = logging.getLogger("aksy")
 
 class Sampler(AkaiSampler):
+    lock = Lock()
     """Base class for AkaiSampler.
     """
     def __init__(self, usb_product_id=0, debug=1):
         AkaiSampler.__init__(self, usb_product_id)
         self.debug = debug
 
+    @transaction(lock)
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
         tools_obj = getattr(self, section_name)
         cmd = getattr(tools_obj, command_name + "_cmd")
@@ -49,6 +56,21 @@ class Sampler(AkaiSampler):
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
 
+    def start_osc_server(self):
+        # for i in 'AK': print ord(i)
+        OSCServer('localhost', 6575,  SamplerCallbackManager(self))
+        class ServerThread(Thread):
+            def __init__(self):
+                Thread.__init__(self, name='OSC Server Thread')
+            def run(self):
+                asyncore.loop()
+        self.serverThread = ServerThread()
+        self.serverThread.start()
+
+    def stop_osc_server(self):
+        asyncore.close_all()
+        self.serverThread.join()
+        
     @staticmethod
     def is_filetype_supported(fname):
         return fileutils.is_file_type_supported(Sampler.get_supported_file_types(), fname)
