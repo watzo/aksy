@@ -3,7 +3,7 @@ import logging, shutil
 from aksy.devices.akai import sysex_types
 from aksy.devices.akai.z48.sampler import Z48
 from aksy import model, fileutils
-import errno
+
 log = logging.getLogger('aksy')
 
 class MockZ48(Z48):
@@ -30,7 +30,8 @@ class MockZ48(Z48):
 
     def put(self, path, remote_name=None, destination=Z48.MEMORY):
         if self.debug > 0:
-            log.debug("Transferring file %s to sampler" % path)
+            log.debug("Transferring file %s to sampler at remote_name %s (%i)" 
+                      % (path, remote_name, destination))
 
     def execute(self, command, args, request_id=0):
         # TODO: work with stored sessions
