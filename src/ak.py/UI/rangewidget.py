@@ -1,3 +1,5 @@
+# Custom widgets via Cairo: Knob, Level, Range, Keygroup etc.
+
 import pygtk
 import gobject,gtk.glade,gtk,aksy,UI,cairo,urllib
 
@@ -109,12 +111,12 @@ class SliderWidget(HitBox):
                 cr.show_text(text)
 
 class AkKnobWidget(AkWidget):
-    def __init__(self, samplerobject = None, samplerobjectattr = None, min = -600, max = 60, interval = 10, units = "db"):
+    def __init__(self, samplerobject = None, samplerobjectattr = None, min = -600, max = 60, interval = 10, units = "db", mod_destination = None):
         AkWidget.__init__(self, samplerobject, samplerobjectattr, interval, units)
 
         self.connect("value-changed", self.on_value_changed)
 
-        self.set_size_request(25, 25)
+        self.set_size_request(35, 50)
 
         self.max = max
         self.min = min
@@ -124,20 +126,52 @@ class AkKnobWidget(AkWidget):
 
         self.dragging = False
         self.valuestart = None
+        self.pinlevelstart = None
         self.draggingstart = None
 
+        if mod_destination:
+            self.mod_destination_index = modulation_matrix.destinations.index(mod_destination)
+        else:
+            self.mod_destination_index = None
+
         self.queue_draw()
+
+    def get_current_pin(self, create_new = True):
+        kg = None
+
+        if self.mod_destination_index:
+            if self.so:
+                if type(self.so) is keygroup:
+                    kg = self.so
+                elif type(self.so) is zone:
+                    kg = self.so.keygroup
+            if kg:
+                pin = kg.get_pin_by_source_and_dest(kg.current_mod_source_index, self.mod_destination_index, create_new)
+                return pin
+            else:
+                return None
 
     def on_button_press(self, widget, event):
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.dragging = True
+            #print "hello...", self.dragging
             self.draggingstart = event.y 
-            self.valuestart = self.value 
+            print self.soattr,"=",self.value
+            self.valuestart = self.value
+            pin = self.get_current_pin()
+            if pin:
+                self.pinlevelstart = pin.level
+                
         elif event.type == gtk.gdk._2BUTTON_PRESS:
-            changed = self.set_value(0.0)
+            ctrl_pressed = event.state & gtk.gdk.CONTROL_MASK
+            if not ctrl_pressed:
+                changed = self.set_value(0.0)
             if changed:
                 self.emit("value-changed")
-
+            else:
+                pin = self.get_current_pin()
+                if pin:
+                    pin.set_value(0)
         self.queue_draw()
 
     def on_button_release(self, widget, event):
@@ -146,20 +180,28 @@ class AkKnobWidget(AkWidget):
         self.queue_draw()
 
     def on_motion_notify_event(self, widget, event):
+        #print "motion...", self, type(self.so), self.dragging
         if self.dragging:
             # update value
             delta = -(event.y - self.draggingstart)
 
             ctrl_pressed = event.state & gtk.gdk.CONTROL_MASK
+            shift_pressed = event.state & gtk.gdk.SHIFT_MASK
 
-            if not ctrl_pressed:
+            if not shift_pressed:
                 interval = self.interval
             else:
                 interval = 1.0
 
-            changed = self.set_value(self.valuestart + (delta * interval))
+            if not ctrl_pressed:
+                changed = self.set_value(self.valuestart + (delta * interval))
             if changed:
                 self.emit("value-changed")
+            else:
+                # find pin that matches current 'source' and 'destination'
+                pin = self.get_current_pin()
+                if pin:
+                    pin.set_value(self.pinlevelstart + delta)
 
         self.queue_draw()
 
@@ -168,16 +210,46 @@ class AkKnobWidget(AkWidget):
             self.so.set(self.soattr, int(self.value))
         self.queue_draw()
 
+    def get_pct(self, value, min, max):
+        if value < min:
+            value = min
+        elif value > max:
+            value = max
+        num = float(value) - float(min)
+        range = float(max) - float(min)
+        pct = float(num) / float(range)
+        return pct
+
+    def get_pctatzero(self):
+        num = float(value) - float(min)
+        range = float(max) - float(min)
+        pct = float(num) / float(range)
+        pctatzero = abs(float(min) / float(range))
+        return pctatzero
+
+    def draw_value_line(self, cr, x, y, radius, value, min, max):
+        # the float thing was a little bit unexpected
+        pct = self.get_pct(value, min, max)
+
+        self.do_line(cr, x, y, radius, radius, pct, 1.5)
+
     def on_expose(self, widget, event):
-        cr = widget.window.cairo_create()
+        self.value = getattr(self.so,self.soattr)
+        return self.draw(widget.window, widget, event.area)
 
-        cr.rectangle(event.area.x, event.area.y, event.area.width, event.area.height)
-
+    def draw(self, window, widget, area):
+        cr = window.cairo_create()
+        cr.rectangle(area.x, area.y, area.width, area.height)
         cr.clip()
 
-        rect = self.get_allocation()
-        x = rect.width / 2
-        y = rect.height / 2
+        rect = area
+
+        """
+        rect = widget.get_allocation()
+        """
+
+        x = rect.width / 2 + area.x
+        y = rect.height / 2 + area.y
 
         radius = (min(rect.width / 2, rect.height / 2) - 5)
 
@@ -190,12 +262,18 @@ class AkKnobWidget(AkWidget):
 
         cr.save()
 
-        # the float thing was a little bit unexpected
+        cr.set_source_rgb(0, 0, 0)
+        self.draw_value_line(cr, x, y, radius, self.value, self.min, self.max)
 
-        num = float(self.value) - float(self.min)
-        range = float(self.max) - float(self.min)
-        pct = float(num) / float(range)
-        pctatzero = abs(float(self.min) / float(range))
+        pin = self.get_current_pin(False)
+        if pin:
+            range = float(self.max) - float(self.min)
+            pinoffset = float(float(pin.level) / 100.0) * float(range)
+            pct = self.get_pct(self.value, self.min, self.max)
+            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
+            cr.set_source_rgb(0, 0, 0)
+            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
+            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
 
         """
         cr.set_source_rgb(0, 0, 0)
@@ -205,11 +283,7 @@ class AkKnobWidget(AkWidget):
         self.do_line(cr, x, y, radius, radius / 8, pctatzero, 1.0, False)
         """
 
-        cr.set_source_rgb(0, 0, 0)
-        self.do_line(cr, x, y, radius, radius, pct, 1.5)
-
-        """
-        cr.set_font_size(8.0)
+        cr.set_font_size(9.0)
         cr.set_source_rgb(0.0, 0.0, 0.0)
         if self.dragging:
             text = self.get_format()
@@ -217,14 +291,13 @@ class AkKnobWidget(AkWidget):
             text = self.soattr
 
         xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
-        cr.move_to(x - width / 2 + xbearing, rect.width - ybearing)
+        cr.move_to(x - width / 2 + xbearing, y + radius - ybearing + 2)
         cr.show_text(text)
-        """
 
         cr.restore()
 
     def do_line(self, cr, x, y, radius, radius_inset, pct, lw, from_center = True):
-        cr.set_line_width(1)
+        cr.set_line_width(0.5)
         ei = (math.pi * (6.0/4.0) * pct) - (math.pi * (6.0/8.0))
 
         if from_center:
@@ -236,6 +309,22 @@ class AkKnobWidget(AkWidget):
 
         cr.stroke()
 
+    def do_mod_arc(self, cr, x, y, radius, radius_inset, pct, pinpct):
+        cr.set_line_width(0.5)
+        pct += 1.0
+        pinpct += 1.0
+        start = (math.pi * (6.0/4.0) * pct) - (math.pi * (6.0/8.0))
+        end = (math.pi * (6.0/4.0) * pinpct) - (math.pi * (6.0/8.0))
+
+        cr.move_to(x, y)
+        if start < end:
+            cr.arc(x, y, radius, start, end)
+        else:
+            cr.arc_negative(x, y, radius, start, end)
+        cr.set_source_rgb(0, 0, 1)
+        cr.fill_preserve()
+        cr.set_source_rgb(0, 0, 0)
+        cr.stroke()
 
 class LevelKnobWidget(AkKnobWidget):
     def __init__(self, samplerobject = None):
@@ -491,7 +580,7 @@ class MiniZoneWidget(AkWidget):
 class AkComboBox(gtk.ComboBox):
     def __init__(self, so, soattr, model, use_index = True):
         if type(model) is list:
-            model = get_model_from_list(model)
+            model = utils.get_model_from_list(model)
 
         gtk.ComboBox.__init__(self, model)
 
@@ -504,30 +593,41 @@ class AkComboBox(gtk.ComboBox):
         self.connect("changed", self.on_changed)
         self.somodel = model
 
+        self.init(so, soattr)
+
+    def init(self, so, soattr = None):
         self.updating = True
+        iter = None
+
+        if soattr:
+            self.soattr = soattr
 
         if so:
             self.s = so.s
             self.so = so
-            self.soattr = soattr
             self.value = None
+            
 
-            if soattr:
-                self.value = getattr(so, soattr)
+            if self.soattr:
+                self.value = getattr(so, self.soattr)
                 if self.value != None:
                     if not self.use_index:
-                        iter = self.find_iter(self.value)
+                        if len(self.value) > 0:
+                            iter = self.find_iter(self.value)
                         if iter:
                             self.set_active_iter(iter)
-                        else:
+                        elif len(self.value) > 0:
                             print "missing iter for", self.value, "model probably not initialized?"
-                    else:
+                    elif self.use_index:
                         self.set_active(int(self.value))
+                    else:
+                        self.set_active(-1)
 
         self.updating = False
+        self.queue_draw()
 
     def find_iter(self, value):
-        iter = search(self.somodel, self.somodel.iter_children(None), match_func, (0, value)) 
+        iter = search(self.somodel, self.somodel.iter_children(None), None, (0, value)) 
         return iter
     
     def on_changed(self, widget):
@@ -539,7 +639,7 @@ class AkComboBox(gtk.ComboBox):
                 self.so.set(self.soattr, value)
             else:
                 value = self.somodel[active][0]
-                self.so.set(self.soattr, active)
+                self.so.set(self.soattr, value)
 
             self.value = value
 

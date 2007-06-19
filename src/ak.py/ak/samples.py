@@ -3,7 +3,7 @@ from utils.modelutils import *
 
 allsamples = { }
 
-class samples:
+class Samples:
     def __init__(self,s):
         self.s = s
         st = s.sampletools

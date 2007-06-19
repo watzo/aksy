@@ -79,7 +79,7 @@ gm1drumsmap = {
     80:"Mute Triangle",
     81:"Open Triangle"}
 
-sampler_items = {
+sampler_lists = {
     "filter" : ["Off", "2-Pole LP","2-Pole LP+","4-Pole LP","4-Pole LP+","6-Pole LP","2-Pole BP","2-Pole BP+","4-Pole BP","4-Pole BP+","6-Pole BP","1-Pole HP", "1-Pole HP+", "2-Pole HP", "2-Pole HP+", "6-Pole HP", "LO&lt;&gt;HI", "LO&lt;&gt;BAND", "BAND&lt;&gt;HI", "Notch 1", "Notch 2", "Notch 3", "Wide Notch", "Bi-Notch", "Peak 1", "Peak 2", "Peak 3", "Wide Peak", "Bi-Peak", "Phaser 1", "Phaser 2", "Bi-Phase", "Voweliser", "Triple"],
     "output" : ["L-R", "1-2", "3-4", "5-6", "7-8", "L", "R", "1", "2", "3", "4", "5", "6", "7", "8"],
     "filter_attenuation" : ["0db", "6db","12db","18db","24db","30db"],

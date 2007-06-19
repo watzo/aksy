@@ -1,7 +1,7 @@
 from aksy.device import Devices
 from utils.modelutils import *
 
-class multifx:
+class MultiFX:
     fxlist = [ 'NO EFFECT', 'CHORUS>MONO', 'CHORUS>STEREO', 'CHORUS>XOVER', 'CHORUS+DELAY', 'COMPRESSOR/LIMITER', 'DELAY>MONO', 'DELAY>MULTI TAP', 'DELAY>PAN', 'DELAY>PING PONG', 'DELAY>STEREO', 'DELAY>XOVER', 'DIGITAL EQ', 'DISTORTION', 'ENHANCER', 'EXPANDER', 'FLANGER>MONO', 'FLANGER>PAN', 'FLANGER>STEREO', 'FLANGER>XOVER', 'FLANGER+DELAY', 'NOISE GATE', 'PAN>AUTO PAN', 'PAN>TRIGGER PAN', 'PHASER>MONO', 'PHASER>PAN', 'PHASER>STEREO', 'PHASER>XOVER', 'PHASER+DELAY', 'PITCH CORRECTOR', 'PITCH SHIFTER', 'REVERB>AUDITORIUM', 'REVERB>BIG HALL', 'REVERB>BIG ROOM', 'REVERB>BRIGHT HALL', 'REVERB>DRUM BOOTH', 'REVERB>LIVE HOUSE', 'REVERB>MEDIUM HALL', 'REVERB>MEDIUM ROOM', 'REVERB>NON LINEAR', 'REVERB>PLATE 1', 'REVERB>PLATE 2', 'REVERB>REVERSE', 'REVERB>SMALL HALL', 'REVERB>SMALL ROOM', 'REVERB>STUDIO', 'REVERB>THEATER', 'REVERB>VOCAL PLATE', 'REVERB>WAREHOUSE', 'ROTARY SPEAKER', 'TAPE ECHO', 'WAH>AUTO WAH', 'WAH>TOUCH WAH' ]
 
     def __init__(self,s):
@@ -24,16 +24,16 @@ class multifx:
             self.channels = { }
             self.no_channels = self.s.multifxtools.get_no_channels()
             for ci in range(self.no_channels):
-                self.channels[ci] = multifxchannel(self,ci)                
+                self.channels[ci] = MultiFXChannel(self,ci)                
 
-class multifxeffect:
+class MultiFXEffect:
     def __init__(self,name,id,param_index_output_ctrl):
         self.name = name
         self.id = id
         # parameter index for output control
         self.param_index_output_ctrl = param_index_output_ctrl
 
-class multifxchannel:
+class MultiFXChannel:
     # parameters
     # effect name
     # which channel
@@ -54,7 +54,7 @@ class multifxchannel:
 
 
         for i in range(self.max_modules):
-            self.modules[i] = multifxmodule(self,i)
+            self.modules[i] = MultiFXModule(self,i)
 
     def dump(self):
         attrs = ['index','muted','input','output']
@@ -72,7 +72,7 @@ class multifxchannel:
         return self.s.multifxtools.set_channel_output(self.index,i)
         
        
-class multifxmodule:
+class MultiFXModule:
     def __init__(self,c,i):
         self.s = c.mfx.s
         s = c.mfx.s
@@ -119,7 +119,7 @@ class multifxmodule:
         self.parameters = { }
 
         for pi in range(self.number_of_parameters):
-            self.parameters[pi] = multifxparam(s,c,self,pi)
+            self.parameters[pi] = MultiFXParam(s,c,self,pi)
 
     def dump(self):
         attrs = ['effect_name','enabled','number_of_parameters']
@@ -129,7 +129,7 @@ class multifxmodule:
             param = self.parameters[pi]
             param.dump()
 
-class multifxparam:
+class MultiFXParam:
     def __init__(self,s,channel,module,index):
         self.channel = channel
         self.s = channel.s
@@ -190,6 +190,6 @@ class multifxparam:
         for attr in attrs:
             print '\t\tParam ',self.index,' :',attr,' = ',getattr(self,attr)
 
-inputmapmodel = get_model_from_list(multifxchannel.inputmap)
-outputmapmodel = get_model_from_list(multifxchannel.outputmap)
-effectmodel = get_model_from_list(multifx.fxlist)
+inputmapmodel = get_model_from_list(MultiFXChannel.inputmap)
+outputmapmodel = get_model_from_list(MultiFXChannel.outputmap)
+effectmodel = get_model_from_list(MultiFX.fxlist)

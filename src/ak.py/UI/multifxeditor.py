@@ -3,11 +3,11 @@ import gtk,gtk.gdk,pygtk,gobject
 from ak.multifx import *
 from utils.modelutils import *
 
-class FXChannel(gtk.VBox):
-    def __init__(self,mfxchannel):
+class MultiFXChannelEditor(gtk.VBox):
+    def __init__(self,mMultiFXChannelEditor):
         gtk.VBox.__init__(self)
-        self.mfxchannel = mfxchannel
-        self.channel = mfxchannel
+        self.mMultiFXChannelEditor = mMultiFXChannelEditor
+        self.channel = mMultiFXChannelEditor
 
         self.moduleWidgets = { }
 
@@ -21,8 +21,8 @@ class FXChannel(gtk.VBox):
 
         self.pack_start(self.topHBox)
 
-        for i in range(self.mfxchannel.max_modules):
-            self.moduleWidgets[i] = FXModule(mfxchannel.modules[i])
+        for i in range(self.mMultiFXChannelEditor.max_modules):
+            self.moduleWidgets[i] = MultiFXModuleEditor(mMultiFXChannelEditor.modules[i])
             self.pack_start(self.moduleWidgets[i], expand=False, fill=False)
 
     def on_input_changed(self, widget):
@@ -31,7 +31,7 @@ class FXChannel(gtk.VBox):
     def on_output_changed(self, widget):
         self.channel.updateOutput(widget.get_active())
 
-class FXModule(gtk.VBox):
+class MultiFXModuleEditor(gtk.VBox):
     def __init__(self,module):
         gtk.VBox.__init__(self)
         self.module = module
@@ -77,7 +77,7 @@ class FXModule(gtk.VBox):
         self.parameterWidgets = { }
 
         for i in module.parameters:
-            w = FXParameter(module.parameters[i])
+            w = MultiFXParameter(module.parameters[i])
             self.parameterWidgets[i] = w
 
         for i in self.parameterWidgets:
@@ -86,7 +86,7 @@ class FXModule(gtk.VBox):
 
         self.show_all()
 
-class FXParameter(gtk.HBox):
+class MultiFXParameter(gtk.HBox):
     def __init__(self,param):
         gtk.HBox.__init__(self, True)
         self.param = param
@@ -116,12 +116,12 @@ class FXParameter(gtk.HBox):
 
         self.pack_start(self.lblFormat)
 
-class FXLabel(gtk.Label):
+class MultiFXLabel(gtk.Label):
     def __init__(self,text):
         gtk.Label.__init__(self,text)
         self.justify = gtk.JUSTIFY_LEFT
 
-class FXEditor(gtk.VBox):
+class MultiFXEditor(gtk.VBox):
     def __init__(self,s):
         gtk.VBox.__init__(self)
         self.mfx = multifx(s)
@@ -130,7 +130,7 @@ class FXEditor(gtk.VBox):
       
         if self.mfx.channels:
             for i in self.mfx.channels:
-                self.channelWidgets[i] = FXChannel(self.mfx.channels[i])
+                self.channelWidgets[i] = MultiFXChannelEditor(self.mfx.channels[i])
                 self.pack_start(self.channelWidgets[i], expand=False, fill=False)
         else:
             print "nop"

@@ -1,10 +1,9 @@
 from aksy.device import Devices
-from utils.modelutils import *
-from samplerobject import *
+import ak, utils
 
-class zone(samplerobject):
+class Zone(ak.SamplerObject):
     def __init__(self, kg, index):
-        samplerobject.__init__(self, kg.s, kg, "zonetools", index)
+        ak.SamplerObject.__init__(self, kg.s, kg, "zonetools", index)
         self.samples = kg.samples
         self.keygroup = kg
         self.specialattrs = ["sample",]
@@ -20,13 +19,14 @@ class zone(samplerobject):
         # need to do this because it gets called from __getattribute__ and causes inf loop
         s = object.__getattribute__(self, "s")
         keygroup = object.__getattribute__(self, "keygroup")
-
         kgt = s.keygrouptools
+        pgt = s.programtools
+        pgt.set_curr_by_name(keygroup.p.name)
         kgt.set_curr_keygroup(keygroup.index)
 
     def get_special_attr(self,attrname,attrval):
         # actually used for setting
         if attrname == "sample":
-            return self.s.samplesmodel[attrval][0]
+            return attrval
         else:
             return None

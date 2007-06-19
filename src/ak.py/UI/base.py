@@ -3,7 +3,7 @@ import inspect
 import gtk.glade, gtk
 import ak
 
-class base(object):
+class Base(object):
     def __init__(self, samplerobject, editor_root):
         self.widgets = { }
         if samplerobject:
@@ -91,6 +91,13 @@ class base(object):
 
     def get_widget(self, name):
         return self.xml.get_widget(name)
+    
+    def show_all(self):
+        self.editor.show_all()
+
+    def set_samplerobject(self, so):
+        self.samplerobject = so
+        self.update()
 
     def __getattribute__(self, name):
         if name.startswith('w_') and not name in self.widgets:

@@ -6,12 +6,11 @@ import gobject,gtk.glade,gtk,aksy
 import UI
 
 from ak.zone import *
-from utils.modelutils import *
-from utils.midiutils import *
+from utils import *
 
-class ZoneEditor(UI.base):
+class ZoneEditor(UI.Base):
     def __init__(self, zone):
-        UI.base.__init__(self, zone, "zoneTable")
+        UI.Base.__init__(self, zone, "zoneTable")
 
         self.combo_sample = self.xml.get_widget("combo_sample")
         self.s.samplesmodel.connect("row-changed", self.on_row_changed)

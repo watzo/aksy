@@ -11,19 +11,23 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import aksy
+import shutil
 
 # our stuff
 import ak, UI, utils, postmod
 
-from utils.modelutils import *
-from utils.midiutils import *
+from utils import *
 
 from postmod.itx import *
 
 from aksy.device import Devices
 
-__author__ = 'Joseph Misra'
-__version__ = '0.45'
+__author__ = 'Joseph Misra and Walco van Loon'
+__version__ = '0.55'
+
+# config
+use_custom_excepthook = False
+
 def get_selected_from_treeview(treeview):
     """
     will return a single value or a list depending on what the selection mode is
@@ -56,12 +60,12 @@ def exceptionHandler(type, value, tback):
     return 0
 
 
-class DialogCreateNewKeygroups(UI.base):
+class DialogCreateNewKeygroups(UI.Base):
     def __init__(self, parent):
         self.s = parent.s
         self.programname = None
 
-        UI.base.__init__(self, None, "dialogCreateNewKeygroups")
+        UI.Base.__init__(self, None, "dialogCreateNewKeygroups")
 
     def on_cancelbutton_clicked(self, widget):
         self.editor.response(gtk.RESPONSE_CANCEL)
@@ -80,25 +84,37 @@ class DialogCreateNewKeygroups(UI.base):
 
         self.w_label_create_new.set_label("Create new keygroups on: " + caption_name)
 
-class DialogCreateNewProgramFast(UI.base):
+class DialogCreateNewProgramFast(UI.Base):
     def __init__(self, parent):
         self.s = parent.s
         self.programname = None
 
-        UI.base.__init__(self, None, "dialogCreateNewProgramFast")
+        UI.Base.__init__(self, None, "dialogCreateNewProgramFast")
     
-class SamplesContextMenu(UI.base):
+class SamplesContextMenu(UI.Base):
     """Context menu for the "samples" TreeView
     """
     def __init__(self, main):
         self.s = main.s
         self.main = main
 
-        UI.base.__init__(self, None, "menuSamples")
+        UI.Base.__init__(self, None, "menuSamples")
 
         self.dialogCreateNewProgramFast = DialogCreateNewProgramFast(self)
         self.dialogCreateNewProgramFast.w_combo_starting_note.set_model(midinotesmodel)
         self.dialogCreateNewProgramFast.w_combo_starting_note.set_active(0)
+
+    def on_delete_sample_activate(self, widget):
+        selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
+        print selected_samples
+        # delete em
+        for sample in selected_samples:
+            handle = self.s.sampletools.get_handle_by_name(sample)
+            self.main.log("Deleting %s" % (handle))
+            self.s.sampletools.delete_by_handle(handle)
+            
+        # the lazy way to update ...
+        self.main.init_lists()
 
     def on_new_program_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
@@ -142,11 +158,11 @@ class SamplesContextMenu(UI.base):
 
             if type == 1:
                 # drum program
-                print "setting drum type"
+                self.main.log("setting drum type")
                 self.s.programtools.set_type(1)
 
             for i in range(num_samples):
-                print "adding", i, notes[i][0], notes[i][1], selected_samples[i]
+                #self.main.log(str("adding", i, notes[i][0], notes[i][1], selected_samples[i]))
                 if type == 0:
                     self.s.keygrouptools.set_curr_keygroup(i)
                     print "set note range"
@@ -165,14 +181,14 @@ class SamplesContextMenu(UI.base):
 
         self.dialogCreateNewProgramFast.editor.hide()
 
-class ProgramsContextMenu(UI.base):
+class ProgramsContextMenu(UI.Base):
     """Context menu for the "programs" TreeView
     """
     def __init__(self, main):
         self.s = main.s
         self.main = main
 
-        UI.base.__init__(self, None, "menuPrograms")
+        UI.Base.__init__(self, None, "menuPrograms")
 
         self.dialogCreateNewKeygroups = DialogCreateNewKeygroups(self)
 
@@ -190,9 +206,16 @@ class ProgramsContextMenu(UI.base):
                 programname = [programname,]
 
             for pn in programname:
-                print "Adding ", howmany, "keygroups to", pn
-                self.program = ak.program(self.s,pn)
-                self.program.gettools().add_keygroups_to_current(howmany)
+                self.main.log("Adding %d keygroups to %s" % (howmany, pn))
+                self.program = ak.Program(self.s,pn)
+                self.program.gettools().add_keygroups(howmany)
+
+    def on_program_properties_activate(self, widget):
+        programname = get_selected_from_treeview(self.main.w_treeview_programs)
+        # multiple selection is possible, but for now we'll just take the first one 
+        programname = programname[0]
+        
+        self.main.open_program_properties(programname)
 
     def on_dump_matrix(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
@@ -200,22 +223,31 @@ class ProgramsContextMenu(UI.base):
             programname = [programname,]
 
         for pn in programname:
-            program = ak.program(self.s,pn)
-            program.dump_matrix()
+            program = ak.Program(self.s,pn)
+            matrix = program.dump_matrix()
+            self.main.log(matrix)
 
+    def on_keygroup_editor_activate(self, widget):
+        programname = get_selected_from_treeview(self.main.w_treeview_programs)
+        # multiple selection is possible, but for now we'll just take the first one 
+        programname = programname[0]
+        
+        self.main.open_keygroup_editor(programname)
+        
     def on_set_current_program_activate(self, widget):
         print "set current program"
 
-
-
-class Main(UI.base):
+class Main(UI.Base):
     """Main Window
     """
     def __init__(self, s):
         self.s = s
-        UI.base.__init__(self, None, "vboxMain")
+        self.sox = sox()
+        self.kgeditwindow = None
+        self.program_details_window = None
+        UI.Base.__init__(self, None, "vboxMain")
 
-        setattr(self.s,'filechooser', UI.filechooser(s))
+        setattr(self.s,'FilecChooser', UI.FileChooser(s))
 
         self.w_treeview_multis.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=0))
         self.w_treeview_multis.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
@@ -228,12 +260,18 @@ class Main(UI.base):
         self.SamplesContextMenu = SamplesContextMenu(self) 
 
         self.w_quit1.connect('activate', gtk.main_quit)
-
+       
+        vadj = self.w_console_window.get_vadjustment()
+        vadj.connect('changed', lambda a, s=self.w_console_window: self.rescroll(a,s))
+        
         self.init_lists()
 
         self.programsEditor = UI.ProgramsEditor(self.s)
+        self.record = UI.RecordDialog(ak.Recording(self.s))
 
         self.on_update_models(None)
+        
+        self.log("ak.py %s" % (__version__))
 
     @staticmethod
     def do_lists(s):
@@ -241,11 +279,28 @@ class Main(UI.base):
         setattr(s,'programs',s.programtools.get_names())
         setattr(s,'multis',s.multitools.get_names())
 
-        setattr(s,'samplesmodel',get_model_from_list(s.samples, True))
-        setattr(s,'programsmodel',get_model_from_list(s.programs))
-        setattr(s,'multismodel',get_model_from_list(s.multis))
+        setattr(s,'samplesmodel',utils.get_model_from_list(s.samples, True))
+        setattr(s,'programsmodel',utils.get_model_from_list(s.programs))
+        setattr(s,'multismodel',utils.get_model_from_list(s.multis))
+        
+    def set_window(self, window):
+        self.window = window
+        self.window.connect('configure_event', self.on_configure_event)
 
-    def init_lists(self):
+    def log(self,text):
+        self.w_console.get_buffer().insert_at_cursor(text + "\r\n")
+
+    def rescroll(self,vadj,scroll):
+        vadj.set_value(vadj.upper-vadj.page_size)
+        scroll.set_vadjustment(vadj)        
+        
+    def move_properties_window(self):
+        position = self.window.get_position()
+        size = self.window.get_size()
+        decoration_width = 10
+        if self.program_details_window:
+            self.program_details_window.editor.move(position[0] + size[0] + decoration_width, position[1])
+            def init_lists(self):
         try:
             Main.do_lists(self.s)
             self.s.samplesmodel.connect("row-changed", self.on_update_models)
@@ -253,9 +308,22 @@ class Main(UI.base):
             self.s.multismodel.connect("row-changed", self.on_update_models)
 
             self.on_update_models(None)
+            self.log("Multis, Programs, and Samples Loaded...")
         except Exception, ex:
-            print ex
-
+            self.log("Exception: %s" % (ex))
+            
+    def open_keygroup_editor(self, programname):
+        if programname:
+            p = ak.Program(self.s,programname)
+            if p.type == 0:
+                if not self.kgeditwindow:
+                    self.kgeditwindow = UI.KeygroupEditorWindow(self.s, programname)
+                else:
+                    self.kgeditwindow.setup(programname)
+                self.kgeditwindow.show_all()
+            else:
+                self.log("Sorry, DRUM programs not supported (yet)!")
+                
     def on_refresh_clicked(self, widget):
         self.init_lists()
 
@@ -271,40 +339,37 @@ class Main(UI.base):
         programname = model[iter][0]
         return programname
 
+    def open_program_properties(self, programname):
+        p = ak.Program(self.s, programname)
+        
+        if not self.program_details_window:
+            self.program_details_window = UI.ProgramDetails(p)
+        else:
+            self.program_details_window.set_samplerobject(p)
+        
+        self.move_properties_window()
+        self.program_details_window.show_all()
+    
+    def on_recording_activate(self, button):
+        self.log("record activate")
+        self.record.show_all()
+        
     def on_program_editor_activate(self, button):
         self.programsEditor.programsMain.show_all()
 
     def on_upload_activate(self, button):
-        self.s.filechooser.open(upload=True)
+        self.s.FilecChooser.open(upload=True)
+        self.init_lists()
 
-    def on_lcd_activate(self, button):
+    def on_configure_event(self, widget, event):
+        self.move_properties_window()
+        return False
+        def on_lcd_activate(self, button):
         lcd = UI.LCDScreen(self.s)
         win = gtk.Window()
         win.add(lcd)
         win.show_all()
-
-    def on_import_from_it(self, button):
-        """Displays a filechooser and then attempts to import samples from the .IT module.
-        """
-
-        self.filechooser = UI.filechooser(self.s)
-        self.filechooser.setup_filter(["IT"])
-
-        files = self.filechooser.open()
-        for fn in files:
-            it = ITX(fn)
-
-            print fn, "loaded! exporting..."
-
-            exported_files = it.exportSamples("/tmp")
-
-            print exported_files
-
-            for exported_file in exported_files:
-                # TODO: verify file format is ok
-                print "Uploading: ", exported_file
-                self.filechooser.upload(exported_file)
-
+       
     def on_treeview_event(self, widget, event):
         """Handles context menus + doubleclicks.
         """
@@ -319,8 +384,13 @@ class Main(UI.base):
                 if type(curr_program) is list:
                     curr_program = curr_program[0]
 
+                self.open_keygroup_editor(curr_program)
+                
+                """
+                OLD ONE:
                 self.programsEditor.set_program(curr_program)
                 self.programsEditor.programsMain.show_all()
+                """
 
         if widget == self.w_treeview_samples:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
@@ -339,7 +409,9 @@ class Main(UI.base):
 
 z48 = None
 log = None
-sys.excepthook = exceptionHandler
+
+if use_custom_excepthook:
+    sys.excepthook = exceptionHandler
 
 def main(): 
     z48 = Devices.get_instance("z48", "usb")
@@ -347,6 +419,7 @@ def main():
        m = Main(z48)
        win = gtk.Window()
        win.add(m.editor)
+       m.set_window(win)
        win.show_all()
        win.connect("delete-event", gtk.main_quit)
        gtk.main()

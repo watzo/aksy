@@ -1,8 +1,17 @@
+0.6
+- refactored UI, ak, and utils to fit a proper naming scheme. *most likely still some screwy references*
+
+0.5
+- stuck sox in the loop for impulse tracker importing
+- 'upload' will now recognize .IT files and run the export subroutine as well as uploading akp/akm/wav/aiff in the same batch
+- restored the recording interface (alpha, not really working)
+
 0.45
 - added impulse tracker module sample ripping -> uploading via Austin Luminais's Postmod code (in ./postmod) - note that this does not yet upsample 8-bit samples and this is an issue
 - switched out samplerobject.update(), now this uses __getattribute__ to pull attributes and caches the results, update() claears the cache
 - UI.filechooser.upload()
 - UI.filechooser.open() - added switch for upload, now its possible to use this to get a simple list
+
 0.4
 - started using glade-3 (shouldn't affect much)
 - refactored into UI / ak (sampler objects) / utils, this will probably change again

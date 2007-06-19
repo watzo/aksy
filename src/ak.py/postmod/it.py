@@ -15,12 +15,14 @@ from notes import *  #TODO: remove references to notes
 try:
     import win32api
 except:
+    print "cannot find win32api module"
     win32api = None
 
 # get itsmp module if available (c extension for loading compressed it samples)
 try:
     import itsmpc
 except:
+    print "cannot find itsmpc module"
     itsmpc = None
 
 DEBUG = 0
@@ -1035,9 +1037,10 @@ class ITSample(psyco.classes.psyobj):
             return 0
         if self.compression == COMPRESSION_IT214 or self.compression == COMPRESSION_IT215:
             if not itsmpc:
+                print "-- Can't uncompress",self.name
                 return 0
 
-            #print ".. decomp", itpath, self.sampleOffset, self.lengthInBytes, self.samplesize(), self.delta            
+            print ".. decomp", itpath, self.sampleOffset, self.lengthInBytes, self.samplesize(), self.delta            
             self.data = itsmpc.decompress(itpath, self.sampleOffset, self.lengthInBytes, self.samplesize(), self.delta)
             self.compression = COMPRESSION_NONE
             self.setflags(self.sampleSize, 1) # mono
@@ -4035,13 +4038,14 @@ class ITModule(psyco.classes.psyobj):
         exported = []
         for s in self.samples:
             if s.filename != "":
-                s.savefile(filex.pathjoin(path, s.filename))
-                exported.append(filex.pathjoin(path, s.filename))
+                ret = s.savefile(filex.pathjoin(path, s.filename))
+                if ret != 0:
+                    exported.append(filex.pathjoin(path, s.filename))
             else:
-                s.savefile(filex.pathjoin(path, os.path.basename(self.path) + str(i)))
-                exported.append(filex.pathjoin(path, os.path.basename(self.path) + str(i)))
+                ret = s.savefile(filex.pathjoin(path, os.path.basename(self.path) + str(i)))
+                if ret != 0:
+                    exported.append(filex.pathjoin(path, os.path.basename(self.path) + str(i)))
             i = i + 1
-        print exportSamples
         return exported
 
     def makeSolo(self, track, useVolumes=0):

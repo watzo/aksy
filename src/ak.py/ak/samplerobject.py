@@ -1,10 +1,10 @@
-import os,os.path,re,logging,sys,struct,math,traceback
+#import os,os.path,re,logging,sys,struct,math,traceback
 import gtk,pygtk,gobject
 import aksy
 
-from utils.modelutils import *
+import utils
 
-class samplerobject(object):
+class SamplerObject(object):
     def __init__(self, s, parent, whichtools, index = None):
         self.parent = parent
         self.s = s
@@ -47,11 +47,14 @@ class samplerobject(object):
                 func(self.index, attrval)
             else:
                 func(attrval)
-
+        else:
+            print "Could not find set_" + attrname + " method"
+            
         if self.set_callback:
             self.set_callback(attrname, attrval)
 
         # update cache
+        
         self.attrscache[attrname] = attrval
 
     def get_special_attr(self, attrname, attrval):
@@ -80,6 +83,8 @@ class samplerobject(object):
                     try:
                         if object.__getattribute__(self,"need_index_for_set"):
                             cache[attrname] = func(object.__getattribute__(self,"index"))
+                        elif attrname in ["filter","filter_cutoff", "filter_resonance"]:
+                            cache[attrname] = func(0) # will expand later for triple filter
                         else:
                             cache[attrname] = func()
                     except Exception, ex:

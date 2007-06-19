@@ -5,18 +5,21 @@ def match_func(model, iter, data):
    value = model.get_value(iter, column)
    return value == key
 def search(model, iter, func, data):
-   while iter:
-       if func(model, iter, data):
+    if not func:
+        func = match_func
+    while iter:
+        if func(model, iter, data):
            return iter
-       result = search(model, model.iter_children(iter), func, data)
-       if result: return result
-       iter = model.iter_next(iter)
-   return None
+        result = search(model, model.iter_children(iter), func, data)
+        if result: return result
+        iter = model.iter_next(iter)
+    return None
+
 def get_model_from_list (items, add_blank_entry = False):
     model = gtk.ListStore(str, str)
 
     if add_blank_entry:
-        model.append([0,''])
+        model.append([" "," "])
 
     if type(items) is tuple:
         items = list(items)
@@ -29,7 +32,10 @@ def get_model_from_list (items, add_blank_entry = False):
         if type(items) is str:
             items = [items,] 
         for s in items:
-            model.append([s, s])
+            if type(s) is list:
+                model.append(s)
+            else:
+                model.append([s, s])
 
     return model
 

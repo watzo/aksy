@@ -24,13 +24,25 @@ class AkWidget(gtk.DrawingArea):
 
         self.is_scaled = False
 
+        self.so = None
+        self.soattr = None
+
+        self.init(so, soattr)
+
+    def init(self, so, soattr = None):
+        if soattr:
+            self.soattr = soattr
+
         if so:
             self.s = so.s
             self.so = so
-            self.soattr = soattr
-            if soattr:
-                self.value = getattr(so, soattr)
-            self.init_filechooser(self.s)
+
+            if self.soattr:
+                self.value = getattr(self.so, self.soattr)
+                
+            #self.init_filechooser(self.s)
+
+        self.queue_draw()
 
     def get_format(self):
         if self.units:
@@ -42,17 +54,19 @@ class AkWidget(gtk.DrawingArea):
 
     def init_filechooser(self, s):
         if not getattr(self.s, 'filechooser', None):
-            setattr(self.s,'filechooser', UI.filechooser(s))
+            setattr(self.s,'filechooser', UI.FileChooser(s))
 
     def set_value(self, value):
         # returns True if value actually changed
 
         before = self.value
         self.value = self.calc_value(value)
-
+        
+        
         if before == self.value:
             return False
         else:
+            self.so.set(self.soattr, self.value)
             return True
 
     def calc_value(self, value):

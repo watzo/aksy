@@ -11,13 +11,7 @@ import gtk,gtk.glade,gobject
 import aksy
 
 # our stuff
-import utils, postmod
-
-from ak import *
-from UI import *
-
-from utils.modelutils import *
-from utils.midiutils import *
+import utils,ak,UI
 
 from postmod.itx import *
 
@@ -68,15 +62,15 @@ class ZoneWindow(gtk.Window):
             zonehbox = gtk.HBox()
 
             zonecontrols = [
-                AkComboBox(zone, "sample", self.s.samplesmodel, False),
-                AkComboBox(zone, "output", sampler_items["output"]),
-                AkComboBox(zone, "keyboard_track", sampler_items["keyboard_track"]),
-                AkComboBox(zone, "playback", sampler_items["playback"]),
-                AkKnobWidget(zone, "level", -600, 60, 10, "db"),
-                AkKnobWidget(zone, "pan", 0, 100, 1, ""),
-                AkKnobWidget(zone, "filter", -100, 100, 1, ""),
-                AkKnobWidget(zone, "mod_start", -9999, 9999, 1, ""),
-                AkKnobWidget(zone, "tune", -3600, 3600, 100, ""),
+                UI.AkComboBox(zone, "sample", self.s.samplesmodel, False),
+                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
+                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
+                UI.AkComboBox(zone, "playback", utils.sampler_lists["playback"]),
+                UI.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
+                UI.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
+                UI.AkKnobWidget(zone, "filter", -100, 100, 1, ""),
+                UI.AkKnobWidget(zone, "mod_start", -9999, 9999, 1, ""),
+                UI.AkKnobWidget(zone, "tune", -3600, 3600, 100, ""),
                 ]
 
             for zonecontrol in zonecontrols:
@@ -86,22 +80,31 @@ class ZoneWindow(gtk.Window):
 
         self.add(zonevbox)
 
-class Main3Window(gtk.Window):
-    def __init__(self, z48):
+class KeygroupEditorWindow(gtk.Window):
+    def __init__(self, z48, initial_program_name = None):
         gtk.Window.__init__(self)
         self.connect("configure_event", self.on_configure_event)
-        Main3Window.do_lists(z48)
-
+        self.connect("delete-event", self.on_delete_event)
         self.s = z48
-
-        p = program(z48, "Program 1")
+        
+        KeygroupEditorWindow.do_lists(self.s)
+        
+        self.zonewindow = None
+        
+        self.setup(initial_program_name)
+        
+    def setup(self, program_name):
+        self.clear_widgets()
+        
+        if not program_name:
+            program_name = "Program 1"
+            
+        p = ak.Program(self.s, program_name)
         p.update()
 
-        no_keygroups = z48.programtools.get_no_keygroups()
+        self.no_keygroups = self.s.programtools.get_no_keygroups()
 
-        rangewidgets = []#
-
-        self.zonewindow = None
+        #self.rangewidgets = []#
 
         vbox = gtk.VBox()
 
@@ -109,8 +112,8 @@ class Main3Window(gtk.Window):
         dla.connect("clicked", self.do_lists_again)
         vbox.pack_start(dla)
 
-        for i in range(no_keygroups):
-            kg = keygroup(p, i)
+        for i in range(self.no_keygroups):
+            kg = ak.Keygroup(p, i)
             kg.update()
             tb = gtk.Button(str(i + 1))
             tb.connect("clicked", self.on_button_press_event)
@@ -122,14 +125,14 @@ class Main3Window(gtk.Window):
 
             kghboxall.pack_start(tb, False, False, 1)
 
-            kghboxall.pack_start(KeygroupRangeWidget(kg))
-            kghboxall.pack_start(AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
-            kghboxall.pack_start(AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
+            kghboxall.pack_start(UI.KeygroupRangeWidget(kg))
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
 
-            kghboxall.pack_start(AkComboBox(kg, "filter", sampler_items["filter"]), False, False, 2)
-            kghboxall.pack_start(AkComboBox(kg, "filter_attenuation", sampler_items["filter_attenuation"]), False, False, 2)
-            kghboxall.pack_start(AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), False, False, 1)
-            kghboxall.pack_start(AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""), False, False, 1)
+            kghboxall.pack_start(UI.AkComboBox(kg, "filter", utils.sampler_lists["filter"]), False, False, 2)
+            kghboxall.pack_start(UI.AkComboBox(kg, "filter_attenuation", utils.sampler_lists["filter_attenuation"]), False, False, 2)
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), False, False, 1)
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""), False, False, 1)
 
             vbox.pack_start(kghboxall, False, False, 2)
 
@@ -138,14 +141,14 @@ class Main3Window(gtk.Window):
         self.init_zonewindow(p, 0)
 
     def do_lists_again(self, widget):
-        Main3Window.do_lists(self.s)
+        KeygroupEditorWindow.do_lists(self.s)
 
     def on_button_press_event(self, widget):
         if type(widget) is gtk.Button:
             self.init_zonewindow(widget.program, widget.index)
 
     def init_zonewindow(self, program, index):
-        kg = keygroup(program, index)
+        kg = ak.Keygroup(program, index)
         if not self.zonewindow or index != self.zonewindow.kg.index:
             if self.zonewindow:
                 self.zonewindow.hide()
@@ -155,7 +158,13 @@ class Main3Window(gtk.Window):
             self.zonewindow.init(kg)
             self.move_zonewindow()
             self.zonewindow.show_all()
-
+            
+    def clear_widgets(self):
+        for child in self.get_children():
+            self.remove(child)
+        if self.zonewindow:
+            self.zonewindow = None
+    
     def move_zonewindow(self):
         position = self.get_position()
         size = self.get_size()
@@ -165,6 +174,12 @@ class Main3Window(gtk.Window):
     def on_configure_event(self, widget, event):
         self.move_zonewindow()
         return False
+    
+    def on_delete_event(self, widget, event):
+        # no, please!
+        self.hide_all()
+        self.zonewindow.hide_all()
+        return True
 
     @staticmethod
     def do_lists(s):
@@ -172,13 +187,13 @@ class Main3Window(gtk.Window):
         setattr(s,'programs',s.programtools.get_names())
         setattr(s,'multis',s.multitools.get_names())
 
-        setattr(s,'samplesmodel',get_model_from_list(s.samples, True))
-        setattr(s,'programsmodel',get_model_from_list(s.programs))
-        setattr(s,'multismodel',get_model_from_list(s.multis))
+        setattr(s,'samplesmodel',utils.get_model_from_list(s.samples, True))
+        setattr(s,'programsmodel',utils.get_model_from_list(s.programs))
+        setattr(s,'multismodel',utils.get_model_from_list(s.multis))
 
 def main(): 
     z48 = Devices.get_instance("z48", "usb")
-    win = Main3Window(z48)
+    win = KeygroupEditorWindow(z48)
     win.show_all()
     win.connect("delete-event", gtk.main_quit)
     gtk.main()
