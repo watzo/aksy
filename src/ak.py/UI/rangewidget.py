@@ -1,11 +1,11 @@
 # Custom widgets via Cairo: Knob, Level, Range, Keygroup etc.
 
-import pygtk
-import gobject,gtk.glade,gtk,aksy,UI,cairo,urllib
+import gobject, gtk, UI, cairo, urllib
+
+import math
 
 from urlparse import urlparse
 from urllib import *
-from aksy.device import Devices
 from UI.hitbox import *
 from UI.widget import *
 from utils.midiutils import *
