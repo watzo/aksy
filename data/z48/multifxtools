@@ -63,7 +63,7 @@ BYTE	STRING
 WORD
 \x27	\x40	is_module_enabled	Get Enabled/Disabled State of FX module <Data1> = channel; <Data2> = module; (0=disabled, 1=enabled)	BYTE	BYTE
 BYTE
-\x27	\x50	get_param_value	Get parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE
+\x27	\x50	get_param_value	Get parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE	BYTE
 SDWORD
 \x27	\x51	get_param_string	Get parameter string of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter	BYTE	BYTE	BYTE
 STRING
