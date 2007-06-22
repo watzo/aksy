@@ -4,7 +4,7 @@ from recording import *
 from multifx import *
 from program import *
 from programs import *
-from sample import *
+from samples import *
 from zone import *
 from envelope import *
 from modulationmatrix import *
