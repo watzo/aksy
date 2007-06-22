@@ -1,4 +1,4 @@
-import os
+import os.path, os
 
 def convert(filename):
 	if os.path.exists(filename):
