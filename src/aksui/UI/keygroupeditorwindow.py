@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import psyco
 psyco.full()
-import hotshot, hotshot.stats
 
 import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect
 import types
@@ -201,6 +200,7 @@ def main():
 if __name__ == "__main__":
     log = logging.getLogger("aksy")
     #sys.stdout = UGivStderr()
+	#import hotshot, hotshot.stats
     #prof = hotshot.Profile("ak.py.prof")
     #prof.runcall(main)
     main()
