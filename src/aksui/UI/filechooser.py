@@ -6,13 +6,13 @@ import gobject,gtk.glade,gtk,aksy
 from postmod.itx import *
 
 from utils import *
+from utils import sox
 
 from ak import program, zone, keygroup
 
 class FileChooser:
     def __init__(self, s):
         self.s = s
-        self.sox = sox()
         self.last_folder = None
         self.filechooser = gtk.FileChooserDialog(title="Open Sample", buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK)) 
         self.setup_filter(["*.AKP","*.AKM","*.WAV","*.AIF","*.AIFF","*.IT"], "Audio Files")
@@ -77,7 +77,7 @@ class FileChooser:
 
         for exported_file in exported_files:
             resampled_path = os.path.dirname(exported_file)
-            resampled_name = self.sox.convert(exported_file)
+            resampled_name = sox.convert(exported_file)
             result.append(resampled_name)
                 
             """
