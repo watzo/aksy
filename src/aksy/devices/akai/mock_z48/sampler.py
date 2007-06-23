@@ -15,7 +15,12 @@ class MockZ48(Z48):
         self._patch_disktools_get_disklist()
         
         self._patch_systemtools()
-
+        
+        self.programtools.get_handles_names = lambda : (1, 'program',)
+        self.songtools.get_handles_names = lambda : (1, 'song',)
+        self.multitools.get_handles_names = lambda : (1, 'multi',)
+        self.sampletools.get_handles_names = lambda : (1, 'sample',)
+        
         self.setup_model()
 
         self._populate_fs()
@@ -55,10 +60,10 @@ class MockZ48(Z48):
              model.Folder('Songs')]
         self.disks.get_children()[1].root.children = [mellotron_folder]
 
-        memory_items = [model.Sample("Boo"),
-            model.Multi("Default"),]
+        memory_items = [model.Sample("Boo", 1),
+            model.Multi("Default", 2),]
         for i in range(0, 100):
-            memory_items.append(model.Sample("Sample%i" %i))
+            memory_items.append(model.Sample("Sample%i" %i, i))
         self.memory.set_children(memory_items)
         self.memory.get_children()[0].get_modified = lambda : True
 

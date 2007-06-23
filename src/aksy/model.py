@@ -304,8 +304,9 @@ class InMemoryFile(FileRef):
     def __cmp__(self, item):
         return cmp(self.get_short_name(), item.get_short_name())
     
-    def __init__(self, name):
+    def __init__(self, name, handle):
         self.name = name
+        self.handle = handle
         FileRef.__init__(self, (name,))
 
     def get_actions(self):
@@ -322,7 +323,7 @@ class InMemoryFile(FileRef):
     def get_handle(self):
         """Returns the handle
         """
-        return handlers[self.__class__].get_handle_by_name(self.get_short_name())
+        return self.handle
 
     def get_modified(self):
         self.set_current()
@@ -349,23 +350,23 @@ class InMemoryFile(FileRef):
         handlers[self.__class__].rename_curr(new_name)
 
 class Multi(InMemoryFile):
-    def __init__(self, name):
-        InMemoryFile.__init__(self, name)
+    def __init__(self, name, handle):
+        InMemoryFile.__init__(self, name, handle)
         self.type = FileRef.MULTI
 
     def get_name(self):
         return InMemoryFile.get_name(self) + ".akm"
 
 class Program(InMemoryFile):
-    def __init__(self, name):
-        InMemoryFile.__init__(self, name)
+    def __init__(self, name, handle):
+        InMemoryFile.__init__(self, name, handle)
         self.type = FileRef.PROGRAM
     def get_name(self):
         return InMemoryFile.get_name(self) + ".akp"
 
 class Sample(InMemoryFile):
-    def __init__(self, name):
-        InMemoryFile.__init__(self, name)
+    def __init__(self, name, handle):
+        InMemoryFile.__init__(self, name, handle)
         self.type = FileRef.SAMPLE
 
     def get_name(self):
@@ -377,8 +378,8 @@ class Sample(InMemoryFile):
         handlers[Sample].get_sample_length()
         
 class Song(InMemoryFile):
-    def __init__(self, name):
-        InMemoryFile.__init__(self, name)
+    def __init__(self, name, handle):
+        InMemoryFile.__init__(self, name, handle)
         self.type = FileRef.SONG
 
     def get_size(self):
@@ -461,26 +462,16 @@ class Memory(Storage):
     def get_children(self):
         if len(self.children) > 0:
             return self.children
-        programs = []
-        multis = []
-        samples = []
-        songs = []
-        names = handlers[Program].get_names()
-        if names is not None:
-            programs = [Program(name) for name in names]
-        names = handlers[Multi].get_names()
-        if names is not None:
-            multis = [Multi(name) for name in names]
-        names = handlers[Sample].get_names()
-        if names is not None:
-            samples = [Sample(name) for name in names]
-
-        names = handlers[Song].get_names()
-        if names is not None:
-            songs = [Song(name) for name in names]
         
-        self.children.extend(programs)
-        self.children.extend(multis)
-        self.children.extend(samples)
-        self.children.extend(songs)
+        self.children.extend(self.get_handles_names(Program))
+        self.children.extend(self.get_handles_names(Multi))
+        self.children.extend(self.get_handles_names(Sample))
+        self.children.extend(self.get_handles_names(Song))
+
         return self.children
+    
+    def get_handles_names(self, clz):
+        handles_names = handlers[clz].get_handles_names()
+        for i in range(0, len(handles_names), 2):
+            handle, name = handles_names[i], handles_names[i+1]
+            yield clz(name, handle)
