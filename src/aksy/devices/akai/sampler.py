@@ -17,7 +17,7 @@ class Sampler(AkaiSampler):
     lock = Lock()
     """Base class for AkaiSampler.
     """
-    def __init__(self, usb_product_id=0, debug=1):
+    def __init__(self, usb_product_id=0, debug=False):
         AkaiSampler.__init__(self, usb_product_id)
         self.debug = debug
 
@@ -44,15 +44,38 @@ class Sampler(AkaiSampler):
 
         self._put(sourcepath, remote_name, destination)
 
+
+    def execute_request(self, request):
+        if self.debug:
+            log.debug("Request:  %s\n" % repr(request))
+        result_bytes = self._execute(request.get_bytes())
+        if self.debug:
+            log.debug("Response: %s\n" % (sysex.byte_repr(result_bytes)))
+        return result_bytes
+        
+    def execute_alt_request(self, handle, commands, args):
+        """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
+        All commands must be from the same sub section (get/set/main), the section id will be determined from the first command in the list.
+        
+        Example:
+        
+           cmd = z48.sampletools.get_sample_length_cmd
+           cmd2 = z48.sampletools.get_bit_depth_cmd
+           cmd3 = z48.sampletools.get_playback_mode_cmd
+           z48.execute_alt_request(65536, [cmd, cmd2, cmd3], [])
+        (95955L, 16, 0)
+
+        """
+        result_bytes = self.execute_request(sysex.AlternativeRequest(handle, commands, args))
+        result = sysex.Reply(result_bytes, commands[0], True)
+        return result.get_return_value()
+
+
     def execute(self, command, args, request_id=0):
         """Executes a command on the sampler
         """
         request = sysex.Request(command, args, request_id)
-        if self.debug:
-            log.debug("Command: %s %s, id %i\n" % (command.name, repr(request), request_id))
-        result_bytes = self._execute(request.get_bytes())
-        if self.debug:
-            log.debug("Command: %s Reply %s\n" % (command.name, sysex.byte_repr(result_bytes)))
+        result_bytes = self.execute_request(request)
         result = sysex.Reply(result_bytes, command)
         return result.get_return_value()
 

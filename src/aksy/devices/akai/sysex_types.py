@@ -581,14 +581,7 @@ def get_type(typeId):
 
 # TODO: make HandleNameDictType
 class HandleNameArrayType(object):
-    r"""Mixed data type, wrapping handle(DoubleWord) and name (StringType)
-
-    >>> handle_name_type = HandleNameArrayType()
-    >>> handle_name_type.decode('\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
-    (16, (65537, 'SynthTest'))
-    >>> handle_name_type.decode('\x04\x00\x00\x04\x00\x08\x44\x72\x79\x20\x4b\x69\x74\x20\x30\x32\x00\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
-    (33, (65536, 'Dry Kit 02', 65537, 'SynthTest'))
-
+    """Mixed data type, wrapping handle(DoubleWord) and name (StringType)
     """
     def __init__(self):
         self.size = None
@@ -600,12 +593,11 @@ class HandleNameArrayType(object):
         len_to_parse = len(string)
         len_parsed = 0
         while len_parsed < len_to_parse:
-            results.append(
-                DWORD.decode(
-                    string[len_parsed:len_parsed+5], typed=False))
+            handle = DWORD.decode(
+                    string[len_parsed:len_parsed+5], typed=False)
             len_parsed += 5
-            len_result, result = STRING.decode(string[len_parsed:])
-            results.append(result)
+            len_result, name = STRING.decode(string[len_parsed:])
+            results.append((handle, name))
             len_parsed += len_result
         return len_parsed, tuple(results)
 
