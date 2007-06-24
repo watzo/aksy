@@ -100,18 +100,17 @@ class AlternativeRequest(Request):
         bytes.append(sysex_types.DWORD.encode(handle))
         if index is not None:
             bytes.append(sysex_types.BYTE.encode(index))
-        
-        for command in commands:
-            data = command.create_arg_bytes(args)
-            # TODO: this is z48 specific
-            if data is None:
+        for i, command in enumerate(commands):
+            if len(command.arg_types) > 0:
+                data = command.create_arg_bytes(args[i])
+                bytes.append(sysex_types.BYTE.encode(len(data) + 1))
+            else:
                 data = []
                 bytes.append(sysex_types.BYTE.encode(1))
-            else:
-                bytes.append(sysex_types.BYTE.encode(len(data) + 1))
 
             bytes.append(command.id[1:])
             bytes.extend(data)
+        
                  
         bytes.append(END_SYSEX)
         self.bytes = ''.join(bytes)
