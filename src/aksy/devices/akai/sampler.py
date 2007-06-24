@@ -57,13 +57,17 @@ class Sampler(AkaiSampler):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
         All commands must be from the same sub section (get/set/main), the section id will be determined from the first command in the list.
         
-        Example:
+        Examples:
         
-           cmd = z48.sampletools.get_sample_length_cmd
-           cmd2 = z48.sampletools.get_bit_depth_cmd
-           cmd3 = z48.sampletools.get_playback_mode_cmd
-           z48.execute_alt_request(65536, [cmd, cmd2, cmd3], [])
+            cmd = z48.sampletools.get_sample_length_cmd
+            cmd2 = z48.sampletools.get_bit_depth_cmd
+            cmd3 = z48.sampletools.get_playback_mode_cmd
+            z48.execute_alt_request(65536, [cmd, cmd2, cmd3], [])
         (95955L, 16, 0)
+
+            cmd = z48.sampletools.set_playback_mode_cmd
+            cmd2 = z48.sampletools.set_orig_pitch_cmd
+            z48.execute_alt_request(65536, [cmd, cmd2], [[1], [2]])
 
         """
         result_bytes = self.execute_request(sysex.AlternativeRequest(handle, commands, args))
