@@ -199,10 +199,10 @@ class TestTestHandleNameArrayType(unittest.TestCase):
         self.handle_name_type = sysex_types.HandleNameArrayType()
     def testDecode(self):
         result = self.handle_name_type.decode('\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
-        self.assertEquals((16, (65537, 'SynthTest')), result)
+        self.assertEquals((16, ((65537, 'SynthTest'),)), result)
 
         result = self.handle_name_type.decode('\x04\x00\x00\x04\x00\x08\x44\x72\x79\x20\x4b\x69\x74\x20\x30\x32\x00\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
-        self.assertEquals((33, (65536, 'Dry Kit 02', 65537, 'SynthTest')), result)
+        self.assertEquals((33, ((65536, 'Dry Kit 02'), (65537, 'SynthTest'))), result)
 
 class TestDiskInfo(unittest.TestCase):
     def test_repr(self):

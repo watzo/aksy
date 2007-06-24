@@ -159,10 +159,14 @@ class TestReply(unittest.TestCase):
         self.assertEquals(('Dry Kit 02', 'Program 1', 'SynthTest'), reply.get_return_value())
 
 class TestAlternativeRequest(unittest.TestCase):
-    def test_get_bytes(self):
+    def test_no_args(self):
         cmd = sysex.Command(sysex.Z48_ID, '\x1F\x50', 'get_sample_length', (), None)
-        req = sysex.AlternativeRequest('\x60', 65536, [cmd], [None], '\x1c')
-        self.assertEquals('\xf0G_\x00`\x03\x00\x00\x04\x00\x00P\xf7', req.get_bytes())
+        req = sysex.AlternativeRequest(65536, [cmd], [])
+        self.assertEquals('\xf0G_\x00`\x03\x00\x00\x04\x00\x01P\xf7', req.get_bytes())
+    def test_with_args(self):
+        cmd = sysex.Command('_', '\x1E\x26', 'set_playback_mode', (sysex_types.BYTE,), None)
+        req = sysex.AlternativeRequest(65536, [cmd], [1])
+        self.assertEquals('\xf0G_\x00`\x02\x00\x00\x04\x00\x02&\x01\xf7', req.get_bytes())
     
 class TestModuleMethods(unittest.TestCase):
     def test_byte_repr(self):

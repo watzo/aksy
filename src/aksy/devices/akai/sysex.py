@@ -63,48 +63,79 @@ class Request:
         
     def get_bytes(self):
         return self.bytes
-
+    
     def __repr__(self):
         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', 
                                                              self.bytes)])
 class AlternativeRequest(Request):
-    def __init__(self, section_id, handle, commands, args, base_section_id, index=None, request_id=0):
+    SECTION_SAMPLE = '\x60'
+    SECTION_KEYGROUP = '\x61'
+    SECTION_PROGRAM = '\x62'
+    SECTION_MULTI = '\x63'
+    SECTION_MULTIFX = '\x64'
+    SECTION_SONG = '\x65'
+
+    BASE_SECTION_SAMPLE = '\x1c'
+    BASE_SECTION_KEYGROUP = '\x0c'
+    BASE_SECTION_PROGRAM = '\x14'
+    BASE_SECTION_MULTI = '\x18'
+    BASE_SECTION_MULTIFX = '\x25'
+    BASE_SECTION_SONG = '\x28'
+
+    BASE_ALT_SECTION_MAP = {
+        BASE_SECTION_SAMPLE : SECTION_SAMPLE,
+        BASE_SECTION_KEYGROUP : SECTION_KEYGROUP,
+        BASE_SECTION_PROGRAM : SECTION_PROGRAM,
+        BASE_SECTION_MULTI : SECTION_MULTI,
+        BASE_SECTION_MULTIFX : SECTION_MULTIFX,
+        BASE_SECTION_SONG : SECTION_SONG
+    }
+
+    def __init__(self, handle, commands, args, index=None, request_id=0):
         bytes = self._create_start_bytes(commands[0], request_id)
-        bytes.append(section_id)
         # TODO: this is z48 specific
-        bytes.append(self.calc_offset(base_section_id, commands[0].id))
+        alt_section_id, offset = self.find_section_ids(commands[0].id)
+        bytes.append(alt_section_id)
+        bytes.append(offset)
         bytes.append(sysex_types.DWORD.encode(handle))
         if index is not None:
             bytes.append(sysex_types.BYTE.encode(index))
         
         for command in commands:
             data = command.create_arg_bytes(args)
-            if data is not None:
-                # TODO: this is z48 specific
-                bytes.append(sysex_types.BYTE.encode(len(data)))
-                bytes.extend(data)
+            # TODO: this is z48 specific
+            if data is None:
+                data = []
+                bytes.append(sysex_types.BYTE.encode(1))
             else:
-                bytes.append(sysex_types.BYTE.encode(0))
+                bytes.append(sysex_types.BYTE.encode(len(data) + 1))
+
             bytes.append(command.id[1:])
-                     
+            bytes.extend(data)
+                 
         bytes.append(END_SYSEX)
         self.bytes = ''.join(bytes)
         
-    def calc_offset(self, base_section_id, command_id):
-        base_section_id = sysex_types.BYTE.decode(base_section_id, False)
+    def find_section_ids(self, command_id):
         section_id = sysex_types.BYTE.decode(command_id[:1], False)
-        section_offset = section_id - base_section_id
-        if section_offset > 3:
-            raise base.SamplerException("Offset should be between 0 and 3")
-        return sysex_types.BYTE.encode(section_offset)
+        for i in range(4):
+            base_section =  sysex_types.BYTE.encode(section_id - i)
+            alt_section = self.BASE_ALT_SECTION_MAP.get(base_section, None) 
+            if alt_section is not None:
+                return alt_section, sysex_types.BYTE.encode(i)
+        
+        raise base.SamplerException("No alternative operations defined for %s" % 
+                                    repr(command_id[:1]))
+        
     
 class Reply:
     """ Encapsulates a sysex reply
     """
-    def __init__(self, bytes, command):
+    def __init__(self, bytes, command, alt_request=False):
         self.bytes = bytes
         self.command = command
         self.request_id  = 0
+        self.alt_request = alt_request
         self.return_value = self._parse()
 
     def get_request_id(self):
@@ -146,7 +177,7 @@ class Reply:
         else:
             raise ParseException("Unknown reply type: %02x" % struct.unpack('b', reply_id))
 
-        if self.command.id[:2] != command:
+        if not self.alt_request and self.command.id[:2] != command:
             raise ParseException(
                 'Parsing the wrong reply for command %02x %02x'
                     % struct.unpack('2B', self.command.id[:2]))
