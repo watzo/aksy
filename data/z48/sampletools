@@ -125,7 +125,7 @@ BYTE
 
 \x1E	\x25	set_tune	Set Cents Tune	SWORD
 
-\x1E	\x26	set_playback_mode	Set Playback Mode, where arg0= (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
+\x1E	\x26	set_playback_mode	Set Playback Mode, where arg0= (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)	BYTE
 
 \x1E	\x30	set_loop_start	Set Loop Start <Data1> = loop index	BYTE	QWORD
 

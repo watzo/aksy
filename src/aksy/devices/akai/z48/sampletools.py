@@ -5,7 +5,7 @@ Sample
 """
 
 __author__ =  'Walco van Loon'
-__version__=  '$Rev$'
+__version__ =  '0.2'
 
 from aksy.devices.akai.sysex import Command
 
@@ -13,7 +13,7 @@ import aksy.devices.akai.sysex_types
 
 class Sampletools:
     def __init__(self, z48):
-        self.z48 = z48
+        self.sampler = z48
         self.get_no_items_cmd = Command('_', '\x1C\x01', 'get_no_items', (), None)
         self.get_handles_cmd = Command('_', '\x1C\x02\x00', 'get_handles', (), None)
         self.get_names_cmd = Command('_', '\x1C\x02\x01', 'get_names', (), None)
@@ -77,7 +77,7 @@ class Sampletools:
         self.set_trim_length_cmd = Command('_', '\x1E\x22', 'set_trim_length', (aksy.devices.akai.sysex_types.QWORD,), None)
         self.set_orig_pitch_cmd = Command('_', '\x1E\x24', 'set_orig_pitch', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_tune_cmd = Command('_', '\x1E\x25', 'set_tune', (aksy.devices.akai.sysex_types.SWORD,), None)
-        self.set_playback_mode_cmd = Command('_', '\x1E\x26', 'set_playback_mode', (), None)
+        self.set_playback_mode_cmd = Command('_', '\x1E\x26', 'set_playback_mode', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_loop_start_cmd = Command('_', '\x1E\x30', 'set_loop_start', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
         self.set_loop_end_cmd = Command('_', '\x1E\x31', 'set_loop_end', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
         self.set_loop_length_cmd = Command('_', '\x1E\x32', 'set_loop_length', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.QWORD), None)
@@ -96,12 +96,12 @@ class Sampletools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_no_items_cmd, ())
+        return self.sampler.execute(self.get_no_items_cmd, ())
 
     def get_handles(self):
         """Get Sample handles
         """
-        return self.z48.execute(self.get_handles_cmd, ())
+        return self.sampler.execute(self.get_handles_cmd, ())
 
     def get_names(self):
         """Get sample names
@@ -109,7 +109,7 @@ class Sampletools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_names_cmd, ())
+        return self.sampler.execute(self.get_names_cmd, ())
 
     def get_handles_names(self):
         """Get list of sample handles and names
@@ -117,7 +117,7 @@ class Sampletools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_handles_names_cmd, ())
+        return self.sampler.execute(self.get_handles_names_cmd, ())
 
     def get_handles_modified(self, arg0):
         """Get a list of modified/tagged samples
@@ -125,17 +125,17 @@ class Sampletools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_handles_modified_cmd, (arg0, ))
+        return self.sampler.execute(self.get_handles_modified_cmd, (arg0, ))
 
     def set_curr_by_handle(self, arg0):
         """Select current item by handle
         """
-        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
     def set_curr_by_name(self, arg0):
         """Select current item by name
         """
-        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_name_cmd, (arg0, ))
 
     def get_curr_handle(self):
         """Get handle of current item
@@ -143,7 +143,7 @@ class Sampletools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_curr_handle_cmd, ())
+        return self.sampler.execute(self.get_curr_handle_cmd, ())
 
     def get_curr_name(self):
         """Get name of current item
@@ -151,7 +151,7 @@ class Sampletools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_curr_name_cmd, ())
+        return self.sampler.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
@@ -159,7 +159,7 @@ class Sampletools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.get_name_by_handle_cmd, (arg0, ))
 
     def get_handle_by_name(self, arg0):
         """Get item handle from name
@@ -167,42 +167,42 @@ class Sampletools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.get_handle_by_name_cmd, (arg0, ))
 
     def delete_all(self):
         """Delete ALL items from memory
         """
-        return self.z48.execute(self.delete_all_cmd, ())
+        return self.sampler.execute(self.delete_all_cmd, ())
 
     def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_curr_cmd, ())
+        return self.sampler.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
-        return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_by_handle_cmd, (arg0, ))
 
     def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
+        return self.sampler.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
         """
-        return self.z48.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
 
     def set_tag_bit(self, arg0, arg1):
         """Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)
         """
-        return self.z48.execute(self.set_tag_bit_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_tag_bit_cmd, (arg0, arg1, ))
 
     def get_tag_bitmap(self):
         """Get Tag Bitmap
         """
-        return self.z48.execute(self.get_tag_bitmap_cmd, ())
+        return self.sampler.execute(self.get_tag_bitmap_cmd, ())
 
     def get_curr_modified(self):
         """Get name of current item with modified/tagged info
@@ -210,7 +210,7 @@ class Sampletools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_curr_modified_cmd, ())
+        return self.sampler.execute(self.get_curr_modified_cmd, ())
 
     def get_modified(self):
         """Get modified state of current item.
@@ -218,67 +218,67 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_modified_cmd, ())
+        return self.sampler.execute(self.get_modified_cmd, ())
 
     def delete_tagged(self, arg0):
         """Delete tagged items <Data1> = tag bit
         """
-        return self.z48.execute(self.delete_tagged_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_tagged_cmd, (arg0, ))
 
     def play(self, arg0, arg1):
         """Start auditioning the current sample <Data1> = velocity <Data2> =(NO LOOPING, 1=LOOPING)
         """
-        return self.z48.execute(self.play_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.play_cmd, (arg0, arg1, ))
 
     def stop(self):
         """Stop playback of the current sample
         """
-        return self.z48.execute(self.stop_cmd, ())
+        return self.sampler.execute(self.stop_cmd, ())
 
     def play_until(self, arg0, arg1):
         """Play To <Data1> = velocity, <Data2> = sample position
         """
-        return self.z48.execute(self.play_until_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.play_until_cmd, (arg0, arg1, ))
 
     def play_from(self, arg0, arg1):
         """Play From <Data1> = velocity, <Data2> = sample position
         """
-        return self.z48.execute(self.play_from_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.play_from_cmd, (arg0, arg1, ))
 
     def play_over(self, arg0, arg1):
         """Play Over <Data1> = velocity, <Data2> = sample position
         """
-        return self.z48.execute(self.play_over_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.play_over_cmd, (arg0, arg1, ))
 
     def play_loop(self, arg0, arg1):
         """Play Loop <Data1> = velocity, <Data2> = loop index
         """
-        return self.z48.execute(self.play_loop_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.play_loop_cmd, (arg0, arg1, ))
 
     def play_region(self, arg0, arg1):
         """Play Region <Data1> = velocity, <Data2> = region index
         """
-        return self.z48.execute(self.play_region_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.play_region_cmd, (arg0, arg1, ))
 
     def create_loop(self):
         """Create New Loop
         """
-        return self.z48.execute(self.create_loop_cmd, ())
+        return self.sampler.execute(self.create_loop_cmd, ())
 
     def delete_loop(self, arg0):
         """Delete Loop <Data1> = index
         """
-        return self.z48.execute(self.delete_loop_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_loop_cmd, (arg0, ))
 
     def create_region(self):
         """Create Region
         """
-        return self.z48.execute(self.create_region_cmd, ())
+        return self.sampler.execute(self.create_region_cmd, ())
 
     def delete_region(self, arg0):
         """Delete Region <Data1> = index
         """
-        return self.z48.execute(self.delete_region_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_region_cmd, (arg0, ))
 
     def get_group_id(self):
         """Get Group ID
@@ -286,7 +286,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_group_id_cmd, ())
+        return self.sampler.execute(self.get_group_id_cmd, ())
 
     def get_trim_start(self):
         """Get Trim Start
@@ -294,7 +294,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_trim_start_cmd, ())
+        return self.sampler.execute(self.get_trim_start_cmd, ())
 
     def get_trim_end(self):
         """Get Trim End
@@ -302,7 +302,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_trim_end_cmd, ())
+        return self.sampler.execute(self.get_trim_end_cmd, ())
 
     def get_trim_length(self):
         """Get Trim Length
@@ -310,7 +310,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_trim_length_cmd, ())
+        return self.sampler.execute(self.get_trim_length_cmd, ())
 
     def get_orig_pitch(self):
         """Get Original Pitch
@@ -318,7 +318,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_orig_pitch_cmd, ())
+        return self.sampler.execute(self.get_orig_pitch_cmd, ())
 
     def get_cents_tune(self):
         """Get Cents Tune (+-3600)
@@ -326,7 +326,7 @@ class Sampletools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_cents_tune_cmd, ())
+        return self.sampler.execute(self.get_cents_tune_cmd, ())
 
     def get_playback_mode(self):
         """Get Playback Mode, where <Data1> = (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
@@ -334,7 +334,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_playback_mode_cmd, ())
+        return self.sampler.execute(self.get_playback_mode_cmd, ())
 
     def get_loop_start(self, arg0):
         """Get Loop Start <Data1> = loop index
@@ -342,7 +342,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_loop_start_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_start_cmd, (arg0, ))
 
     def get_loop_end(self, arg0):
         """Get Loop End <Data1> = loop index
@@ -350,7 +350,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_loop_end_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_end_cmd, (arg0, ))
 
     def get_loop_length(self, arg0):
         """Get Loop Length <Data1> = loop index
@@ -358,7 +358,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_loop_length_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_length_cmd, (arg0, ))
 
     def get_loop_lock(self, arg0):
         """Get Loop Lock <Data1> = (0=OFF, 1=ON)
@@ -366,7 +366,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_loop_lock_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_lock_cmd, (arg0, ))
 
     def get_loop_tune(self, arg0):
         """Get Loop Tune (+-50)
@@ -374,7 +374,7 @@ class Sampletools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_loop_tune_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_tune_cmd, (arg0, ))
 
     def get_loop_dir(self, arg0):
         """Get Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)
@@ -382,7 +382,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_loop_dir_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_dir_cmd, (arg0, ))
 
     def get_loop_type(self, arg0):
         """Get Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)
@@ -390,7 +390,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_loop_type_cmd, (arg0, ))
+        return self.sampler.execute(self.get_loop_type_cmd, (arg0, ))
 
     def get_no_loop_reps(self, arg0):
         """Get Number of Loop Repetitions
@@ -398,7 +398,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_loop_reps_cmd, (arg0, ))
+        return self.sampler.execute(self.get_no_loop_reps_cmd, (arg0, ))
 
     def get_no_loops(self):
         """Get Number of Loops
@@ -406,7 +406,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_loops_cmd, ())
+        return self.sampler.execute(self.get_no_loops_cmd, ())
 
     def get_region_start(self):
         """Get Region Start <Data1> = Region Num (0-31), <Reply1> = start
@@ -414,7 +414,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_region_start_cmd, ())
+        return self.sampler.execute(self.get_region_start_cmd, ())
 
     def get_region_end(self, arg0):
         """Get Region End <Data1> = Region Num (0-31) <Reply1> = end
@@ -422,7 +422,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_region_end_cmd, (arg0, ))
+        return self.sampler.execute(self.get_region_end_cmd, (arg0, ))
 
     def get_region_length(self):
         """Get Region Length <Data1> = Region Num (0-31) <Reply1> = length BYTE
@@ -430,7 +430,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_region_length_cmd, ())
+        return self.sampler.execute(self.get_region_length_cmd, ())
 
     def get_no_regions(self):
         """Get Number of Regions
@@ -438,7 +438,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_regions_cmd, ())
+        return self.sampler.execute(self.get_no_regions_cmd, ())
 
     def get_sample_length(self):
         """Get Sample Length
@@ -446,7 +446,7 @@ class Sampletools:
         Returns:
             QWORD
         """
-        return self.z48.execute(self.get_sample_length_cmd, ())
+        return self.sampler.execute(self.get_sample_length_cmd, ())
 
     def get_sample_rate(self):
         """Get Sample Rate [Hz]
@@ -454,7 +454,7 @@ class Sampletools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_sample_rate_cmd, ())
+        return self.sampler.execute(self.get_sample_rate_cmd, ())
 
     def get_bit_depth(self):
         """Get Sample Bit-Depth [bits]
@@ -462,7 +462,7 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_bit_depth_cmd, ())
+        return self.sampler.execute(self.get_bit_depth_cmd, ())
 
     def get_sample_type(self):
         """Get Sample Type <Reply> = (0=RAM, 1=VIRTUAL)
@@ -470,7 +470,7 @@ class Sampletools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_sample_type_cmd, ())
+        return self.sampler.execute(self.get_sample_type_cmd, ())
 
     def get_no_channels(self):
         """Get Number of Channels
@@ -478,95 +478,95 @@ class Sampletools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_channels_cmd, ())
+        return self.sampler.execute(self.get_no_channels_cmd, ())
 
     def set_group_id(self, arg0):
         """Set Group ID
         """
-        return self.z48.execute(self.set_group_id_cmd, (arg0, ))
+        return self.sampler.execute(self.set_group_id_cmd, (arg0, ))
 
     def set_trim_start(self, arg0):
         """Set Trim Start
         """
-        return self.z48.execute(self.set_trim_start_cmd, (arg0, ))
+        return self.sampler.execute(self.set_trim_start_cmd, (arg0, ))
 
     def set_trim_end(self, arg0):
         """Set Trim End
         """
-        return self.z48.execute(self.set_trim_end_cmd, (arg0, ))
+        return self.sampler.execute(self.set_trim_end_cmd, (arg0, ))
 
     def set_trim_length(self, arg0):
         """Set Trim Length
         """
-        return self.z48.execute(self.set_trim_length_cmd, (arg0, ))
+        return self.sampler.execute(self.set_trim_length_cmd, (arg0, ))
 
     def set_orig_pitch(self, arg0):
         """Set Original Pitch
         """
-        return self.z48.execute(self.set_orig_pitch_cmd, (arg0, ))
+        return self.sampler.execute(self.set_orig_pitch_cmd, (arg0, ))
 
     def set_tune(self, arg0):
         """Set Cents Tune
         """
-        return self.z48.execute(self.set_tune_cmd, (arg0, ))
+        return self.sampler.execute(self.set_tune_cmd, (arg0, ))
 
-    def set_playback_mode(self):
+    def set_playback_mode(self, arg0):
         """Set Playback Mode, where arg0= (0=NO LOOPING, 1=LOOPING, 2=ONE SHOT)
         """
-        return self.z48.execute(self.set_playback_mode_cmd, ())
+        return self.sampler.execute(self.set_playback_mode_cmd, (arg0, ))
 
     def set_loop_start(self, arg0, arg1):
         """Set Loop Start <Data1> = loop index
         """
-        return self.z48.execute(self.set_loop_start_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_start_cmd, (arg0, arg1, ))
 
     def set_loop_end(self, arg0, arg1):
         """Set Loop End
         """
-        return self.z48.execute(self.set_loop_end_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_end_cmd, (arg0, arg1, ))
 
     def set_loop_length(self, arg0, arg1):
         """Set Loop Length
         """
-        return self.z48.execute(self.set_loop_length_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_length_cmd, (arg0, arg1, ))
 
     def set_loop_lock(self, arg0, arg1):
         """Set Loop Lock <Data1> = (0=OFF, 1=ON)
         """
-        return self.z48.execute(self.set_loop_lock_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_lock_cmd, (arg0, arg1, ))
 
     def set_loop_tune(self, arg0, arg1):
         """Set Loop Tune (0-50)
         """
-        return self.z48.execute(self.set_loop_tune_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_tune_cmd, (arg0, arg1, ))
 
     def set_loop_direction(self, arg0, arg1):
         """Set Loop Direction <Data1> = (0=FORWARDS, 1=ALTERNATING)
         """
-        return self.z48.execute(self.set_loop_direction_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_direction_cmd, (arg0, arg1, ))
 
     def set_loop_type(self, arg0, arg1):
         """Set Loop Type <Data1> = (0=LOOP IN REL, 1=LOOP UNTIL REL)
         """
-        return self.z48.execute(self.set_loop_type_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_loop_type_cmd, (arg0, arg1, ))
 
     def set_no_loop_reps(self, arg0):
         """Set Number of Loop Repetitions (0=INFINITE)
         """
-        return self.z48.execute(self.set_no_loop_reps_cmd, (arg0, ))
+        return self.sampler.execute(self.set_no_loop_reps_cmd, (arg0, ))
 
     def set_region_start(self, arg0, arg1):
         """Set Region Start <Data1> = Region Num, <Data2> = start
         """
-        return self.z48.execute(self.set_region_start_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_region_start_cmd, (arg0, arg1, ))
 
     def set_region_end(self, arg0, arg1):
         """Set Region End <Data1> = Region Num <Data2> = end
         """
-        return self.z48.execute(self.set_region_end_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_region_end_cmd, (arg0, arg1, ))
 
     def set_region_length(self, arg0, arg1):
         """Set Region Length <Data1> = Region Num <Data2> = length
         """
-        return self.z48.execute(self.set_region_length_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_region_length_cmd, (arg0, arg1, ))
 
