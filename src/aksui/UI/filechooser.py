@@ -5,7 +5,6 @@ import gobject,gtk.glade,gtk,aksy
 
 from postmod.itx import *
 
-from utils import *
 from utils import sox
 
 from ak import program, zone, keygroup
