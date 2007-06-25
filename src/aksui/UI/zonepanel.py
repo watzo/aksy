@@ -25,9 +25,9 @@ class ZonePanel(UI.PanelBase):
 
             zonecontrols = [
                 UI.AkComboBox(zone, "sample", self.s.samplesmodel, False),
-                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
-                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
-                UI.AkComboBox(zone, "playback", utils.sampler_lists["playback"]),
+# TODO:                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
+# TODO:                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
+                UI.AkComboBox(zone, "playback", utils.sampler_lists["playback_b"]),
                 UI.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
                 UI.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
                 UI.AkKnobWidget(zone, "filter", -100, 100, 1, ""),

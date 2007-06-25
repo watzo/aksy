@@ -1,8 +1,14 @@
+Official tasks *should* go in Trac, but when burnout wins: new tasks go here. - Joseph
+
 Keygroup Editor TODO
-	* Clear right panel when radio buttons are toggled on/off.
 	* Create AkEntryBox, override of Gtk.Entry widget. Use for program/multi names, maybe zone sample name (would probably want this to be part of an autocomplete combo box type thing)?
-    * Add panel for Zone
-    * Add panel for Filter
-    * Add panel for Envelope
+    * Add panel titles
+    * Add 'collapse' functionality to panels
     * Add panel for LFO
     * Add panel for Modulation Matrix
+    * Fix ComboBox size (Too tall, looks pretty clunky)
+    
+    * Start utilizing alternative operations to pre-cache data when appropriate
+    
+General TODO
+	* Fix AKP uploading (doesn't load dependencies)

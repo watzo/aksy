@@ -89,6 +89,7 @@ sampler_lists = {
     "keygroup_edit_mode" : ["Single", "All","Add"],
     "keyboard_track" : ["Off", "On"],
     "playback" : ["1 Shot","LIR","LUR","LIR-&gt;Rt","Retrig","As Sample"],
+    "playback_b" : ["Sample","1 Shot","No Loop","Loop"],
     "play_trigger" : ["Note On", "Note Off"],
     "glissando_mode" : ["Portamento", "Glissando"],
     "portamento_mode" : ["Time", "Rate"],
