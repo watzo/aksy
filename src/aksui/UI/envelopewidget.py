@@ -29,13 +29,13 @@ class EnvelopeWidget(gtk.DrawingArea):
         self.set_envelope(kg, index)
 
     def set_envelope(self, kg, index):
+        if type(index) != int:
+            raise Exception("Index must be an integer.")
+        
         self.kg = kg
         self.index = index
 
-        if not self.envelope:
-            self.envelope = ak.Envelope(kg, index)
-        else:
-            self.envelope.set_envelope(kg, index)
+        self.envelope = ak.Envelope(kg, index)
 
         self.queue_draw()
 

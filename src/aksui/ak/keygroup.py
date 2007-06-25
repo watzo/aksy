@@ -26,6 +26,9 @@ class Keygroup(ak.SamplerObject):
         self.zones = [ak.Zone(self,1), ak.Zone(self,2), ak.Zone(self,3), ak.Zone(self,4)]
         self.mod_matrix = self.p.get_matrix(self.index)
 
+    def set_current(self):
+        self.s.keygrouptools.set_curr_keygroup(self.index)
+
     def on_mod_source_changed(self, widget):
         self.current_mod_source_index = widget.get_active()
 
@@ -41,6 +44,9 @@ class Keygroup(ak.SamplerObject):
                     attrval = int(attrval)
                 func(attrval)
 
+        if self.set_callback:
+            self.set_callback(attrname, attrval)
+            
         self.attrscache[attrname] = attrval
         
     def update(self):

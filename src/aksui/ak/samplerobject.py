@@ -82,13 +82,21 @@ class SamplerObject(object):
                 if func:
                     try:
                         if object.__getattribute__(self,"need_index_for_set"):
-                            cache[attrname] = func(object.__getattribute__(self,"index"))
+                            index = object.__getattribute__(self,"index")
+                            if type(index) != int:
+                                raise Exception("Index must be an integer, got:" + str(index))
+                            else:
+                                cache[attrname] = func(index)
                         elif attrname in ["filter","filter_cutoff", "filter_resonance"]:
                             cache[attrname] = func(0) # will expand later for triple filter
                         else:
                             cache[attrname] = func()
+                            
+                            # TODO: Fix this, level needs a workaround for some reason..
+                            if type(cache[attrname]) == tuple:
+                                cache[attrname] = cache[attrname][0]
                     except Exception, ex:
-                        print attrname, ex
+                        raise ex
 
             if attrname in cache: 
                 return cache[attrname]

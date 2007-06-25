@@ -66,7 +66,6 @@ class AkWidget(gtk.DrawingArea):
         if before == self.value:
             return False
         else:
-            self.so.set(self.soattr, self.value)
             return True
 
     def calc_value(self, value):

@@ -79,7 +79,48 @@ class ZoneWindow(gtk.Window):
 
         self.add(zonevbox)
 
-class KeygroupEditorWindow(gtk.Window):
+class KeygroupEditorVBox(gtk.VBox):
+    def __init__(self, s, p):
+        gtk.VBox.__init__(self)
+        self.s = s
+        #self.connect("delete-event", self.on_delete_event)
+        self.setup(p)
+        self.on_toggled_callback = None
+
+    def setup(self, p):
+        self.p = p
+        self.p.update()
+        
+        self.no_keygroups = self.p.no_keygroups
+        
+        self.clear_widgets()
+        rbg = None # radio button group
+                    for i in range(self.no_keygroups):
+            kg = ak.Keygroup(p, i)
+            kg.update()
+            
+            # TODO: Switch to a radio button.
+            tb = gtk.RadioButton(rbg, str(i + 1))
+            tb.connect("toggled", self.on_button_press_event, (i + 1))
+            
+            if not rbg:
+                rbg = tb
+                tb.set_active(True)
+            
+            kghboxall = gtk.HBox()
+            
+            kghboxall.pack_start(tb, False, False, 1)
+            kghboxall.pack_start(UI.KeygroupRangeWidget(kg))
+                        self.pack_start(kghboxall, False, False, 2)
+            
+    def clear_widgets(self):
+        for child in self.get_children():
+            self.remove(child)
+
+    def on_button_press_event(self, widget, data = None):
+        if self.on_toggled_callback:
+            self.on_toggled_callback(widget, data)
+        class KeygroupEditorWindow(gtk.Window):
     def __init__(self, z48, initial_program_name = None):
         gtk.Window.__init__(self)
         self.connect("configure_event", self.on_configure_event)

@@ -21,5 +21,7 @@ class Envelope(ak.SamplerObject):
         self.set(levelattr, level) 
 
     def set_envelope(self, keygroup, index):
+        if type(self.index) != int:
+            raise Exception("Not an int.")
         self.keygroup = keygroup
         self.index = index 

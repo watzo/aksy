@@ -25,8 +25,10 @@ from aksy.device import Devices
 __author__ = 'Joseph Misra and Walco van Loon'
 __version__ = '0.55'
 
+
 # config
-use_custom_excepthook = False
+use_custom_excepthook = False # this gets in the way of eclipse's handy exception line # link feature, could probably fix later
+enable_profiler = False
 
 def get_selected_from_treeview(treeview):
     """
@@ -284,6 +286,7 @@ class Main(UI.Base):
         
     def set_window(self, window):
         self.window = window
+        self.window.set_title("aksui %s" % (__version__))
         self.window.connect('configure_event', self.on_configure_event)
 
     def log(self,text):
@@ -316,9 +319,9 @@ class Main(UI.Base):
             p = ak.Program(self.s,programname)
             if p.type == 0:
                 if not self.kgeditwindow:
-                    self.kgeditwindow = UI.KeygroupEditorWindow(self.s, programname)
+                    self.kgeditwindow = UI.KeygroupEditorWindowZ(self.s, p)
                 else:
-                    self.kgeditwindow.setup(programname)
+                    self.kgeditwindow.setup(p)
                 self.kgeditwindow.show_all()
             else:
                 self.log("Sorry, DRUM programs not supported (yet)!")
@@ -426,8 +429,11 @@ def main():
         z48.close()
 
 if __name__ == "__main__":
-    prof = hotshot.Profile("ak.py.prof")
-    prof.runcall(main)
+    if enable_profiler:
+        prof = hotshot.Profile("ak.py.prof")
+        prof.runcall(main)
+    else:
+        main()
     """
     stats = hotshot.stats.load("ak.py.prof")
     stats.strip_dirs()

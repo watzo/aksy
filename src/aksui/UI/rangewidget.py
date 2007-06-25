@@ -116,7 +116,7 @@ class AkKnobWidget(AkWidget):
 
         self.connect("value-changed", self.on_value_changed)
 
-        self.set_size_request(35, 50)
+        self.set_size_request(25, 40)
 
         self.max = max
         self.min = min
@@ -156,7 +156,6 @@ class AkKnobWidget(AkWidget):
             self.dragging = True
             #print "hello...", self.dragging
             self.draggingstart = event.y 
-            print self.soattr,"=",self.value
             self.valuestart = self.value
             pin = self.get_current_pin()
             if pin:
@@ -195,6 +194,7 @@ class AkKnobWidget(AkWidget):
 
             if not ctrl_pressed:
                 changed = self.set_value(self.valuestart + (delta * interval))
+                
             if changed:
                 self.emit("value-changed")
             else:
@@ -207,8 +207,8 @@ class AkKnobWidget(AkWidget):
 
     def on_value_changed(self, widget):
         if self.soattr and self.so:
+            self.queue_draw()
             self.so.set(self.soattr, int(self.value))
-        self.queue_draw()
 
     def get_pct(self, value, min, max):
         if value < min:
@@ -283,7 +283,7 @@ class AkKnobWidget(AkWidget):
         self.do_line(cr, x, y, radius, radius / 8, pctatzero, 1.0, False)
         """
 
-        cr.set_font_size(9.0)
+        cr.set_font_size(7.0)
         cr.set_source_rgb(0.0, 0.0, 0.0)
         if self.dragging:
             text = self.get_format()
@@ -584,12 +584,12 @@ class AkComboBox(gtk.ComboBox):
 
         gtk.ComboBox.__init__(self, model)
 
-        self.set_size_request(-1, 30)
+        self.set_size_request(-1, 15)
 
         cell = gtk.CellRendererText()
         self.use_index = use_index # use value, versus index
         self.pack_start(cell, True)
-        self.add_attribute(cell, 'text', 1)  
+        self.add_attribute(cell, 'text', 0)  
         self.connect("changed", self.on_changed)
         self.somodel = model
 
