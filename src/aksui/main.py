@@ -255,6 +255,7 @@ class Main(UI.Base):
     def __init__(self, s):
         self.s = s
         self.kgeditwindow = None
+        self.multieditwindow = None
         self.program_details_window = None
         UI.Base.__init__(self, None, "vboxMain")
 
@@ -324,6 +325,15 @@ class Main(UI.Base):
         except Exception, ex:
             self.log("Exception: %s" % (ex))
             
+    def open_multi_editor(self, multiname):
+        if multiname:
+            m = ak.Multi(self.s,multiname)
+            if not self.multieditwindow:
+                self.multieditwindow = UI.MultiEditorWindowZ(self.s, m)
+            else:
+                self.multieditwindow.setup(m)
+            self.multieditwindow.show_all()
+                
     def open_keygroup_editor(self, programname):
         if programname:
             p = ak.Program(self.s,programname)
@@ -404,6 +414,15 @@ class Main(UI.Base):
                 self.programsEditor.programsMain.show_all()
                 """
 
+        if widget == self.w_treeview_multis:
+            if event.type == gtk.gdk._2BUTTON_PRESS:
+                curr_multi = get_selected_from_treeview(self.w_treeview_multis)
+
+                if type(curr_multi) is list:
+                    curr_multi = curr_multi[0]
+
+                self.open_multi_editor(curr_multi)
+                
         if widget == self.w_treeview_samples:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
                 self.SamplesContextMenu.editor.popup(None, None, None, event.button, event.time)

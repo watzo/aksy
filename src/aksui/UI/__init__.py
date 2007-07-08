@@ -6,6 +6,7 @@ from keygroupdetails import *
 from keygroupeditor import *
 from keygroupeditorwindow import * #this is the newer one w/ custom widgets
 from keygroupeditorz import *
+from multieditorz import *
 from keygroupfilter import *
 from lcdscreen import *
 from multifxeditor import *

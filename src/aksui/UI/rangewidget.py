@@ -12,9 +12,10 @@ from utils.midiutils import *
 from ak import *
 
 class SliderWidget(HitBox):
-    def __init__(self, min, max, w, h, value_descriptions = None, is_scaled = True, index = 0):
+    def __init__(self, min, max, w, h, value_descriptions = None, is_scaled = True, index = 0, value_offset = 0):
         # init sliders
         UI.HitBox.__init__(self, min, 0, w, h)
+        self.value_offset = value_offset
         self.index = index
         # boundaries
         self.max = max
@@ -87,7 +88,7 @@ class SliderWidget(HitBox):
             rect.y = (size[1] / 2) - rect.height / 2
 
             style = widget.get_style()
-
+            
             style.paint_box(widget.window, self.state_type, self.shadow_type, rect, widget, "", rect.x, rect.y, rect.width, rect.height)
 
     def draw_text(self, widget, event):
@@ -105,8 +106,11 @@ class SliderWidget(HitBox):
 
                 if self.value_descriptions:
                     text = self.value_descriptions[self.x]
+                elif self.units == "db":
+                    # hack, there's an existing way to do this, just lazy
+                    text = '%(#).2f' % {"#" : ((float(self.x) - float(self.value_offset)) / 10.0)}
                 else:
-                    text = str(self.x)
+                    text = str(self.x - self.value_offset)
 
                 cr.show_text(text)
 
@@ -181,7 +185,7 @@ class AkKnobWidget(AkWidget):
     def on_motion_notify_event(self, widget, event):
         #print "motion...", self, type(self.so), self.dragging
         if self.dragging:
-            # update value
+            # udate value
             delta = -(event.y - self.draggingstart)
 
             ctrl_pressed = event.state & gtk.gdk.CONTROL_MASK
@@ -335,11 +339,12 @@ class LevelKnobWidget(AkKnobWidget):
         return '%(#).2fdb' % {"#" : self.value / self.interval}
 
 class AkRangeWidget(AkWidget):
-    def __init__(self, samplerobject = None, samplerobjectattr = None, min = 0, max = 127):
+    def __init__(self, samplerobject = None, samplerobjectattr = None, min = 0, max = 127, multislider = True, value_offset = 0):
         # init sliders
         AkWidget.__init__(self, samplerobject, samplerobjectattr)
 
-
+        self.multislider = multislider
+        
         self.sliderwidth = 8 
         self.sliderheight = 12
         self.middlesliderheight = 12
@@ -349,34 +354,41 @@ class AkRangeWidget(AkWidget):
         self.min = min
         self.max = max
 
-        self.sliders = [
-            SliderWidget(self.min, self.max, self.sliderwidth, self.sliderheight, None, True, 0),
-            SliderWidget(self.min, self.max, self.sliderwidth, self.sliderheight, None, True, 1),
-            SliderWidget(self.min, self.max, 6, self.middlesliderheight, None, False, 2)]
-
-
-        self.sliders[0].x = min 
-        self.sliders[1].x = max 
-
-        self.sliders[0].shadow_type = gtk.SHADOW_IN 
-        self.sliders[1].shadow_type = gtk.SHADOW_IN 
-        self.sliders[2].shadow_type = gtk.SHADOW_OUT 
+        if self.multislider:
+            self.sliders = [
+                SliderWidget(self.min, self.max, self.sliderwidth, self.sliderheight, None, True, 0, value_offset),
+                SliderWidget(self.min, self.max, self.sliderwidth, self.sliderheight, None, True, 1, value_offset),
+                SliderWidget(self.min, self.max, 6, self.middlesliderheight, None, False, 2, value_offset)]
+            
+            self.sliders[0].x = min 
+            self.sliders[1].x = max 
+            
+            self.sliders[0].shadow_type = gtk.SHADOW_IN 
+            self.sliders[1].shadow_type = gtk.SHADOW_IN 
+            self.sliders[2].shadow_type = gtk.SHADOW_OUT 
+        else:
+            self.sliders = [
+                SliderWidget(self.min, self.max, self.sliderwidth, self.sliderheight, None, True, 0, value_offset),
+                ]
+            self.sliders[0].x = min 
+            self.sliders[0].shadow_type = gtk.SHADOW_OUT 
 
     def update_middle_slider(self, widget = None):
-        s2 = self.sliders[2]
-        s1 = self.sliders[1]
-        s0 = self.sliders[0]
-
-        if widget:
-            s0.widget = widget
-            s1.widget = widget
-            s2.widget = widget
-
-        self.sliders[2].x = int(self.sliders[0].get_scaled_value() + s0.w + 2)
-        self.sliders[2].y = 1
-        self.sliders[2].w = max(int(self.sliders[1].get_scaled_value() + s1.w + s0.w - self.sliders[2].x),0)
-        #print self.sliders[2].x, self.sliders[2].y, self.sliders[2].w
-
+        if self.multislider:
+            s2 = self.sliders[2]
+            s1 = self.sliders[1]
+            s0 = self.sliders[0]
+    
+            if widget:
+                s0.widget = widget
+                s1.widget = widget
+                s2.widget = widget
+    
+            self.sliders[2].x = int(self.sliders[0].get_scaled_value() + s0.w + 2)
+            self.sliders[2].y = 1
+            self.sliders[2].w = max(int(self.sliders[1].get_scaled_value() + s1.w + s0.w - self.sliders[2].x),0)
+            #print self.sliders[2].x, self.sliders[2].y, self.sliders[2].w
+    
     def on_button_press(self, widget, event):
         for slider in self.sliders:
             slider.widget = widget
@@ -385,8 +397,9 @@ class AkRangeWidget(AkWidget):
                     slider.dragging = True
                     slider.draggingpoint = [event.x, event.y]
                     self.sliders[0].draggingvalue = self.sliders[0].x
-                    self.sliders[1].draggingvalue = self.sliders[1].x
-                    self.sliders[2].draggingvalue = self.sliders[2].x
+                    if self.multislider:
+                        self.sliders[1].draggingvalue = self.sliders[1].x
+                        self.sliders[2].draggingvalue = self.sliders[2].x
                     # mark slider as being dragged
         self.queue_draw()
 
@@ -401,12 +414,13 @@ class AkRangeWidget(AkWidget):
     def on_motion_notify_event(self, widget, event):
         # iterate through sliders
         s0 = self.sliders[0]
-        s1 = self.sliders[1]
-
-        s0.softmax = s1.x
         s0xvalue = s0.x
-        s1.softmin = s0.x
-        s1xvalue = s1.x
+        
+        if self.multislider:
+            s1 = self.sliders[1]
+            s0.softmax = s1.x
+            s1.softmin = s0.x
+            s1xvalue = s1.x
 
         ctrl_pressed = event.state & gtk.gdk.CONTROL_MASK
 
@@ -420,20 +434,20 @@ class AkRangeWidget(AkWidget):
                     delta *= 0.25
                 """
 
-                if self.sliders.index(slider) == 2:
-                    s0x = (s0.draggingvalue / s0.get_scale()) + delta
-                    s1x = (s1.draggingvalue / s1.get_scale()) + delta
-
-                    if ctrl_pressed:
-                        s0x = s0.get_snap(s0x)
-                        s1x = s1.get_snap(s1x)
-
-                    s0.set_value(s0x)
-                    s1.set_value(s1x)
+                if self.multislider and self.sliders.index(slider) == 2:
+                        s0x = (s0.draggingvalue / s0.get_scale()) + delta
+                        s1x = (s1.draggingvalue / s1.get_scale()) + delta
+    
+                        if ctrl_pressed:
+                            s0x = s0.get_snap(s0x)
+                            s1x = s1.get_snap(s1x)
+    
+                        s0.set_value(s0x)
+                        s1.set_value(s1x)
                 else:
                     slider.set_value((slider.draggingvalue / slider.get_scale()) + delta)
-
-                slider.state_type = gtk.STATE_ACTIVE
+    
+                    slider.state_type = gtk.STATE_ACTIVE
             elif slider.point_in_widget_rect(event.x, event.y):
                 slider.state_type = gtk.STATE_PRELIGHT
             else:                
@@ -443,9 +457,10 @@ class AkRangeWidget(AkWidget):
 
         if s0xvalue != s0.x: 
             self.emit("slider_1_changed", s0.x)
-
-        if s1xvalue != s1.x:
-            self.emit("slider_2_changed", s1.x)
+            
+        if self.multislider:
+            if s1xvalue != s1.x:
+                self.emit("slider_2_changed", s1.x)
 
         return True
 
@@ -461,6 +476,26 @@ class AkRangeWidget(AkWidget):
             slider.draw_text(widget, event)
 
         return False
+
+class PartRangeWidget(AkRangeWidget):
+    def __init__(self, part, attr):
+        AkRangeWidget.__init__(self, part, None, 0, 660, False, 600)
+        self.part = part
+        self.part.update()
+        self.s = part.s
+        self.attr = attr
+        self.value_offset = 600
+
+        self.sliders[0].x = getattr(self.part, attr) + self.value_offset
+        self.sliders[0].units = "db"
+
+        self.connect("slider_1_changed", self.on_slider_1_changed)
+
+        self.queue_draw()
+
+    def on_slider_1_changed(self, widget, value):
+        if self.part:
+            self.part.set(self.attr, value - self.value_offset)
 
 class KeygroupRangeWidget(AkRangeWidget):
     def __init__(self, keygroup):
@@ -606,7 +641,6 @@ class AkComboBox(gtk.ComboBox):
             self.s = so.s
             self.so = so
             self.value = None
-            
 
             if self.soattr:
                 self.value = getattr(so, self.soattr)

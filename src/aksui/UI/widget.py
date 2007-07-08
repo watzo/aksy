@@ -7,9 +7,10 @@ class AkWidget(gtk.DrawingArea):
     """
     base for our widgets
     """
-    def __init__(self, so = None, soattr = None, interval = 10, units = ""):
+    def __init__(self, so = None, soattr = None, interval = 10, units = "", value_offset = 0):
         gtk.DrawingArea.__init__(self)
 
+        self.value_offset = value_offset
         self.interval = interval
         self.units = units
 
@@ -61,7 +62,6 @@ class AkWidget(gtk.DrawingArea):
 
         before = self.value
         self.value = self.calc_value(value)
-        
         
         if before == self.value:
             return False

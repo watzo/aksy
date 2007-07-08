@@ -79,7 +79,44 @@ class ZoneWindow(gtk.Window):
 
         self.add(zonevbox)
 
+class MultiEditorVBox(gtk.VBox):
+    """
+    Minimal multi editor VBox
+    """
+    def __init__(self, s, m):
+        gtk.VBox.__init__(self)
+        self.s = s
+        #self.connect("delete-event", self.on_delete_event)
+        self.setup(m)
+    
+    def setup(self, m):
+        self.m = m
+        self.m.update()
+        
+        self.no_parts = self.m.no_parts
+        
+        self.clear_widgets()
+        
+        for i in range(self.no_parts):
+            part = ak.Part(self.s, m, i)
+            part.update()
+        
+            kghboxall = gtk.HBox()
+            
+            kghboxall.pack_start(UI.PartRangeWidget(part, "part_level"), False, False, 2)
+            kghboxall.pack_start(UI.AkComboBox(part, "multi_part_name", self.s.programsmodel, False),False,False,2)
+            kghboxall.pack_start(UI.AkComboBox(part, "part_output", utils.sampler_lists["output"], True),False,False,2)
+            kghboxall.pack_start(UI.AkComboBox(part, "part_midi_channel", utils.sampler_lists["midi_channel"], True),False,False,2)
+            
+            self.pack_start(kghboxall, False, False, 2)
+                def clear_widgets(self):
+        for child in self.get_children():
+            self.remove(child)
+            
 class KeygroupEditorVBox(gtk.VBox):
+    """
+    Minimal keygroup editor VBox
+    """
     def __init__(self, s, p):
         gtk.VBox.__init__(self)
         self.s = s

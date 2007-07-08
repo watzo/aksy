@@ -7,5 +7,7 @@ from programs import *
 from samples import *
 from zone import *
 from envelope import *
+from multi import *
+from part import *
 from modulationmatrix import *
 from modulationpin import *
