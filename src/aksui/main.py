@@ -30,6 +30,7 @@ __version__ = '0.60'
 use_custom_excepthook = False # this gets in the way of eclipse's handy exception line # link feature, could probably fix later
 enable_profiler = False
 
+
 def get_selected_from_treeview(treeview):
     """
     will return a single value or a list depending on what the selection mode is
@@ -219,6 +220,15 @@ class ProgramsContextMenu(UI.Base):
         
         self.main.open_program_properties(programname)
 
+    def on_recycle_init_activate(self, widget):
+        programname = get_selected_from_treeview(self.main.w_treeview_programs)
+        if not (type(programname) is list):
+            programname = [programname,]
+        
+        for pn in programname:
+            program = ak.Program(self.s,pn)
+            program.init_recycled()
+            
     def on_dump_matrix(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
         if not (type(programname) is list):

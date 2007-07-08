@@ -11,18 +11,28 @@ class Program(ak.SamplerObject):
         self.specialattrs = ["name",]
 
         self.attrs = ["name", "type", "group_id", "genre", "program_no", "no_keygroups", "keygroup_xfade", "keygroup_xfade_type", "level", "polyphony", "portamento_enabled", "portamento_mode", "portamento_time", "glissando_mode", "aftertouch_mode", "aftertouch_value", "reassignment_method", "softpedal_loudness_reduction", "softpedal_attack_stretch", "softpedal_filter_close", "midi_transpose", "tune", "legato", "pitchbend_up", "pitchbend_down", "pitchbend_mode", "no_modulation_connections"]
+        
+        #self.precache()
 
         if self.name:
             self.s.programtools.set_curr_by_name(self.name)
             self.update()
         else:
             print "No name..."
+            
+    def init_recycled(self):
+        # ultimately this should be a plugin or something, but for now...
+        # updates a recycle generated program to the settings i prefer use
+        for kg in self.get_keygroups():
+            for zone in kg.zones:
+                zone.set_playback(1) # ONE SHOT
+            kg.set_polyphony(1)
 
     def get_keygroups(self):
         keygroups = []
 
         for i in range(self.no_keygroups):
-            keygroups.append(keygroup(self,i))
+            keygroups.append(ak.Keygroup(self,i))
 
         return keygroups
 

@@ -2,12 +2,50 @@ import os,os.path,re,logging,sys,struct,math,traceback,urlparse
 import pygtk
 import inspect
 import gobject,gtk.glade,gtk,aksy
+from aksy.devices.akai import fileparser
+import aksy.fileutils
 
 from postmod.itx import *
 
 from utils import sox
 
-from ak import program, zone, keygroup
+import ak
+
+def collect_files(args):
+    collected = []
+    for f in args:
+        if os.path.isfile(f):
+            if Sampler.is_filetype_supported(f):
+                collected.append(f)
+        elif os.path.isdir(f):
+            collected.extend(collect_dir(f))
+        else:
+            raise IOError("File not found: " + repr(f))
+    return collected
+
+def collect_dir(args):
+    for root, dir, files in os.walk(args):
+        for found in files:
+            if Sampler.is_filetype_supported(found):
+                yield os.path.join(root, found)
+ 
+def find_file(files, samplename):
+    for f in files:
+        filename = os.path.basename(f).lower()
+        basename, ext = os.path.splitext(filename)
+        if basename == samplename:
+            return f
+        
+    # look for wav or aiff, using first file to get path
+    basename, origext = os.path.split(files[0])
+    exts = ['.wav','.aiff','.aif']
+    for ext in exts:
+        filename = basename + "\\" + samplename + ext
+        if os.path.exists(filename):
+            return filename
+        else:
+            print "Not found:", filename
+    #raise IOError("File not found in upload file list: " + samplename)
 
 class FileChooser:
     def __init__(self, s):
@@ -90,31 +128,28 @@ class FileChooser:
             """
             
         return result
-
-    def upload(self, file, rename = None):
-        if not rename:
-            rename = file
-        if file.lower().endswith('wav'):
-            try:
-                try:
-                    """Try to open the wavefile up to ensure it's not corrupt.  
-                    """
-                    print "trying to open", file
-                    #w = wave.open(file,'r')
-                    #w.close()
-                    # TODO: if files are 8-bit, use sox to convert to 16-bit
-                    #if (w.getsampwidth() * 8) == 8:
-                    #    print 'sox -b 16 ' + file
-                finally:
-                    basename = os.path.basename(rename)
-                    try:
-                        #print "Upload disabled"
-                        self.s.put(file, basename)
-                    except Exception, ex:
-                        print "put Exception! ", ex
-            except Exception, ex:
-                print "wave Exception! ", ex
-
+    
+    def upload_files(self):
+        # hacky
+        to_upload = self.files
+        
+        for f in self.files:
+            if f:
+                if f.lower().endswith(".akp"):
+                    filterProgram = f
+                    filtered = []
+                    program = fileparser.ProgramParser().parse(filterProgram)
+                    for kg in program.keygroups:
+                        for zone in kg.zones:
+                            if zone.samplename:
+                                filtered.append(find_file(self.files, zone.samplename))
+                    self.files.extend(filtered)
+                    
+        for f in self.files:
+            if f:
+                print f
+                self.s.put(f)
+            
     def expand_it_files(self, files):
         if files:
             additional_wavs = []
@@ -127,33 +162,3 @@ class FileChooser:
             return files
         else:
             return None
-            
-    def upload_files(self, find_dependants=False):
-        """Traverses the filelist and uploads files.
-
-        This should ultimately get wise and detect corrupt aiff/wav/akp/akm before it attempts to upload, and skip them as this seems to cause the sampler to become unresponsive for a bit.
-        Also needs an implementation for find_dependants.
-        """
-        
-        #self.files = self.expand_it_files(self.files)
-
-        for file in self.files:
-            if file:
-                basename = os.path.basename(file)
-                nameonly = os.path.basename(file)[:-4]
-                try:
-                    print "Trying to upload: ", file
-                    self.upload(file)
-    
-                    n = basename.lower()
-    
-                    if n.endswith('akp'):
-                        self.s.programsmodel.append([nameonly,0])
-                    elif n.endswith('wav') or n.endswith('aif') or n.endswith('aiff'):
-                        self.s.samplesmodel.append([nameonly,0])
-                    elif n.endswith('akm'):
-                        self.s.multismodel.append([nameonly,0])
-    
-                except Exception, ex:
-                    print file, ex
-    

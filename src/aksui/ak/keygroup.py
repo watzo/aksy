@@ -25,6 +25,10 @@ class Keygroup(ak.SamplerObject):
 
         self.zones = [ak.Zone(self,1), ak.Zone(self,2), ak.Zone(self,3), ak.Zone(self,4)]
         self.mod_matrix = self.p.get_matrix(self.index)
+        
+    def get_handle(self):
+        # get handle by name or whatever, override in derived classes
+        return self.s.programtools.get_handle_by_name(self.p.name) 
 
     def set_current(self):
         self.s.keygrouptools.set_curr_keygroup(self.index)

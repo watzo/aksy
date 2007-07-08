@@ -30,7 +30,38 @@ class SamplerObject(object):
         """ going to replace this w/ a lazy loading type thing
         """
         self.attrscache = { }
-
+        
+    def get_handle(self):
+        # get handle by name or whatever, override in derived classes
+        tools = self.gettools()
+        if getattr(self,'name',None):
+            return tools.get_handle_by_name(self.name) 
+        else:
+            return None
+        
+    def precache(self):
+        tools = self.gettools()
+        handle = self.get_handle()
+        print "Handle" + str(handle)
+        if handle:
+            cmds = []
+            args = []
+            for attr in self.attrs:
+                if attr not in self.specialattrs:
+                    cmd_name = 'get_' + attr + '_cmd'
+                    cmd = getattr(tools, cmd_name, None)
+                    if cmd:
+                        print cmd_name
+                        # if arguments are needed
+                        cmds.append(cmd)
+                        #args.append(arg)
+            results = self.s.execute_alt_request(handle,cmds,args)
+            index = 0
+            for attr in self.attrs:
+                if attr not in self.specialattrs:
+                    self.attrscache[attr] = results[index]
+                    index = index + 1
+        
     def set(self, attrname, attrval):
         if self.set_current_before_get_set:
             self.set_current_method()
