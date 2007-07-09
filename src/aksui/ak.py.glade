@@ -3257,16 +3257,7 @@ ADAT 7/8</property>
                         <property name="label">gtk-save</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_save1_activate"/>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkImageMenuItem" id="save_as1">
-                        <property name="visible">True</property>
-                        <property name="label">gtk-save-as</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_save_as1_activate"/>
+                        <signal name="activate" handler="on_save_activate"/>
                       </widget>
                     </child>
                     <child>
@@ -3948,6 +3939,14 @@ ADAT 7/8</property>
         <property name="label" translatable="yes">Fix Recycled</property>
         <property name="use_underline">True</property>
         <signal name="activate" handler="on_recycle_init_activate"/>
+      </widget>
+    </child>
+    <child>
+      <widget class="GtkMenuItem" id="duplicate_program">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Duplicate Program...</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="on_duplicate_program_activate"/>
       </widget>
     </child>
   </widget>

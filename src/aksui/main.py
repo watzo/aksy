@@ -23,7 +23,7 @@ from postmod.itx import *
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.60'
+__version__ = '0.65'
 
 
 # config
@@ -195,6 +195,15 @@ class ProgramsContextMenu(UI.Base):
 
         self.dialogCreateNewKeygroups = DialogCreateNewKeygroups(self)
 
+    def on_duplicate_program_activate(self, button):
+        programnames = get_selected_from_treeview(self.main.w_treeview_programs)
+        
+        for programname in programnames:
+            print "Duplicating", programname
+            p = ak.Program(self.s,programname)
+            dupe = p.copy("Copy " + programname)
+            print "Success?", dupe.name
+        
     def on_add_keygroup_activate(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
 
@@ -379,6 +388,35 @@ class Main(UI.Base):
     def on_program_editor_activate(self, button):
         self.programsEditor.programsMain.show_all()
 
+    def on_save_activate(self, button):
+        # THIS WILL OVERWRITE FILES w/ SAME NAMES!
+        # get folder to save to
+        path = self.s.FilecChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
+        print "Path is...", path
+            
+        if path:
+            org = {'multitools':'.akm', 'programtools':'.akp', 'sampletools' : '.wav'}
+            results = []
+            for toolname in org.keys():
+                ext = org[toolname]
+                tool = getattr(self.s, toolname)
+                items = tool.get_names()
+                if type(items) is str:
+                    items = [items,]
+                # download it
+                for item in items:
+                    if len(item) > 0:
+                        print path, item, ext
+                        filename = item + ext
+                        filenamepath = path + "/" + filename
+                        if os.path.exists(filenamepath):
+                            # TODO: Put some sort of confirmation here, if user wants it.
+                            self.log(filenamepath + " exists; overwriting it.")
+                        self.log("Saving " + filenamepath + "...")
+                        self.s.get(filename, filenamepath)
+        else:
+            self.log("Invalid path chosen.")
+            
     def on_upload_activate(self, button):
         self.s.FilecChooser.open(upload=True)
         self.init_lists()

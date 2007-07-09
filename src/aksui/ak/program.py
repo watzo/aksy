@@ -20,6 +20,12 @@ class Program(ak.SamplerObject):
         else:
             print "No name..."
             
+    def copy(self, destination_name):
+        tools = self.gettools()
+        tools.set_curr_by_name(self.name)
+        tools.copy_program(destination_name)
+        return ak.Program(self.s,destination_name)
+        
     def init_recycled(self):
         # ultimately this should be a plugin or something, but for now...
         # updates a recycle generated program to the settings i prefer use

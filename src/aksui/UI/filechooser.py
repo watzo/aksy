@@ -52,7 +52,11 @@ class FileChooser:
         self.s = s
         self.last_folder = None
         self.filechooser = gtk.FileChooserDialog(title="Open Sample", buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK)) 
-        self.setup_filter(["*.AKP","*.AKM","*.WAV","*.AIF","*.AIFF","*.IT"], "Audio Files")
+        self.setup_filter(["*.AKP","*.AKM","*.WAV","*.AIF","*.AIFF","*.IT"], "All Supported Files")
+        self.setup_filter(["*.AKM"], "Multis")
+        self.setup_filter(["*.AKP",], "Programs")
+        self.setup_filter(["*.WAV","*.AIF","*.AIFF"], "Samples")
+        self.setup_filter(["*.IT"], "Impulse Tracker Modules")
         self.filechooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
 
     def setup_filter(self, extensions, name = None):
@@ -67,13 +71,16 @@ class FileChooser:
             
         self.filechooser.add_filter(self.filter)
        
-    def open(self, multiple = True, upload = False):
+    def open(self, multiple = True, upload = False, action = gtk.FILE_CHOOSER_ACTION_OPEN, title = "Upload files..."):
+        self.filechooser.set_action(action)
         self.filechooser.set_select_multiple(multiple)
+        self.filechooser.set_title(title)
 
         # multiple files (up to 4) will be distributed across zones (?)
         if self.last_folder:
             self.filechooser.set_current_folder(self.last_folder)
         else:
+            # pull last folder from INI
             self.filechooser.set_current_folder("/")
 
         response = self.filechooser.run()
@@ -88,8 +95,11 @@ class FileChooser:
             
             if upload:
                 self.upload_files()
-            
-            nameonly = os.path.basename(self.files[0])[:-4]
+                
+            if action != gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER:
+                nameonly = os.path.basename(self.files[0])[:-4]
+            else:
+                nameonly = self.files[0]
 
             self.last_folder = self.filechooser.get_current_folder()
 
