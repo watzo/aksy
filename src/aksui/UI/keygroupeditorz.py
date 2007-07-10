@@ -47,8 +47,26 @@ class KeygroupEditorZ(UI.Base):
         self.w_entryProgramName.set_text(p.name)
         self.w_viewportKeygroups.add(self.keygroupEditorVbox)
         self.w_viewportSlats.add(self.rightVBox)
+        rbg = None
+        curr_mode = self.curr_keygroup.gettools().get_edit_mode()
+        modes = ["ONE","ALL","ADD"]
+        i = 0
+        for mode in modes:
+            tb = gtk.RadioButton(rbg, mode)
+            if not rbg:
+                rbg = tb
+            self.w_hboxNameEdit.add(tb)
+            tb.connect("toggled", self.on_button_press_event, (i))
+            if curr_mode == i:
+                tb.set_active(True)
+            i = i + 1
+
         children = self.w_statusbar.get_children()[0].get_children()
         self.statuslabel = children[0]
+        
+    def on_button_press_event(self, widget, mode):
+        modes = ["ONE","ALL","ADD"]
+        self.curr_keygroup.gettools().set_edit_mode(mode)
         
     def change_keygroup(self, keygroup_index):
         self.curr_keygroup = ak.Keygroup(self.p,keygroup_index)
@@ -60,6 +78,6 @@ class KeygroupEditorZ(UI.Base):
         self.statuslabel.set_text("Setting: " + soattr + " " + str(sovalue))
         
     def on_toggled_callback(self, widget, data):
-        print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
+        #print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
         if widget.get_active():
             self.change_keygroup(data-1) # index is +1

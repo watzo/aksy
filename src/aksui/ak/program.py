@@ -31,8 +31,8 @@ class Program(ak.SamplerObject):
         # updates a recycle generated program to the settings i prefer use
         for kg in self.get_keygroups():
             for zone in kg.zones:
-                zone.set_playback(1) # ONE SHOT
-            kg.set_polyphony(1)
+                zone.set("playback", 1) # ONE SHOT
+            kg.set("polyphony", 1)
 
     def get_keygroups(self):
         keygroups = []

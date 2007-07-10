@@ -13,6 +13,7 @@ class SamplerObject(object):
         self.specialattrs = []
         self.attrs = []
         self.attrscache = { }
+        self.abbr = {}
 
         # set callback function
         self.set_callback = None
@@ -22,7 +23,13 @@ class SamplerObject(object):
         
         # set to true if this obj needs to be the current one before set
         self.set_current_before_get_set = False
-
+        
+    def get_knob(self, attr):
+        if attr in self.abbr.keys():
+            return self.abbr[attr]
+        else:
+            return attr
+        
     def gettools(self):
         return getattr(self.s, self.whichtools)
 

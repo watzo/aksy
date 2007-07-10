@@ -6,6 +6,7 @@ import ak, UI
 
 class EnvelopeWidget(gtk.DrawingArea):
     def __init__(self, kg, index):
+        # TODO: Enable scaling.
         gtk.DrawingArea.__init__(self)
         self.dragging = -1
         self.xoffset = 10

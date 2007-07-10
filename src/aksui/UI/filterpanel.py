@@ -20,11 +20,18 @@ class FilterPanel(UI.PanelBase):
         controls = [
             UI.AkComboBox(kg, "filter", utils.sampler_lists["filter"]),
             UI.AkComboBox(kg, "filter_attenuation", utils.sampler_lists["filter_attenuation"]),
+            ]
+        controls_b = [
             UI.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), 
             UI.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""),
             ]
 
         for control in controls:
+            hbox.pack_start(control, False, False, 1)
+        vbox.pack_start(hbox, False, False, 1)
+        
+        hbox = gtk.HBox()
+        for control in controls_b:
             hbox.pack_start(control, False, False, 1)
         vbox.pack_start(hbox, False, False, 1)
         self.pack_start(vbox, False, False, 1)

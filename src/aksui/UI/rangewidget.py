@@ -111,7 +111,7 @@ class SliderWidget(HitBox):
                     text = '%(#).2f' % {"#" : ((float(self.x) - float(self.value_offset)) / 10.0)}
                 else:
                     text = str(self.x - self.value_offset)
-
+                    
                 cr.show_text(text)
 
 class AkKnobWidget(AkWidget):
@@ -120,7 +120,7 @@ class AkKnobWidget(AkWidget):
 
         self.connect("value-changed", self.on_value_changed)
 
-        self.set_size_request(25, 40)
+        self.set_size_request(30, 60)
 
         self.max = max
         self.min = min
@@ -235,7 +235,7 @@ class AkKnobWidget(AkWidget):
         # the float thing was a little bit unexpected
         pct = self.get_pct(value, min, max)
 
-        self.do_line(cr, x, y, radius, radius, pct, 1.5)
+        self.do_line(cr, x, y, radius, radius, pct, 2)
 
     def on_expose(self, widget, event):
         self.value = getattr(self.so,self.soattr)
@@ -287,12 +287,12 @@ class AkKnobWidget(AkWidget):
         self.do_line(cr, x, y, radius, radius / 8, pctatzero, 1.0, False)
         """
 
-        cr.set_font_size(7.0)
+        cr.set_font_size(10.0)
         cr.set_source_rgb(0.0, 0.0, 0.0)
         if self.dragging:
             text = self.get_format()
         else:
-            text = self.soattr
+            text = self.so.get_knob(self.soattr)
 
         xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
         cr.move_to(x - width / 2 + xbearing, y + radius - ybearing + 2)
@@ -301,7 +301,7 @@ class AkKnobWidget(AkWidget):
         cr.restore()
 
     def do_line(self, cr, x, y, radius, radius_inset, pct, lw, from_center = True):
-        cr.set_line_width(0.5)
+        cr.set_line_width(1)
         ei = (math.pi * (6.0/4.0) * pct) - (math.pi * (6.0/8.0))
 
         if from_center:
@@ -619,11 +619,11 @@ class AkComboBox(gtk.ComboBox):
 
         gtk.ComboBox.__init__(self, model)
 
-        self.set_size_request(-1, 15)
+        self.set_size_request(200, 25)
 
         cell = gtk.CellRendererText()
         self.use_index = use_index # use value, versus index
-        self.pack_start(cell, True)
+        self.pack_start(cell, False)
         self.add_attribute(cell, 'text', 0)  
         self.connect("changed", self.on_changed)
         self.somodel = model

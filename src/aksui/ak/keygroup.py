@@ -6,6 +6,7 @@ class Keygroup(ak.SamplerObject):
         ak.SamplerObject.__init__(self,program.s,None,"keygrouptools")
         self.current_mod_source_index = 11
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
+        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff','filter_resonance':'res'}
         self.p = program
         self.index = index
         self.s = program.s

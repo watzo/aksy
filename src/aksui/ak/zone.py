@@ -12,6 +12,7 @@ class Zone(ak.SamplerObject):
 
         # skip 'sample' for now
         self.attrs = ["sample", "level", "pan", "output", "filter", "tune", "keyboard_track", "playback", "mod_start", "low_velocity", "high_velocity", "mute"]
+        self.abbr = {'mod_start' : 'start', 'low_velocity' : 'lo', 'high_velocity' : 'hi'}
 
         self.update()
 
