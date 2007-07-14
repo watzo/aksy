@@ -120,7 +120,7 @@ class AkKnobWidget(AkWidget):
 
         self.connect("value-changed", self.on_value_changed)
 
-        self.set_size_request(30, 60)
+        self.set_size_request(35, 35)
 
         self.max = max
         self.min = min
@@ -238,8 +238,11 @@ class AkKnobWidget(AkWidget):
         self.do_line(cr, x, y, radius, radius, pct, 2)
 
     def on_expose(self, widget, event):
-        self.value = getattr(self.so,self.soattr)
-        return self.draw(widget.window, widget, event.area)
+        self.value = self.so.attrscache[self.soattr]
+        #rect = event.area # only redraw a small portion
+        size = widget.window.get_size()
+        rect = gtk.gdk.Rectangle(0,0,size[0],size[1])
+        return self.draw(widget.window, widget, rect)
 
     def draw(self, window, widget, area):
         cr = window.cairo_create()
@@ -255,8 +258,9 @@ class AkKnobWidget(AkWidget):
         x = rect.width / 2 + area.x
         y = rect.height / 2 + area.y
 
-        radius = (min(rect.width / 2, rect.height / 2) - 5)
+        radius = (min(rect.width / 2, rect.height / 2) - 10)
 
+        cr.set_line_width(1)
         cr.arc(x, y, radius, 0, 2 * math.pi)
 
         cr.set_source_rgb(1, 1, 1)
@@ -299,6 +303,7 @@ class AkKnobWidget(AkWidget):
         cr.show_text(text)
 
         cr.restore()
+        return False
 
     def do_line(self, cr, x, y, radius, radius_inset, pct, lw, from_center = True):
         cr.set_line_width(1)
@@ -611,6 +616,8 @@ class MiniZoneWidget(AkWidget):
         cr.move_to(2, ((size[1] / 2) - fdescent + fheight / 2))
         if self.zone.sample != "":
             cr.show_text(self.zone.sample)
+            
+        return False
 
 class AkComboBox(gtk.ComboBox):
     def __init__(self, so, soattr, model, use_index = True):

@@ -9,7 +9,7 @@ class KeygroupEditorWindowZ(gtk.Window):
         self.setup(p)
         
     def setup(self, p):
-        self.set_default_size(800,700)
+        self.set_default_size(900,900)
         self.editor = KeygroupEditorZ(self.s,p)
         self.add(self.editor.editor)
         self.set_title("aksui: %s" % (p.name))

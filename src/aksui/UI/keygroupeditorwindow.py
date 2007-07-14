@@ -144,6 +144,9 @@ class KeygroupEditorVBox(gtk.VBox):
             
             kghboxall.pack_start(tb, False, False, 1)
             kghboxall.pack_start(UI.KeygroupRangeWidget(kg))
+            #kghboxall.pack_start(UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False))
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
                         self.pack_start(kghboxall, False, False, 2)
             
     def clear_widgets(self):
