@@ -6,6 +6,7 @@ class Keygroup(ak.SamplerObject):
         ak.SamplerObject.__init__(self,program.s,None,"keygrouptools")
         self.current_mod_source_index = 11
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
+        self.attrs_minimal = ["low_note", "high_note"]
         self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff','filter_resonance':'res'}
         self.p = program
         self.index = index
@@ -27,9 +28,11 @@ class Keygroup(ak.SamplerObject):
         self.zones = [ak.Zone(self,1), ak.Zone(self,2), ak.Zone(self,3), ak.Zone(self,4)]
         self.mod_matrix = self.p.get_matrix(self.index)
         
+        self.precache()
+        
     def get_handle(self):
         # get handle by name or whatever, override in derived classes
-        return self.s.programtools.get_handle_by_name(self.p.name) 
+        return self.p.handle
 
     def set_current(self):
         self.s.keygrouptools.set_curr_keygroup(self.index)
@@ -54,6 +57,7 @@ class Keygroup(ak.SamplerObject):
             
         self.attrscache[attrname] = attrval
         
+    """
     def update(self):
         kgt = self.s.keygrouptools
         for attr in self.attrs:
@@ -63,7 +67,8 @@ class Keygroup(ak.SamplerObject):
                 setattr(self,attr,func(0))
             else:
                 setattr(self,attr,func())
-
+    """
+    
     def set_pin_value(self, source, value):
         return self.mod_matrix[source]
 

@@ -12,14 +12,21 @@ class SamplerObject(object):
         self.whichtools = whichtools
         self.specialattrs = []
         self.attrs = []
+        self.attrs_minimal = []
         self.attrscache = { }
         self.abbr = {}
+       
+        # used for alt operations + zones
+        self.keygroup_index = None
 
         # set callback function
         self.set_callback = None
 
         # set to true if an index needs to be passed before set 
         self.need_index_for_set = False
+        
+        # set to true if an index needs to be passed in batch operations as an argument
+        self.need_index_in_arguments = False
         
         # set to true if this obj needs to be the current one before set
         self.set_current_before_get_set = False
@@ -36,64 +43,94 @@ class SamplerObject(object):
     def update(self):
         """ going to replace this w/ a lazy loading type thing
         """
-        self.attrscache = { }
+        #print "Update called %s %s." % (self.whichtools, self.get_handle())
+        #self.attrscache = { }
         
     def get_handle(self):
-        # get handle by name or whatever, override in derived classes
-        tools = self.gettools()
-        if getattr(self,'name',None):
-            return tools.get_handle_by_name(self.name) 
-        else:
-            return None
+        return None
         
-    def precache(self):
+    def precache(self, clear_cache = False, minimal = True):
+        if clear_cache:
+            self.attrscache = {}
+           
+        if minimal and len(self.attrs_minimal) > 0: 
+            attrs = self.attrs_minimal
+        else:
+            attrs = self.attrs
+        
         tools = self.gettools()
         handle = self.get_handle()
-        print "Handle" + str(handle)
         if handle:
             cmds = []
             args = []
-            for attr in self.attrs:
-                if attr not in self.specialattrs:
+            collect = []
+            for attr in attrs:
+                if attr not in self.specialattrs and attr not in self.attrscache:
                     cmd_name = 'get_' + attr + '_cmd'
                     cmd = getattr(tools, cmd_name, None)
                     if cmd:
-                        print cmd_name
                         # if arguments are needed
-                        cmds.append(cmd)
-                        #args.append(arg)
-            results = self.s.execute_alt_request(handle,cmds,args)
-            index = 0
-            for attr in self.attrs:
-                if attr not in self.specialattrs:
-                    self.attrscache[attr] = results[index]
-                    index = index + 1
+                        if len(cmd.arg_types) > 0:
+                            if self.need_index_in_arguments:
+                                collect.append(attr)
+                                cmds.append(cmd)
+                                args.append([self.index])
+                        else:
+                            collect.append(attr)
+                            cmds.append(cmd)
+                            args.append([])
+            if len(cmds) > 0:
+                if self.keygroup_index != None:
+                    index = self.keygroup_index
+                else:
+                    index = self.index
+                    
+                results = self.s.execute_alt_request(handle, cmds, args, index)
+                if type(results) != tuple:
+                    results = (results,)
+                    
+                for i,result in enumerate(results):
+                    # this assumes the results are in the requested order
+                    self.attrscache[collect[i]] = result
         
     def set(self, attrname, attrval):
-        if self.set_current_before_get_set:
-            self.set_current_method()
-
-        tools = self.gettools()
-        if hasattr(tools, "set_" + attrname) or hasattr(self, "set_" + attrname):
-            if getattr(self, "set_" + attrname, None):
-                func = getattr(self, "set_" + attrname)
-            else:
-                if attrname in self.specialattrs:
-                    attrval = self.get_special_attr(attrname, attrval)
-                func = getattr(tools, "set_" + attrname)
-            if self.index != None and self.need_index_for_set:
-                func(self.index, attrval)
-            else:
-                func(attrval)
+        if self.keygroup_index:
+            index = self.keygroup_index
         else:
-            print "Could not find set_" + attrname + " method"
+            index = self.index
             
-        if self.set_callback:
-            self.set_callback(attrname, attrval)
-
-        # update cache
+        handle = self.get_handle()
         
-        self.attrscache[attrname] = attrval
+        if handle:
+            cmds = []
+            args = []
+            
+            tools = self.gettools()
+            if hasattr(tools, "set_" + attrname) or hasattr(self, "set_" + attrname):
+                if getattr(self, "set_" + attrname, None):
+                    func = getattr(self, "set_" + attrname)
+                else:
+                    if attrname in self.specialattrs:
+                        attrval = self.get_special_attr(attrname, attrval)
+                    func = getattr(tools, "set_" + attrname)
+                    
+                if self.index != None and self.need_index_for_set:
+                    cmds.append(func)
+                    args.append([self.index, attrval])
+                else:
+                    cmds.append(func)
+                    args.append([attrval])
+            else:
+                print "Could not find set_" + attrname + " method"
+            
+            if len(cmds) > 0:
+                self.s.execute_alt_request(handle, cmds, args, index)
+                
+                if self.set_callback:
+                    self.set_callback(attrname, attrval)
+                
+                # update cache
+                self.attrscache[attrname] = attrval
 
     def get_special_attr(self, attrname, attrval):
         #if attrname == "sample":
@@ -104,10 +141,6 @@ class SamplerObject(object):
         pass
 
     def __getattribute__(self, attrname):
-        if object.__getattribute__(self, "set_current_before_get_set"):
-            scm = object.__getattribute__(self, "set_current_method")
-            scm()
-
         if attrname in object.__getattribute__(self, "attrs") or attrname in object.__getattribute__(self, "specialattrs"):
             cache = object.__getattribute__(self, "attrscache")
 

@@ -91,7 +91,6 @@ class MultiEditorVBox(gtk.VBox):
     
     def setup(self, m):
         self.m = m
-        self.m.update()
         
         self.no_parts = self.m.no_parts
         
@@ -99,7 +98,6 @@ class MultiEditorVBox(gtk.VBox):
         
         for i in range(self.no_parts):
             part = ak.Part(self.s, m, i)
-            part.update()
         
             kghboxall = gtk.HBox()
             
@@ -126,7 +124,6 @@ class KeygroupEditorVBox(gtk.VBox):
 
     def setup(self, p):
         self.p = p
-        self.p.update()
         
         self.no_keygroups = self.p.no_keygroups
         
@@ -134,7 +131,6 @@ class KeygroupEditorVBox(gtk.VBox):
         rbg = None # radio button group
                     for i in range(self.no_keygroups):
             kg = ak.Keygroup(p, i)
-            kg.update()
             
             # TODO: Switch to a radio button.
             tb = gtk.RadioButton(rbg, str(i + 1))
@@ -177,7 +173,6 @@ class KeygroupEditorVBox(gtk.VBox):
             program_name = "Program 1"
             
         p = ak.Program(self.s, program_name)
-        p.update()
 
         self.no_keygroups = self.s.programtools.get_no_keygroups()
 
@@ -191,7 +186,6 @@ class KeygroupEditorVBox(gtk.VBox):
 
         for i in range(self.no_keygroups):
             kg = ak.Keygroup(p, i)
-            kg.update()
             tb = gtk.Button(str(i + 1))
             tb.connect("clicked", self.on_button_press_event)
 

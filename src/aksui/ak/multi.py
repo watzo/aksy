@@ -6,8 +6,11 @@ class Multi(ak.SamplerObject):
         ak.SamplerObject.__init__(self,s,None,"multitools")
         
         self.name = name
-        self.handle = handle
-
+        if handle:
+            self.handle = handle
+        else:
+            self.handle = self.s.multitools.get_handle_by_name(self.name) 
+            
         self.specialattrs = ["name",]
 
         self.attrs = ["no_parts"]
@@ -18,12 +21,14 @@ class Multi(ak.SamplerObject):
         else:
             print "No name..."
             
+        self.precache()
+            
     def set_name(self, name):
         self.s.multitools.rename_curr(name)
         
     def get_handle(self):
         # get handle by name or whatever, override in derived classes
-        return self.s.multitools.get_handle_by_name(self.name) 
+        return self.handle
 
     def set_current(self):
         self.s.multitools.set_curr_by_name(self.name)

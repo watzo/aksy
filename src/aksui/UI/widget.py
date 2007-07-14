@@ -37,6 +37,7 @@ class AkWidget(gtk.DrawingArea):
         if so:
             self.s = so.s
             self.so = so
+            self.so.precache()
 
             if self.soattr:
                 self.value = getattr(self.so, self.soattr)

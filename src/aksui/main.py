@@ -23,12 +23,12 @@ from postmod.itx import *
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.66'
+__version__ = '0.699'
 
 
 # config
 use_custom_excepthook = False # this gets in the way of eclipse's handy exception line # link feature, could probably fix later
-enable_profiler = False
+enable_profiler = True
 
 
 def get_selected_from_treeview(treeview):
@@ -388,11 +388,18 @@ class Main(UI.Base):
     def on_program_editor_activate(self, button):
         self.programsEditor.programsMain.show_all()
 
+    def on_run_tests_activate(self, button):
+        # i didn't realize the keygroup index was accounted for there
+        handle = self.s.programtools.get_handle_by_name("Program 1")
+        p = ak.Program(self.s,"Program 1")
+        kg = ak.Keygroup(p,0)
+        kg.precache()
+        print kg.attrscache
+        
     def on_save_activate(self, button):
         # THIS WILL OVERWRITE FILES w/ SAME NAMES!
         # get folder to save to
         path = self.s.FilecChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
-        print "Path is...", path
             
         if path:
             org = {'multitools':'.akm', 'programtools':'.akp', 'sampletools' : '.wav'}
@@ -493,7 +500,7 @@ def main():
        win.connect("delete-event", gtk.main_quit)
        gtk.main()
     finally:
-        z48.close()
+       z48.close()
 
 if __name__ == "__main__":
     if enable_profiler:
@@ -501,9 +508,8 @@ if __name__ == "__main__":
         prof.runcall(main)
     else:
         main()
-    """
+        
     stats = hotshot.stats.load("ak.py.prof")
-    stats.strip_dirs()
-    stats.sort_stats("cumtime")
-    stats.print_stats(20)
-    """
+    #stats.strip_dirs()
+    stats.sort_stats('time', 'calls')
+    stats.print_stats()

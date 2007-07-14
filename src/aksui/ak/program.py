@@ -6,20 +6,28 @@ class Program(ak.SamplerObject):
         ak.SamplerObject.__init__(self,s,None,"programtools")
 
         self.name = name
-        self.handle = handle
+        if handle:
+            self.handle = handle
+        else:
+            self.handle = self.gettools().get_handle_by_name(self.name)
 
         self.specialattrs = ["name",]
 
         self.attrs = ["name", "type", "group_id", "genre", "program_no", "no_keygroups", "keygroup_xfade", "keygroup_xfade_type", "level", "polyphony", "portamento_enabled", "portamento_mode", "portamento_time", "glissando_mode", "aftertouch_mode", "aftertouch_value", "reassignment_method", "softpedal_loudness_reduction", "softpedal_attack_stretch", "softpedal_filter_close", "midi_transpose", "tune", "legato", "pitchbend_up", "pitchbend_down", "pitchbend_mode", "no_modulation_connections"]
+        self.attrs_minimal = ["name", "type", "no_keygroups", "level", "polyphony"]
         
         #self.precache()
 
         if self.name:
             self.s.programtools.set_curr_by_name(self.name)
-            self.update()
         else:
             print "No name..."
             
+        self.precache()
+        
+    def get_handle(self):
+        return self.handle
+        
     def copy(self, destination_name):
         tools = self.gettools()
         tools.set_curr_by_name(self.name)
@@ -62,6 +70,7 @@ class Program(ak.SamplerObject):
         return '\n'.join(result)
     
     def get_matrix(self, kgindex):
+        """
         n = self.s.programtools.get_no_modulation_connections()
         conns = { }
 
@@ -74,3 +83,5 @@ class Program(ak.SamplerObject):
             #print ak.ModulationMatrix.sources[c.source], '\t', ak.ModulationMatrix.destinations[c.dest], '\t', c.level
             
         return conns
+        """
+        return []
