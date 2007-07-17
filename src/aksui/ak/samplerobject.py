@@ -108,7 +108,7 @@ class SamplerObject(object):
 
             setter_cmd_name = "set_" + attrname + "_cmd"
             set_cmd = getattr(self, setter_cmd_name, getattr(tools, setter_cmd_name))
-            assert set_cmd is not None, "Could not find setter command for " + attrname
+
             cmds.append(set_cmd)
             
             if attrname in self.specialattrs:
