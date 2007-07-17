@@ -40,7 +40,7 @@ class Multitools:
         self.set_multi_tempo_cmd = Command('_', '\x1A\x04', 'set_multi_tempo', (aksy.devices.akai.sysex_types.WORD,), None)
         self.set_multi_program_no_cmd = Command('_', '\x1A\x08', 'set_multi_program_no', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_multi_part_by_handle_cmd = Command('_', '\x1A\x09', 'set_multi_part_by_handle', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.DWORD), None)
-        self.set_multi_part_by_name_cmd = Command('_', '\x1A\x0A', 'set_multi_part_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), None)
+        self.set_multi_part_name_cmd = Command('_', '\x1A\x0A', 'set_multi_part_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), None)
         self.set_no_parts_cmd = Command('_', '\x1A\x0F', 'set_no_parts', (aksy.devices.akai.sysex_types.WORD,), None)
         self.set_part_midi_channel_cmd = Command('_', '\x1A\x10', 'set_part_midi_channel', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_part_mute_cmd = Command('_', '\x1A\x11', 'set_part_mute', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
@@ -86,11 +86,11 @@ class Multitools:
         self.get_part_midi_channel_cmd = Command('_', '\x1B\x10', 'get_part_midi_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_mute_cmd = Command('_', '\x1B\x11', 'get_part_mute', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_solo_cmd = Command('_', '\x1B\x12', 'get_part_solo', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_part_level_cmd = Command('_', '\x1B\x13', 'get_part_level', (), None)
+        self.get_part_level_cmd = Command('_', '\x1B\x13', 'get_part_level', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_output_cmd = Command('_', '\x1B\x14', 'get_part_output', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_pan_cmd = Command('_', '\x1B\x15', 'get_part_pan', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_fx_channel_cmd = Command('_', '\x1B\x16', 'get_part_fx_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_part_fx_send_level_cmd = Command('_', '\x1B\x17', 'get_part_fx_send_level', (), None)
+        self.get_part_fx_send_level_cmd = Command('_', '\x1B\x17', 'get_part_fx_send_level', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_tune_cmd = Command('_', '\x1B\x18', 'get_part_tune', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_low_note_cmd = Command('_', '\x1B\x1A', 'get_part_low_note', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_part_high_note_cmd = Command('_', '\x1B\x1B', 'get_part_high_note', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -283,10 +283,10 @@ class Multitools:
         """
         return self.sampler.execute(self.set_multi_part_by_handle_cmd, (arg0, arg1, ))
 
-    def set_multi_part_by_name(self, arg0, arg1):
+    def set_multi_part_name(self, arg0, arg1):
         """Set Multi Part by name
         """
-        return self.sampler.execute(self.set_multi_part_by_name_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_multi_part_name_cmd, (arg0, arg1, ))
 
     def set_no_parts(self, arg0):
         """Set number of parts
@@ -546,13 +546,13 @@ class Multitools:
         """
         return self.sampler.execute(self.get_part_solo_cmd, (arg0, ))
 
-    def get_part_level(self):
+    def get_part_level(self, arg0):
         """Get Part Level, <Reply> = PartLevel in 10 dB
 
         Returns:
             SWORD
         """
-        return self.sampler.execute(self.get_part_level_cmd, ())
+        return self.sampler.execute(self.get_part_level_cmd, (arg0, ))
 
     def get_part_output(self, arg0):
         """Get Part Output, <Reply> = (Output: 0 = L/R; 1-4 = op1/2 op7/8; 5 = 14 = L, R, op1-op8)
@@ -578,13 +578,13 @@ class Multitools:
         """
         return self.sampler.execute(self.get_part_fx_channel_cmd, (arg0, ))
 
-    def get_part_fx_send_level(self):
+    def get_part_fx_send_level(self, arg0):
         """Get Part FX Send Level <Reply> = level in 10 dB
 
         Returns:
             SWORD
         """
-        return self.sampler.execute(self.get_part_fx_send_level_cmd, ())
+        return self.sampler.execute(self.get_part_fx_send_level_cmd, (arg0, ))
 
     def get_part_tune(self, arg0):
         """Get Part Cents Tune

@@ -51,7 +51,7 @@ BOOL
 
 \x1A	\x09	set_multi_part_by_handle	Set Multi Part by handle <Data1> = Part Number; <Data2> = Handle of program	BYTE	DWORD
 
-\x1A	\x0A	set_multi_part_by_name	Set Multi Part by name	BYTE	STRING
+\x1A	\x0A	set_multi_part_name	Set Multi Part by name	BYTE	STRING
 
 \x1A	\x0F	set_no_parts	Set number of parts	WORD
 
@@ -143,7 +143,7 @@ BYTE
 BYTE
 \x1B	\x12	get_part_solo	Get Part Solo, <Reply> = (0=OFF, 1=ON)	BYTE
 BYTE
-\x1B	\x13	get_part_level	Get Part Level, <Reply> = PartLevel in 10 dB
+\x1B	\x13	get_part_level	Get Part Level, <Reply> = PartLevel in 10 dB	BYTE
 SWORD
 \x1B	\x14	get_part_output	Get Part Output, <Reply> = (Output: 0 = L/R; 1-4 = op1/2 op7/8; 5 = 14 = L, R, op1-op8)	BYTE
 BYTE
@@ -151,7 +151,7 @@ BYTE
 BYTE
 \x1B	\x16	get_part_fx_channel	Get Part Effects Channel: Reply = (0=OFF, 1=FX1, 2=FX2, 3=RV3, 4=RV4)	BYTE
 BYTE
-\x1B	\x17	get_part_fx_send_level	Get Part FX Send Level <Reply> = level in 10 dB
+\x1B	\x17	get_part_fx_send_level	Get Part FX Send Level <Reply> = level in 10 dB	BYTE
 SWORD
 \x1B	\x18	get_part_tune	Get Part Cents Tune	BYTE
 SWORD
