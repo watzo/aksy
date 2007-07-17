@@ -25,11 +25,11 @@ DWORD
 
 \x04	\x21	cancel_compact_wave_mem	Cancel Compact Wave Memory
 
-\x04	\x22 	get_compact_wave_mem_progress	Get Compact Wave Memory Progress (%)
+\x04	\x22	get_compact_wave_mem_progress	Get Compact Wave Memory Progress (%)
 BYTE
-\x04	\x30 	get_async_operation_state	Get State of Asynchronous Operation ERROR 'operation is pending' or DONE
+\x04	\x30	get_async_operation_state	Get State of Asynchronous Operation ERROR 'operation is pending' or DONE
 BYTE
-\x04	\x31 	cancel_curr_async_operation	Cancel Current Asynchronous Operation
+\x04	\x31	cancel_curr_async_operation	Cancel Current Asynchronous Operation
 
 \x07	\x01	get_sampler_name	Get Sampler Name
 STRING

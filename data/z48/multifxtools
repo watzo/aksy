@@ -79,7 +79,7 @@ BYTE
 
 \x26	\x31	set_fx_by_name	Set effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Data3> = effect	BYTE	BYTE	WORD
 
-\x26	\x40	enable_module	Set State of FX module. (channel, module, enable) 	BYTE	BYTE	BOOL
+\x26	\x40	enable_module	Set State of FX module. (channel, module, enable	BYTE	BYTE	BOOL
 
 \x26	\x50	set_param_value	Set parameter value of given module in given channel. <Data1> = channel; <Data2> = module; <Data3> = index of parameter to set <Data4> = parameter value	BYTE	BYTE	BYTE	BYTE
 

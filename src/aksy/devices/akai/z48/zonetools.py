@@ -5,7 +5,7 @@ Manipulate the zones of a keygroup
 """
 
 __author__ =  'Walco van Loon'
-__version__=  '$Rev$'
+__version__ =  '0.2'
 
 from aksy.devices.akai.sysex import Command
 
@@ -13,7 +13,7 @@ import aksy.devices.akai.sysex_types
 
 class Zonetools:
     def __init__(self, z48):
-        self.z48 = z48
+        self.sampler = z48
         self.get_sample_cmd = Command('_', '\x0F\x01', 'get_sample', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_level_cmd = Command('_', '\x0F\x02', 'get_level', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_pan_cmd = Command('_', '\x0F\x03', 'get_pan', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -47,7 +47,7 @@ class Zonetools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_sample_cmd, (arg0, ))
+        return self.sampler.execute(self.get_sample_cmd, (arg0, ))
 
     def get_level(self, arg0):
         """Get Zone Level <Reply> = level in 10 dB
@@ -55,7 +55,7 @@ class Zonetools:
         Returns:
             LEVEL
         """
-        return self.z48.execute(self.get_level_cmd, (arg0, ))
+        return self.sampler.execute(self.get_level_cmd, (arg0, ))
 
     def get_pan(self, arg0):
         """Get Zone Pan (0-100)
@@ -63,7 +63,7 @@ class Zonetools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_pan_cmd, (arg0, ))
+        return self.sampler.execute(self.get_pan_cmd, (arg0, ))
 
     def get_output(self, arg0):
         """Get Zone Output(0-15)
@@ -71,7 +71,7 @@ class Zonetools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_output_cmd, (arg0, ))
+        return self.sampler.execute(self.get_output_cmd, (arg0, ))
 
     def get_filter(self, arg0):
         """Get Zone Filter (0 +-100)
@@ -79,7 +79,7 @@ class Zonetools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_filter_cmd, (arg0, ))
+        return self.sampler.execute(self.get_filter_cmd, (arg0, ))
 
     def get_tune(self, arg0):
         """Get Zone Cents Tune(0 +-3600)
@@ -87,7 +87,7 @@ class Zonetools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_tune_cmd, (arg0, ))
+        return self.sampler.execute(self.get_tune_cmd, (arg0, ))
 
     def get_keyboard_track(self, arg0):
         """Get Zone Keyboard Track
@@ -95,7 +95,7 @@ class Zonetools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_keyboard_track_cmd, (arg0, ))
+        return self.sampler.execute(self.get_keyboard_track_cmd, (arg0, ))
 
     def get_playback(self, arg0):
         """Get Zone Playback
@@ -103,7 +103,7 @@ class Zonetools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_playback_cmd, (arg0, ))
+        return self.sampler.execute(self.get_playback_cmd, (arg0, ))
 
     def get_mod_start(self, arg0):
         """Get Zone ModStart(0 +- 9999)
@@ -111,7 +111,7 @@ class Zonetools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_mod_start_cmd, (arg0, ))
+        return self.sampler.execute(self.get_mod_start_cmd, (arg0, ))
 
     def get_low_velocity(self, arg0):
         """Get Zone Low Velocity
@@ -119,7 +119,7 @@ class Zonetools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_low_velocity_cmd, (arg0, ))
+        return self.sampler.execute(self.get_low_velocity_cmd, (arg0, ))
 
     def get_high_velocity(self, arg0):
         """Get Zone High Velocity
@@ -127,7 +127,7 @@ class Zonetools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_high_velocity_cmd, (arg0, ))
+        return self.sampler.execute(self.get_high_velocity_cmd, (arg0, ))
 
     def get_mute(self, arg0):
         """Get Zone Mute
@@ -135,7 +135,7 @@ class Zonetools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_mute_cmd, (arg0, ))
+        return self.sampler.execute(self.get_mute_cmd, (arg0, ))
 
     def get_solo(self, arg0):
         """Get Zone Solo
@@ -143,70 +143,70 @@ class Zonetools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_solo_cmd, (arg0, ))
+        return self.sampler.execute(self.get_solo_cmd, (arg0, ))
 
     def set_sample(self, arg0, arg1):
         """Set Zone Sample <Data2...0> = name of sample to assign to zone. (0, 1-4)
         """
-        return self.z48.execute(self.set_sample_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_sample_cmd, (arg0, arg1, ))
 
     def set_level(self, arg0, arg1):
         """Set Zone Level <Data1> = Zone number, <Data2> = level in 10xdB (0, 1-4)
         """
-        return self.z48.execute(self.set_level_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_level_cmd, (arg0, arg1, ))
 
     def set_pan(self, arg0, arg1):
         """Set Zone Pan/Balance <Data2> = Pan/Bal where (0-100 = L50-R50);
         """
-        return self.z48.execute(self.set_pan_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_pan_cmd, (arg0, arg1, ))
 
     def set_output(self, arg0, arg1):
         """Set Zone Output <Data2> = output, where 0=MULTI, 1 = L/R; 2-5 = op1/2;op7/8; 6-15 = L, R, op1-op8
         """
-        return self.z48.execute(self.set_output_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_output_cmd, (arg0, arg1, ))
 
     def set_filter(self, arg0, arg1):
         """Set Zone Filter
         """
-        return self.z48.execute(self.set_filter_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_filter_cmd, (arg0, arg1, ))
 
     def set_tune(self, arg0, arg1):
         """Set Zone Cents Tune
         """
-        return self.z48.execute(self.set_tune_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_tune_cmd, (arg0, arg1, ))
 
     def set_keyboard_track(self, arg0, arg1, arg2):
-        """Set Zone Keyboard Track <Data2> =  
+        """Set Zone Keyboard Track
         """
-        return self.z48.execute(self.set_keyboard_track_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.set_keyboard_track_cmd, (arg0, arg1, arg2, ))
 
     def set_playback(self, arg0, arg1):
         """Set Zone Playback <Data2> = mode, where 0=NO LOOPING, 1=ONE SHOT 2=LOOP IN REL, 3=LOOP UNTIL REL, 4=LIRRETRIG, 5=PLAYRETRIG, 6=AS SAMPLE
         """
-        return self.z48.execute(self.set_playback_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_playback_cmd, (arg0, arg1, ))
 
     def set_modstart(self, arg0, arg1):
         """Set Zone ModStart
         """
-        return self.z48.execute(self.set_modstart_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_modstart_cmd, (arg0, arg1, ))
 
     def set_low_vel(self, arg0, arg1):
         """Set Zone Low Velocity
         """
-        return self.z48.execute(self.set_low_vel_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_low_vel_cmd, (arg0, arg1, ))
 
     def set_high_vel(self, arg0, arg1):
         """Set Zone High Velocity
         """
-        return self.z48.execute(self.set_high_vel_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_high_vel_cmd, (arg0, arg1, ))
 
     def set_mute(self, arg0, arg1):
         """Set Zone Mute <Data2> = (0=OFF, 1=ON)
         """
-        return self.z48.execute(self.set_mute_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_mute_cmd, (arg0, arg1, ))
 
     def set_solo(self, arg0, arg1):
         """Set Zone Solo <Data2> = (0=OFF, 1=ON)
         """
-        return self.z48.execute(self.set_solo_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_solo_cmd, (arg0, arg1, ))
 

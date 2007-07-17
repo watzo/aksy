@@ -29,7 +29,7 @@ DWORD
 
 \x32	\x04	set_rec_time	Set Record Time <Data1> = time in seconds. If <Data1> = 0, MANUAL mode is enabled.	DWORD
  
-\x32	\x05	set_orig_pitch	Set Original Pitch 	BYTE
+\x32	\x05	set_orig_pitch	Set Original Pitch	BYTE
 
 \x32	\x06	set_threshold	Set Threshold <Data1> = threshold in dB (-63,0)	SBYTE
 
@@ -39,7 +39,7 @@ DWORD
 
 \x32	\x09	set_prerec_time	Set Pre-recording Time <Data1> = time in ms	WORD
 
-\x32	\x0A	set_dest	Set Recording Detination <Data1> = (0=RAM, 1=DISK)	BYTE
+\x32	\x0A	set_dest	Set Recording Detination <Data1> = (0=RAM, 1=DISK) Note: seems to be unsupported	BYTE
 
 \x32	\x10	set_name	Set Record Name	STRING
 
@@ -67,7 +67,7 @@ BYTE
 BYTE
 \x33	\x09	get_prerec_time	Get Pre-recording Time <Reply> = time in ms
 WORD
-\x33	\x0A	get_dest	Get Recording Destination <Reply> = (0=RAM, 1=DISK)
+\x33	\x0A	get_dest	Get Recording Destination <Reply> = (0=RAM, 1=DISK) Note: seems to be unsupported
 BYTE
 \x33	\x10	get_name	Get Record Name
 STRING

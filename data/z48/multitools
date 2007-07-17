@@ -1,8 +1,8 @@
 multitools	Methods to manipulate multis
-\x18	\x01	get_no_items	Get number of items in memory
+\x18	\x01	get_item_count	Get number of items in memory
 BYTE
 \x18	\x02\x00	get_handles	Get handles <Data1>: 0=list of handles
-DWORD
+DWORDARRAY
 \x18	\x02\x01	get_names	Get names items: <Data1>; 1=list of names; 
 STRINGARRAY
 \x18	\x02\x02	get_handles_names	Get handles names: <Data1>; 2=list of handle+name

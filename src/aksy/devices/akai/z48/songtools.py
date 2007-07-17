@@ -5,7 +5,7 @@ Song
 """
 
 __author__ =  'Walco van Loon'
-__version__=  '$Rev$'
+__version__ =  '0.2'
 
 from aksy.devices.akai.sysex import Command
 
@@ -13,7 +13,7 @@ import aksy.devices.akai.sysex_types
 
 class Songtools:
     def __init__(self, z48):
-        self.z48 = z48
+        self.sampler = z48
         self.get_no_items_cmd = Command('_', '\x28\x01', 'get_no_items', (), None)
         self.get_handles_cmd = Command('_', '\x28\x02\x00', 'get_handles', (), None)
         self.get_names_cmd = Command('_', '\x28\x02\x01', 'get_names', (), None)
@@ -33,7 +33,7 @@ class Songtools:
         self.set_tag_bit_cmd = Command('_', '\x28\x0E', 'set_tag_bit', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_tag_bitmap_cmd = Command('_', '\x28\x0F', 'get_tag_bitmap', (), None)
         self.get_curr_modified_cmd = Command('_', '\x28\x10', 'get_curr_modified', (), None)
-        self.get_modified_cmd = Command('_', '\x28\x11 ', 'get_modified', (), None)
+        self.get_modified_cmd = Command('_', '\x28\x11', 'get_modified', (), None)
         self.delete_tagged_cmd = Command('_', '\x28\x18', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.play_song_cmd = Command('_', '\x28\x40', 'play_song', (), None)
         self.pause_song_cmd = Command('_', '\x28\x41', 'pause_song', (), None)
@@ -62,12 +62,12 @@ class Songtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_items_cmd, ())
+        return self.sampler.execute(self.get_no_items_cmd, ())
 
     def get_handles(self):
         """Get Sample handles
         """
-        return self.z48.execute(self.get_handles_cmd, ())
+        return self.sampler.execute(self.get_handles_cmd, ())
 
     def get_names(self):
         """Get sample names
@@ -75,7 +75,7 @@ class Songtools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_names_cmd, ())
+        return self.sampler.execute(self.get_names_cmd, ())
 
     def get_handles_names(self):
         """Get list of sample handles and names
@@ -83,22 +83,22 @@ class Songtools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_handles_names_cmd, ())
+        return self.sampler.execute(self.get_handles_names_cmd, ())
 
     def get_handles_modified(self, arg0):
         """Get a list of modified/tagged samples
         """
-        return self.z48.execute(self.get_handles_modified_cmd, (arg0, ))
+        return self.sampler.execute(self.get_handles_modified_cmd, (arg0, ))
 
     def set_curr_by_handle(self, arg0):
         """Select current item by handle
         """
-        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
     def set_curr_by_name(self, arg0):
         """Select current item by name
         """
-        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_name_cmd, (arg0, ))
 
     def get_curr_handle(self):
         """Get handle of current item
@@ -106,7 +106,7 @@ class Songtools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_curr_handle_cmd, ())
+        return self.sampler.execute(self.get_curr_handle_cmd, ())
 
     def get_curr_name(self):
         """Get name of current item
@@ -114,7 +114,7 @@ class Songtools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_curr_name_cmd, ())
+        return self.sampler.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
@@ -122,7 +122,7 @@ class Songtools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.get_name_by_handle_cmd, (arg0, ))
 
     def get_handle_by_name(self, arg0):
         """Get item handle from name
@@ -130,42 +130,42 @@ class Songtools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.get_handle_by_name_cmd, (arg0, ))
 
     def delete_all(self):
         """Delete ALL items from memory
         """
-        return self.z48.execute(self.delete_all_cmd, ())
+        return self.sampler.execute(self.delete_all_cmd, ())
 
     def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_curr_cmd, ())
+        return self.sampler.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
-        return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_by_handle_cmd, (arg0, ))
 
     def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
+        return self.sampler.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
         """
-        return self.z48.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
 
     def set_tag_bit(self, arg0, arg1):
         """Set Tag Bit <Data1> = bit to set, <Data2> = (0=OFF, 1=ON) BYTE(0, 1) <Data3> = (0=CURRENT, 1=ALL)
         """
-        return self.z48.execute(self.set_tag_bit_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_tag_bit_cmd, (arg0, arg1, ))
 
     def get_tag_bitmap(self):
         """Get Tag Bitmap
         """
-        return self.z48.execute(self.get_tag_bitmap_cmd, ())
+        return self.sampler.execute(self.get_tag_bitmap_cmd, ())
 
     def get_curr_modified(self):
         """Get name of current item with modified/tagged info
@@ -173,7 +173,7 @@ class Songtools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_curr_modified_cmd, ())
+        return self.sampler.execute(self.get_curr_modified_cmd, ())
 
     def get_modified(self):
         """Get modified state of current item.
@@ -181,57 +181,57 @@ class Songtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_modified_cmd, ())
+        return self.sampler.execute(self.get_modified_cmd, ())
 
     def delete_tagged(self, arg0):
         """Delete tagged items <Data1> = tag bit
         """
-        return self.z48.execute(self.delete_tagged_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_tagged_cmd, (arg0, ))
 
     def play_song(self):
         """Play Song
         """
-        return self.z48.execute(self.play_song_cmd, ())
+        return self.sampler.execute(self.play_song_cmd, ())
 
     def pause_song(self):
         """Pause Song
         """
-        return self.z48.execute(self.pause_song_cmd, ())
+        return self.sampler.execute(self.pause_song_cmd, ())
 
     def stop_song(self):
         """Stop Song
         """
-        return self.z48.execute(self.stop_song_cmd, ())
+        return self.sampler.execute(self.stop_song_cmd, ())
 
     def set_group_id(self, arg0):
         """Set Group ID
         """
-        return self.z48.execute(self.set_group_id_cmd, (arg0, ))
+        return self.sampler.execute(self.set_group_id_cmd, (arg0, ))
 
     def set_from_bar(self, arg0):
         """Set From Bar
         """
-        return self.z48.execute(self.set_from_bar_cmd, (arg0, ))
+        return self.sampler.execute(self.set_from_bar_cmd, (arg0, ))
 
     def set_to_bar(self, arg0):
         """Set To Bar
         """
-        return self.z48.execute(self.set_to_bar_cmd, (arg0, ))
+        return self.sampler.execute(self.set_to_bar_cmd, (arg0, ))
 
     def set_tempo_mode(self, arg0):
         """Set Tempo Mode <Data1> = (0=FILE, 1=MANUAL, 2=MULTI)
         """
-        return self.z48.execute(self.set_tempo_mode_cmd, (arg0, ))
+        return self.sampler.execute(self.set_tempo_mode_cmd, (arg0, ))
 
     def set_manual_tempo(self, arg0):
         """Set Manual Tempo <Data1> = (tempo*10)bpm
         """
-        return self.z48.execute(self.set_manual_tempo_cmd, (arg0, ))
+        return self.sampler.execute(self.set_manual_tempo_cmd, (arg0, ))
 
     def set_midi_output(self, arg0):
         """Set MIDI output port <Data1> = (0=NONE, 1=MIDI A, 2=MIDI B)
         """
-        return self.z48.execute(self.set_midi_output_cmd, (arg0, ))
+        return self.sampler.execute(self.set_midi_output_cmd, (arg0, ))
 
     def get_group_id(self):
         """Get Group ID
@@ -239,7 +239,7 @@ class Songtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_group_id_cmd, ())
+        return self.sampler.execute(self.get_group_id_cmd, ())
 
     def get_from_bar(self):
         """Get From Bar
@@ -247,7 +247,7 @@ class Songtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_from_bar_cmd, ())
+        return self.sampler.execute(self.get_from_bar_cmd, ())
 
     def get_to_bar(self):
         """Get To Bar
@@ -255,7 +255,7 @@ class Songtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_to_bar_cmd, ())
+        return self.sampler.execute(self.get_to_bar_cmd, ())
 
     def get_tempo_mode(self):
         """Get Tempo Mode <Reply> = (0=FILE, 1=MANUAL, 2=MULTI)
@@ -263,7 +263,7 @@ class Songtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_tempo_mode_cmd, ())
+        return self.sampler.execute(self.get_tempo_mode_cmd, ())
 
     def get_manual_tempo(self):
         """Get Manual Tempo
@@ -271,7 +271,7 @@ class Songtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_manual_tempo_cmd, ())
+        return self.sampler.execute(self.get_manual_tempo_cmd, ())
 
     def get_midi_output_port(self):
         """Get MIDI output port <Reply> = (0=NONE, 1=MIDI A, 2=MIDI B
@@ -279,7 +279,7 @@ class Songtools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_midi_output_port_cmd, ())
+        return self.sampler.execute(self.get_midi_output_port_cmd, ())
 
     def get_time_signature_beat(self):
         """Get (Time Signature) Beat Value
@@ -287,7 +287,7 @@ class Songtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_time_signature_beat_cmd, ())
+        return self.sampler.execute(self.get_time_signature_beat_cmd, ())
 
     def get_time_sig_beat_no(self):
         """Get (Time Signature) Beats-per-Bar
@@ -295,7 +295,7 @@ class Songtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_time_sig_beat_no_cmd, ())
+        return self.sampler.execute(self.get_time_sig_beat_no_cmd, ())
 
     def get_curr_beat(self):
         """Get Current Beat
@@ -303,7 +303,7 @@ class Songtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_curr_beat_cmd, ())
+        return self.sampler.execute(self.get_curr_beat_cmd, ())
 
     def get_curr_bar(self):
         """Get Current Bar
@@ -311,7 +311,7 @@ class Songtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_curr_bar_cmd, ())
+        return self.sampler.execute(self.get_curr_bar_cmd, ())
 
     def get_curr_tempo(self):
         """Get Current Tempo <Reply> = (tempo*10)bpm
@@ -319,5 +319,5 @@ class Songtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_curr_tempo_cmd, ())
+        return self.sampler.execute(self.get_curr_tempo_cmd, ())
 

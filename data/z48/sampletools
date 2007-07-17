@@ -37,7 +37,7 @@ DWORD
 
 \x1C	\x10	get_curr_modified	Get name of current item with modified/tagged info
 STRINGARRAY
-\x1C	\x11 	get_modified	Get modified state of current item.
+\x1C	\x11	get_modified	Get modified state of current item.
 BYTE
 \x1C	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
 
@@ -47,7 +47,7 @@ BYTE
 
 \x1C	\x42	play_until	Play To <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
 
-\x1C	\x43 	play_from	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
+\x1C	\x43	play_from	Play From <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
 
 \x1C	\x44	play_over	Play Over <Data1> = velocity, <Data2> = sample position	BYTE	QWORD
 

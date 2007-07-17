@@ -37,7 +37,7 @@ DWORD
 
 \x28	\x10	get_curr_modified	Get name of current item with modified/tagged info
 STRINGARRAY
-\x28	\x11 	get_modified	Get modified state of current item.
+\x28	\x11	get_modified	Get modified state of current item.
 BYTE
 \x28	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE 
 

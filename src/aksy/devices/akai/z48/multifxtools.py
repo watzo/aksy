@@ -341,7 +341,7 @@ class Multifxtools:
         return self.sampler.execute(self.set_fx_by_name_cmd, (arg0, arg1, arg2, ))
 
     def enable_module(self, arg0, arg1, arg2):
-        """Set State of FX module. (channel, module, enable) 
+        """Set State of FX module. (channel, module, enable
         """
         return self.sampler.execute(self.enable_module_cmd, (arg0, arg1, arg2, ))
 
