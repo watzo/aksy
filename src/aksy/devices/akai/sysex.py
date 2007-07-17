@@ -93,13 +93,15 @@ class AlternativeRequest(Request):
 
     def __init__(self, handle, commands, args, index=None, request_id=0):
         bytes = self._create_start_bytes(commands[0], request_id)
+        no_sections = index is None and 4 or 8
         # TODO: this is z48 specific
-        alt_section_id, offset = self.find_section_ids(commands[0].id)
+        alt_section_id, offset = self.find_section_ids(commands[0].id, no_sections)
         bytes.append(alt_section_id)
         bytes.append(offset)
         bytes.append(sysex_types.DWORD.encode(handle))
         if index is not None:
             bytes.append(sysex_types.BYTE.encode(index))
+            
         for i, command in enumerate(commands):
             if len(command.arg_types) > 0:
                 data = command.create_arg_bytes(args[i])
@@ -108,16 +110,16 @@ class AlternativeRequest(Request):
                 data = []
                 bytes.append(sysex_types.BYTE.encode(1))
 
-            bytes.append(command.id[1:])
+            bytes.append(command.id[1])
             bytes.extend(data)
         
                  
         bytes.append(END_SYSEX)
         self.bytes = ''.join(bytes)
         
-    def find_section_ids(self, command_id):
+    def find_section_ids(self, command_id, no_sections):
         section_id = sysex_types.BYTE.decode(command_id[:1], False)
-        for i in range(4):
+        for i in range(no_sections):
             base_section =  sysex_types.BYTE.encode(section_id - i)
             alt_section = self.BASE_ALT_SECTION_MAP.get(base_section, None) 
             if alt_section is not None:

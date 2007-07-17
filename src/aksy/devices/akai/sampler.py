@@ -53,7 +53,7 @@ class Sampler(AkaiSampler):
             log.debug("Response: %s\n" % (sysex.byte_repr(result_bytes)))
         return result_bytes
         
-    def execute_alt_request(self, handle, commands, args):
+    def execute_alt_request(self, handle, commands, args, index = None):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
         All commands must be from the same sub section (get/set/main), the section id will be determined from the first command in the list.
         
@@ -70,7 +70,7 @@ class Sampler(AkaiSampler):
             z48.execute_alt_request(65536, [cmd, cmd2], [[1], [2]])
 
         """
-        result_bytes = self.execute_request(sysex.AlternativeRequest(handle, commands, args))
+        result_bytes = self.execute_request(sysex.AlternativeRequest(handle, commands, args, index))
         result = sysex.Reply(result_bytes, commands[0], True)
         return result.get_return_value()
 
