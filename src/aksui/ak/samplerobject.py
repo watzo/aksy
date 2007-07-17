@@ -104,24 +104,20 @@ class SamplerObject(object):
         if handle:
             cmds = []
             args = []
-            
             tools = self.gettools()
-            if hasattr(tools, "set_" + attrname) or hasattr(self, "set_" + attrname):
-                if getattr(self, "set_" + attrname, None):
-                    func = getattr(self, "set_" + attrname)
-                else:
-                    if attrname in self.specialattrs:
-                        attrval = self.get_special_attr(attrname, attrval)
-                    func = getattr(tools, "set_" + attrname)
-                    
-                if self.index != None and self.need_index_for_set:
-                    cmds.append(func)
-                    args.append([self.index, attrval])
-                else:
-                    cmds.append(func)
-                    args.append([attrval])
+
+            setter_cmd_name = "set_" + attrname + "_cmd"
+            set_cmd = getattr(self, setter_cmd_name, getattr(tools, setter_cmd_name))
+            assert set_cmd is not None, "Could not find setter command for " + attrname
+            cmds.append(set_cmd)
+            
+            if attrname in self.specialattrs:
+                attrval = self.get_special_attr(attrname, attrval)
+                
+            if self.index != None and self.need_index_for_set:
+                args.append([self.index, attrval])
             else:
-                print "Could not find set_" + attrname + " method"
+                args.append([attrval])
             
             if len(cmds) > 0:
                 self.s.execute_alt_request(handle, cmds, args, index)
