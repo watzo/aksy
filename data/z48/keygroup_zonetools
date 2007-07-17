@@ -41,7 +41,7 @@ BOOL
 
 \x0E	\x08	set_playback	Set Zone Playback <Data2> = mode, where 0=NO LOOPING, 1=ONE SHOT 2=LOOP IN REL, 3=LOOP UNTIL REL, 4=LIRRETRIG, 5=PLAYRETRIG, 6=AS SAMPLE	BYTE	BYTE
 
-\x0E	\x09	set_modstart	Set Zone ModStart	BYTE	SWORD
+\x0E	\x09	set_mod_start	Set Zone ModStart	BYTE	SWORD
 
 \x0E	\x0A	set_low_vel	Set Zone Low Velocity	BYTE	BYTE
 

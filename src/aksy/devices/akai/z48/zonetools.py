@@ -35,7 +35,7 @@ class Zonetools:
         self.set_tune_cmd = Command('_', '\x0E\x06', 'set_tune', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SWORD), None)
         self.set_keyboard_track_cmd = Command('_', '\x0E\x07', 'set_keyboard_track', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_playback_cmd = Command('_', '\x0E\x08', 'set_playback', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_modstart_cmd = Command('_', '\x0E\x09', 'set_modstart', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SWORD), None)
+        self.set_mod_start_cmd = Command('_', '\x0E\x09', 'set_mod_start', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SWORD), None)
         self.set_low_vel_cmd = Command('_', '\x0E\x0A', 'set_low_vel', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_high_vel_cmd = Command('_', '\x0E\x0B', 'set_high_vel', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_mute_cmd = Command('_', '\x0E\x0C', 'set_mute', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
@@ -185,10 +185,10 @@ class Zonetools:
         """
         return self.sampler.execute(self.set_playback_cmd, (arg0, arg1, ))
 
-    def set_modstart(self, arg0, arg1):
+    def set_mod_start(self, arg0, arg1):
         """Set Zone ModStart
         """
-        return self.sampler.execute(self.set_modstart_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_mod_start_cmd, (arg0, arg1, ))
 
     def set_low_vel(self, arg0, arg1):
         """Set Zone Low Velocity
