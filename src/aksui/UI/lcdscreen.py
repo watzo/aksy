@@ -52,12 +52,12 @@ class LCDScreen(gtk.DrawingArea):
 
     def updateLCD(self):
         if self.s:
-            lcd = self.s._getlcd()
+            pixel_data, control_data = self.s.get_panel_state()
 
             xx,yy = 0,0
             ugiv = {}
 
-            for x in lcd:
+            for x in pixel_data:
                 x = ord(x)
                 for c in mapmap[x]:
                     ugiv[xx] = c 

@@ -56,6 +56,12 @@
 #define Z48_GET_MULTI_HANDLE "\x18\x08"
 #define Z48_GET_MIDI_HANDLE "\x28\x08"
 
+/* constants*/
+
+#define PANEL_PIXEL_DATA_LENGTH 1860
+#define PANEL_CONTROL_DATA_LENGTH 18
+
+/* macros */
 #define GET_BLOCK_SIZE(buffer) ((buffer[7]&0xFF) | ((buffer[6]&0xFF) << 8) | ((buffer[5]&0xFF) << 16) | ((buffer[4]&0xFF) << 24))
 #define GET_BYTES_TRANSFERRED(buffer) ((buffer[3]&0xFF) | ((buffer[2]&0xFF) << 8) | ((buffer[1]&0XFF) << 16) | ((buffer[0]&0xFF) << 24))
 #define GET_S56K_BLOCK_SIZE GET_BYTES_TRANSFERRED
@@ -65,7 +71,6 @@
 #define IS_INVALID_FILE_ERROR(buffer) (buffer[0] == 0x1)
 #define IS_TRANSFER_FINISHED(buffer) (buffer[0] == 0x0)
 #define CONTAINS_SYSEX_MSG_END(buffer, length) (buffer[length - 1] == (char)SYSEX_END)
-#define IS_LCD_END_MSG(buffer, length) ((length == 18) && buffer[0] == 0x01 && buffer[1] == 0x00)
 
 #define ENDSWAP_INT(x) ((((x)>>24)&0xFF)+(((x)>>8)&0xFF00)+(((x)&0xFF00)<<8)+(((x)&0xFF)<<24))
 #define ENDSWAP_SHORT(x) ((((x)>>8)&0xFF)+(((x)&0xFF)<<8))
@@ -215,7 +220,13 @@ int aksyxusb_device_close(const akai_usb_device akai_dev);
  *
  */
 int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev, const byte_array sysex, const byte_array reply, int* const bytes_read, const int timeout);
-int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array reply, int* const bytes_read, const int timeout);
+
+/* retrieves raw front panel state (pixel data and raw values of controls)
+ *
+ * returns AKSY_TRANSMISSION_ERROR if the usb reads or writes failed
+ *
+ */
+int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev, char* pixel_data, char* control_data, const int timeout);
 
 /* executes a system exclusive command on the sampler.
  *
@@ -229,6 +240,10 @@ int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char* cmd, co
 /* executes a a raw request on the sampler. */
 int aksyxusb_device_exec(const akai_usb_device akai_dev,
     const byte_array request, const byte_array result_buff, int* const bytes_read, const int timeout);
+
+/* writes a a raw request to the sampler. */
+int aksyxusb_device_write(const akai_usb_device akai_dev,
+    const byte_array request, const int timeout);
 
 /* reads a raw response from the sampler. */
 int aksyxusb_device_read(const akai_usb_device akai_dev,

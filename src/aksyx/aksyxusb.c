@@ -329,31 +329,74 @@ int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
 	return rc;
 }
 
-int aksyxusb_device_exec_getlcd(const akai_usb_device akai_dev, const byte_array result_buff, int* const bytes_read, const int timeout) {
+int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev, char* pixel_data, char* control_data, const int timeout) {
     struct byte_array request;
+    int replies = 0;
+    int rc;
+
     request.length = 2;
     request.bytes = CMD_LCD_GET;
 
-	return aksyxusb_device_exec(akai_dev, &request, result_buff, bytes_read, timeout);
+    rc = aksyxusb_device_write(akai_dev, &request, timeout);
+
+    if (rc) {
+    	return rc;
+    }
+    
+    do {
+    	if (replies == 0) {
+    		rc = usb_bulk_read(akai_dev->dev, EP_IN, pixel_data, PANEL_PIXEL_DATA_LENGTH, timeout);
+#if (AKSY_DEBUG == 1)
+    		log_hex(pixel_data, 16, "Pixel data - first 16 bytes (length: %i): ", rc);
+#endif
+    	}
+    	
+    	if (replies == 1) {
+    		rc = usb_bulk_read(akai_dev->dev, EP_IN, control_data, PANEL_CONTROL_DATA_LENGTH, timeout);
+#if (AKSY_DEBUG == 1)
+		log_hex(control_data, PANEL_CONTROL_DATA_LENGTH, "Panel Control data (length: %i): ", rc);
+#endif
+    	}
+    	
+    	if (rc < 0) {
+    		return AKSY_TRANSMISSION_ERROR;
+    	}
+    	
+    	if (IS_SAMPLER_BUSY(pixel_data, rc)) {
+    		continue;
+    	}
+    	
+    	replies++;
+    	
+    } while (replies < 2);
+    
+    return AKSY_SUCCESS;
 }
 
 int aksyxusb_device_exec(const akai_usb_device akai_dev,
     const byte_array request, const byte_array result_buff, int* const bytes_read, const int timeout) {
     int rc;
 
-#if (AKSY_DEBUG == 1)
-    log_hex(request->bytes, request->length, "Request: ");
-#endif
-
-    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request->bytes, request->length, timeout);
-
-    if (rc < 0) {
-        return AKSY_TRANSMISSION_ERROR;
+    rc = aksyxusb_device_write(akai_dev, request, timeout);
+    if (rc) {
+    	return rc;
     }
-
 	return aksyxusb_device_read(akai_dev, result_buff, bytes_read, timeout);
 }
 
+int aksyxusb_device_write(const akai_usb_device akai_dev,
+	const byte_array request, const int timeout) {
+	int rc;
+	
+	#if (AKSY_DEBUG == 1)
+	    log_hex(request->bytes, request->length, "Request: ");
+	#endif
+
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, request->bytes, request->length, timeout);
+
+    return rc < 0 ? AKSY_TRANSMISSION_ERROR: AKSY_SUCCESS;
+}
+    
 int aksyxusb_device_read(const akai_usb_device akai_dev,
     const byte_array result_buff, int* const bytes_read, const int timeout) {
     char* curr_index = NULL;
@@ -373,13 +416,9 @@ int aksyxusb_device_read(const akai_usb_device akai_dev,
 		if (IS_SAMPLER_BUSY(curr_index, rc) || is_sysex_reply_ok(curr_index, rc)) {
 			continue;
 		}
-		
-		if (IS_LCD_END_MSG(curr_index, rc)) {
-			return AKSY_SUCCESS;
-		}
-		
-		*bytes_read += rc;
 
+		*bytes_read += rc;
+		
 		if (CONTAINS_SYSEX_MSG_END(curr_index, rc)) {
 		    return AKSY_SUCCESS;
 		}

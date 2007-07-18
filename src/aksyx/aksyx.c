@@ -163,25 +163,26 @@ static PyObject* AkaiSampler_put(AkaiSampler* self, PyObject* args) {
     }
 }
 
-static PyObject* AkaiSampler_getlcd(AkaiSampler* self) {
+static PyObject* AkaiSampler_get_panel_state(AkaiSampler* self) {
     PyObject *ret;
-    struct byte_array buffer;
-    const int BUFF_SIZE = 4096;
-    int bytes_read = 0, rc;
+    char* pixel_data;
+    char* control_data;
+    int rc;
 
-	buffer.length = BUFF_SIZE;
-    buffer.bytes = (char*)PyMem_Malloc(buffer.length * sizeof(char));
+    pixel_data = (char*)PyMem_Malloc(PANEL_PIXEL_DATA_LENGTH * sizeof(char));
+    control_data = (char*)PyMem_Malloc(PANEL_CONTROL_DATA_LENGTH * sizeof(char));
 
-    rc = aksyxusb_device_exec_getlcd(self->sampler, &buffer, &bytes_read, USB_TIMEOUT);
+    rc = aksyxusb_device_get_panel_state(self->sampler, pixel_data, control_data, USB_TIMEOUT);
 
     if (rc == AKSY_TRANSMISSION_ERROR) {
         ret = PyErr_Format(USBException, "Timeout waiting for sysex reply.");
     }
     else {
-        ret = Py_BuildValue("s#", buffer.bytes, bytes_read);
+        ret = Py_BuildValue("(s#,s#)", pixel_data, PANEL_PIXEL_DATA_LENGTH, control_data, PANEL_CONTROL_DATA_LENGTH);
     }
 
-    PyMem_Free(buffer.bytes);
+    PyMem_Free(pixel_data);
+    PyMem_Free(control_data);
     return ret;
 }
 
@@ -233,7 +234,7 @@ static PyMethodDef AkaiSampler_methods[] = {
     {"_get", (PyCFunction)AkaiSampler_get, METH_VARARGS, "Gets a file from the sampler"},
     {"_put", (PyCFunction)AkaiSampler_put, METH_VARARGS, "Puts a file on the sampler"},
     {"_execute", (PyCFunction)AkaiSampler_execute, METH_VARARGS, "Executes a Sysex string on the sampler"},
-    {"_getlcd", (PyCFunction)AkaiSampler_getlcd, METH_VARARGS, "Gets a dump of current lcd screen state"},
+    {"get_panel_state", (PyCFunction)AkaiSampler_get_panel_state, METH_VARARGS, "Retrieves current front panel state in a tuple (pixel_data, control_data) where control data contains the current value of qlink controls, etc"},
     {NULL},
 };
 
