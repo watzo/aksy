@@ -32,7 +32,7 @@ class build_akyx(build_ext):
         build_ext.build_extension(self, ext)
         
 setup(name = "aksy", 
-      version = "0.2-dev", 
+      version = "0.3", 
       author = "Walco van Loon", 
       author_email = "walco at n--tree.net", 
       package_dir= {'': 'src'}, 
