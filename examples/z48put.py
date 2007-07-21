@@ -14,6 +14,8 @@ __version__ = '0.01'
 def create_option_parser(): 
     usage = "%prog [files|folders]"
     parser = OptionParser(usage=usage)
+    parser.add_option("-t", nargs=1, dest="samplerType",
+          help="Type of target sampler (z48/mpc4k/s56k)", default="z48")
     parser.add_option("-p", nargs=1, dest="programName",
           help="Upload the specified program and the samples it references")
     parser.add_option("-d", nargs=1, dest="drumProgramName",
@@ -50,8 +52,7 @@ def process_cmdline():
     if len(to_upload) == 0:
         parser.error("Nothing to upload: no supported files found")
     
-    # z48 = Devices.get_instance("z48", "usb")    
-    z48 = Devices.get_instance("mock_z48", None)
+    z48 = Devices.get_instance(options.samplerType, "usb")    
     
     if options.programName is not None:
         print 'Uploading files.'
