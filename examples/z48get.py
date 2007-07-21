@@ -25,7 +25,7 @@ def create_option_parser():
           help="Download from location (memory or disk)")
     parser.add_option("-d", nargs=1, default=".", dest="destdir",
           help="The destination directory")
-    parser.add_option("-o", nargs=0, default=False, dest="overwriteExisting",
+    parser.add_option("-o", default=False, dest="overwriteExisting",
           help="Whether to overwrite existing files")
     return parser
 
@@ -35,7 +35,7 @@ def download_from_memory(z48, destdir, patterns, overwrite):
     for pat in patterns:
         matched.extend(fnmatch.filter(collected, pat))
     
-    if not check_download_list(matched):
+    if len(matched) == 0:
         return
 
     ensure_destdir(destdir)
@@ -49,11 +49,11 @@ def download_from_disk(z48, destdir, patterns, overwrite):
 
 def download(z48, destdir, name, location, overwrite):
     destfile = os.path.join(destdir, name)
-    if not os.path.exists(destfile) or overwrite:
+    if os.path.exists(destfile) and not overwrite:
+        print "Skipping existing file ", destfile
+    else:
         print "Downloading %s to %s" % (name, destfile)
         z48.get(name, destfile)
-    else:
-        print "Skipping existing file ", destfile
 
 def download_children(z48, parent, destdir, patternYielder, overwrite):
     pat = patternYielder.next()
@@ -69,14 +69,6 @@ def download_children(z48, parent, destdir, patternYielder, overwrite):
             download_children(z48, child, fullpath, patternYielder, overwrite)
         else:
             download(z48, fullpath, child.get_name(), z48.DISK, overwrite)
-
-def check_download_list(names):
-    if len(names) > 10:
-        print "About to download more than 10 files or directories. Continue (y/n)?. Files in download: %s" % repr(names)
-        if sys.stdin.read(1) != 'y':
-            return False
-    return len(names) > 0
-    
 
 def process_cmdline():
     parser = create_option_parser()
