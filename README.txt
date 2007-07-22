@@ -61,6 +61,8 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 
 * set_current_by_name() and set_current_by_handle() don't complain about
   invalid names or handles; the current item (if any) is unchanged.
+* there is sysex support for manipulating EQ settings for Multis (Z48), but
+  they seem to have no audible effect.
 
 4. Debugging and troubleshooting
 

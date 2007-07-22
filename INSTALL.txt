@@ -7,7 +7,8 @@ Aksy (core lib) has the following dependencies:
 * libusb: libusb.sourceforge.net
   (win32 port is available at libusb-win32.sourceforge.net)
 
-The extension has been tested with Python 2.4/2.5, libusb 0.1.8 and libusb-0.1.10
+The extension has been tested with Python 2.4/2.5, libusb 0.1.8, libusb-0.1.10
+and libusb-0.1.12 on Windows and Ubuntu Linux.
 
 optional dependencies
 ---------------------
@@ -26,12 +27,13 @@ AksyFS:
 
 2. INSTALLATION
 
-To install the aksy python modules and the aksyxusb extension, run: 
+To install the aksy python modules and the aksyxusb extension, run the
+following commands in a terminal window: 
 
 python setup.py build
 python setup.py install (as root)
 
-To compile with Mingw 5.3.1 on Windows using Python 2.5:
+To compile with Mingw 5.3.1 on Windows using Python 2.5 at the command prompt:
 
 python setup.py build -c mingw32
 python setup.py install --skip-build
