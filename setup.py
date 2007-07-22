@@ -53,7 +53,7 @@ setup(name = "aksy",
           'aksy.devices.akai.z48', 
           'aksy.devices.akai.s56k' ], 
       url = 'http://walco.n--tree.net/projects/aksy', 
-      scripts=['examples/z48get.py', 'examples/z48put.py'],
+      scripts=['examples/aksy-get.py', 'examples/aksy-put.py'],
       ext_modules = [
           Extension("aksyx",
               sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c",],
