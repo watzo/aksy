@@ -10,8 +10,8 @@
 #define EP_OUT 0x02
 
 /*
-  transfer commands
-*/
+ transfer commands
+ */
 #define CMD_EXEC_SYSEX 0x10
 #define CMD_DISK_GET 0x41
 #define CMD_DISK_PUT 0x40
@@ -117,7 +117,7 @@ enum RETURN_CODES {
 #define SERR_MSG_INVALID 0x03
 // "Parameter out of range"
 #define SERR_PARAM_VALUE 0x04
- // "Operation is pending"
+// "Operation is pending"
 #define SERR_OPER_PENDING 0x05
 // "Unknown system error"
 #define SERR_SYSTEM 0x80
@@ -129,7 +129,7 @@ enum RETURN_CODES {
 #define SERR_CPU_MEM_FULL 0x83
 // WAVE memory is full
 #define SERR_WAV_MEM_FULL 0x84
- // Unknown item error
+// Unknown item error
 #define SERR_ITEM_UNKNOWN 0x100
 // Item not found
 #define SERR_ITEM_NOT_FOUND 0x101
@@ -137,29 +137,29 @@ enum RETURN_CODES {
 #define SERR_ITEM_IN_USE 0x102
 // Invalid item handle
 #define SERR_HANDLE_INVALID 0x103
- // Invalid item name
+// Invalid item name
 #define SERR_ITEM_NAME_INVALID 0x104
 // Maximum number of items of a particular type reached
 #define SERR_MAX_ITEMS 0x105
 // Keygroup not found
 #define SERR_KG_NOT_FOUND 0x120
- // Unknown disk error
+// Unknown disk error
 #define SERR_DISK_UNKNOWN 0x180
 // No Disks
 #define SERR_NO_DISKS 0x181
 // Disk is invalid
 #define SERR_DISK_INVALID 0x182
- // Load error
+// Load error
 #define SERR_LOAD 0x183
 // Create error
 #define SERR_CREATE 0x184
 // Directory not empty
 #define SERR_DIR_NOT_EMPTY 0x185
- // Delete error
+// Delete error
 #define SERR_DELETE 0x186
 // Disk is write-protected
 #define SERR_DISK_READONLY 0x187
- // Disk is not writable
+// Disk is not writable
 #define SERR_DISK_WRITABLE 0x188
 // Disk full
 #define SERR_DISK_FULL 0x189
@@ -189,10 +189,10 @@ typedef struct akai_usb_device {
     char *userref;
     int get_program_cmd_id;
     int get_multi_cmd_id;
-    int (*get_handle_by_name)(struct akai_usb_device*, const char*, byte_array, int*, const int);
+    int (*get_handle_by_name)(struct akai_usb_device*, const char*, byte_array,
+            int*, const int);
     char* (*get_sysex_error_msg)(int code);
 } *akai_usb_device;
-
 
 /*
  * akaiusb public API functions
@@ -219,14 +219,17 @@ int aksyxusb_device_close(const akai_usb_device akai_dev);
  * returns AKSY_TRANSMISSION_ERROR if the usb reads or writes failed
  *
  */
-int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev, const byte_array sysex, const byte_array reply, int* const bytes_read, const int timeout);
+int aksyxusb_device_exec_sysex(const akai_usb_device akai_dev,
+        const byte_array sysex, const byte_array reply, int* const bytes_read,
+        const int timeout);
 
 /* retrieves raw front panel state (pixel data and raw values of controls)
  *
  * returns AKSY_TRANSMISSION_ERROR if the usb reads or writes failed
  *
  */
-int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev, char* pixel_data, char* control_data, const int timeout);
+int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev,
+        char* pixel_data, char* control_data, const int timeout);
 
 /* executes a system exclusive command on the sampler.
  *
@@ -234,46 +237,49 @@ int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev, char* pixel_
  * returns AKSY_SYSEX_ERROR if the command yielded an error on the sampler
  *
  */
-int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char* cmd, const byte_array arg_data,
-			     const byte_array response, int* error, const int timeout);
+int aksyxusb_device_exec_cmd(const akai_usb_device akai_dev, const char* cmd,
+        const byte_array arg_data, const byte_array response, int* error,
+        const int timeout);
 
 /* executes a a raw request on the sampler. */
 int aksyxusb_device_exec(const akai_usb_device akai_dev,
-    const byte_array request, const byte_array result_buff, int* const bytes_read, const int timeout);
+        const byte_array request, const byte_array result_buff,
+        int* const bytes_read, const int timeout);
 
 /* writes a a raw request to the sampler. */
 int aksyxusb_device_write(const akai_usb_device akai_dev,
-    const byte_array request, const int timeout);
+        const byte_array request, const int timeout);
 
 /* reads a raw response from the sampler. */
 int aksyxusb_device_read(const akai_usb_device akai_dev,
-    const byte_array result_buff, int* const bytes_read, const int timeout);
+        const byte_array result_buff, int* const bytes_read, const int timeout);
 
 /* get a handle for a specified name
  * handle should be a pointer to a preallocated byte_array
  */
-int z48_get_handle_by_name(akai_usb_device akai_dev,
-    const char* name, byte_array handle, int* sysex_error, const int timeout);
-int s56k_get_handle_by_name(akai_usb_device akai_dev,
-			   const char* name, byte_array handle, int* sysex_error, const int timeout);
+int z48_get_handle_by_name(akai_usb_device akai_dev, const char* name,
+        byte_array handle, int* sysex_error, const int timeout);
+int s56k_get_handle_by_name(akai_usb_device akai_dev, const char* name,
+        byte_array handle, int* sysex_error, const int timeout);
 
 /*
  * Return an error message corresponding to the specified code.
  */
 char* z48_get_sysex_error_msg(int code);
 char* s56k_get_sysex_error_msg(int code);
- 
+
 /* uploads a file to the sampler. location is LOC_MEMORY or LOC_DISK
  * The current path must be set explicitly if the file is transferred to
  * disk
  */
-int aksyxusb_device_put(const akai_usb_device akai_dev,
-    char *src_filename, char *dest_filename, int location, int timeout);
+int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
+        char *dest_filename, int location, int timeout);
 
 /* transfers a file from the current path from the sampler.
  * Location can be either LOC_MEMORY or LOC_DISK.
  * The current path must be set to the folder where the file is
  * located before calling this function if location is LOC_DISK
  */
-int aksyxusb_device_get(const akai_usb_device akai_dev,
-    char *src_filename, char *dest_filename, const int location, int* sysex_error, const int timeout);
+int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
+        char *dest_filename, const int location, int* sysex_error,
+        const int timeout);
