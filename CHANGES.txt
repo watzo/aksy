@@ -1,7 +1,9 @@
 Aksy changes
 	svn trunk
+		* Aksui (ak.Sys-like UI)
+
+	0.2
 		* FUSE implementation
-		* ak.py GUI
 		* OSC support
 		* Visual Studio compiler compatibility and win32 distutils support
 		* Multiple (hybrid) sampler support
