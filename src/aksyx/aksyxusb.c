@@ -44,14 +44,17 @@ static void print_transfer_stats(int timedelta, long filesize) {
 }
 
 static void log_debug(char* template, ...) {
-    va_list ap;
+#if (AKSY_DEBUG == 1)
+	va_list ap;
     fprintf(stderr, "DEBUG:%s: ", __FILE__);
     va_start(ap, template);
     vfprintf(stderr, template, ap);
     va_end(ap);
+#endif
 }
 
 static void log_hex(char* buf, int buf_len, char* template, ...) {
+#if (AKSY_DEBUG == 1)
     int i;
     va_list ap;
     fprintf(stderr, "DEBUG:%s: ", __FILE__);
@@ -63,6 +66,7 @@ static void log_hex(char* buf, int buf_len, char* template, ...) {
 		fprintf(stderr, "%02X ", buf[i]);
 	}
     fprintf(stderr, "\n");
+#endif
 }
 
 static void log_error(int code, long lineno) {
@@ -346,16 +350,12 @@ int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev, char* pixel_
     do {
     	if (replies == 0) {
     		rc = usb_bulk_read(akai_dev->dev, EP_IN, pixel_data, PANEL_PIXEL_DATA_LENGTH, timeout);
-#if (AKSY_DEBUG == 1)
     		log_hex(pixel_data, 16, "Pixel data - first 16 bytes (length: %i): ", rc);
-#endif
     	}
     	
     	if (replies == 1) {
     		rc = usb_bulk_read(akai_dev->dev, EP_IN, control_data, PANEL_CONTROL_DATA_LENGTH, timeout);
-#if (AKSY_DEBUG == 1)
-		log_hex(control_data, PANEL_CONTROL_DATA_LENGTH, "Panel Control data (length: %i): ", rc);
-#endif
+    		log_hex(control_data, PANEL_CONTROL_DATA_LENGTH, "Panel Control data (length: %i): ", rc);
     	}
     	
     	if (rc < 0) {
@@ -388,9 +388,7 @@ int aksyxusb_device_write(const akai_usb_device akai_dev,
 	const byte_array request, const int timeout) {
 	int rc;
 	
-	#if (AKSY_DEBUG == 1)
-	    log_hex(request->bytes, request->length, "Request: ");
-	#endif
+	log_hex(request->bytes, request->length, "Request: ");
 
     rc = usb_bulk_write(akai_dev->dev, EP_OUT, request->bytes, request->length, timeout);
 
@@ -405,9 +403,7 @@ int aksyxusb_device_read(const akai_usb_device akai_dev,
     do {
     	curr_index = result_buff->bytes + *bytes_read;
         rc = usb_bulk_read(akai_dev->dev, EP_IN, curr_index, result_buff->length - *bytes_read, timeout);
-#if (AKSY_DEBUG == 1)
 		log_hex(curr_index, rc, "Reply (length: %i): ", rc);
-#endif
 
 		if (rc < 0) {
 		    return AKSY_TRANSMISSION_ERROR;
@@ -615,9 +611,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	}
 	else if (rc == 8) {
 	    /* get the number of bytes to read */
-#if (AKSY_DEBUG == 1)
 	    log_hex(data, rc, "Reply block: ");
-#endif
 	    actually_transferred = GET_BYTES_TRANSFERRED(data);
 	    if (actually_transferred == 1)
 	    {
@@ -625,12 +619,11 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 		break;
 	    }
 
-#if (AKSY_DEBUG == 1)
-	    log_debug("Current block size: %i. Bytes read now: %i, Total bytes read: %li. Actually transferred: %li\n",
-		   blocksize, rc, bytes_transferred, actually_transferred);
-#endif
-	    blocksize = GET_BLOCK_SIZE(data);
-	    if (blocksize == 0)
+	   log_debug("Current block size: %i. Bytes read now: %i, Total bytes read: %li. Actually transferred: %li\n",
+			   blocksize, rc, bytes_transferred, actually_transferred);
+
+	   blocksize = GET_BLOCK_SIZE(data);
+	   if (blocksize == 0)
 	    {
 		/* file transfer completed */
 		rc = AKSY_SUCCESS;
@@ -657,9 +650,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
 	    continue;
 	}
 	else {
-#if (AKSY_DEBUG == 1)
 	    log_debug("At bulk read: Unexpected reply, rc %i or unexpected end of transmission.\n", rc);
-#endif
 	    rc = AKSY_TRANSMISSION_ERROR;
 	    break;
 	}
@@ -677,7 +668,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev, byte_array reques
     free(data);
 
     if (!rc) {
-	print_transfer_stats(tdelta, filesize);
+    	print_transfer_stats(tdelta, filesize);
 	return AKSY_SUCCESS;
     }
     else {
@@ -799,7 +790,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
     printf("File name to upload %s, Size of file: %li bytes\n", dest_filename, filesize);
 #endif
 
-    // TODO: fix ppc
+    // TODO: check ppc
     command = (char*) calloc(dest_filename_length+6,  sizeof(char));
     command[0] = (location)? CMD_MEMORY_PUT : CMD_DISK_PUT;
     command[1] = (char)(filesize >> 24);
@@ -835,9 +826,8 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
     do {
         rc = usb_bulk_read(akai_dev->dev, EP_IN, reply_buf, 64, timeout);
 
-#if (AKSY_DEBUG == 1)
         log_hex(reply_buf, rc, "return code: %i\n", rc);
-#endif
+
         if (rc == 1) {
 		    if (IS_INVALID_FILE_ERROR(reply_buf)) {
 				retval = AKSY_INVALID_FILE;
@@ -864,10 +854,9 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
             	buf = realloc(buf, blocksize * sizeof(char));
             }
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
-#if (AKSY_DEBUG == 1)
             log_debug("blocksize: %i\n", blocksize);
             log_debug("transferred: %li\n", transferred);
-#endif
+
             if (transferred == filesize) {
                 // continue reading last reply
                 continue;
@@ -879,9 +868,9 @@ int aksyxusb_device_put(const akai_usb_device akai_dev,
 
         fseek(fp, transferred, 0);
         bytes_read = fread(buf, sizeof(char), blocksize, fp);
-#if (AKSY_DEBUG == 1)
+
         log_debug("writing %i bytes\n", bytes_read);
-#endif
+        
         usb_bulk_write(akai_dev->dev, EP_OUT, buf, bytes_read, timeout);
 
         /* continue */
