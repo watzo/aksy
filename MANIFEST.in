@@ -1,0 +1,4 @@
+include *.txt
+recursive-include examples *.txt *.py
+recursive-include src/aksyx *.h
+prune examples/sample?/build
