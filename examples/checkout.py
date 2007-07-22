@@ -30,11 +30,17 @@ def checkout(url, destdir=''):
 
     # aksy stuff
     z48 = Devices.get_instance('z48', 'usb')
-    for file in destfiles:
+    try:
+        for file in destfiles:
+            process_file(z48, file)
+    finally:
+        z48.close()
+
+def process_file(z48, file):
         name, ext = os.path.splitext(file)
         print ext
         if ext.lower() not in ['.akp', '.akm', '.wav', '.aiff']:
-            continue
+            return
         print "Uploading file: " + repr(file)
         z48.put(file, os.path.basename(file))
         # set current program
