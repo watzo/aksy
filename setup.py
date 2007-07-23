@@ -47,7 +47,7 @@ setup(name = "aksy",
       author_email = "walco at n--tree.net", 
       package_dir= {'': 'src'}, 
       packages= [
-          'aksy', 'aksyosc', 'aksy.devices', 
+          'aksy', 'aksyfuse', 'aksyosc', 'aksy.devices', 
           'aksy.devices.akai', 
           'aksy.devices.akai.mock_z48', 
           'aksy.devices.akai.z48', 
