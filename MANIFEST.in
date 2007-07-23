@@ -1,4 +1,5 @@
-include *.txt
-recursive-include examples *.txt *.py
+include INSTALL.txt
+include CHANGES.txt
+include LICENSE.txt
+recursive-include examples *.py
 recursive-include src/aksyx *.h
-prune examples/sample?/build
