@@ -117,7 +117,7 @@ class SamplerObject(object):
                 
             if self.index != None and self.need_index_for_set:
                 arg = [self.index, attrval]
-                print set_cmd.name, repr(set_cmd.id), self.keygroup_index, arg, attrval
+                #print set_cmd.name, repr(set_cmd.id), self.keygroup_index, arg, attrval
                 args.append(arg)
             else:
                 args.append([attrval])
