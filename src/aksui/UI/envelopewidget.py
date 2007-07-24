@@ -1,8 +1,6 @@
-import pygtk
-import gobject,gtk.glade,gtk,aksy
-
 import ak, UI
-
+import gobject, gtk.glade, gtk, aksy
+import pygtk
 
 class EnvelopeWidget(gtk.DrawingArea):
     def __init__(self, kg, index):
@@ -11,7 +9,7 @@ class EnvelopeWidget(gtk.DrawingArea):
         self.dragging = -1
         self.xoffset = 10
         self.yoffset = 10 
-        self.set_size_request(250 + self.xoffset,105 + self.yoffset)
+        self.set_size_request(250 + self.xoffset, 105 + self.yoffset)
         self.connect("expose_event", self.on_expose)
         self.connect("button_press_event", self.on_button_press)
         self.connect("button_release_event", self.on_button_release)
@@ -22,17 +20,9 @@ class EnvelopeWidget(gtk.DrawingArea):
                         gtk.gdk.BUTTON_RELEASE_MASK |
                         gtk.gdk.POINTER_MOTION_MASK)
 
-        self.envelope = None
-
-        self.set_envelope(kg, index)
-
-    def init(self, kg, index):
         self.set_envelope(kg, index)
 
     def set_envelope(self, kg, index):
-        if type(index) != int:
-            raise Exception("Index must be an integer.")
-        
         self.kg = kg
         self.index = index
 
@@ -45,12 +35,12 @@ class EnvelopeWidget(gtk.DrawingArea):
             self.rects = { }
             points = self.getPoints()
 
-            for x,y in points:
-                hb = UI.HitBox(x-5,y-5,10,10)
-                pindex = points.index([x,y])
+            for x, y in points:
+                hb = UI.HitBox(x-5, y-5, 10, 10)
+                pindex = points.index([x, y])
 
-                if hb.point_in(event.x,event.y) or pindex == self.dragging:
-                    self.rects[pindex] = gtk.gdk.Rectangle(hb.x,hb.y,hb.w,hb.h) 
+                if hb.point_in(event.x, event.y) or pindex == self.dragging:
+                    self.rects[pindex] = gtk.gdk.Rectangle(hb.x, hb.y, hb.w, hb.h) 
 
                 if pindex == self.dragging:
                     deltax = event.x - self.start_point[0]
@@ -66,11 +56,11 @@ class EnvelopeWidget(gtk.DrawingArea):
         if self.envelope:
             points = self.getPoints()
 
-            for x,y in points:
-                hb = UI.HitBox(x-5,y-5,10,10)
+            for x, y in points:
+                hb = UI.HitBox(x-5, y-5, 10, 10)
 
-                if hb.point_in(event.x,event.y): 
-                    self.dragging = points.index([x,y])
+                if hb.point_in(event.x, event.y): 
+                    self.dragging = points.index([x, y])
                     self.start_point = [event.x, event.y]
                     pindex = self.dragging
                     rateattr = "envelope_rate" + str(pindex + 1)
@@ -82,18 +72,18 @@ class EnvelopeWidget(gtk.DrawingArea):
         if self.envelope:
             # 0 = amp, 1 = filt, 2 = aux
             points = [[
-                        [self.envelope.envelope_rate1+self.xoffset,self.yoffset],
-                        [self.envelope.envelope_rate2 + self.envelope.envelope_rate1+self.xoffset,100 - self.envelope.envelope_level2 + self.yoffset],
-                        [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 + self.yoffset]
+                        [self.envelope.envelope_rate1+self.xoffset, self.yoffset], 
+                        [self.envelope.envelope_rate2 + self.envelope.envelope_rate1+self.xoffset, 100 - self.envelope.envelope_level2 + self.yoffset], 
+                        [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 + self.yoffset]
                      ], [
-                        [self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level1 + self.yoffset],
-                        [self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level2 + self.yoffset],
-                        [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level3 + self.yoffset],
-                        [self.envelope.envelope_rate4 + self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level4 + self.yoffset]], [
-                        [self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level1 + self.yoffset],
-                        [self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level2 + self.yoffset],
-                        [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level3 + self.yoffset],
-                        [self.envelope.envelope_rate4 + self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset,100 - self.envelope.envelope_level4 + self.yoffset]]
+                        [self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level1 + self.yoffset], 
+                        [self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level2 + self.yoffset], 
+                        [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level3 + self.yoffset], 
+                        [self.envelope.envelope_rate4 + self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level4 + self.yoffset]], [
+                        [self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level1 + self.yoffset], 
+                        [self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level2 + self.yoffset], 
+                        [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level3 + self.yoffset], 
+                        [self.envelope.envelope_rate4 + self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1 + self.xoffset, 100 - self.envelope.envelope_level4 + self.yoffset]]
                      ]
 
             i = 0
@@ -108,25 +98,25 @@ class EnvelopeWidget(gtk.DrawingArea):
             self.context.set_source_rgb(0, 0, 0)
             self.context.stroke()
 
-            self.context.move_to(self.xoffset,100+self.yoffset)
+            self.context.move_to(self.xoffset, 100+self.yoffset)
 
             points = self.getPoints()
-            for x,y in points:
-                self.context.line_to(x,y)
+            for x, y in points:
+                self.context.line_to(x, y)
                 #self.context.line_to(x,y)
                 #self.context.line_to(x,y)
             self.context.stroke()
 
             if self.envelope.index == 0:
-                sustpt = [self.envelope.envelope_rate2 + self.envelope.envelope_rate1,100 - self.envelope.envelope_level2]
+                sustpt = [self.envelope.envelope_rate2 + self.envelope.envelope_rate1, 100 - self.envelope.envelope_level2]
             else:
-                sustpt = [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1,100 - self.envelope.envelope_level3]
+                sustpt = [self.envelope.envelope_rate3 + self.envelope.envelope_rate2 + self.envelope.envelope_rate1, 100 - self.envelope.envelope_level3]
 
             x, y = sustpt
 
-            self.context.set_dash([0,1,0,0,1,1],0.5)
-            self.context.move_to(x+self.xoffset,0)
-            self.context.line_to(x+self.xoffset,100+self.yoffset)
+            self.context.set_dash([0, 1, 0, 0, 1, 1], 0.5)
+            self.context.move_to(x+self.xoffset, 0)
+            self.context.line_to(x+self.xoffset, 100+self.yoffset)
             self.context.stroke()
 
             win = widget.window
@@ -136,6 +126,6 @@ class EnvelopeWidget(gtk.DrawingArea):
             for point in self.rects:
                 rect = self.rects[point]
                 #self.context.rectangle(rect.x,rect.y,rect.width,rect.height)
-                win.draw_rectangle(self.gc,False,rect.x,rect.y,rect.width,rect.height) 
+                win.draw_rectangle(self.gc, False, rect.x, rect.y, rect.width, rect.height) 
 
 

@@ -1,19 +1,18 @@
-from aksy.device import Devices
 import ak, utils
 
 class Keygroup(ak.SamplerObject):
-    def __init__(self,program,index):
-        ak.SamplerObject.__init__(self,program.s,None,"keygrouptools")
+    def __init__(self, program, index):
+        ak.SamplerObject.__init__(self, program.s, None, "keygrouptools")
         self.current_mod_source_index = 11
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
         self.attrs_minimal = ["low_note", "high_note"]
-        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff','filter_resonance':'res'}
+        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff', 'filter_resonance':'res'}
         self.p = program
         self.index = index
         self.keygroup_index = index
         self.s = program.s
         
-        if getattr(self.s,"samples",None):
+        if getattr(self.s, "samples", None):
             self.samples = self.s.samples
         else:
             self.samples = None
@@ -26,7 +25,7 @@ class Keygroup(ak.SamplerObject):
         self.filter_envelope = ak.Envelope(self, 1)
         self.aux_envelope = ak.Envelope(self, 2)
 
-        self.zones = [ak.Zone(self,1), ak.Zone(self,2), ak.Zone(self,3), ak.Zone(self,4)]
+        self.zones = [ak.Zone(self, 1), ak.Zone(self, 2), ak.Zone(self, 3), ak.Zone(self, 4)]
         self.mod_matrix = self.p.get_matrix(self.index)
         
         self.precache()
@@ -47,9 +46,9 @@ class Keygroup(ak.SamplerObject):
         func = getattr(kgt, "set_" + attrname, None)
         if func:
             if attrname in self.filter_attributes:
-                func(0,attrval)
+                func(0, attrval)
             else:
-                if isinstance(attrval,float):
+                if isinstance(attrval, float):
                     attrval = int(attrval)
                 func(attrval)
 
