@@ -104,7 +104,7 @@ class AlternativeRequest(Request):
             
         for i, command in enumerate(commands):
             if len(command.arg_types) > 0:
-                data = command.create_arg_bytes(args[i])
+                data = ''.join(command.create_arg_bytes(args[i]))
                 bytes.append(sysex_types.BYTE.encode(len(data) + 1))
             else:
                 data = []

@@ -163,10 +163,17 @@ class TestAlternativeRequest(unittest.TestCase):
         cmd = sysex.Command(sysex.Z48_ID, '\x1F\x50', 'get_sample_length', (), None)
         req = sysex.AlternativeRequest(65536, [cmd], [])
         self.assertEquals('\xf0G_\x00`\x03\x00\x00\x04\x00\x01P\xf7', req.get_bytes())
+
     def test_with_args(self):
         cmd = sysex.Command('_', '\x1E\x26', 'set_playback_mode', (sysex_types.BYTE,), None)
         req = sysex.AlternativeRequest(65536, [cmd, cmd], [[1],[2]])
         self.assertEquals('\xf0G_\x00`\x02\x00\x00\x04\x00\x02&\x01\x02&\x02\xf7', req.get_bytes())
+    
+    def test_with_multiple_args(self):
+        cmd = sysex.Command('_', '\x0E\x09', 'set_mod_start', (sysex_types.BYTE, sysex_types.SWORD), None)
+        req = sysex.AlternativeRequest(65536, [cmd, cmd], [[1,1],[1,2]])
+        self.assertEquals('\xf0G_\x00a\x02\x00\x00\x04\x00\x05\t\x01\x00\x01\x00\x05\t\x01\x00\x02\x00\xf7', req.get_bytes())
+    
     def test_keygroup_index(self):
         cmd = sysex.Command('_', '\x13\x30', 'get_envelope_rate1', (sysex_types.BYTE,), None)
         req = sysex.AlternativeRequest(65536, [cmd, cmd], [[1],[2]], index=3)
