@@ -6,10 +6,10 @@ import UI,ak,utils
 
 class FilterPanel(UI.PanelBase):
     def __init__(self,kg,cb):
-        UI.PanelBase.__init__(self,kg,cb)
+        UI.PanelBase.__init__(self,kg,"Filter",cb)
         
     def setup(self, kg):
-        self.clear_children()
+        self.clear_children(True)
         
         self.kg = kg
         self.s = kg.s

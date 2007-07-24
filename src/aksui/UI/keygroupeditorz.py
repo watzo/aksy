@@ -37,11 +37,9 @@ class KeygroupEditorZ(UI.Base):
         self.panels.append(self.zonePanel)
         self.panels.append(self.keygroupPanel)
         self.panels.append(self.keygroupEnvelopes)
-        
-        self.rightVBox.pack_start(self.keygroupPanel)
-        self.rightVBox.pack_start(self.zonePanel)
-        self.rightVBox.pack_start(self.filterPanel)
-        self.rightVBox.pack_start(self.keygroupEnvelopes)
+       
+        for panel in self.panels:
+            self.rightVBox.pack_start(panel, False, False, 0)
         
         # TODO: needs to be bound to an entry box that will actually set update program name
         self.w_entryProgramName.set_text(p.name)

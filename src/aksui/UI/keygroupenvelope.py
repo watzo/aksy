@@ -5,9 +5,10 @@ import gtk,gtk.glade,gobject
 
 class KeygroupEnvelopes(UI.PanelBase):
     def __init__(self, keygroup, cb):
-        UI.PanelBase.__init__(self, keygroup, cb)
+        UI.PanelBase.__init__(self, keygroup, "Envelopes", cb)
     
     def setup(self, keygroup):
+        self.clear_children(True)
         self.hbox = gtk.HBox()
         self.s = keygroup.s
         self.keygroup = keygroup

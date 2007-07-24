@@ -196,6 +196,8 @@ class AkKnobWidget(AkWidget):
             else:
                 interval = 1.0
 
+            changed = None
+
             if not ctrl_pressed:
                 changed = self.set_value(self.valuestart + (delta * interval))
                 

@@ -79,6 +79,7 @@ class SamplerObject(object):
                             collect.append(attr)
                             cmds.append(cmd)
                             args.append([])
+
             if len(cmds) > 0:
                 if self.keygroup_index != None:
                     index = self.keygroup_index
@@ -115,12 +116,14 @@ class SamplerObject(object):
                 attrval = self.get_special_attr(attrname, attrval)
                 
             if self.index != None and self.need_index_for_set:
-                args.append([self.index, attrval])
+                arg = [self.index, attrval]
+                print set_cmd.name, repr(set_cmd.id), self.keygroup_index, arg, attrval
+                args.append(arg)
             else:
                 args.append([attrval])
             
             if len(cmds) > 0:
-                self.s.execute_alt_request(handle, cmds, args, index)
+                self.s.execute_alt_request(handle, cmds, args, self.keygroup_index)
                 
                 if self.set_callback:
                     self.set_callback(attrname, attrval)

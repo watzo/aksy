@@ -10,6 +10,7 @@ class Keygroup(ak.SamplerObject):
         self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff','filter_resonance':'res'}
         self.p = program
         self.index = index
+        self.keygroup_index = index
         self.s = program.s
         
         if getattr(self.s,"samples",None):
