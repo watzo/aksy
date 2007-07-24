@@ -47,7 +47,7 @@ class SamplerObject(object):
         #self.attrscache = { }
         
     def get_handle(self):
-        return None
+        raise NotImplementedError()
         
     def precache(self, clear_cache = False, minimal = True):
         if clear_cache:
@@ -60,39 +60,40 @@ class SamplerObject(object):
         
         tools = self.gettools()
         handle = self.get_handle()
-        if handle:
-            cmds = []
-            args = []
-            collect = []
-            for attr in attrs:
-                if attr not in self.specialattrs and attr not in self.attrscache:
-                    cmd_name = 'get_' + attr + '_cmd'
-                    cmd = getattr(tools, cmd_name, None)
-                    if cmd:
-                        # if arguments are needed
-                        if len(cmd.arg_types) > 0:
-                            if self.need_index_in_arguments:
-                                collect.append(attr)
-                                cmds.append(cmd)
-                                args.append([self.index])
-                        else:
+        assert handle != None
+        
+        cmds = []
+        args = []
+        collect = []
+        for attr in attrs:
+            if attr not in self.specialattrs and attr not in self.attrscache:
+                cmd_name = 'get_' + attr + '_cmd'
+                cmd = getattr(tools, cmd_name, None)
+                if cmd:
+                    # if arguments are needed
+                    if len(cmd.arg_types) > 0:
+                        if self.need_index_in_arguments:
                             collect.append(attr)
                             cmds.append(cmd)
-                            args.append([])
+                            args.append([self.index])
+                    else:
+                        collect.append(attr)
+                        cmds.append(cmd)
+                        args.append([])
 
-            if len(cmds) > 0:
-                if self.keygroup_index != None:
-                    index = self.keygroup_index
-                else:
-                    index = self.index
-                    
-                results = self.s.execute_alt_request(handle, cmds, args, index)
-                if type(results) != tuple:
-                    results = (results,)
-                    
-                for i,result in enumerate(results):
-                    # this assumes the results are in the requested order
-                    self.attrscache[collect[i]] = result
+        if len(cmds) > 0:
+            if self.keygroup_index != None:
+                index = self.keygroup_index
+            else:
+                index = self.index
+                
+            results = self.s.execute_alt_request(handle, cmds, args, index)
+            if type(results) != tuple:
+                results = (results,)
+                
+            for i,result in enumerate(results):
+                # this assumes the results are in the requested order
+                self.attrscache[collect[i]] = result
         
     def set(self, attrname, attrval):
         if self.keygroup_index:
@@ -101,35 +102,35 @@ class SamplerObject(object):
             index = self.index
             
         handle = self.get_handle()
+        assert handle != None
         
-        if handle:
-            cmds = []
-            args = []
-            tools = self.gettools()
+        cmds = []
+        args = []
+        tools = self.gettools()
 
-            setter_cmd_name = "set_" + attrname + "_cmd"
-            set_cmd = getattr(self, setter_cmd_name, getattr(tools, setter_cmd_name))
+        setter_cmd_name = "set_" + attrname + "_cmd"
+        set_cmd = getattr(self, setter_cmd_name, getattr(tools, setter_cmd_name))
 
-            cmds.append(set_cmd)
+        cmds.append(set_cmd)
+        
+        if attrname in self.specialattrs:
+            attrval = self.get_special_attr(attrname, attrval)
             
-            if attrname in self.specialattrs:
-                attrval = self.get_special_attr(attrname, attrval)
-                
-            if self.index != None and self.need_index_for_set:
-                arg = [self.index, attrval]
-                #print set_cmd.name, repr(set_cmd.id), self.keygroup_index, arg, attrval
-                args.append(arg)
-            else:
-                args.append([attrval])
+        if self.index != None and self.need_index_for_set:
+            arg = [self.index, attrval]
+            #print set_cmd.name, repr(set_cmd.id), self.keygroup_index, arg, attrval
+            args.append(arg)
+        else:
+            args.append([attrval])
+        
+        if len(cmds) > 0:
+            self.s.execute_alt_request(handle, cmds, args, self.keygroup_index)
             
-            if len(cmds) > 0:
-                self.s.execute_alt_request(handle, cmds, args, self.keygroup_index)
-                
-                if self.set_callback:
-                    self.set_callback(attrname, attrval)
-                
-                # update cache
-                self.attrscache[attrname] = attrval
+            if self.set_callback:
+                self.set_callback(attrname, attrval)
+            
+            # update cache
+            self.attrscache[attrname] = attrval
 
     def get_special_attr(self, attrname, attrval):
         #if attrname == "sample":

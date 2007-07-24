@@ -1,7 +1,7 @@
 import gobject,gtk,aksy,ak
 
 class Envelope(ak.SamplerObject):
-    def __init__(self,keygroup,index,xoffset=10,yoffset=10):
+    def __init__(self, keygroup, index, xoffset=10, yoffset=10):
         ak.SamplerObject.__init__(self, keygroup.s, keygroup, "keygrouptools", index)
         self.keygroup_index = keygroup.index
         self.need_index_for_set = True
@@ -11,7 +11,10 @@ class Envelope(ak.SamplerObject):
         self.yoffset = yoffset 
         self.set_envelope(keygroup, index)
         self.precache()
-
+    
+    def get_handle(self):
+        return self.keygroup.get_handle()
+    
     def updateNode(self, nodeIndex, rate, level):
         # stop it
         level = max(0,min(100,level))
@@ -19,7 +22,7 @@ class Envelope(ak.SamplerObject):
 
         rateattr = "envelope_rate" + str(nodeIndex + 1) 
         levelattr = "envelope_level" + str(nodeIndex + 1)
-
+        
         self.set(rateattr, rate) 
         self.set(levelattr, level) 
 
