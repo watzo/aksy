@@ -1,9 +1,8 @@
-import pygtk
-import gobject,gtk.glade,gtk,aksy
-import ak,UI,utils
+import gtk.glade, gtk
+import ak, UI, utils
 
 class ProgramsEditor:
-    def __init__(self,s):
+    def __init__(self, s):
         # sampler instance
         self.s = s
         self.programs = ak.Programs(s)
@@ -30,7 +29,7 @@ class ProgramsEditor:
         if oldname in names:
             index = names.index(oldname)
             cb.remove_text(index)
-            cb.insert_text(index,newname)
+            cb.insert_text(index, newname)
             cb.set_active(index)
             self.programdict[index] = newname
         self.updating = False
@@ -44,7 +43,7 @@ class ProgramsEditor:
 
         self.updating = True
         model = self.comboPrograms.get_model()
-        iter = utils.search(model, model.iter_children(None), None, (0,programname))
+        iter = utils.search(model, model.iter_children(None), None, (0, programname))
         if type(iter) is gtk.TreeIter:
             self.comboPrograms.set_active_iter(iter)
         else:
@@ -56,14 +55,14 @@ class ProgramsEditor:
             active = cb.get_active_text()
             self.set_program(active)
 
-    def on_buttonUpdate_clicked(self,w):
-        setattr(self.s,'programs',self.s.programtools.get_names())
-        setattr(self.s,'programsmodel',utils.get_model_from_list(self.s.programs))
+    def on_buttonUpdate_clicked(self, w):
+        setattr(self.s, 'programs', self.s.programtools.get_names())
+        setattr(self.s, 'programsmodel', utils.get_model_from_list(self.s.programs))
         self.updateProgramList()
         if self.programEditor:
             self.programEditor.update()
         
-    def addEditor(self,programName):
+    def addEditor(self, programName):
         self.editor = ProgramEditor(self.s, programName)
         self.programsMainVBox.add(self.editor)
 
@@ -71,7 +70,7 @@ class ProgramsEditor:
         if getattr(self.s, "programsmodel", None):
             self.comboPrograms.set_model(self.s.programsmodel)
 
-def setattrsbyname(obj,xml,attrs):
+def setattrsbyname(obj, xml, attrs):
     tf = {0:False, 1:True}
     for attr in attrs:
         if attr == "high_note":
@@ -83,7 +82,7 @@ def setattrsbyname(obj,xml,attrs):
         toggle = xml.get_widget("toggle_" + attr)
         hscale = xml.get_widget("hscale_" + attr)
 
-        val = getattr(obj,attr)
+        val = getattr(obj, attr)
 
         if combo != None:
             combo.set_active(val)
