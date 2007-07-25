@@ -8,3 +8,6 @@ class Part(ak.SamplerObject):
         self.m = m
         
         self.precache()
+        
+    def get_handle(self):
+        return self.m.get_handle()
