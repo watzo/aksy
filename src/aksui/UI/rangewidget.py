@@ -628,7 +628,7 @@ class AkComboBox(gtk.ComboBox):
 
         gtk.ComboBox.__init__(self, model)
 
-        self.set_size_request(200, 25)
+        self.set_size_request(120, 25)
 
         cell = gtk.CellRendererText()
         self.use_index = use_index # use value, versus index

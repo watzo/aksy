@@ -110,8 +110,63 @@ class MultiEditorVBox(gtk.VBox):
                 def clear_widgets(self):
         for child in self.get_children():
             self.remove(child)
-            
-class KeygroupEditorVBox(gtk.VBox):
+
+class DrumEditorTable(gtk.Table):
+    def __init__(self, s, p):
+        gtk.Table.__init__(self, 32, 4, True) # 32 rows, 4 columns, homogenous
+        self.s = s
+        self.note_order = utils.midiutils.note_orders["mpc_banks_chromatic"] # chromatic / mpc_banks_gm / mpc_banks_chromatic
+        self.on_toggled_callback = None
+        
+        self.setup(p)
+        
+        """
+        chromatic = range(0,127)
+        mpc gm
+        
+        mpc_chromatic = []
+        for i in range(1,4):
+            mpc_chromatic.extend(range(start_note + 16 * i, start_note)) # start note is what?
+        """
+        
+
+    def setup(self, p):
+        self.p = p
+        self.no_keygroups = self.p.no_keygroups
+        self.clear_widgets()
+        rbg = None # radio button group
+       
+        for row in range(0,32):
+            for column in range(0,4): 
+                index = (row * 4) + column
+                if index < len(self.note_order):
+                    i = self.note_order[index]
+                    kg = ak.Keygroup(p, i)
+                    
+                    tb = gtk.RadioButton(rbg, utils.midiutils.midinotes[i])
+                    tb.connect("toggled", self.on_button_press_event, (i + 1)) 
+                    
+                    if not rbg:
+                        rbg = tb
+                        tb.set_active(True)
+                    
+                    vboxall = gtk.VBox()
+                    kghboxall = gtk.HBox()
+                    kghboxall.pack_start(tb, False, False, 1)
+                    kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+                    kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
+                    vboxall.pack_start(kghboxall, False, False, 1)
+                    vboxall.pack_start(UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False), False, False, 1)
+                    self.attach(vboxall,column,column+1,row,row+1)
+        
+    def clear_widgets(self):
+        for child in self.get_children():
+            self.remove(child)
+
+    def on_button_press_event(self, widget, data = None):
+        if self.on_toggled_callback:
+            self.on_toggled_callback(widget, data)
+            class KeygroupEditorVBox(gtk.VBox):
     """
     Minimal keygroup editor VBox
     """

@@ -8,6 +8,44 @@ mpcpads = [
             52,57,58,59,60,61,67,68,70,72,75,78,79,35,41,50, # c
             83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98  # d
             ]
+
+mpc_banks_gm = [
+            49,55,51,53, 
+            48,47,45,43,
+            40,38,46,44,
+            37,36,42,82,
+            73,74,71,39, 
+            65,66,76,77,
+            56,62,63,64,
+            54,69,81,80,
+            79,35,41,50, 
+            70,72,75,78,
+            60,61,67,68,
+            52,57,58,59,
+            95,96,97,98, 
+            91,92,93,94,
+            87,88,89,90,
+            83,84,85,86,
+            ]
+mpc_banks_chromatic = [
+            48,49,50,51, 
+            44,45,46,47,
+            40,41,42,43,
+            36,37,38,39,
+            64,65,66,67,
+            60,61,62,63,
+            56,57,58,59,
+            52,53,54,55,
+            80,81,82,83,
+            76,77,78,79,
+            72,73,74,75,
+            68,69,70,71,
+            96,97,98,99,
+            92,93,94,95,
+            88,89,90,91,
+            84,85,86,87,
+            ]
+
 notes = ['C','C#','D','Eb','E','F','F#','G','G#','A','Bb','B']
 octaves = [i for i in range(-2, 9)]
 octaves_snap = [i for i in range(0, 127, 12)]
@@ -19,7 +57,7 @@ for oct in octaves:
     for note in notes:
         if i > 127:
             break
-        if oct >= 0:
+        if oct >= 0 and len(note) == 1:
             n = note + ' ' + str(oct)
         else:
             n = note + str(oct)
@@ -28,6 +66,13 @@ for oct in octaves:
 
 mpcpadsmodel = get_model_from_list(mpcpads)
 midinotesmodel = get_model_from_list(midinotes)
+
+# views for drum editor
+note_orders = {
+    "chromatic" : midinotes,
+    "mpc_banks_gm": mpc_banks_gm,
+    "mpc_banks_chromatic" : mpc_banks_chromatic
+    }
 
 # general midi 1 drum map
 gm1drumsmap = {

@@ -27,8 +27,8 @@ __version__ = '0.699'
 
 
 # config
-use_custom_excepthook = False # this gets in the way of eclipse's handy exception line # link feature, could probably fix later
-enable_profiler = True
+USE_CUSTOM_EXCEPTHOOK = False # this gets in the way of eclipse's handy exception line # link feature, could probably fix later
+ENABLE_PROFILER = False
 
 
 def get_selected_from_treeview(treeview):
@@ -346,14 +346,11 @@ class Main(UI.Base):
     def open_keygroup_editor(self, programname):
         if programname:
             p = ak.Program(self.s,programname)
-            if p.type == 0:
-                if not self.kgeditwindow:
-                    self.kgeditwindow = UI.KeygroupEditorWindowZ(self.s, p)
-                else:
-                    self.kgeditwindow.setup(p)
-                self.kgeditwindow.show_all()
+            if not self.kgeditwindow:
+                self.kgeditwindow = UI.KeygroupEditorWindowZ(self.s, p)
             else:
-                self.log("Sorry, DRUM programs not supported (yet)!")
+                self.kgeditwindow.setup(p)
+            self.kgeditwindow.show_all()
                 
     def on_refresh_clicked(self, widget):
         self.init_lists()
@@ -486,7 +483,7 @@ class Main(UI.Base):
 z48 = None
 log = None
 
-if use_custom_excepthook:
+if USE_CUSTOM_EXCEPTHOOK:
     sys.excepthook = exceptionHandler
 
 def main(): 
@@ -503,7 +500,7 @@ def main():
        z48.close()
 
 if __name__ == "__main__":
-    if enable_profiler:
+    if ENABLE_PROFILER:
         prof = hotshot.Profile("ak.py.prof")
         prof.runcall(main)
     else:

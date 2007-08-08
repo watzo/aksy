@@ -20,8 +20,13 @@ class KeygroupEditorZ(UI.Base):
         UI.Base.__init__(self, p, "keygroupEditorZ")
         self.s = p.s
         self.p = p
-        self.keygroupEditorVbox = UI.KeygroupEditorVBox(s,p)
-        self.keygroupEditorVbox.on_toggled_callback = self.on_toggled_callback
+        if self.p.type == 1:
+            self.keygroupEditor = UI.DrumEditorTable(s,p)
+        else:
+            self.keygroupEditor = UI.KeygroupEditorVBox(s,p)
+            
+        self.keygroupEditor.on_toggled_callback = self.on_toggled_callback
+        
         # get first keygroup
         self.curr_keygroup = ak.Keygroup(p,0)
         self.panels = []
@@ -43,7 +48,7 @@ class KeygroupEditorZ(UI.Base):
         
         # TODO: needs to be bound to an entry box that will actually set update program name
         self.w_entryProgramName.set_text(p.name)
-        self.w_viewportKeygroups.add(self.keygroupEditorVbox)
+        self.w_viewportKeygroups.add(self.keygroupEditor)
         self.w_viewportSlats.add(self.rightVBox)
         rbg = None
         curr_mode = self.curr_keygroup.gettools().get_edit_mode()
