@@ -155,10 +155,11 @@ class FileChooser:
                                 filtered.append(find_file(self.files, zone.samplename))
                     self.files.extend(filtered)
                     
+        already_done = []
         for f in self.files:
-            if f:
-                print f
+            if f and not f in already_done:
                 self.s.put(f)
+                already_done.append(f)
             
     def expand_it_files(self, files):
         if files:

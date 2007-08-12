@@ -12,6 +12,7 @@ pygtk.require('2.0')
 import gtk
 import aksy
 import shutil
+import urllib
 
 # our stuff
 import ak, UI, utils, postmod
@@ -23,13 +24,27 @@ from postmod.itx import *
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.699'
+__version__ = '0.701'
 
 
 # config
 USE_CUSTOM_EXCEPTHOOK = False # this gets in the way of eclipse's handy exception line # link feature, could probably fix later
 ENABLE_PROFILER = False
+TARGET_TYPE_URI_LIST = 80
 
+def get_file_path_from_dnd_dropped_uri(uri):
+    path = uri.strip('\r\n\x00') # remove \r\n and NULL
+
+    # get the path to file
+    if path.startswith('file:\\\\\\'): # windows
+        path = path[8:] # 8 is len('file:///')
+    elif path.startswith('file://'): # nautilus, rox
+        path = path[7:] # 7 is len('file://')
+    elif path.startswith('file:'): # xffm
+        path = path[5:] # 5 is len('file:')
+        
+    path = urllib.url2pathname(path) # escape special chars
+    return path
 
 def get_selected_from_treeview(treeview):
     """
@@ -262,26 +277,26 @@ class Main(UI.Base):
     """Main Window
     """
     def __init__(self, s):
+        self.dnd_list = [ ( 'text/uri-list', 0, TARGET_TYPE_URI_LIST ) ] 
         self.s = s
         self.kgeditwindow = None
         self.multieditwindow = None
         self.program_details_window = None
         UI.Base.__init__(self, None, "vboxMain")
 
-        setattr(self.s,'FilecChooser', UI.FileChooser(s))
-
-        self.w_treeview_multis.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=0))
-        self.w_treeview_multis.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-        self.w_treeview_programs.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=0))
-        self.w_treeview_programs.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-        self.w_treeview_samples.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=0))
-        self.w_treeview_samples.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        setattr(self.s,'FileChooser', UI.FileChooser(s))
+        
+        self.treeviews = [self.w_treeview_programs, self.w_treeview_multis, self.w_treeview_samples]
+        for tv in self.treeviews:
+            tv.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=0))
+            tv.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+            tv.connect("drag_data_received", self.on_drag_data_received)
+            tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
         self.ProgramsContextMenu = ProgramsContextMenu(self) 
         self.SamplesContextMenu = SamplesContextMenu(self) 
 
         self.w_quit1.connect('activate', gtk.main_quit)
-       
         vadj = self.w_console_window.get_vadjustment()
         vadj.connect('changed', lambda a, s=self.w_console_window: self.rescroll(a,s))
         
@@ -303,11 +318,29 @@ class Main(UI.Base):
         setattr(s,'samplesmodel',utils.get_model_from_list(s.samples, True))
         setattr(s,'programsmodel',utils.get_model_from_list(s.programs))
         setattr(s,'multismodel',utils.get_model_from_list(s.multis))
-        
+
+    def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
+        if target_type == TARGET_TYPE_URI_LIST:
+            uri = selection.data.strip()
+            uris = uri.split() # we may have more than one file dropped
+            files = []
+            for uri in uris:
+                path = get_file_path_from_dnd_dropped_uri(uri)
+                if len(path):
+                    print 'path to open', path
+                    if os.path.isfile(path): # is it file?
+                        files.append(path)
+            if len(files) > 0:
+                self.s.FileChooser.files = files
+                self.s.FileChooser.upload_files()
+                self.init_lists()
+                
     def set_window(self, window):
         self.window = window
         self.window.set_title("aksui %s" % (__version__))
         self.window.connect('configure_event', self.on_configure_event)
+        self.window.connect("drag_data_received", self.on_drag_data_received)
+        self.window.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
     def log(self,text):
         self.w_console.get_buffer().insert_at_cursor(text + "\r\n")
@@ -396,7 +429,7 @@ class Main(UI.Base):
     def on_save_activate(self, button):
         # THIS WILL OVERWRITE FILES w/ SAME NAMES!
         # get folder to save to
-        path = self.s.FilecChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
+        path = self.s.FileChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
             
         if path:
             org = {'multitools':'.akm', 'programtools':'.akp', 'sampletools' : '.wav'}
@@ -422,7 +455,7 @@ class Main(UI.Base):
             self.log("Invalid path chosen.")
             
     def on_upload_activate(self, button):
-        self.s.FilecChooser.open(upload=True)
+        self.s.FileChooser.open(upload=True)
         self.init_lists()
 
     def on_configure_event(self, widget, event):
