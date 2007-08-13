@@ -2,14 +2,28 @@ import os,os.path,re,logging,sys,struct,math,traceback,urlparse
 import pygtk
 import inspect
 import gobject,gtk.glade,gtk,aksy
+import urllib 
+import main
 from aksy.devices.akai import fileparser
 import aksy.fileutils
 
 from postmod.itx import *
 
-from utils import sox
+import ak, utils
 
-import ak
+def get_file_path_from_dnd_dropped_uri(uri):
+    path = uri.strip('\r\n\x00') # remove \r\n and NULL
+
+    # get the path to file
+    if path.startswith('file:\\\\\\'): # windows
+        path = path[8:] # 8 is len('file:///')
+    elif path.startswith('file://'): # nautilus, rox
+        path = path[7:] # 7 is len('file://')
+    elif path.startswith('file:'): # xffm
+        path = path[5:] # 5 is len('file:')
+        
+    path = urllib.url2pathname(path) # escape special chars
+    return path
 
 def collect_files(args):
     collected = []
@@ -124,7 +138,7 @@ class FileChooser:
 
         for exported_file in exported_files:
             resampled_path = os.path.dirname(exported_file)
-            resampled_name = sox.convert(exported_file)
+            resampled_name = utils.sox.convert(exported_file)
             result.append(resampled_name)
                 
             """
@@ -160,7 +174,34 @@ class FileChooser:
             if f and not f in already_done:
                 self.s.put(f)
                 already_done.append(f)
+                
+        self.do_lists() 
             
+    def do_lists(self):
+        s = self.s
+        setattr(s, 'samples', s.sampletools.get_names())
+        setattr(s, 'programs', s.programtools.get_names())
+        setattr(s, 'multis', s.multitools.get_names())
+
+        setattr(s, 'samplesmodel', utils.get_model_from_list(s.samples, True))
+        setattr(s, 'programsmodel', utils.get_model_from_list(s.programs))
+        setattr(s, 'multismodel', utils.get_model_from_list(s.multis))
+        
+    def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
+        if target_type == 80: # TARGET_TYPE_URI_LIST
+            uri = selection.data.strip()
+            uris = uri.split() # we may have more than one file dropped
+            files = []
+            for uri in uris:
+                path = get_file_path_from_dnd_dropped_uri(uri)
+                if len(path):
+                    print 'path to open', path
+                    if os.path.isfile(path): # is it file?
+                        files.append(path)
+            if len(files) > 0:
+                self.files = files
+                self.upload_files()
+                
     def expand_it_files(self, files):
         if files:
             additional_wavs = []

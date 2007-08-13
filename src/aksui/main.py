@@ -12,7 +12,6 @@ pygtk.require('2.0')
 import gtk
 import aksy
 import shutil
-import urllib
 
 # our stuff
 import ak, UI, utils, postmod
@@ -32,19 +31,7 @@ USE_CUSTOM_EXCEPTHOOK = False # this gets in the way of eclipse's handy exceptio
 ENABLE_PROFILER = False
 TARGET_TYPE_URI_LIST = 80
 
-def get_file_path_from_dnd_dropped_uri(uri):
-    path = uri.strip('\r\n\x00') # remove \r\n and NULL
 
-    # get the path to file
-    if path.startswith('file:\\\\\\'): # windows
-        path = path[8:] # 8 is len('file:///')
-    elif path.startswith('file://'): # nautilus, rox
-        path = path[7:] # 7 is len('file://')
-    elif path.startswith('file:'): # xffm
-        path = path[5:] # 5 is len('file:')
-        
-    path = urllib.url2pathname(path) # escape special chars
-    return path
 
 def get_selected_from_treeview(treeview):
     """
@@ -320,20 +307,8 @@ class Main(UI.Base):
         setattr(s,'multismodel',utils.get_model_from_list(s.multis))
 
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
-        if target_type == TARGET_TYPE_URI_LIST:
-            uri = selection.data.strip()
-            uris = uri.split() # we may have more than one file dropped
-            files = []
-            for uri in uris:
-                path = get_file_path_from_dnd_dropped_uri(uri)
-                if len(path):
-                    print 'path to open', path
-                    if os.path.isfile(path): # is it file?
-                        files.append(path)
-            if len(files) > 0:
-                self.s.FileChooser.files = files
-                self.s.FileChooser.upload_files()
-                self.init_lists()
+        self.s.FileChooser.on_drag_data_received(widget, context, x, y, selection, target_type, timestamp)
+        self.init_lists()
                 
     def set_window(self, window):
         self.window = window
@@ -389,6 +364,7 @@ class Main(UI.Base):
         self.init_lists()
 
     def on_update_models(self, model, iter = None, user_param = None):
+        print "Models updated."
         self.w_treeview_programs.set_model(self.s.programsmodel)
         self.w_treeview_multis.set_model(self.s.multismodel)
         self.w_treeview_samples.set_model(self.s.samplesmodel)

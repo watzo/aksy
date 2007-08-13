@@ -638,13 +638,18 @@ class AkComboBox(gtk.ComboBox):
         self.somodel = model
 
         self.init(so, soattr)
-
-    def init(self, so, soattr = None):
+        
+    def init(self, so = None, soattr = None):
         self.updating = True
         iter = None
 
         if soattr:
             self.soattr = soattr
+            
+        if so:
+            self.so = so
+        else:
+            so = self.so
 
         if so:
             self.s = so.s

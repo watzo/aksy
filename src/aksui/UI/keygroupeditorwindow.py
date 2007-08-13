@@ -113,6 +113,7 @@ class MultiEditorVBox(gtk.VBox):
 
 class DrumEditorTable(gtk.Table):
     def __init__(self, s, p):
+        self.dnd_list = [ ( 'text/uri-list', 0, 80 ) ] 
         gtk.Table.__init__(self, 32, 4, True) # 32 rows, 4 columns, homogenous
         self.s = s
         self.note_order = utils.midiutils.note_orders["mpc_banks_chromatic"] # chromatic / mpc_banks_gm / mpc_banks_chromatic
@@ -128,8 +129,18 @@ class DrumEditorTable(gtk.Table):
         for i in range(1,4):
             mpc_chromatic.extend(range(start_note + 16 * i, start_note)) # start note is what?
         """
+    def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp, kg, cb):
+        self.s.FileChooser.on_drag_data_received(widget, context, x, y, selection, target_type, timestamp)
+        # if it was a single selection, set that zone
+        if len(self.s.FileChooser.files) > 0 and kg:
+            first_file = os.path.basename(self.s.FileChooser.files[0])
+            (filename, ext) = first_file.split(".")
+            kg.zones[0].set("sample", filename)
+        # hack, this should be updating rather than completely refreshing
+        cb.set_model(self.s.samplesmodel)
+        cb.somodel = self.s.samplesmodel
+        cb.init()
         
-
     def setup(self, p):
         self.p = p
         self.no_keygroups = self.p.no_keygroups
@@ -151,12 +162,15 @@ class DrumEditorTable(gtk.Table):
                         tb.set_active(True)
                     
                     vboxall = gtk.VBox()
+                    vboxall.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
                     kghboxall = gtk.HBox()
                     kghboxall.pack_start(tb, False, False, 1)
                     kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
                     kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
                     vboxall.pack_start(kghboxall, False, False, 1)
-                    vboxall.pack_start(UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False), False, False, 1)
+                    cb = UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False)
+                    vboxall.connect("drag_data_received", self.on_drag_data_received, kg, cb)
+                    vboxall.pack_start(cb, False, False, 1)
                     self.attach(vboxall,column,column+1,row,row+1)
         
     def clear_widgets(self):
