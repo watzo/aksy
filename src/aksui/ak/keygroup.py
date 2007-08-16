@@ -7,7 +7,7 @@ class Keygroup(ak.SamplerObject):
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
         self.attrs_minimal = ["low_note", "high_note"]
         self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff', 'filter_resonance':'res', 'MOD_12_14':'filtenv', 'MOD_12_15':'filtenv',
-            'MOD_7_1':'tiltvel',            'MOD_11_1':'ampenv',            'MOD_13_3':'auxenv',                     }
+            'MOD_6_1':'velo',            'MOD_11_1':'ampenv',            'MOD_13_3':'auxenv',                     }
         self.p = program
         self.index = index
         self.keygroup_index = index

@@ -215,10 +215,10 @@ class DrumEditorTable(gtk.Table):
             kghboxall.pack_start(UI.KeygroupRangeWidget(kg))
             #kghboxall.pack_start(UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False))
             kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "MOD_6_1", -100, 100, 1, ""), False, False, 2) # TILT VELO to AMP
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "MOD_11_1", -100, 100, 1, ""), False, False, 2) # AMP ENV to AMP
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "MOD_6_1", 0, 100, 1, ""), False, False, 2) # TILT VELO to AMP
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "MOD_11_1", 0, 100, 1, ""), False, False, 2) # AMP ENV to AMP
             kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "MOD_13_3", -100, 100, 1, ""), False, False, 2) # AUX to PITCH
+            kghboxall.pack_start(UI.AkKnobWidget(kg, "MOD_13_3", 0, 100, 1, ""), False, False, 2) # AUX to PITCH
             self.pack_start(kghboxall, False, False, 2)
             
     def clear_widgets(self):
