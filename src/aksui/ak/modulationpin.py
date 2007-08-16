@@ -26,6 +26,4 @@ class ModulationPin:
         
         self.s.programtools.set_modulation_connection(self.pin_index, keygroup_index, self.source, self.dest, self.level)
         
-        print self.pin_index, self.source, self.dest, self.level
-        
         return self.level
