@@ -23,7 +23,9 @@ class FilterPanel(UI.PanelBase):
             ]
         controls_b = [
             UI.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), 
+            UI.AkKnobWidget(kg, "MOD_12_14", -100, 100, 1, ""), # filter env to cutoff
             UI.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""),
+            UI.AkKnobWidget(kg, "MOD_12_15", -100, 100, 1, ""), # filter env to res
             ]
 
         for control in controls:

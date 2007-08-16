@@ -1,6 +1,14 @@
 class ModulationMatrix:
     # should be a total of 36 (0 based) * marks sample + hold mods
-    sources      = ['NONE','MODWHEEL','BEND UP','BEND DOWN','AFTERTOUCH','VELOCITY','BIPOLAR VELOCITY','OFF VELOCITY','KEYBOARD','LFO1','LFO2','AMP ENV','FILTER ENV','AUX ENV','MIDI CTRL','Q-LINK 1','Q-LINK 2','Q-LINK 3','Q-LINK 4','Q-LINK 5','Q-LINK 6','Q-LINK 7','Q-LINK 8','*MODWHEEL','*BEND UP','*BEND DOWN','*Q-LINK 1','*Q-LINK 2','*Q-LINK 3','*Q-LINK 4','*Q-LINK 5','*Q-LINK 6','*Q-LINK 7','*Q-LINK 8','*LFO1','*LFO2','*MIDI CTRL']
+    sources      = ['NONE','MODWHEEL','BEND UP','BEND DOWN',
+                    'AFTERTOUCH','VELOCITY','BIPOLAR VELOCITY','OFF VELOCITY',
+                    'KEYBOARD','LFO1','LFO2','AMP ENV',
+                    'FILTER ENV','AUX ENV','MIDI CTRL','Q-LINK 1',
+                    'Q-LINK 2','Q-LINK 3','Q-LINK 4','Q-LINK 5',
+                    'Q-LINK 6','Q-LINK 7','Q-LINK 8','*MODWHEEL',
+                    '*BEND UP','*BEND DOWN','*Q-LINK 1','*Q-LINK 2',
+                    '*Q-LINK 3','*Q-LINK 4','*Q-LINK 5','*Q-LINK 6',
+                    '*Q-LINK 7','*Q-LINK 8','*LFO1','*LFO2','*MIDI CTRL']
 
     # should be a total of 52 (0 based), qlink adds 4 'EXT' options
     destinations = ['NONE',           'AMPLITUDE',    'PAN',            'PITCH',

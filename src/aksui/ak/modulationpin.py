@@ -9,7 +9,7 @@ class ModulationPin:
         self.min = -100
         self.max = 100
 
-    def set_value(self, value):
+    def set_value(self, value, all = False):
         # keep it within bounds
 
         if value > self.max:
@@ -18,5 +18,14 @@ class ModulationPin:
             value = self.min
 
         self.level = value
-
-        self.s.programtools.set_modulation_connection(self.pin_index, self.keygroup_index, self.source, self.dest, self.level)
+       
+        if all:
+            keygroup_index = 0
+        else:
+            keygroup_index = self.keygroup_index
+        
+        self.s.programtools.set_modulation_connection(self.pin_index, keygroup_index, self.source, self.dest, self.level)
+        
+        print self.pin_index, self.source, self.dest, self.level
+        
+        return self.level

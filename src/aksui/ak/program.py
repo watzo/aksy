@@ -70,18 +70,14 @@ class Program(ak.SamplerObject):
         return '\n'.join(result)
     
     def get_matrix(self, kgindex):
-        """
         n = self.s.programtools.get_no_modulation_connections()
         conns = { }
 
-        kg = 0 # all
+        kg = kgindex # all
 
         for i in range(n):
             conn = self.s.programtools.get_modulation_connection(i, kg)
             conns[i] = ak.ModulationPin(self.s, i, conn[0], conn[1], conn[2], kg)
             c = conns[i]
-            #print ak.ModulationMatrix.sources[c.source], '\t', ak.ModulationMatrix.destinations[c.dest], '\t', c.level
             
         return conns
-        """
-        return []

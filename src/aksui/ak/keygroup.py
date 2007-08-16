@@ -6,7 +6,8 @@ class Keygroup(ak.SamplerObject):
         self.current_mod_source_index = 11
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
         self.attrs_minimal = ["low_note", "high_note"]
-        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff', 'filter_resonance':'res'}
+        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff', 'filter_resonance':'res', 'MOD_12_14':'filtenv', 'MOD_12_15':'filtenv',
+            'MOD_7_1':'tiltvel',            'MOD_11_1':'ampenv',            'MOD_13_3':'auxenv',                     }
         self.p = program
         self.index = index
         self.keygroup_index = index
@@ -40,7 +41,15 @@ class Keygroup(ak.SamplerObject):
     def on_mod_source_changed(self, widget):
         self.current_mod_source_index = widget.get_active()
 
+    """
+    Need to phase this override out and merge it into samplerobject.set
+    """
     def set(self, attrname, attrval):
+        if attrname.startswith("MOD_"):
+            pin = self.get_pin_by_name(attrname, True)
+            self.attrscache[attrname] = pin.set_value(attrval)
+            return
+        
         kgt = self.s.keygrouptools
         kgt.set_curr_keygroup(self.index)
         func = getattr(kgt, "set_" + attrname, None)
@@ -57,18 +66,6 @@ class Keygroup(ak.SamplerObject):
             
         self.attrscache[attrname] = attrval
         
-    """
-    def update(self):
-        kgt = self.s.keygrouptools
-        for attr in self.attrs:
-            fname = "get_" + attr
-            func = getattr(kgt,fname)
-            if attr in self.filter_attributes:
-                setattr(self,attr,func(0))
-            else:
-                setattr(self,attr,func())
-    """
-    
     def set_pin_value(self, source, value):
         return self.mod_matrix[source]
 
@@ -79,6 +76,11 @@ class Keygroup(ak.SamplerObject):
                 return pin
         return None
 
+    def get_pin_by_name(self, attrname, create_new = False):
+        if attrname.startswith("MOD_"):
+            (blah, source, dest) = attrname.split("_")
+            return self.get_pin_by_source_and_dest(int(source), int(dest), create_new)
+        
     def get_pin_by_source_and_dest(self, source, dest, create_new = False):
         for pin in self.mod_matrix:
             pin = self.mod_matrix[pin]
@@ -90,4 +92,8 @@ class Keygroup(ak.SamplerObject):
             pin = self.get_next_empty_pin()
             pin.source = source
             pin.dest = dest
-        return pin
+            
+        if pin:
+            return pin
+        else:
+            return None

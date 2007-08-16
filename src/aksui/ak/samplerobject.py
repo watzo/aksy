@@ -103,7 +103,7 @@ class SamplerObject(object):
             
         handle = self.get_handle()
         assert handle != None
-        
+
         cmds = []
         args = []
         tools = self.gettools()
@@ -141,10 +141,10 @@ class SamplerObject(object):
         pass
 
     def __getattribute__(self, attrname):
-        if attrname in object.__getattribute__(self, "attrs") or attrname in object.__getattribute__(self, "specialattrs"):
+        if attrname.startswith("MOD_") or attrname in object.__getattribute__(self, "attrs") or attrname in object.__getattribute__(self, "specialattrs"):
             cache = object.__getattribute__(self, "attrscache")
 
-            if not attrname in cache:
+            if not attrname in cache and not attrname.startswith("MOD_"):
                 tools = self.gettools()
 
                 fname = "get_" + attrname
@@ -165,7 +165,14 @@ class SamplerObject(object):
                         # TODO: Fix this, level needs a workaround for some reason..
                         if type(cache[attrname]) == tuple:
                             cache[attrname] = cache[attrname][0]
-
+            elif attrname.startswith("MOD_"):
+                func = object.__getattribute__(self, "get_pin_by_name")
+                pin = func(attrname)
+                if pin:
+                    cache[attrname] = pin.level
+                else:
+                    cache[attrname] = None
+                    
             if attrname in cache: 
                 return cache[attrname]
         #else:

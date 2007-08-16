@@ -512,10 +512,8 @@ if __name__ == "__main__":
     if ENABLE_PROFILER:
         prof = hotshot.Profile("ak.py.prof")
         prof.runcall(main)
+        stats = hotshot.stats.load("ak.py.prof")
+        stats.sort_stats('time', 'calls')
+        stats.print_stats()
     else:
         main()
-        
-    stats = hotshot.stats.load("ak.py.prof")
-    #stats.strip_dirs()
-    stats.sort_stats('time', 'calls')
-    stats.print_stats()
