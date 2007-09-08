@@ -7,6 +7,13 @@ class Envelope(ak.SamplerObject):
         self.need_index_for_set = True
         self.need_index_in_arguments = True
         self.attrs = ["envelope_rate1", "envelope_level1", "envelope_rate2", "envelope_level2",  "envelope_rate3", "envelope_level3", "envelope_rate4", "envelope_level4", "envelope_reference"]
+        self.abbr = {
+                    'envelope_rate1' : 'R1', 'envelope_level1' : 'L1',
+                    'envelope_rate2' : 'R2', 'envelope_level2' : 'L2',
+                    'envelope_rate3' : 'R3', 'envelope_level3' : 'L3',
+                    'envelope_rate4' : 'R4', 'envelope_level4' : 'L4',
+                    'envelope_reference' : 'REF'
+                    }
         self.xoffset = xoffset
         self.yoffset = yoffset 
         self.set_envelope(keygroup, index)

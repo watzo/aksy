@@ -79,6 +79,35 @@ class ZoneWindow(gtk.Window):
 
         self.add(zonevbox)
 
+class EnvelopeHBox(gtk.HBox):
+    def __init__(self, kg, index):
+        gtk.HBox.__init__(self)
+        self.s = kg.s
+        self.setup(kg, index)
+
+    def setup(self, kg, index):
+        self.e = ak.Envelope(kg, index)
+        
+        self.clear_widgets()
+        
+        if index == 0:
+            # amp envelope is simpler
+            knobs = ['rate1','rate2','level2','rate3']
+            self.e.abbr['envelope_rate1'] = 'A'
+            self.e.abbr['envelope_rate2'] = 'D'
+            self.e.abbr['envelope_level2'] = 'S'
+            self.e.abbr['envelope_rate3'] = 'R'
+        else:
+            knobs = ['rate1','level1','rate2','level2','rate3','level3','rate4','level4','reference']
+            
+        for knob_name in knobs:
+            knob = UI.AkKnobWidget(self.e, 'envelope_' + knob_name, 0, 100, 1, None)
+            self.pack_start(knob, False, False, 2)
+            
+    def clear_widgets(self):
+        for child in self.get_children():
+            self.remove(child)
+            
 class MultiEditorVBox(gtk.VBox):
     """
     Minimal multi editor VBox
@@ -107,7 +136,8 @@ class MultiEditorVBox(gtk.VBox):
             kghboxall.pack_start(UI.AkComboBox(part, "part_midi_channel", utils.sampler_lists["midi_channel"], True),False,False,2)
             
             self.pack_start(kghboxall, False, False, 2)
-                def clear_widgets(self):
+
+    def clear_widgets(self):
         for child in self.get_children():
             self.remove(child)
 
@@ -129,6 +159,7 @@ class DrumEditorTable(gtk.Table):
         for i in range(1,4):
             mpc_chromatic.extend(range(start_note + 16 * i, start_note)) # start note is what?
         """
+
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp, kg, cb):
         self.s.FileChooser.on_drag_data_received(widget, context, x, y, selection, target_type, timestamp)
         # if it was a single selection, set that zone
@@ -155,7 +186,7 @@ class DrumEditorTable(gtk.Table):
                     kg = ak.Keygroup(p, i)
                     
                     tb = gtk.RadioButton(rbg, utils.midiutils.midinotes[i])
-                    tb.connect("toggled", self.on_button_press_event, (i + 1)) 
+                    tb.connect("toggled", self.on_button_press_event, kg.index + 1) 
                     
                     if not rbg:
                         rbg = tb
@@ -168,7 +199,7 @@ class DrumEditorTable(gtk.Table):
                     kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
                     kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
                     vboxall.pack_start(kghboxall, False, False, 1)
-                    cb = UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False)
+                    cb = UI.AkLabel(kg.zones[0], "sample", self.s.samplesmodel, False)
                     vboxall.connect("drag_data_received", self.on_drag_data_received, kg, cb)
                     vboxall.pack_start(cb, False, False, 1)
                     self.attach(vboxall,column,column+1,row,row+1)
@@ -180,7 +211,8 @@ class DrumEditorTable(gtk.Table):
     def on_button_press_event(self, widget, data = None):
         if self.on_toggled_callback:
             self.on_toggled_callback(widget, data)
-            class KeygroupEditorVBox(gtk.VBox):
+
+class KeygroupEditorVBox(gtk.VBox):
     """
     Minimal keygroup editor VBox
     """
@@ -198,7 +230,8 @@ class DrumEditorTable(gtk.Table):
         
         self.clear_widgets()
         rbg = None # radio button group
-                    for i in range(self.no_keygroups):
+
+        for i in range(self.no_keygroups):
             kg = ak.Keygroup(p, i)
             
             # TODO: Switch to a radio button.
@@ -228,7 +261,8 @@ class DrumEditorTable(gtk.Table):
     def on_button_press_event(self, widget, data = None):
         if self.on_toggled_callback:
             self.on_toggled_callback(widget, data)
-        class KeygroupEditorWindow(gtk.Window):
+
+class KeygroupEditorWindow(gtk.Window):
     def __init__(self, z48, initial_program_name = None):
         gtk.Window.__init__(self)
         self.connect("configure_event", self.on_configure_event)

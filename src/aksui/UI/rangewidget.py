@@ -621,6 +621,39 @@ class MiniZoneWidget(AkWidget):
             
         return False
 
+class AkLabel(gtk.Label):
+    def __init__(self, so, soattr, model, use_index = True):
+        """
+        TODO: ADD CONTEXT MENU TO CHANGE SAMPLE
+        """
+        gtk.Label.__init__(self, "sample")
+        self.somodel = model
+        self.init(so, soattr)
+        
+    def init(self, so, soattr):
+        self.updating = True
+        iter = None
+
+        if soattr:
+            self.soattr = soattr
+            
+        if so:
+            self.so = so
+        else:
+            so = self.so
+
+        if so:
+            self.s = so.s
+            self.so = so
+            self.value = None
+
+            if self.soattr:
+                self.value = getattr(so, self.soattr)
+                self.set_text(self.value)
+                
+        self.updating = False
+        self.queue_draw()
+        
 class AkComboBox(gtk.ComboBox):
     def __init__(self, so, soattr, model, use_index = True):
         if type(model) is list:

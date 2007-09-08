@@ -6,10 +6,11 @@ import UI,ak,utils
 
 class KeygroupPanel(UI.PanelBase):
     def __init__(self, kg, cb):
-        UI.PanelBase.__init__(self,kg,"Keygroup %d" % int(kg.index),cb)
+        UI.PanelBase.__init__(self,kg,"Keygroup Details",cb)
         
     def setup(self, kg):
         self.clear_children(True)
+        print kg.index
         
         self.kg = kg
         self.s = kg.s
