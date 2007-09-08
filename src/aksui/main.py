@@ -437,7 +437,8 @@ class Main(UI.Base):
     def on_configure_event(self, widget, event):
         self.move_properties_window()
         return False
-        def on_lcd_activate(self, button):
+
+    def on_lcd_activate(self, button):
         lcd = UI.LCDScreen(self.s)
         win = gtk.Window()
         win.add(lcd)

@@ -49,9 +49,10 @@ class Keygroup(ak.SamplerObject):
             pin = self.get_pin_by_name(attrname, True)
             self.attrscache[attrname] = pin.set_value(attrval)
             return
+        print "here be dragons"
         
         kgt = self.s.keygrouptools
-        kgt.set_curr_keygroup(self.index)
+        kgt.set_curr_keygroup(self.keygroup_index)
         func = getattr(kgt, "set_" + attrname, None)
         if func:
             if attrname in self.filter_attributes:
@@ -60,6 +61,8 @@ class Keygroup(ak.SamplerObject):
                 if isinstance(attrval, float):
                     attrval = int(attrval)
                 func(attrval)
+        else:
+            print "no method set_" + attrname
 
         if self.set_callback:
             self.set_callback(attrname, attrval)

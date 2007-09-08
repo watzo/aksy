@@ -130,10 +130,11 @@ class MultiEditorVBox(gtk.VBox):
         
             kghboxall = gtk.HBox()
             
-            kghboxall.pack_start(UI.PartRangeWidget(part, "part_level"), False, False, 2)
-            kghboxall.pack_start(UI.AkComboBox(part, "multi_part_name", self.s.programsmodel, False),False,False,2)
-            kghboxall.pack_start(UI.AkComboBox(part, "part_output", utils.sampler_lists["output"], True),False,False,2)
-            kghboxall.pack_start(UI.AkComboBox(part, "part_midi_channel", utils.sampler_lists["midi_channel"], True),False,False,2)
+            kghboxall.pack_start(UI.AkComboBox(part, "multi_part_name", self.s.programsmodel, False),True,True,2)
+            kghboxall.pack_start(UI.PartRangeWidget(part, "part_level"), True, True, 2)
+            kghboxall.pack_start(UI.AkKnobWidget(part, "part_pan", 0, 100, 1, None), False, False, 2)
+            kghboxall.pack_start(UI.AkComboBox(part, "part_output", utils.sampler_lists["output"], True),True,True,2)
+            kghboxall.pack_start(UI.AkComboBox(part, "part_midi_channel", utils.sampler_lists["midi_channel"], True),True,True,2)
             
             self.pack_start(kghboxall, False, False, 2)
 
@@ -196,17 +197,26 @@ class DrumEditorTable(gtk.Table):
                     vboxall.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
                     kghboxall = gtk.HBox()
                     kghboxall.pack_start(tb, False, False, 1)
-                    kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
-                    kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
+                    #Dunno if these are really necessary - removing to save space.
+                    #kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+                    #kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
                     vboxall.pack_start(kghboxall, False, False, 1)
+                    eventbox = gtk.EventBox()
                     cb = UI.AkLabel(kg.zones[0], "sample", self.s.samplesmodel, False)
+                    eventbox.connect("button_press_event", self.on_label_click, tb)
+                    eventbox.set_events(gtk.gdk.BUTTON_PRESS_MASK)
+                    eventbox.add(cb)
                     vboxall.connect("drag_data_received", self.on_drag_data_received, kg, cb)
-                    vboxall.pack_start(cb, False, False, 1)
+                    vboxall.pack_start(eventbox, False, False, 1)
                     self.attach(vboxall,column,column+1,row,row+1)
         
     def clear_widgets(self):
         for child in self.get_children():
             self.remove(child)
+
+    def on_label_click(self, widget, e, toggle):
+        print "clickclick"
+        toggle.set_active(True)
 
     def on_button_press_event(self, widget, data = None):
         if self.on_toggled_callback:

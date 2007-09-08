@@ -9,7 +9,7 @@ class MultiEditorWindowZ(gtk.Window):
         self.setup(m)
         
     def setup(self, m):
-        self.set_default_size(800,700)
+        self.set_default_size(600,500)
         self.editor = MultiEditorZ(self.s,m)
         self.add(self.editor.editor)
         self.set_title("aksui: %s" % (m.name))

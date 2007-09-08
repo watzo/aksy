@@ -37,19 +37,13 @@ class ZonePanel(UI.PanelBase):
 
             #zonewidget = AkComboBox(zone, "sample", z48.samplesmodel)
             zonehbox = gtk.HBox()
-            lb = gtk.Label("<b>" + str(j) + "</b>")
-            lb.set_use_markup(True)
             zonecombos = [
-                lb,
                 UI.AkComboBox(zone, "sample", self.s.samplesmodel, False),
 # TODO:                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
 # TODO:                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
                 UI.AkComboBox(zone, "playback", utils.sampler_lists["playback_b"])
                 ]
-            lb = gtk.Label("<b>" + str(j) + "</b>")
-            lb.set_use_markup(True)
             zoneknobs = [
-                lb,
                 UI.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
                 UI.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
                 UI.AkKnobWidget(zone, "filter", -100, 100, 1, ""),
@@ -58,17 +52,17 @@ class ZonePanel(UI.PanelBase):
                 ]
 
             for zonecombo in zonecombos:
-                zonehbox.pack_start(zonecombo, False, False, 1)
+                zonehbox.pack_start(zonecombo, True, True, 1)
                 zonecombo.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
                 zonecombo.connect("drag_data_received", self.on_drag_data_received, kg, j, zonecombo)
 
-            zonevbox.pack_start(zonehbox, False, False, 0)
+            #zonevbox.pack_start(zonehbox, False, False, 0)
                 
-            zonehbox = gtk.HBox()
+            #zonehbox = gtk.HBox()
             for zoneknob in zoneknobs:
                 zonehbox.pack_start(zoneknob, False, False, 1)
 
-            zonevbox.pack_start(zonehbox, False, False, 0)
+            zonevbox.pack_start(zonehbox, False, False, 2)
 
         self.pack_start(zonevbox)
         self.show_all()

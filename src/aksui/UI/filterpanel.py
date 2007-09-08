@@ -30,9 +30,9 @@ class FilterPanel(UI.PanelBase):
 
         for control in controls:
             hbox.pack_start(control, False, False, 1)
-        vbox.pack_start(hbox, False, False, 1)
+        #vbox.pack_start(hbox, False, False, 1)
         
-        hbox = gtk.HBox()
+        #hbox = gtk.HBox()
         for control in controls_b:
             hbox.pack_start(control, False, False, 1)
         vbox.pack_start(hbox, False, False, 1)
