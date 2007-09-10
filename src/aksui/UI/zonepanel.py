@@ -29,6 +29,7 @@ class ZonePanel(UI.PanelBase):
         self.kg = kg
         self.s = kg.s
         zonevbox = gtk.VBox()
+        self.sample_combos = []
 
         for j in range(4):
             zone = kg.zones[j]
@@ -37,8 +38,9 @@ class ZonePanel(UI.PanelBase):
 
             #zonewidget = AkComboBox(zone, "sample", z48.samplesmodel)
             zonehbox = gtk.HBox()
+            self.sample_combos.append(UI.AkComboBox(zone, "sample", self.s.samplesmodel, False))
             zonecombos = [
-                UI.AkComboBox(zone, "sample", self.s.samplesmodel, False),
+                self.sample_combos[j],
 # TODO:                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
 # TODO:                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
                 UI.AkComboBox(zone, "playback", utils.sampler_lists["playback_b"])

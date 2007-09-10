@@ -5,11 +5,12 @@ import UI,ak
 class KeygroupEditorWindowZ(gtk.Window):
     def __init__(self, s, p):
         gtk.Window.__init__(self)
+        self.set_position(gtk.WIN_POS_CENTER) 
         self.s = s
         self.setup(p)
         
     def setup(self, p):
-        self.set_default_size(900,600)
+        self.set_default_size(950,600)
         self.editor = KeygroupEditorZ(self.s,p)
         self.add(self.editor.editor)
         self.set_title("aksui: %s" % (p.name))
@@ -34,6 +35,8 @@ class KeygroupEditorZ(UI.Base):
         self.rightVBox = gtk.VBox()
         
         self.zonePanel = UI.ZonePanel(self.curr_keygroup, self.update_status)
+
+
         self.filterPanel = UI.FilterPanel(self.curr_keygroup, self.update_status)
         self.keygroupPanel = UI.KeygroupPanel(self.curr_keygroup, self.update_status)
         self.keygroupEnvelopes = UI.KeygroupEnvelopes(self.curr_keygroup, self.update_status)
@@ -67,6 +70,11 @@ class KeygroupEditorZ(UI.Base):
         children = self.w_statusbar.get_children()[0].get_children()
         self.statuslabel = children[0]
         
+    def on_zone_sample_changed(self, widget, zone_combo, zone_label):
+        text = zone_combo.get_text()
+        #print zone_label
+        zone_label.set_text(text)
+
     def on_button_press_event(self, widget, mode):
         modes = ["ONE","ALL","ADD"]
         self.curr_keygroup.gettools().set_edit_mode(mode)
@@ -76,6 +84,10 @@ class KeygroupEditorZ(UI.Base):
         self.curr_keygroup.set_current()
         for panel in self.panels:
             panel.setup(self.curr_keygroup)
+            
+        if self.p.type == 1:
+            for i in range(4):
+                self.zonePanel.sample_combos[i].connect("changed", self.on_zone_sample_changed, self.zonePanel.sample_combos[i], self.keygroupEditor.zone_labels[keygroup_index][i])
             
     def update_status(self, soattr, sovalue):
         self.statuslabel.set_text("Setting: " + soattr + " " + str(sovalue))

@@ -710,6 +710,11 @@ class AkComboBox(gtk.ComboBox):
     def find_iter(self, value):
         iter = search(self.somodel, self.somodel.iter_children(None), None, (0, value)) 
         return iter
+
+    def get_text(self):
+        iter = self.get_active_iter()
+        value = self.somodel[iter][0]
+        return value 
     
     def on_changed(self, widget):
         if not self.updating:

@@ -2,7 +2,7 @@
 import psyco
 psyco.full()
 
-import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect
+import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect,pango
 import types
 import pygtk
 pygtk.require('2.0')
@@ -145,29 +145,21 @@ class MultiEditorVBox(gtk.VBox):
 class DrumEditorTable(gtk.Table):
     def __init__(self, s, p):
         self.dnd_list = [ ( 'text/uri-list', 0, 80 ) ] 
-        gtk.Table.__init__(self, 32, 4, True) # 32 rows, 4 columns, homogenous
+        self.columns = 4
+        self.note_order = utils.midiutils.note_orders["mpc_banks_gm"] # chromatic / mpc_banks_gm / mpc_banks_chromatic
+        gtk.Table.__init__(self, (len(self.note_order) / self.columns), self.columns, True) # 32 rows, 4 columns, homogenous
         self.s = s
-        self.note_order = utils.midiutils.note_orders["mpc_banks_chromatic"] # chromatic / mpc_banks_gm / mpc_banks_chromatic
         self.on_toggled_callback = None
         
         self.setup(p)
-        
-        """
-        chromatic = range(0,127)
-        mpc gm
-        
-        mpc_chromatic = []
-        for i in range(1,4):
-            mpc_chromatic.extend(range(start_note + 16 * i, start_note)) # start note is what?
-        """
 
-    def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp, kg, cb):
+    def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp, kg, cb, zone_index):
         self.s.FileChooser.on_drag_data_received(widget, context, x, y, selection, target_type, timestamp)
         # if it was a single selection, set that zone
         if len(self.s.FileChooser.files) > 0 and kg:
             first_file = os.path.basename(self.s.FileChooser.files[0])
             (filename, ext) = first_file.split(".")
-            kg.zones[0].set("sample", filename)
+            kg.zones[zone_index].set("sample", filename)
         # hack, this should be updating rather than completely refreshing
         cb.set_model(self.s.samplesmodel)
         cb.somodel = self.s.samplesmodel
@@ -179,43 +171,60 @@ class DrumEditorTable(gtk.Table):
         self.clear_widgets()
         rbg = None # radio button group
        
-        for row in range(0,32):
-            for column in range(0,4): 
-                index = (row * 4) + column
+        self.zone_labels = {}
+        for row in range(0,(len(self.note_order) / self.columns)):
+            for column in range(0,self.columns): 
+                index = (row * self.columns) + column
                 if index < len(self.note_order):
                     i = self.note_order[index]
                     kg = ak.Keygroup(p, i)
-                    
-                    tb = gtk.RadioButton(rbg, utils.midiutils.midinotes[i])
+                    desc = utils.midiutils.midinotes[i]
+                    tb = gtk.RadioButton(rbg)
                     tb.connect("toggled", self.on_button_press_event, kg.index + 1) 
+
+                    if i in utils.midiutils.gm1drumsmap.keys():
+                        subdesc = utils.midiutils.gm1drumsmap[i]
+                        # general midi markup label
+                        subdesclabel = gtk.Label("<span size='smaller'>%s %s</span>" % (desc, subdesc))
+                        subdesclabel.set_use_markup(True)
+                    else:
+                        subdesclabel = gtk.Label("<span size='smaller'>%s</span>" % (desc))
+                        subdesclabel.set_use_markup(True)
                     
                     if not rbg:
                         rbg = tb
                         tb.set_active(True)
                     
                     vboxall = gtk.VBox()
-                    vboxall.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
                     kghboxall = gtk.HBox()
                     kghboxall.pack_start(tb, False, False, 1)
+                    if subdesclabel:
+                        kghboxall.pack_start(subdesclabel, False, False, 0)
                     #Dunno if these are really necessary - removing to save space.
                     #kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
                     #kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
                     vboxall.pack_start(kghboxall, False, False, 1)
                     eventbox = gtk.EventBox()
-                    cb = UI.AkLabel(kg.zones[0], "sample", self.s.samplesmodel, False)
                     eventbox.connect("button_press_event", self.on_label_click, tb)
                     eventbox.set_events(gtk.gdk.BUTTON_PRESS_MASK)
-                    eventbox.add(cb)
-                    vboxall.connect("drag_data_received", self.on_drag_data_received, kg, cb)
-                    vboxall.pack_start(eventbox, False, False, 1)
-                    self.attach(vboxall,column,column+1,row,row+1)
-        
+                    zone_vbox = gtk.VBox(False, 0)
+                    self.zone_labels[i] = []
+                    for zone_index in range(4):
+                        zone_label = UI.AkLabel(kg.zones[zone_index], "sample", self.s.samplesmodel, False)
+                        zone_label.set_justify(gtk.JUSTIFY_LEFT)
+                        self.zone_labels[i].append(zone_label)
+                        zone_label.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
+                        zone_label.connect("drag_data_received", self.on_drag_data_received, kg, zone_label, zone_index)
+                        zone_vbox.pack_start(zone_label, False, False, 0)
+                    vboxall.pack_start(zone_vbox, False, False, 0)
+                    eventbox.add(vboxall)
+                    self.attach(eventbox,column,column+1,row,row+1)
+
     def clear_widgets(self):
         for child in self.get_children():
             self.remove(child)
 
     def on_label_click(self, widget, e, toggle):
-        print "clickclick"
         toggle.set_active(True)
 
     def on_button_press_event(self, widget, data = None):
