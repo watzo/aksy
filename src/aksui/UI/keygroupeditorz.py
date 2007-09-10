@@ -39,11 +39,13 @@ class KeygroupEditorZ(UI.Base):
 
         self.filterPanel = UI.FilterPanel(self.curr_keygroup, self.update_status)
         self.keygroupPanel = UI.KeygroupPanel(self.curr_keygroup, self.update_status)
+        self.LFOpanel = UI.LFOPanel(self.curr_keygroup, self.update_status)
         self.keygroupEnvelopes = UI.KeygroupEnvelopes(self.curr_keygroup, self.update_status)
         
         self.panels.append(self.filterPanel)
         self.panels.append(self.zonePanel)
         self.panels.append(self.keygroupPanel)
+        self.panels.append(self.LFOpanel)
         self.panels.append(self.keygroupEnvelopes)
        
         for panel in self.panels:

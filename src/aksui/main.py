@@ -23,7 +23,7 @@ from postmod.itx import *
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.720'
+__version__ = '0.733'
 
 
 # config

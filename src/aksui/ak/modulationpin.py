@@ -23,7 +23,8 @@ class ModulationPin:
             keygroup_index = 0
         else:
             keygroup_index = self.keygroup_index
-        
+       
+        print "DEBUG", self.pin_index, keygroup_index, self.source, self.dest, self.level
         self.s.programtools.set_modulation_connection(self.pin_index, keygroup_index, self.source, self.dest, self.level)
         
         return self.level

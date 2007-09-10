@@ -9,5 +9,6 @@ from zone import *
 from envelope import *
 from multi import *
 from part import *
+from lfo import *
 from modulationmatrix import *
 from modulationpin import *

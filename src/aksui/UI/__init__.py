@@ -23,4 +23,5 @@ from filterpanel import *
 from keygrouppanel import *
 from widget import *
 from rangewidget import *
+from lfopanel import *
 #from mpcpadeditor import *
