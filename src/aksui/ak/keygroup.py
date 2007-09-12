@@ -28,7 +28,7 @@ class Keygroup(ak.SamplerObject):
         self.aux_envelope = ak.Envelope(self, 2)
 
         self.zones = [ak.Zone(self, 1), ak.Zone(self, 2), ak.Zone(self, 3), ak.Zone(self, 4)]
-        self.mod_matrix = self.p.get_matrix(self.index)
+        self.mod_matrix = self.p.get_matrix(self.index + 1)
         
         self.precache()
         
@@ -47,7 +47,6 @@ class Keygroup(ak.SamplerObject):
     """
     def set(self, attrname, attrval):
         if attrname.startswith("MOD_"):
-            print attrname, attrval
             pin = self.get_pin_by_name(attrname, True)
             self.attrscache[attrname] = pin.set_value(attrval)
             return
