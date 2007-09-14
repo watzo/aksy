@@ -7,7 +7,7 @@ from distutils.command.build_ext import build_ext
 import platform, os.path
 
 # macros= [("_DEBUG", 0), ('AKSY_DEBUG', '1')]
-macros= [("AKSY_DEBUG", 0)]
+macros= [("AKSY_DEBUG", 1)]
 
 def customize_for_platform(ext, compiler_type):
     ext.libraries = ['usb']
@@ -42,7 +42,7 @@ class build_akyx(build_ext):
         build_ext.build_extension(self, ext)
         
 setup(name = "aksy", 
-      version = "0.2", 
+      version = "0.3-SNAPSHOT", 
       author = "Walco van Loon", 
       author_email = "walco at n--tree.net", 
       package_dir= {'': 'src'}, 
