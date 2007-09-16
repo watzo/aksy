@@ -5,7 +5,7 @@ Methods to manipulate sampler programs
 """
 
 __author__ =  'Walco van Loon'
-__version__=  '$Rev$'
+__version__ =  '0.2'
 
 from aksy.devices.akai.sysex import Command
 
@@ -13,7 +13,7 @@ import aksy.devices.akai.sysex_types
 
 class Programtools:
     def __init__(self, z48):
-        self.z48 = z48
+        self.sampler = z48
         self.get_no_items_cmd = Command('_', '\x14\x01', 'get_no_items', (), None)
         self.get_handles_cmd = Command('_', '\x14\x02\x00', 'get_handles', (), None)
         self.get_names_cmd = Command('_', '\x14\x02\x01', 'get_names', (), None)
@@ -102,9 +102,9 @@ class Programtools:
         self.set_softpedal_filter_close_cmd = Command('_', '\x16\x14', 'set_softpedal_filter_close', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_midi_transpose_cmd = Command('_', '\x16\x15', 'set_midi_transpose', (aksy.devices.akai.sysex_types.SBYTE,), None)
         self.set_mpc_pad_assignment_cmd = Command('_', '\x16\x18', 'set_mpc_pad_assignment', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_modulation_conn_cmd = Command('_', '\x16\x20', 'set_modulation_conn', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
-        self.set_modulation_src_cmd = Command('_', '\x16\x21', 'set_modulation_src', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
-        self.set_modulation_dest_cmd = Command('_', '\x16\x22', 'set_modulation_dest', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_modulation_connection_cmd = Command('_', '\x16\x20', 'set_modulation_connection', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
+        self.set_modulation_source_cmd = Command('_', '\x16\x21', 'set_modulation_source', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_modulation_destination_cmd = Command('_', '\x16\x22', 'set_modulation_destination', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
         self.set_modulation_level_cmd = Command('_', '\x16\x23', 'set_modulation_level', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.SBYTE), None)
         self.set_midi_ctrl_no_cmd = Command('_', '\x16\x24', 'set_midi_ctrl_no', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_edit_keygroup_cmd = Command('_', '\x16\x25', 'set_edit_keygroup', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
@@ -128,7 +128,7 @@ class Programtools:
     def get_no_items(self):
         """Get number of items in memory
         """
-        return self.z48.execute(self.get_no_items_cmd, ())
+        return self.sampler.execute(self.get_no_items_cmd, ())
 
     def get_handles(self):
         """Get list of info for all items: 0=list of handles;
@@ -136,7 +136,7 @@ class Programtools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_handles_cmd, ())
+        return self.sampler.execute(self.get_handles_cmd, ())
 
     def get_names(self):
         """Get list of info for all items: 1=list of names
@@ -144,7 +144,7 @@ class Programtools:
         Returns:
             STRINGARRAY
         """
-        return self.z48.execute(self.get_names_cmd, ())
+        return self.sampler.execute(self.get_names_cmd, ())
 
     def get_handles_names(self):
         """Get list of info for all items: 2=list of handle+name;
@@ -152,7 +152,7 @@ class Programtools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_handles_names_cmd, ())
+        return self.sampler.execute(self.get_handles_names_cmd, ())
 
     def get_modified(self):
         """Get list of info for all items: 3=list of handle+modified/tagged name
@@ -160,17 +160,17 @@ class Programtools:
         Returns:
             HANDLENAMEARRAY
         """
-        return self.z48.execute(self.get_modified_cmd, ())
+        return self.sampler.execute(self.get_modified_cmd, ())
 
     def set_curr_by_handle(self, arg0):
         """Select current item by handle
         """
-        return self.z48.execute(self.set_curr_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_handle_cmd, (arg0, ))
 
     def set_curr_by_name(self, arg0):
         """Select current item by name
         """
-        return self.z48.execute(self.set_curr_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.set_curr_by_name_cmd, (arg0, ))
 
     def get_curr_handle(self):
         """Get handle of current item
@@ -178,7 +178,7 @@ class Programtools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_curr_handle_cmd, ())
+        return self.sampler.execute(self.get_curr_handle_cmd, ())
 
     def get_curr_name(self):
         """Get name of current item
@@ -186,7 +186,7 @@ class Programtools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_curr_name_cmd, ())
+        return self.sampler.execute(self.get_curr_name_cmd, ())
 
     def get_name_by_handle(self, arg0):
         """Get item name from handle
@@ -194,7 +194,7 @@ class Programtools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_name_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.get_name_by_handle_cmd, (arg0, ))
 
     def get_handle_by_name(self, arg0):
         """Get item handle from name
@@ -202,37 +202,37 @@ class Programtools:
         Returns:
             DWORD
         """
-        return self.z48.execute(self.get_handle_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.get_handle_by_name_cmd, (arg0, ))
 
     def delete_all(self):
         """Delete ALL items from memory
         """
-        return self.z48.execute(self.delete_all_cmd, ())
+        return self.sampler.execute(self.delete_all_cmd, ())
 
     def delete_curr(self):
         """Delete current item from memory
         """
-        return self.z48.execute(self.delete_curr_cmd, ())
+        return self.sampler.execute(self.delete_curr_cmd, ())
 
     def delete_by_handle(self, arg0):
         """Delete item represented by handle <Data1>
         """
-        return self.z48.execute(self.delete_by_handle_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_by_handle_cmd, (arg0, ))
 
     def rename_curr(self, arg0):
         """Rename current item
         """
-        return self.z48.execute(self.rename_curr_cmd, (arg0, ))
+        return self.sampler.execute(self.rename_curr_cmd, (arg0, ))
 
     def rename_by_handle(self, arg0, arg1):
         """Rename item represented by handle <Data1>
         """
-        return self.z48.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.rename_by_handle_cmd, (arg0, arg1, ))
 
     def tag(self, arg0, arg1):
         """Set Tag Bit <Data1> = bit to set(0-7), <Data2> = (0=OFF, 1=ON), Data3> = (0=CURRENT, 1=ALL)
         """
-        return self.z48.execute(self.tag_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.tag_cmd, (arg0, arg1, ))
 
     def get_tag_bitmap(self):
         """Get Tag Bitmap
@@ -240,12 +240,12 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_tag_bitmap_cmd, ())
+        return self.sampler.execute(self.get_tag_bitmap_cmd, ())
 
     def get_modified_name(self):
         """Get name of current item with modified/tagged info.
         """
-        return self.z48.execute(self.get_modified_name_cmd, ())
+        return self.sampler.execute(self.get_modified_name_cmd, ())
 
     def get_modified_state(self):
         """Get modified state of current item.
@@ -253,62 +253,62 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_modified_state_cmd, ())
+        return self.sampler.execute(self.get_modified_state_cmd, ())
 
     def delete_tagged(self, arg0):
         """Delete tagged items <Data1> = tag bit
         """
-        return self.z48.execute(self.delete_tagged_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_tagged_cmd, (arg0, ))
 
     def create_new(self, arg0, arg1):
         """Create New Program <Data1> = number of keygroups;<Data2> = name.
         """
-        return self.z48.execute(self.create_new_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.create_new_cmd, (arg0, arg1, ))
 
     def add_keygroups(self, arg0):
         """Add Keygroups to Program <Data1> = number of keygroups to add
         """
-        return self.z48.execute(self.add_keygroups_cmd, (arg0, ))
+        return self.sampler.execute(self.add_keygroups_cmd, (arg0, ))
 
     def delete_keygroup(self, arg0):
         """Delete Keygroup (keygroup index)
         """
-        return self.z48.execute(self.delete_keygroup_cmd, (arg0, ))
+        return self.sampler.execute(self.delete_keygroup_cmd, (arg0, ))
 
     def delete_blank_keygroups(self):
         """Delete Blank Keygroups
         """
-        return self.z48.execute(self.delete_blank_keygroups_cmd, ())
+        return self.sampler.execute(self.delete_blank_keygroups_cmd, ())
 
     def arrange_keygroups(self, arg0):
         """Arrange Keygroups (note 0:orig 1:low 2:high)
         """
-        return self.z48.execute(self.arrange_keygroups_cmd, (arg0, ))
+        return self.sampler.execute(self.arrange_keygroups_cmd, (arg0, ))
 
     def copy_keygroup(self, arg0):
         """Copy Keygroup (keygroup  index)
         """
-        return self.z48.execute(self.copy_keygroup_cmd, (arg0, ))
+        return self.sampler.execute(self.copy_keygroup_cmd, (arg0, ))
 
     def copy_program(self, arg0):
         """Copy Program (program name)
         """
-        return self.z48.execute(self.copy_program_cmd, (arg0, ))
+        return self.sampler.execute(self.copy_program_cmd, (arg0, ))
 
     def merge_programs(self, arg0, arg1):
         """Merge Programs (program handle1, handle2)
         """
-        return self.z48.execute(self.merge_programs_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.merge_programs_cmd, (arg0, arg1, ))
 
     def add_keygroup_sample(self, arg0, arg1, arg2, arg3, arg4):
         """Add Keygroup Sample (low note, high note, zone, keytrack, sample name)
         """
-        return self.z48.execute(self.add_keygroup_sample_cmd, (arg0, arg1, arg2, arg3, arg4, ))
+        return self.sampler.execute(self.add_keygroup_sample_cmd, (arg0, arg1, arg2, arg3, arg4, ))
 
     def copy_temperament_to_user(self):
         """Copies Program Temperament to User Temperament
         """
-        return self.z48.execute(self.copy_temperament_to_user_cmd, ())
+        return self.sampler.execute(self.copy_temperament_to_user_cmd, ())
 
     def get_no_modulation_connections(self):
         """Get number of Modulation Connections
@@ -316,7 +316,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_no_modulation_connections_cmd, ())
+        return self.sampler.execute(self.get_no_modulation_connections_cmd, ())
 
     def get_no_modulation_sources(self):
         """Get number of Modulation Sources
@@ -324,7 +324,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_no_modulation_sources_cmd, ())
+        return self.sampler.execute(self.get_no_modulation_sources_cmd, ())
 
     def get_no_modulation_destinations(self):
         """Get number of Modulation Destinations
@@ -332,7 +332,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_no_modulation_destinations_cmd, ())
+        return self.sampler.execute(self.get_no_modulation_destinations_cmd, ())
 
     def get_name_modulation_source(self, arg0):
         """Get Name of Modulation Source (source index)
@@ -340,7 +340,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_name_modulation_source_cmd, (arg0, ))
+        return self.sampler.execute(self.get_name_modulation_source_cmd, (arg0, ))
 
     def get_name_modulation_dest(self, arg0):
         """Get Name of Modulation Destination (dest index)
@@ -348,7 +348,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_name_modulation_dest_cmd, (arg0, ))
+        return self.sampler.execute(self.get_name_modulation_dest_cmd, (arg0, ))
 
     def get_group_id(self):
         """Get Group ID
@@ -356,7 +356,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_group_id_cmd, ())
+        return self.sampler.execute(self.get_group_id_cmd, ())
 
     def get_type(self):
         """Get Program Type <Reply> = (0=KEYGROUP, 1=DRUM)
@@ -364,7 +364,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_type_cmd, ())
+        return self.sampler.execute(self.get_type_cmd, ())
 
     def get_genre(self):
         """Get Genre
@@ -372,7 +372,7 @@ class Programtools:
         Returns:
             STRING
         """
-        return self.z48.execute(self.get_genre_cmd, ())
+        return self.sampler.execute(self.get_genre_cmd, ())
 
     def get_program_no(self):
         """Get Program Number <Reply1> = (0=OFF, 1=128)
@@ -380,7 +380,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_program_no_cmd, ())
+        return self.sampler.execute(self.get_program_no_cmd, ())
 
     def get_no_keygroups(self):
         """Get Number of keygroups
@@ -388,7 +388,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_no_keygroups_cmd, ())
+        return self.sampler.execute(self.get_no_keygroups_cmd, ())
 
     def get_keygroup_xfade(self):
         """Get Keygroup Crossfade <Reply1> = (0=OFF, 1=ON)
@@ -396,7 +396,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_keygroup_xfade_cmd, ())
+        return self.sampler.execute(self.get_keygroup_xfade_cmd, ())
 
     def get_keygroup_xfade_type(self):
         """Get Keygroup Crossfade type <Reply1> = (0=LIN, 1=EXP, 2=LOG)
@@ -404,7 +404,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_keygroup_xfade_type_cmd, ())
+        return self.sampler.execute(self.get_keygroup_xfade_type_cmd, ())
 
     def get_level(self):
         """Get Program Level <Reply1> = level in 10 dB
@@ -412,7 +412,7 @@ class Programtools:
         Returns:
             SWORD
         """
-        return self.z48.execute(self.get_level_cmd, ())
+        return self.sampler.execute(self.get_level_cmd, ())
 
     def get_polyphony(self):
         """Get Polyphony
@@ -420,7 +420,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_polyphony_cmd, ())
+        return self.sampler.execute(self.get_polyphony_cmd, ())
 
     def get_reassignment_method(self):
         """Get Reassignment <Reply1> = (0=QUIETEST, 1=OLDEST)
@@ -428,7 +428,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_reassignment_method_cmd, ())
+        return self.sampler.execute(self.get_reassignment_method_cmd, ())
 
     def get_softpedal_loudness_reduction(self):
         """Soft Pedal Loudness Reduction
@@ -436,7 +436,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_softpedal_loudness_reduction_cmd, ())
+        return self.sampler.execute(self.get_softpedal_loudness_reduction_cmd, ())
 
     def get_softpedal_attack_stretch(self):
         """Soft Pedal Attack Stretch
@@ -444,7 +444,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_softpedal_attack_stretch_cmd, ())
+        return self.sampler.execute(self.get_softpedal_attack_stretch_cmd, ())
 
     def get_softpedal_filter_close(self):
         """Soft Pedal Filter Close
@@ -452,7 +452,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_softpedal_filter_close_cmd, ())
+        return self.sampler.execute(self.get_softpedal_filter_close_cmd, ())
 
     def get_midi_transpose(self):
         """Get midi transpose
@@ -460,7 +460,7 @@ class Programtools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_midi_transpose_cmd, ())
+        return self.sampler.execute(self.get_midi_transpose_cmd, ())
 
     def get_mpc_pad_assignment(self, arg0):
         """Get the midi pad assignment (pad index)
@@ -468,7 +468,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_mpc_pad_assignment_cmd, (arg0, ))
+        return self.sampler.execute(self.get_mpc_pad_assignment_cmd, (arg0, ))
 
     def get_modulation_connection(self, arg0, arg1):
         """Get the modulation connection(pin number, keygroup for level - note 0 or 'all' is not supported)
@@ -478,7 +478,7 @@ class Programtools:
             WORD
             SBYTE
         """
-        return self.z48.execute(self.get_modulation_connection_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.get_modulation_connection_cmd, (arg0, arg1, ))
 
     def get_modulation_source_type(self, arg0):
         """Get the modulation source type (pin number)
@@ -486,7 +486,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_modulation_source_type_cmd, (arg0, ))
+        return self.sampler.execute(self.get_modulation_source_type_cmd, (arg0, ))
 
     def get_modulation_destination_type(self, arg0):
         """Get the modulation dest type (pin number)
@@ -494,7 +494,7 @@ class Programtools:
         Returns:
             WORD
         """
-        return self.z48.execute(self.get_modulation_destination_type_cmd, (arg0, ))
+        return self.sampler.execute(self.get_modulation_destination_type_cmd, (arg0, ))
 
     def get_modulation_level(self, arg0, arg1):
         """Get the modulation level (pin number, keygroup number - note 0 or 'all' is not supported)
@@ -502,7 +502,7 @@ class Programtools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_modulation_level_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.get_modulation_level_cmd, (arg0, arg1, ))
 
     def get_midi_controller_number(self, arg0):
         """Get the midi controller number (pin number - only available if source=CTRL)
@@ -510,7 +510,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_midi_controller_number_cmd, (arg0, ))
+        return self.sampler.execute(self.get_midi_controller_number_cmd, (arg0, ))
 
     def get_edit_keygroup(self):
         """Get edit keygroup
@@ -519,7 +519,7 @@ class Programtools:
             BYTE
             WORD
         """
-        return self.z48.execute(self.get_edit_keygroup_cmd, ())
+        return self.sampler.execute(self.get_edit_keygroup_cmd, ())
 
     def get_modulation_level_edit_keygroup(self):
         """Get Modulation Level of Edit Keygroup
@@ -527,7 +527,7 @@ class Programtools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_modulation_level_edit_keygroup_cmd, ())
+        return self.sampler.execute(self.get_modulation_level_edit_keygroup_cmd, ())
 
     def get_tune(self):
         """Get Cents Tune
@@ -535,7 +535,7 @@ class Programtools:
         Returns:
             TUNE
         """
-        return self.z48.execute(self.get_tune_cmd, ())
+        return self.sampler.execute(self.get_tune_cmd, ())
 
     def get_temperament_template(self):
         """Get Temperament Template, where <Reply1> = template (see Table 22)
@@ -543,7 +543,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_temperament_template_cmd, ())
+        return self.sampler.execute(self.get_temperament_template_cmd, ())
 
     def get_program_temperament(self):
         """Get Program Temperament
@@ -551,7 +551,7 @@ class Programtools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_program_temperament_cmd, ())
+        return self.sampler.execute(self.get_program_temperament_cmd, ())
 
     def get_key(self):
         """Get Key
@@ -559,7 +559,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_key_cmd, ())
+        return self.sampler.execute(self.get_key_cmd, ())
 
     def get_user_temperament_note(self, arg0):
         """Get User Temperament Note
@@ -567,7 +567,7 @@ class Programtools:
         Returns:
             TUNE
         """
-        return self.z48.execute(self.get_user_temperament_note_cmd, (arg0, ))
+        return self.sampler.execute(self.get_user_temperament_note_cmd, (arg0, ))
 
     def get_pitchbend_up(self):
         """Get Pitch Bend Up
@@ -575,7 +575,7 @@ class Programtools:
         Returns:
             BYT
         """
-        return self.z48.execute(self.get_pitchbend_up_cmd, ())
+        return self.sampler.execute(self.get_pitchbend_up_cmd, ())
 
     def get_pitchbend_down(self):
         """Get Pitch Bend down
@@ -583,7 +583,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_pitchbend_down_cmd, ())
+        return self.sampler.execute(self.get_pitchbend_down_cmd, ())
 
     def get_pitchbend_mode(self):
         """Get Pitch Bend Mode (normal, held)
@@ -591,7 +591,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_pitchbend_mode_cmd, ())
+        return self.sampler.execute(self.get_pitchbend_mode_cmd, ())
 
     def get_aftertouch_value(self):
         """Get Aftertouch Value
@@ -599,7 +599,7 @@ class Programtools:
         Returns:
             SBYTE
         """
-        return self.z48.execute(self.get_aftertouch_value_cmd, ())
+        return self.sampler.execute(self.get_aftertouch_value_cmd, ())
 
     def get_legato(self):
         """Get Legato Setting (off, pitch, loop
@@ -607,7 +607,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_legato_cmd, ())
+        return self.sampler.execute(self.get_legato_cmd, ())
 
     def get_portamento_enabled(self):
         """Get Portamento Enabled
@@ -615,7 +615,7 @@ class Programtools:
         Returns:
             BOOL
         """
-        return self.z48.execute(self.get_portamento_enabled_cmd, ())
+        return self.sampler.execute(self.get_portamento_enabled_cmd, ())
 
     def get_portamento_mode(self):
         """Get portamento mode (time, rate)
@@ -623,7 +623,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_portamento_mode_cmd, ())
+        return self.sampler.execute(self.get_portamento_mode_cmd, ())
 
     def get_portamento_time(self):
         """Get portamento time
@@ -631,7 +631,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_portamento_time_cmd, ())
+        return self.sampler.execute(self.get_portamento_time_cmd, ())
 
     def get_glissando_mode(self):
         """Get Glissando Mode
@@ -639,7 +639,7 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_glissando_mode_cmd, ())
+        return self.sampler.execute(self.get_glissando_mode_cmd, ())
 
     def get_aftertouch_mode(self):
         """Get Aftertouch Type
@@ -647,190 +647,190 @@ class Programtools:
         Returns:
             BYTE
         """
-        return self.z48.execute(self.get_aftertouch_mode_cmd, ())
+        return self.sampler.execute(self.get_aftertouch_mode_cmd, ())
 
     def set_group_id(self, arg0):
         """Set Group ID
         """
-        return self.z48.execute(self.set_group_id_cmd, (arg0, ))
+        return self.sampler.execute(self.set_group_id_cmd, (arg0, ))
 
     def set_type(self, arg0):
         """Set Program Type <Data1> = (0=KEYGROUP, 1=DRUM)
         """
-        return self.z48.execute(self.set_type_cmd, (arg0, ))
+        return self.sampler.execute(self.set_type_cmd, (arg0, ))
 
     def set_genre(self, arg0):
         """Set Genre
         """
-        return self.z48.execute(self.set_genre_cmd, (arg0, ))
+        return self.sampler.execute(self.set_genre_cmd, (arg0, ))
 
     def set_program_no(self, arg0):
         """Set Program Number <Data1> = (0=OFF, 1=128)
         """
-        return self.z48.execute(self.set_program_no_cmd, (arg0, ))
+        return self.sampler.execute(self.set_program_no_cmd, (arg0, ))
 
     def set_no_keygroups(self, arg0):
         """Set Number of keygroups
         """
-        return self.z48.execute(self.set_no_keygroups_cmd, (arg0, ))
+        return self.sampler.execute(self.set_no_keygroups_cmd, (arg0, ))
 
     def set_keygroup_xfade(self, arg0):
         """Set Keygroup Crossfade <Data1> = (0=OFF, 1=ON)
         """
-        return self.z48.execute(self.set_keygroup_xfade_cmd, (arg0, ))
+        return self.sampler.execute(self.set_keygroup_xfade_cmd, (arg0, ))
 
     def set_keygroup_xfade_type(self, arg0):
         """Set Keygroup Crossfade type <Data1> = (0=LIN, 1=EXP, 2=LOG)
         """
-        return self.z48.execute(self.set_keygroup_xfade_type_cmd, (arg0, ))
+        return self.sampler.execute(self.set_keygroup_xfade_type_cmd, (arg0, ))
 
     def set_level(self, arg0):
         """Set Program Level <Data1> = level in 10dB (-600 +60)
         """
-        return self.z48.execute(self.set_level_cmd, (arg0, ))
+        return self.sampler.execute(self.set_level_cmd, (arg0, ))
 
     def set_polyphony(self, arg0):
         """Set Polyphony
         """
-        return self.z48.execute(self.set_polyphony_cmd, (arg0, ))
+        return self.sampler.execute(self.set_polyphony_cmd, (arg0, ))
 
     def set_reassignment_method(self, arg0):
         """Set Reassignment <Data1> = (0=QUIETEST, 1=OLDEST)
         """
-        return self.z48.execute(self.set_reassignment_method_cmd, (arg0, ))
+        return self.sampler.execute(self.set_reassignment_method_cmd, (arg0, ))
 
     def set_softpedal_loudness_reduction(self):
         """Soft Pedal Loudness Reduction
         """
-        return self.z48.execute(self.set_softpedal_loudness_reduction_cmd, ())
+        return self.sampler.execute(self.set_softpedal_loudness_reduction_cmd, ())
 
     def set_softpedal_attack_stretch(self, arg0):
         """Soft Pedal Attack Stretch
         """
-        return self.z48.execute(self.set_softpedal_attack_stretch_cmd, (arg0, ))
+        return self.sampler.execute(self.set_softpedal_attack_stretch_cmd, (arg0, ))
 
     def set_softpedal_filter_close(self, arg0):
         """Soft Pedal Filter Close
         """
-        return self.z48.execute(self.set_softpedal_filter_close_cmd, (arg0, ))
+        return self.sampler.execute(self.set_softpedal_filter_close_cmd, (arg0, ))
 
     def set_midi_transpose(self, arg0):
         """Midi Transpose (-36 +36)
         """
-        return self.z48.execute(self.set_midi_transpose_cmd, (arg0, ))
+        return self.sampler.execute(self.set_midi_transpose_cmd, (arg0, ))
 
     def set_mpc_pad_assignment(self, arg0, arg1):
         """MPC pad assignment <Data1> = pad, <Data2> = note
         """
-        return self.z48.execute(self.set_mpc_pad_assignment_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_mpc_pad_assignment_cmd, (arg0, arg1, ))
 
-    def set_modulation_conn(self, arg0, arg1, arg2, arg3, arg4):
+    def set_modulation_connection(self, arg0, arg1, arg2, arg3, arg4):
         """Set Modulation Connection <Data1> = connection (pin) number;<Data2> = keygroup number (0=ALL, 1-128=KEYGROUP) <Data3> = source (see Table 24); <Data4> = destination (see Table 25); <Data5> = level.  If Source or Destination is zero, the connection will be cleared.
         """
-        return self.z48.execute(self.set_modulation_conn_cmd, (arg0, arg1, arg2, arg3, arg4, ))
+        return self.sampler.execute(self.set_modulation_connection_cmd, (arg0, arg1, arg2, arg3, arg4, ))
 
-    def set_modulation_src(self, arg0, arg1):
+    def set_modulation_source(self, arg0, arg1):
         """Set Modulation Source (see Table 24)
         """
-        return self.z48.execute(self.set_modulation_src_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_modulation_source_cmd, (arg0, arg1, ))
 
-    def set_modulation_dest(self, arg0, arg1):
+    def set_modulation_destination(self, arg0, arg1):
         """Set Modulation Destination (see Table 25)
         """
-        return self.z48.execute(self.set_modulation_dest_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_modulation_destination_cmd, (arg0, arg1, ))
 
     def set_modulation_level(self, arg0, arg1, arg2):
         """Set Modulation Level <Data1> = pin number; <Data2> = (0=ALL, 1-128=KEYGROUP); <Data3> = level
         """
-        return self.z48.execute(self.set_modulation_level_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.set_modulation_level_cmd, (arg0, arg1, arg2, ))
 
     def set_midi_ctrl_no(self, arg0, arg1):
         """Set MIDI controller number (only used if Source = CTRL)
         """
-        return self.z48.execute(self.set_midi_ctrl_no_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_midi_ctrl_no_cmd, (arg0, arg1, ))
 
     def set_edit_keygroup(self, arg0, arg1):
         """Set Edit Keygroup (used to edit level) <Data2> = Edit Keygroup
         """
-        return self.z48.execute(self.set_edit_keygroup_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_edit_keygroup_cmd, (arg0, arg1, ))
 
     def set_edit_kegyroup_modulation_level(self, arg0, arg1):
         """Set Modulation Level of Edit Keygroup
         """
-        return self.z48.execute(self.set_edit_kegyroup_modulation_level_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_edit_kegyroup_modulation_level_cmd, (arg0, arg1, ))
 
     def set_tune(self, arg0):
         """Set Cents Tune
         """
-        return self.z48.execute(self.set_tune_cmd, (arg0, ))
+        return self.sampler.execute(self.set_tune_cmd, (arg0, ))
 
     def set_temperament_template(self, arg0):
         """Set Temperament Template, where <Data1> = template (see Table 22)
         """
-        return self.z48.execute(self.set_temperament_template_cmd, (arg0, ))
+        return self.sampler.execute(self.set_temperament_template_cmd, (arg0, ))
 
     def set_program_temperament(self, arg0):
         """Set Program Temperament 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B
         """
-        return self.z48.execute(self.set_program_temperament_cmd, (arg0, ))
+        return self.sampler.execute(self.set_program_temperament_cmd, (arg0, ))
 
     def set_key(self, arg0):
         """Set Key 0=C, 1=C#, 2=D, 3=Eb, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=Bb, 11=B
         """
-        return self.z48.execute(self.set_key_cmd, (arg0, ))
+        return self.sampler.execute(self.set_key_cmd, (arg0, ))
 
     def set_user_temperament_note(self, arg0, arg1):
         """Set User Temperament Note (note, cents)
         """
-        return self.z48.execute(self.set_user_temperament_note_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_user_temperament_note_cmd, (arg0, arg1, ))
 
     def set_pitchbend_up(self, arg0):
         """Set pitchbend up (semitones)
         """
-        return self.z48.execute(self.set_pitchbend_up_cmd, (arg0, ))
+        return self.sampler.execute(self.set_pitchbend_up_cmd, (arg0, ))
 
     def set_pitchbend_down(self, arg0):
         """Set pitchbend down (semitones)
         """
-        return self.z48.execute(self.set_pitchbend_down_cmd, (arg0, ))
+        return self.sampler.execute(self.set_pitchbend_down_cmd, (arg0, ))
 
     def set_pitchbend_mode(self, arg0):
         """Set bend mode (held=true)
         """
-        return self.z48.execute(self.set_pitchbend_mode_cmd, (arg0, ))
+        return self.sampler.execute(self.set_pitchbend_mode_cmd, (arg0, ))
 
     def set_aftertouch_value(self, arg0):
         """Set aftertouch value
         """
-        return self.z48.execute(self.set_aftertouch_value_cmd, (arg0, ))
+        return self.sampler.execute(self.set_aftertouch_value_cmd, (arg0, ))
 
     def set_legato(self, arg0):
         """Set legato setting (off, pitch, loop)
         """
-        return self.z48.execute(self.set_legato_cmd, (arg0, ))
+        return self.sampler.execute(self.set_legato_cmd, (arg0, ))
 
     def set_portamento_enabled(self, arg0):
         """Enable portamento
         """
-        return self.z48.execute(self.set_portamento_enabled_cmd, (arg0, ))
+        return self.sampler.execute(self.set_portamento_enabled_cmd, (arg0, ))
 
     def set_portamento_mode(self, arg0):
         """Set portamento mode (time, rate)
         """
-        return self.z48.execute(self.set_portamento_mode_cmd, (arg0, ))
+        return self.sampler.execute(self.set_portamento_mode_cmd, (arg0, ))
 
     def set_portamento_time(self, arg0):
         """Set portamento time
         """
-        return self.z48.execute(self.set_portamento_time_cmd, (arg0, ))
+        return self.sampler.execute(self.set_portamento_time_cmd, (arg0, ))
 
     def set_glissando_mode(self, arg0):
         """Set glissando mode (portamento, glissando)
         """
-        return self.z48.execute(self.set_glissando_mode_cmd, (arg0, ))
+        return self.sampler.execute(self.set_glissando_mode_cmd, (arg0, ))
 
     def set_aftertouch_mode(self, arg0):
         """Set aftertouch (channel, poly)
         """
-        return self.z48.execute(self.set_aftertouch_mode_cmd, (arg0, ))
+        return self.sampler.execute(self.set_aftertouch_mode_cmd, (arg0, ))
 

@@ -72,7 +72,7 @@ class Keygrouptools:
         self.set_play_trigger_cmd = Command('_', '\x12\x18', 'set_play_trigger', (), None)
         self.set_play_trigger_vel_cmd = Command('_', '\x12\x19', 'set_play_trigger_vel', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_play_toggle_note_cmd = Command('_', '\x12\x1A', 'set_play_toggle_note', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.set_filter_mode_cmd = Command('_', '\x12\x20', 'set_filter_mode', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_filter_cmd = Command('_', '\x12\x20', 'set_filter', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_filter_cutoff_cmd = Command('_', '\x12\x21', 'set_filter_cutoff', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_filter_resonance_cmd = Command('_', '\x12\x22', 'set_filter_resonance', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_filter_atten_cmd = Command('_', '\x12\x23', 'set_filter_atten', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -90,7 +90,9 @@ class Keygrouptools:
         self.set_lfo_delay_cmd = Command('_', '\x12\x51', 'set_lfo_delay', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_lfo_depth_cmd = Command('_', '\x12\x52', 'set_lfo_depth', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_lfo_waveform_cmd = Command('_', '\x12\x53', 'set_lfo_waveform', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_lfo_phase_cmd = Command('_', '\x12\x54', 'set_lfo_phase', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_lfo_phase_cmd = Command('_', '\x12\x54', 'set_lfo_phase', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_lfo_retrigger_cmd = Command('_', '\x12\x58', 'set_lfo_retrigger', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_lfo_sync_cmd = Command('_', '\x12\x59', 'set_lfo_sync', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
 
     def set_curr_keygroup(self, arg0):
         """Select Keygroup to be current <Data1> = Keygroup number (starting with 0)
@@ -505,10 +507,10 @@ class Keygrouptools:
         """
         return self.sampler.execute(self.set_play_toggle_note_cmd, (arg0, ))
 
-    def set_filter_mode(self, arg0, arg1):
+    def set_filter(self, arg0, arg1):
         """Set Filter Mode (0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type
         """
-        return self.sampler.execute(self.set_filter_mode_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_filter_cmd, (arg0, arg1, ))
 
     def set_filter_cutoff(self, arg0, arg1):
         """Set Filter Cutoff Frequency
@@ -599,4 +601,14 @@ class Keygrouptools:
         """Set LFO Phase
         """
         return self.sampler.execute(self.set_lfo_phase_cmd, (arg0, arg1, ))
+
+    def set_lfo_retrigger(self, arg0, arg1):
+        """Set LFO Retrigger
+        """
+        return self.sampler.execute(self.set_lfo_retrigger_cmd, (arg0, arg1, ))
+
+    def set_lfo_sync(self, arg0, arg1):
+        """Set LFO Sync
+        """
+        return self.sampler.execute(self.set_lfo_sync_cmd, (arg0, arg1, ))
 

@@ -115,7 +115,7 @@ BYTE
 
 \x12	\x1A	set_play_toggle_note	Set Play Toggle Note <Data1> = (0=OFF, 1=ON)	BYTE
 
-\x12	\x20	set_filter_mode	Set Filter Mode (0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type	BYTE	BYTE
+\x12	\x20	set_filter	Set Filter Mode (0=NORMAL, 1=TRIPLE(1), 2=TRIPLE(2), 3=TRIPLE(3)), type	BYTE	BYTE
 
 \x12	\x21	set_filter_cutoff	Set Filter Cutoff Frequency	BYTE	BYTE
 
@@ -151,4 +151,9 @@ BYTE
 
 \x12	\x53	set_lfo_waveform	Set LFO Waveform <Data2> = waveform, (see Table 23)	BYTE	BYTE
 
-\x12	\x54	set_lfo_phase	Set LFO Phase	BYTE	BYTE
+\x12	\x54	set_lfo_phase	Set LFO Phase	BYTE	WORD
+
+\x12	\x58	set_lfo_retrigger	Set LFO Retrigger	BYTE	WORD
+
+\x12	\x59	set_lfo_sync	Set LFO Sync	BYTE	BYTE
+

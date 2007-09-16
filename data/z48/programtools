@@ -175,11 +175,11 @@ BYTE
 
 \x16	\x18	set_mpc_pad_assignment	MPC pad assignment <Data1> = pad, <Data2> = note	BYTE	BYTE
 
-\x16	\x20	set_modulation_conn	Set Modulation Connection <Data1> = connection (pin) number;<Data2> = keygroup number (0=ALL, 1-128=KEYGROUP) <Data3> = source (see Table 24); <Data4> = destination (see Table 25); <Data5> = level.  If Source or Destination is zero, the connection will be cleared.	BYTE	WORD	WORD	WORD	SBYTE
+\x16	\x20	set_modulation_connection	Set Modulation Connection <Data1> = connection (pin) number;<Data2> = keygroup number (0=ALL, 1-128=KEYGROUP) <Data3> = source (see Table 24); <Data4> = destination (see Table 25); <Data5> = level.  If Source or Destination is zero, the connection will be cleared.	BYTE	WORD	WORD	WORD	SBYTE
 
-\x16	\x21	set_modulation_src	Set Modulation Source (see Table 24)	BYTE	WORD
+\x16	\x21	set_modulation_source	Set Modulation Source (see Table 24)	BYTE	WORD
 
-\x16	\x22	set_modulation_dest	Set Modulation Destination (see Table 25)	BYTE	WORD
+\x16	\x22	set_modulation_destination	Set Modulation Destination (see Table 25)	BYTE	WORD
 
 \x16	\x23	set_modulation_level	Set Modulation Level <Data1> = pin number; <Data2> = (0=ALL, 1-128=KEYGROUP); <Data3> = level	BYTE	WORD	SBYTE
 
