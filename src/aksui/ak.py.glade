@@ -4380,7 +4380,7 @@ Span Keyboard (0-127)</property>
             <child>
               <widget class="GtkEntry" id="entryProgramName">
                 <property name="visible">True</property>
-                <property name="editable">False</property>
+                <signal name="changed" handler="on_entryProgramName_changed"/>
               </widget>
             </child>
             <child>

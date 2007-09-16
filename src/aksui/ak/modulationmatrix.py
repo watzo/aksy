@@ -14,7 +14,7 @@ class ModulationMatrix:
     destinations = ['NONE',           'AMPLITUDE',    'PAN',            'PITCH',
                     'LFO1 RATE',      'LFO1 DEPTH',   'LFO1 DELAY',     'LFO1 PHASE',
                     'LFO1 OFFSET',    'LFO2 RATE',    'LFO2 DEPTH',     'LFO2 DELAY',
-                    'LFO2 PHASE',     'LFO2 OFFSET',  'FILTER CUTOFF',  'FILTER RESONANCE',
+                    'LFO2 PHASE',     'LFO2 OFFSET',  'CUTOFF',  'RESONANCE',
                     'TR 1 CUTOFF',    'TR 1 RES',     'TR 2 CUTOFF',    'TR 2 RES',
                     'TR 3 CUTOFF',    'TR 3 RES',     'AMP ENV ATTACK', 'AMP ENV DECAY',
                     'AMP ENV RELEASE','FILT ENV R1',  'FILT ENV R2',    'FILT ENV R4',

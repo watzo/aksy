@@ -300,9 +300,10 @@ class AkKnobWidget(AkWidget):
         else:
             text = self.so.get_knob(self.soattr)
 
-        xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
-        cr.move_to(x - width / 2 + xbearing, y + radius - ybearing + 2)
-        cr.show_text(text)
+        if text and len(text) > 0:
+            xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
+            cr.move_to(x - width / 2 + xbearing, y + radius - ybearing + 2)
+            cr.show_text(text)
 
         cr.restore()
         return False
@@ -610,7 +611,7 @@ class MiniZoneWidget(AkWidget):
         style.paint_box(widget.window, gtk.STATE_NORMAL, shadow_style, rect, widget, "", 0, 0, rect.width, rect.height)
 
         # paint text 
-
+        
         cr = widget.window.cairo_create()
         cr.set_font_size(8.0)
         cr.set_source_rgb(0.0, 0.0, 0.0)

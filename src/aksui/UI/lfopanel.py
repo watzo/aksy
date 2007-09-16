@@ -29,26 +29,5 @@ class LFOPanel(UI.PanelBase):
             lfohbox.pack_start(UI.AkComboBox(lfo, "lfo_sync", utils.sampler_lists["lfo_sync"]), True, True, 0)
             lfohbox.pack_start(UI.AkComboBox(lfo, "lfo_midi_sync", utils.sampler_lists["lfo_midi_sync"]), True, True, 0)
             lfovbox.pack_start(lfohbox)
-        lfohbox = gtk.HBox(False, 0)
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_14", -100, 100, 1, ""), False, False, 0) # LFO1 to CUTOFF
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_1", -100, 100, 1, ""), False, False, 0) # LFO1 to AMP
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_2", -100, 100, 1, ""), False, False, 0) # LFO1 to PAN
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_3", -100, 100, 1, ""), False, False, 0) # LFO1 to PITCH
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_4", -100, 100, 1, ""), False, False, 0) # LFO1 to LFO1 RATE
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_7", -100, 100, 1, ""), False, False, 0) # LFO1 to LFO1 PHASE
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_9", -100, 100, 1, ""), False, False, 0) # LFO1 to LFO2 RATE
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_9_12", -100, 100, 1, ""), False, False, 0) # LFO1 to LFO2 PHASE
-        lfovbox.pack_start(lfohbox)
-        lfohbox = gtk.HBox(False, 0)
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_14", -100, 100, 1, ""), False, False, 0) # LFO2 to CUTOFF
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_1", -100, 100, 1, ""), False, False, 0) # LFO2 to AMP
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_2", -100, 100, 1, ""), False, False, 0) # LFO2 to PAN
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_3", -100, 100, 1, ""), False, False, 0) # LFO2 to PITCH
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_4", -100, 100, 1, ""), False, False, 0) # LFO2 to LFO1 RATE
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_7", -100, 100, 1, ""), False, False, 0) # LFO2 to LFO1 PHASE
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_9", -100, 100, 1, ""), False, False, 0) # LFO2 to LFO2 RATE
-        lfohbox.pack_start(UI.AkKnobWidget(kg, "MOD_10_12", -100, 100, 1, ""), False, False, 0) # LFO2 to LFO2 PHASE
-        lfovbox.pack_start(lfohbox)
-
-        self.pack_start(lfovbox)
+        self.pack_start(lfovbox, False, False, 1)
         self.show_all()

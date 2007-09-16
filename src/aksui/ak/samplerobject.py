@@ -32,7 +32,13 @@ class SamplerObject(object):
         self.set_current_before_get_set = False
         
     def get_knob(self, attr):
-        if attr in self.abbr.keys():
+        if attr.startswith("MOD_"):
+            pin = self.get_pin_by_name(attr, False)
+            if pin:
+                return str(pin.level)
+            else:
+                return ""
+        elif attr in self.abbr.keys():
             return self.abbr[attr]
         else:
             return attr

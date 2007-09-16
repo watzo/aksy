@@ -51,7 +51,9 @@ class Program(ak.SamplerObject):
         return keygroups
 
     def set_name(self, name):
+        self.s.programtools.set_curr_by_name(self.name)
         self.s.programtools.rename_curr(name)
+        self.attrscache["name"] = name
 
     def dump_matrix(self):
         result = []

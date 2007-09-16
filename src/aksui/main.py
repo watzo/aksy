@@ -455,7 +455,7 @@ class Main(UI.Base):
             if event.type == gtk.gdk._2BUTTON_PRESS:
                 curr_program = get_selected_from_treeview(self.w_treeview_programs)
 
-                if type(curr_program) is list:
+                if type(curr_program) is list and len(curr_program) > 0:
                     curr_program = curr_program[0]
 
                 self.open_keygroup_editor(curr_program)

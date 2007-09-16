@@ -10,11 +10,14 @@ class KeygroupEditorWindowZ(gtk.Window):
         self.setup(p)
         
     def setup(self, p):
-        self.set_default_size(950,600)
-        self.editor = KeygroupEditorZ(self.s,p)
+        self.p = p
+        self.set_default_size(1000,600)
+        self.editor = KeygroupEditorZ(self.s, p)
         self.add(self.editor.editor)
-        self.set_title("aksui: %s" % (p.name))
-        #self.editor.setup(p)
+        self.update_title()
+
+    def update_title(self):
+        self.set_title("aksui: %s" % (self.p.name))
         
 class KeygroupEditorZ(UI.Base):
     def __init__(self, s, p):
@@ -33,28 +36,28 @@ class KeygroupEditorZ(UI.Base):
         self.panels = []
         
         self.rightVBox = gtk.VBox()
-        
-        self.zonePanel = UI.ZonePanel(self.curr_keygroup, self.update_status)
 
-
-        self.filterPanel = UI.FilterPanel(self.curr_keygroup, self.update_status)
-        self.keygroupPanel = UI.KeygroupPanel(self.curr_keygroup, self.update_status)
-        self.LFOpanel = UI.LFOPanel(self.curr_keygroup, self.update_status)
-        self.keygroupEnvelopes = UI.KeygroupEnvelopes(self.curr_keygroup, self.update_status)
-        
-        self.panels.append(self.filterPanel)
-        self.panels.append(self.zonePanel)
-        self.panels.append(self.keygroupPanel)
-        self.panels.append(self.LFOpanel)
-        self.panels.append(self.keygroupEnvelopes)
+        panel_list = [
+                     ("keygroupPanel", UI.KeygroupPanel),
+                     ("zonePanel", UI.ZonePanel),
+                     ("filterPanel", UI.FilterPanel),
+                     ("LFOPanel", UI.LFOPanel),
+                     ("keygroupEnvelopes", UI.KeygroupEnvelopes),
+                     ("modMatrix", UI.ModMatrix),
+                    ] 
        
+        for (n, ui_type) in panel_list:
+            panel = ui_type(self.curr_keygroup, self.update_status)
+            setattr(self, n, panel)
+            self.panels.append(panel)
+
         for panel in self.panels:
             self.rightVBox.pack_start(panel, False, False, 0)
         
-        # TODO: needs to be bound to an entry box that will actually set update program name
         self.w_entryProgramName.set_text(p.name)
         self.w_viewportKeygroups.add(self.keygroupEditor)
         self.w_viewportSlats.add(self.rightVBox)
+
         rbg = None
         curr_mode = self.curr_keygroup.gettools().get_edit_mode()
         modes = ["ONE","ALL","ADD"]
@@ -98,3 +101,11 @@ class KeygroupEditorZ(UI.Base):
         #print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
         if widget.get_active():
             self.change_keygroup(data-1) # index is +1
+
+    def on_entryProgramName_changed(self, widget):
+        if(self.p):
+            self.p.set_name(widget.get_text())
+
+            window = self.editor.parent
+            if window and getattr(window, "p", None):
+                window.update_title()
