@@ -30,7 +30,7 @@ import ak,UI
 """
 
 class ModMatrix(UI.PanelBase):
-    def __init__(self, so, cb, sources = ['BIPOLAR VELOCITY', 'AMP ENV', 'FILTER ENV', 'AUX ENV', 'LFO1', 'LFO2'], destinations = ['AMPLITUDE', 'PAN', 'PITCH', 'CUTOFF', 'RESONANCE', 'ZONE CROSSFADE', 'AMP ENV ATTACK', 'AMP ENV DECAY', 'AMP ENV RELEASE', 'LFO1 RATE', 'LFO1 DEPTH', 'LFO1 DELAY', 'LFO1 PHASE', 'LFO1 OFFSET', 'LFO2 RATE', 'LFO2 DEPTH', 'LFO2 DELAY', 'LFO2 PHASE','LFO2 OFFSET']):
+    def __init__(self, so, cb, sources = ['MODWHEEL', 'BIPOLAR VELOCITY', 'AMP ENV', 'FILTER ENV', 'AUX ENV', 'LFO1', 'LFO2', '*MODWHEEL', '*LFO1', '*LFO2'], destinations = ['AMPLITUDE', 'PAN', 'PITCH', 'CUTOFF', 'RESONANCE', 'ZONE CROSSFADE', 'AMP ENV ATTACK', 'AMP ENV DECAY', 'AMP ENV RELEASE', 'LFO1 RATE', 'LFO1 DEPTH', 'LFO1 DELAY', 'LFO1 PHASE', 'LFO1 OFFSET', 'LFO2 RATE', 'LFO2 DEPTH', 'LFO2 DELAY', 'LFO2 PHASE','LFO2 OFFSET']):
         # doing this by mod source/dest name because it's easier to read, probably would be slightly faster if it used index # 
         assert sources != None
         assert destinations != None

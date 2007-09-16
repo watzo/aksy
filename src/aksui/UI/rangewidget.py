@@ -300,7 +300,9 @@ class AkKnobWidget(AkWidget):
         else:
             text = self.so.get_knob(self.soattr)
 
-        if text and len(text) > 0:
+        is_mod = self.soattr.startswith('MOD_')
+
+        if text and len(text) > 0 and (is_mod and text != "0" or not is_mod):
             xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
             cr.move_to(x - width / 2 + xbearing, y + radius - ybearing + 2)
             cr.show_text(text)
