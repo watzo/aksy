@@ -6,7 +6,12 @@
 #include "aksyxusb.h"
 #include <stdarg.h>
 
-#ifdef _POSIX_SOURCE
+/* work around the issue that _POSIX_SOURCE is not defined in python builds on Tiger */  
+#if defined(macosx) || defined(__APPLE__) && defined(__MACH__)
+#define MACOSX
+#endif
+
+#if defined(_POSIX_SOURCE) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
@@ -636,7 +641,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
     int blocksize = 4096*4, rc = 0, read_transfer_status = 0;
     unsigned long filesize, bytes_transferred = 0, actually_transferred = 0,
             tdelta;
-#ifdef _POSIX_SOURCE
+#if defined(_POSIX_SOURCE) || defined(MACOSX)
     struct timeval tv1, tv2;
 #endif
 #ifdef _WIN32
@@ -657,7 +662,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
     }
 
     data = calloc(blocksize, sizeof(char));
-#ifdef _POSIX_SOURCE
+#if defined(_POSIX_SOURCE) || defined(MACOSX) 
     gettimeofday(&tv1, NULL);
 #endif
 #ifdef _WIN32
@@ -729,7 +734,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
         }
     } while (rc > 0);
 
-#ifdef _POSIX_SOURCE
+#if defined(_POSIX_SOURCE) || defined(MACOSX)
     gettimeofday(&tv2, NULL);
     tdelta = TIMEVAL_DELTA_MILLIS(tv1, tv2);
 #endif
@@ -813,7 +818,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
     int dest_filename_length = strlen(dest_filename) + 1;
     FILE* fp;
 
-#ifdef _POSIX_SOURCE
+#if defined(_POSIX_SOURCE) || defined(MACOSX)
     struct stat* st;
     struct timeval tv1, tv2;
     /* Get file info */
@@ -880,7 +885,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
 
     reply_buf = (char*) calloc(64, sizeof(char));
 
-#ifdef _POSIX_SOURCE
+#if defined(_POSIX_SOURCE) || defined(MACOSX)
     gettimeofday(&tv1, NULL);
 #endif
 #ifdef _WIN32
@@ -947,7 +952,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
         usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);
     } while (bytes_read > 0&& rc > 0);
 
-#ifdef _POSIX_SOURCE
+#if defined(_POSIX_SOURCE) || defined(MACOSX)
     gettimeofday(&tv2, NULL);
     tdelta = TIMEVAL_DELTA_MILLIS(tv1, tv2);
 #endif
