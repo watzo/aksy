@@ -1,6 +1,6 @@
 import gtk
 
-import base, drumprogrameditor, keygroupeditorwindow, keygrouppanel, zonepanel, modmatrix, filterpanel, lfopanel
+import base, keygroupeditorwindow, keygrouppanel, zonepanel, modmatrix, filterpanel, lfopanel
 import keygroupenvelope
 
 from aksui.ak import keygroup
