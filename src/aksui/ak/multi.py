@@ -1,9 +1,8 @@
-from aksy.device import Devices
-import ak, utils
+import samplerobject
 
-class Multi(ak.SamplerObject):
+class Multi(samplerobject.SamplerObject):
     def __init__(self,s,name,handle=None):
-        ak.SamplerObject.__init__(self,s,None,"multitools")
+        samplerobject.SamplerObject.__init__(self,s,None,"multitools")
         
         self.name = name
         if handle:

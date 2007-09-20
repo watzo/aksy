@@ -1,6 +1,9 @@
-import gobject, gtk.glade, gtk
+import gtk
 
-import UI,ak
+import base, drumprogrameditor, keygroupeditorwindow, keygrouppanel, zonepanel, modmatrix, filterpanel, lfopanel
+import keygroupenvelope
+
+from aksui.ak import keygroup
 
 class KeygroupEditorWindowZ(gtk.Window):
     def __init__(self, s, p):
@@ -19,31 +22,31 @@ class KeygroupEditorWindowZ(gtk.Window):
     def update_title(self):
         self.set_title("aksui: %s" % (self.p.name))
         
-class KeygroupEditorZ(UI.Base):
+class KeygroupEditorZ(base.Base):
     def __init__(self, s, p):
-        UI.Base.__init__(self, p, "keygroupEditorZ")
+        base.Base.__init__(self, p, "keygroupEditorZ")
         self.s = p.s
         self.p = p
         if self.p.type == 1:
-            self.keygroupEditor = UI.DrumEditorTable(s,p)
+            self.keygroupEditor = keygroupeditorwindow.DrumEditorTable(s,p)
         else:
-            self.keygroupEditor = UI.KeygroupEditorVBox(s,p)
+            self.keygroupEditor = keygroupeditorwindow.KeygroupEditorVBox(s,p)
             
         self.keygroupEditor.on_toggled_callback = self.on_toggled_callback
         
         # get first keygroup
-        self.curr_keygroup = ak.Keygroup(p,0)
+        self.curr_keygroup = keygroup.Keygroup(p,0)
         self.panels = []
         
         self.rightVBox = gtk.VBox()
 
         panel_list = [
-                     ("keygroupPanel", UI.KeygroupPanel),
-                     ("zonePanel", UI.ZonePanel),
-                     ("filterPanel", UI.FilterPanel),
-                     ("LFOPanel", UI.LFOPanel),
-                     ("keygroupEnvelopes", UI.KeygroupEnvelopes),
-                     ("modMatrix", UI.ModMatrix),
+                     ("keygroupPanel", keygrouppanel.KeygroupPanel),
+                     ("zonePanel", zonepanel.ZonePanel),
+                     ("filterPanel", filterpanel.FilterPanel),
+                     ("LFOPanel", lfopanel.LFOPanel),
+                     ("keygroupEnvelopes", keygroupenvelope.KeygroupEnvelopes),
+                     ("modMatrix", modmatrix.ModMatrix),
                     ] 
        
         for (n, ui_type) in panel_list:
@@ -85,7 +88,7 @@ class KeygroupEditorZ(UI.Base):
         self.curr_keygroup.gettools().set_edit_mode(mode)
         
     def change_keygroup(self, keygroup_index):
-        self.curr_keygroup = ak.Keygroup(self.p,keygroup_index)
+        self.curr_keygroup = keygroup.Keygroup(self.p,keygroup_index)
         self.curr_keygroup.set_current()
         for panel in self.panels:
             panel.setup(self.curr_keygroup)

@@ -1,12 +1,10 @@
-import pygtk
-pygtk.require('2.0')
-import gtk,gtk.glade,gobject
-import ak,UI
+import gtk
 
-class KeygroupEnvelopes(UI.PanelBase):
+import panelbase, keygroupeditorwindow
+class KeygroupEnvelopes(panelbase.PanelBase):
     def __init__(self, keygroup, cb):
         self.env_labels = ["Amp Anvelope", "Filter Envelope", "Aux Envelope"]
-        UI.PanelBase.__init__(self, keygroup, "Envelopes", cb)
+        panelbase.PanelBase.__init__(self, keygroup, "Envelopes", cb)
     
     def setup(self, keygroup):
         self.clear_children(True)
@@ -20,7 +18,7 @@ class KeygroupEnvelopes(UI.PanelBase):
         self.show_all()
             
     def update_env(self, envname, env, index):
-        setattr(self, envname, UI.EnvelopeHBox(self.keygroup, index))
+        setattr(self, envname, keygroupeditorwindow.EnvelopeHBox(self.keygroup, index))
         label_hbox = gtk.HBox(False,0)
         lb = gtk.Label("%s" % self.env_labels[index])
         lb.set_justify(gtk.JUSTIFY_LEFT)

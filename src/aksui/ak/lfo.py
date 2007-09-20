@@ -1,8 +1,8 @@
-import ak
+import samplerobject
 
-class LFO(ak.SamplerObject):
+class LFO(samplerobject.SamplerObject):
     def __init__(self, s, kg, index):
-        ak.SamplerObject.__init__(self, s, kg, "keygrouptools", index)
+        samplerobject.SamplerObject.__init__(self, s, kg, "keygrouptools", index)
         self.attrs = ['lfo_rate','lfo_delay','lfo_depth','lfo_waveform','lfo_phase','lfo_shift','lfo_midi_sync','midi_clock_sync_div','lfo_retrigger','lfo_sync']
         self.abbr = {
                 "lfo_rate" : "rate",

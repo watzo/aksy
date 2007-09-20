@@ -1,20 +1,15 @@
 #!/usr/bin/env python
-import psyco
-psyco.full()
-
-import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect,pango
-import types
-import pygtk
-pygtk.require('2.0')
-import gtk,gtk.glade,gobject
-import aksy
+import gtk
 
 # our stuff
-import utils,ak,UI
+from aksui.utils import midiutils, modelutils
+from aksui.ak import envelope, keygroup, part
 
-from postmod.itx import *
+import rangewidget
 
-from aksy.device import Devices
+# TODO: remove if unused (which probably is the case)
+from aksui.postmod.itx import *
+
 
 __author__ = 'Joseph Misra'
 __version__ = '0.71'
@@ -61,15 +56,15 @@ class ZoneWindow(gtk.Window):
             zonehbox = gtk.HBox()
 
             zonecontrols = [
-                UI.AkComboBox(zone, "sample", self.s.samplesmodel, False),
-                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
-                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
-                UI.AkComboBox(zone, "playback", utils.sampler_lists["playback"]),
-                UI.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
-                UI.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
-                UI.AkKnobWidget(zone, "filter", -100, 100, 1, ""),
-                UI.AkKnobWidget(zone, "mod_start", -9999, 9999, 1, ""),
-                UI.AkKnobWidget(zone, "tune", -3600, 3600, 100, ""),
+                rangewidget.AkComboBox(zone, "sample", self.s.samplesmodel, False),
+                rangewidget.AkComboBox(zone, "output", midiutils.sampler_lists["output"]),
+                rangewidget.AkComboBox(zone, "keyboard_track", midiutils.sampler_lists["keyboard_track"]),
+                rangewidget.AkComboBox(zone, "playback", midiutils.sampler_lists["playback"]),
+                rangewidget.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
+                rangewidget.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
+                rangewidget.AkKnobWidget(zone, "filter", -100, 100, 1, ""),
+                rangewidget.AkKnobWidget(zone, "mod_start", -9999, 9999, 1, ""),
+                rangewidget.AkKnobWidget(zone, "tune", -3600, 3600, 100, ""),
                 ]
 
             for zonecontrol in zonecontrols:
@@ -86,7 +81,7 @@ class EnvelopeHBox(gtk.HBox):
         self.setup(kg, index)
 
     def setup(self, kg, index):
-        self.e = ak.Envelope(kg, index)
+        self.e = envelope.Envelope(kg, index)
         
         self.clear_widgets()
         
@@ -101,7 +96,7 @@ class EnvelopeHBox(gtk.HBox):
             knobs = ['rate1','level1','rate2','level2','rate3','level3','rate4','level4','reference']
             
         for knob_name in knobs:
-            knob = UI.AkKnobWidget(self.e, 'envelope_' + knob_name, 0, 100, 1, None)
+            knob = rangewidget.AkKnobWidget(self.e, 'envelope_' + knob_name, 0, 100, 1, None)
             self.pack_start(knob, False, False, 2)
             
     def clear_widgets(self):
@@ -126,15 +121,15 @@ class MultiEditorVBox(gtk.VBox):
         self.clear_widgets()
         
         for i in range(self.no_parts):
-            part = ak.Part(self.s, m, i)
+            p = part.Part(self.s, m, i)
         
             kghboxall = gtk.HBox()
             
-            kghboxall.pack_start(UI.AkComboBox(part, "multi_part_name", self.s.programsmodel, False),True,True,2)
-            kghboxall.pack_start(UI.PartRangeWidget(part, "part_level"), True, True, 2)
-            kghboxall.pack_start(UI.AkKnobWidget(part, "part_pan", 0, 100, 1, None), False, False, 2)
-            kghboxall.pack_start(UI.AkComboBox(part, "part_output", utils.sampler_lists["output"], True),True,True,2)
-            kghboxall.pack_start(UI.AkComboBox(part, "part_midi_channel", utils.sampler_lists["midi_channel"], True),True,True,2)
+            kghboxall.pack_start(rangewidget.AkComboBox(p, "multi_part_name", self.s.programsmodel, False),True,True,2)
+            kghboxall.pack_start(rangewidget.PartRangeWidget(p, "part_level"), True, True, 2)
+            kghboxall.pack_start(rangewidget.AkKnobWidget(p, "part_pan", 0, 100, 1, None), False, False, 2)
+            kghboxall.pack_start(rangewidget.AkComboBox(p, "part_output", midiutils.sampler_lists["output"], True),True,True,2)
+            kghboxall.pack_start(rangewidget.AkComboBox(p, "part_midi_channel", midiutils.sampler_lists["midi_channel"], True),True,True,2)
             
             self.pack_start(kghboxall, False, False, 2)
 
@@ -146,7 +141,7 @@ class DrumEditorTable(gtk.Table):
     def __init__(self, s, p):
         self.dnd_list = [ ( 'text/uri-list', 0, 80 ) ] 
         self.columns = 4
-        self.note_order = utils.midiutils.note_orders["mpc_banks_gm"] # chromatic / mpc_banks_gm / mpc_banks_chromatic
+        self.note_order = midiutils.note_orders["mpc_banks_gm"] # chromatic / mpc_banks_gm / mpc_banks_chromatic
         gtk.Table.__init__(self, (len(self.note_order) / self.columns), self.columns, True) # 32 rows, 4 columns, homogenous
         self.s = s
         self.on_toggled_callback = None
@@ -177,13 +172,13 @@ class DrumEditorTable(gtk.Table):
                 index = (row * self.columns) + column
                 if index < len(self.note_order):
                     i = self.note_order[index]
-                    kg = ak.Keygroup(p, i)
-                    desc = utils.midiutils.midinotes[i]
+                    kg = keygroup.Keygroup(p, i)
+                    desc = midiutils.midinotes[i]
                     tb = gtk.RadioButton(rbg)
                     tb.connect("toggled", self.on_button_press_event, kg.index + 1) 
 
-                    if i in utils.midiutils.gm1drumsmap.keys():
-                        subdesc = utils.midiutils.gm1drumsmap[i]
+                    if i in midiutils.gm1drumsmap.keys():
+                        subdesc = midiutils.gm1drumsmap[i]
                         # general midi markup label
                         subdesclabel = gtk.Label("<span size='smaller'>%s %s</span>" % (desc, subdesc))
                         subdesclabel.set_use_markup(True)
@@ -201,8 +196,8 @@ class DrumEditorTable(gtk.Table):
                     if subdesclabel:
                         kghboxall.pack_start(subdesclabel, False, False, 0)
                     #Dunno if these are really necessary - removing to save space.
-                    #kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
-                    #kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
+                    #kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+                    #kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
                     vboxall.pack_start(kghboxall, False, False, 1)
                     eventbox = gtk.EventBox()
                     eventbox.connect("button_press_event", self.on_label_click, tb)
@@ -210,7 +205,7 @@ class DrumEditorTable(gtk.Table):
                     zone_vbox = gtk.VBox(False, 0)
                     self.zone_labels[i] = []
                     for zone_index in range(4):
-                        zone_label = UI.AkLabel(kg.zones[zone_index], "sample", self.s.samplesmodel, False)
+                        zone_label = rangewidget.AkLabel(kg.zones[zone_index], "sample", self.s.samplesmodel, False)
                         zone_label.set_justify(gtk.JUSTIFY_LEFT)
                         self.zone_labels[i].append(zone_label)
                         zone_label.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
@@ -251,7 +246,7 @@ class KeygroupEditorVBox(gtk.VBox):
         rbg = None # radio button group
 
         for i in range(self.no_keygroups):
-            kg = ak.Keygroup(p, i)
+            kg = keygroup.Keygroup(p, i)
             
             # TODO: Switch to a radio button.
             tb = gtk.RadioButton(rbg, str(i + 1))
@@ -264,10 +259,10 @@ class KeygroupEditorVBox(gtk.VBox):
             kghboxall = gtk.HBox()
             
             kghboxall.pack_start(tb, False, False, 1)
-            kghboxall.pack_start(UI.KeygroupRangeWidget(kg))
-            #kghboxall.pack_start(UI.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False))
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
+            kghboxall.pack_start(rangewidget.KeygroupRangeWidget(kg))
+            #kghboxall.pack_start(rangewidget.AkComboBox(kg.zones[0], "sample", self.s.samplesmodel, False))
+            kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+            kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
             self.pack_start(kghboxall, False, False, 2)
             
     def clear_widgets(self):
@@ -297,7 +292,7 @@ class KeygroupEditorWindow(gtk.Window):
         if not program_name:
             program_name = "Program 1"
             
-        p = ak.Program(self.s, program_name)
+        p = program.Program(self.s, program_name)
 
         self.no_keygroups = self.s.programtools.get_no_keygroups()
 
@@ -310,7 +305,7 @@ class KeygroupEditorWindow(gtk.Window):
         vbox.pack_start(dla)
 
         for i in range(self.no_keygroups):
-            kg = ak.Keygroup(p, i)
+            kg = keygroup.Keygroup(p, i)
             tb = gtk.Button(str(i + 1))
             tb.connect("clicked", self.on_button_press_event)
 
@@ -321,14 +316,14 @@ class KeygroupEditorWindow(gtk.Window):
 
             kghboxall.pack_start(tb, False, False, 1)
 
-            kghboxall.pack_start(UI.KeygroupRangeWidget(kg))
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
+            kghboxall.pack_start(rangewidget.KeygroupRangeWidget(kg))
+            kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "level", -600, 60, 10, "db"), False, False, 2)
+            kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "tune", -3600, 3600, 100, ""), False, False, 2)
 
-            kghboxall.pack_start(UI.AkComboBox(kg, "filter", utils.sampler_lists["filter"]), False, False, 2)
-            kghboxall.pack_start(UI.AkComboBox(kg, "filter_attenuation", utils.sampler_lists["filter_attenuation"]), False, False, 2)
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), False, False, 1)
-            kghboxall.pack_start(UI.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""), False, False, 1)
+            kghboxall.pack_start(rangewidget.AkComboBox(kg, "filter", midiutils.sampler_lists["filter"]), False, False, 2)
+            kghboxall.pack_start(rangewidget.AkComboBox(kg, "filter_attenuation", midiutils.sampler_lists["filter_attenuation"]), False, False, 2)
+            kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), False, False, 1)
+            kghboxall.pack_start(rangewidget.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""), False, False, 1)
 
             vbox.pack_start(kghboxall, False, False, 2)
 
@@ -344,7 +339,7 @@ class KeygroupEditorWindow(gtk.Window):
             self.init_zonewindow(widget.program, widget.index)
 
     def init_zonewindow(self, program, index):
-        kg = ak.Keygroup(program, index)
+        kg = keygroupKeygroup(program, index)
         if not self.zonewindow or index != self.zonewindow.kg.index:
             if self.zonewindow:
                 self.zonewindow.hide()
@@ -383,11 +378,15 @@ class KeygroupEditorWindow(gtk.Window):
         setattr(s,'programs',s.programtools.get_names())
         setattr(s,'multis',s.multitools.get_names())
 
-        setattr(s,'samplesmodel',utils.get_model_from_list(s.samples, True))
-        setattr(s,'programsmodel',utils.get_model_from_list(s.programs))
-        setattr(s,'multismodel',utils.get_model_from_list(s.multis))
+        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
+        setattr(s,'multismodel', modelutils.get_model_from_list(s.multis))
 
 def main(): 
+    import psyco
+    psyco.full()
+
+    from aksy.device import Devices
     z48 = Devices.get_instance("z48", "usb")
     win = KeygroupEditorWindow(z48)
     win.show_all()
@@ -395,7 +394,6 @@ def main():
     gtk.main()
 
 if __name__ == "__main__":
-    log = logging.getLogger("aksy")
     #sys.stdout = UGivStderr()
 	#import hotshot, hotshot.stats
     #prof = hotshot.Profile("ak.py.prof")

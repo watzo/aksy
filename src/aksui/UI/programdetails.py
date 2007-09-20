@@ -1,6 +1,4 @@
-import gobject, gtk.glade, gtk
-
-import UI
+import base
 
 """
 Recording interface(s)!
@@ -10,9 +8,9 @@ GOOD IDEA: Chromatic recording of samples from input, use MIDI out (play command
 General good idea: base class for these user interfaces to get rid of redundancies and facilitate new interfaces...
 """
 
-class ProgramDetails(UI.Base):
+class ProgramDetails(base.Base):
     def __init__(self, program):
-        UI.Base.__init__(self, program, "windowProgramDetails")
+        base.Base.__init__(self, program, "windowProgramDetails")
         self.editor.connect("delete-event", self.on_delete_event)
         self.set_samplerobject(program)
         

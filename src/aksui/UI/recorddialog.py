@@ -1,6 +1,6 @@
-import gobject, gtk.glade, gtk
+import gobject
 
-import UI
+import base
 
 """
 Recording interface(s)!
@@ -10,9 +10,9 @@ GOOD IDEA: Chromatic recording of samples from input, use MIDI out (play command
 General good idea: base class for these user interfaces to get rid of redundancies and facilitate new interfaces...
 """
 
-class RecordDialog(UI.Base):
+class RecordDialog(base.Base):
     def __init__(self, record):
-        UI.Base.__init__(self, record, "windowRecording")
+        base.Base.__init__(self, record, "windowRecording")
         self.progressbar = self.xml.get_widget('progressbar_recording')
         self.name = self.xml.get_widget('entry_name')
         self.record = record

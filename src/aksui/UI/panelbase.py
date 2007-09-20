@@ -1,7 +1,4 @@
-import pygtk
-pygtk.require('2.0')
-import gtk,gtk.glade,gobject
-import ak,UI
+import gtk
 
 class PanelBase(gtk.VBox):
     def __init__(self, so, title = None, set_callback = None):

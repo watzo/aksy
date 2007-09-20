@@ -1,8 +1,8 @@
-import gobject,gtk,aksy,ak
+import samplerobject
 
-class Envelope(ak.SamplerObject):
+class Envelope(samplerobject.SamplerObject):
     def __init__(self, keygroup, index, xoffset=10, yoffset=10):
-        ak.SamplerObject.__init__(self, keygroup.s, keygroup, "keygrouptools", index)
+        samplerobject.SamplerObject.__init__(self, keygroup.s, keygroup, "keygrouptools", index)
         self.keygroup_index = keygroup.index
         self.need_index_for_set = True
         self.need_index_in_arguments = True

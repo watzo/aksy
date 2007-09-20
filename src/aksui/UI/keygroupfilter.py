@@ -1,5 +1,5 @@
-import ak,UI
+import base
 
-class KeygroupFilter(UI.Base):
+class KeygroupFilter(base.Base):
     def __init__(self, keygroup):
-        UI.Base.__init__(self, keygroup, "tableFilter")
+        base.Base.__init__(self, keygroup, "tableFilter")

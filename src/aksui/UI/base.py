@@ -1,7 +1,11 @@
-import pygtk
-import inspect
-import gtk.glade, gtk
-import ak
+import gtk
+
+import os.path
+
+module_dir = os.path.abspath(os.path.split(__file__)[0])
+
+def get_glade_xml(root):
+    return gtk.glade.XML(os.path.join(module_dir, '../ak.py.glade'), root)
 
 class Base(object):
     def __init__(self, samplerobject, editor_root):
@@ -15,7 +19,7 @@ class Base(object):
 
         self.updating = False
         #print editor_root
-        self.xml = gtk.glade.XML("ak.py.glade", editor_root)
+        self.xml = get_glade_xml(editor_root)
         self.editor = self.xml.get_widget(editor_root)
         self.finish_editors()
 

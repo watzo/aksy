@@ -1,7 +1,4 @@
-import pygtk
-import gobject,gtk.glade,gtk,aksy,UI
-
-from UI.hitbox import *
+import gtk
 
 class AkWidget(gtk.DrawingArea):
     """

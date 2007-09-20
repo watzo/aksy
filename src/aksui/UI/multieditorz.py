@@ -1,6 +1,6 @@
-import gobject, gtk.glade, gtk
+import gtk
 
-import UI,ak
+import base, keygroupeditorwindow
 
 class MultiEditorWindowZ(gtk.Window):
     def __init__(self, s, m):
@@ -15,9 +15,9 @@ class MultiEditorWindowZ(gtk.Window):
         self.set_title("aksui: %s" % (m.name))
         #self.editor.setup(p)
         
-class MultiEditorZ(UI.Base):
+class MultiEditorZ(base.Base):
     def __init__(self, s, m):
-        UI.Base.__init__(self, m, "multiEditorZ")
+        base.Base.__init__(self, m, "multiEditorZ")
         self.s = m.s
-        self.multiEditorVBox = UI.MultiEditorVBox(s,m)
+        self.multiEditorVBox = keygroupeditorwindow.MultiEditorVBox(s,m)
         self.w_viewportMultis.add(self.multiEditorVBox)

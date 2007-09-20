@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import psyco
 psyco.full()
-import hotshot, hotshot.stats
+#import hotshot, hotshot.stats
 import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect
 import types
 import pygtk
@@ -10,15 +10,12 @@ import gtk,gtk.glade,gobject
 import aksy
 
 # our stuff
-import utils, postmod
 
 from ak import *
 from ak.samplerobject import *
-from main3 import *
 from UI import *
 
-from utils.modelutils import *
-from utils.midiutils import *
+from utils import midiutils, modelutils
 
 from postmod.itx import *
 
@@ -80,7 +77,7 @@ gobject.type_register(CellRendererSamplerObject)
 # build model to hold program -> keygroup -> samples
 
 
-class MainProgramsWindow(Main3Window):
+class MainProgramsWindow(MainWindow):
     def __init__(self, z48):
         gtk.Window.__init__(self)
         self.set_title("ak.py")
@@ -267,9 +264,9 @@ class MainProgramsWindow(Main3Window):
         if len(s.multis) == 0:
             print "No multis..."
 
-        setattr(s,'samplesmodel',get_model_from_list(s.samples, True))
-        setattr(s,'programsmodel',get_model_from_list(s.programs))
-        setattr(s,'multismodel',get_model_from_list(s.multis))
+        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
+        setattr(s,'multismodel', modelutils.get_model_from_list(s.multis))
 
     def on_configure_event(self, widget, event):
         return False

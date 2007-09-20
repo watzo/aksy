@@ -7,11 +7,10 @@ from distutils.command.build_ext import build_ext
 import platform, os.path
 
 # macros= [("_DEBUG", 0), ('AKSY_DEBUG', '1')]
-macros= [("AKSY_DEBUG", 1)]
+macros= [("AKSY_DEBUG", 0)]
 
 def customize_for_platform(ext, compiler_type):
     ext.libraries = ['usb']
-    print compiler_type
 
     # Windows 
     if platform.system() == "Windows":
@@ -41,19 +40,28 @@ class build_akyx(build_ext):
         customize_for_platform(ext, self.compiler.compiler_type)
         build_ext.build_extension(self, ext)
         
-setup(name = "aksy", 
-      version = "0.3-SNAPSHOT", 
-      author = "Walco van Loon", 
-      author_email = "walco at n--tree.net", 
-      package_dir= {'': 'src'}, 
-      packages= [
+aksy_packages = [
           'aksy', 'aksyosc', 'aksy.devices', 
           'aksy.devices.akai', 
           'aksy.devices.akai.mock_z48', 
           'aksy.devices.akai.z48', 
-          'aksy.devices.akai.s56k' ], 
+          'aksy.devices.akai.s56k']
+
+aksui_packages = ['aksui', 'aksui.UI', 'aksui.ak', 'aksui.utils', 'aksui.postmod']
+
+all_packages = []
+all_packages.extend(aksy_packages)
+all_packages.extend(aksui_packages)
+
+setup(name = "aksy", 
+      version = "0.3-SNAPSHOT", 
+      author = "Walco van Loon", 
+      author_email = "walco at n--tree.net", 
+      package_dir = {'': 'src'}, 
+      packages = all_packages, 
+      package_data = {'aksui': ['ak.py.glade']},
       url = 'http://walco.n--tree.net/projects/aksy', 
-      scripts=['examples/aksy-get.py', 'examples/aksy-put.py', 'src/aksyfuse/aksyfs.py'],
+      scripts = ['examples/aksy-get.py', 'examples/aksy-put.py', 'src/aksyfuse/aksy-fs.py', 'src/aksui/aksy-ui.py'],
       ext_modules = [
           Extension("aksyx",
               sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c",],

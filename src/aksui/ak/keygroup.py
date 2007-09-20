@@ -1,8 +1,8 @@
-import ak, utils
+import samplerobject, zone, envelope
 
-class Keygroup(ak.SamplerObject):
+class Keygroup(samplerobject.SamplerObject):
     def __init__(self, program, index):
-        ak.SamplerObject.__init__(self, program.s, None, "keygrouptools")
+        samplerobject.SamplerObject.__init__(self, program.s, None, "keygrouptools")
         self.current_mod_source_index = 11
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
         self.attrs_minimal = ["low_note", "high_note"]
@@ -23,11 +23,11 @@ class Keygroup(ak.SamplerObject):
 
         self.filter_attributes = ['filter', 'filter_cutoff', 'filter_resonance']
 
-        self.amp_envelope = ak.Envelope(self, 0)
-        self.filter_envelope = ak.Envelope(self, 1)
-        self.aux_envelope = ak.Envelope(self, 2)
+        self.amp_envelope = envelope.Envelope(self, 0)
+        self.filter_envelope = envelope.Envelope(self, 1)
+        self.aux_envelope = envelope.Envelope(self, 2)
 
-        self.zones = [ak.Zone(self, 1), ak.Zone(self, 2), ak.Zone(self, 3), ak.Zone(self, 4)]
+        self.zones = [zone.Zone(self, 1), zone.Zone(self, 2), zone.Zone(self, 3), zone.Zone(self, 4)]
         self.mod_matrix = self.p.get_matrix(self.index + 1)
         
         self.precache()

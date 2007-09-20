@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-from utils.modelutils import *
+import modelutils
 
 # list of mpc pad -> notes, left -> right = 1 -> 16
 mpcpads = [
@@ -64,8 +63,8 @@ for oct in octaves:
         midinotes[i] = n
         i = i + 1        
 
-mpcpadsmodel = get_model_from_list(mpcpads)
-midinotesmodel = get_model_from_list(midinotes)
+mpcpadsmodel = modelutils.get_model_from_list(mpcpads)
+midinotesmodel = modelutils.get_model_from_list(midinotes)
 
 # views for drum editor
 note_orders = {

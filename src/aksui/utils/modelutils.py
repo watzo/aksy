@@ -1,4 +1,4 @@
-import gtk,gtk.gdk,pygtk,gobject
+import gtk
 
 def match_func(model, iter, data):
    column, key = data # data is a tuple containing column number, key

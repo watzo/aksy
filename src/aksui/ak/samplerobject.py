@@ -2,7 +2,7 @@
 import gtk,pygtk,gobject
 import aksy
 
-import utils
+import aksui.utils
 
 class SamplerObject(object):
     def __init__(self, s, parent, whichtools, index = None):

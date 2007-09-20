@@ -1,14 +1,1 @@
-from samplerobject import *
-from keygroup import *
-from recording import *
-from multifx import *
-from program import *
-from programs import *
-from samples import *
-from zone import *
-from envelope import *
-from multi import *
-from part import *
-from lfo import *
-from modulationmatrix import *
-from modulationpin import *
+# package

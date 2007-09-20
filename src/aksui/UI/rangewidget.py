@@ -1,20 +1,19 @@
 # Custom widgets via Cairo: Knob, Level, Range, Keygroup etc.
 
-import gobject, gtk, UI, cairo, urllib
-
-import math
-
+import math, urllib
 from urlparse import urlparse
-from urllib import *
-from UI.hitbox import *
-from UI.widget import *
-from utils.midiutils import *
-from ak import *
 
-class SliderWidget(HitBox):
+import gobject, gtk
+
+import hitbox, widget
+
+from aksui.utils import modelutils, midiutils
+from aksui.ak import *
+
+class SliderWidget(hitbox.HitBox):
     def __init__(self, min, max, w, h, value_descriptions = None, is_scaled = True, index = 0, value_offset = 0):
         # init sliders
-        UI.HitBox.__init__(self, min, 0, w, h)
+        hitbox.HitBox.__init__(self, min, 0, w, h)
         self.value_offset = value_offset
         self.index = index
         # boundaries
@@ -114,9 +113,9 @@ class SliderWidget(HitBox):
                     
                 cr.show_text(text)
 
-class AkKnobWidget(AkWidget):
+class AkKnobWidget(widget.AkWidget):
     def __init__(self, samplerobject = None, samplerobjectattr = None, min = -600, max = 60, interval = 10, units = "db", mod_destination = None):
-        AkWidget.__init__(self, samplerobject, samplerobjectattr, interval, units)
+        widget.AkWidget.__init__(self, samplerobject, samplerobjectattr, interval, units)
 
         self.connect("value-changed", self.on_value_changed)
 
@@ -348,10 +347,10 @@ class LevelKnobWidget(AkKnobWidget):
     def get_format(self):
         return '%(#).2fdb' % {"#" : self.value / self.interval}
 
-class AkRangeWidget(AkWidget):
+class AkRangeWidget(widget.AkWidget):
     def __init__(self, samplerobject = None, samplerobjectattr = None, min = 0, max = 127, multislider = True, value_offset = 0):
         # init sliders
-        AkWidget.__init__(self, samplerobject, samplerobjectattr)
+        widget.AkWidget.__init__(self, samplerobject, samplerobjectattr)
 
         self.multislider = multislider
         
@@ -514,8 +513,8 @@ class KeygroupRangeWidget(AkRangeWidget):
         self.keygroup.update()
         self.s = keygroup.s
 
-        self.sliders[0].value_descriptions = midinotes
-        self.sliders[1].value_descriptions = midinotes
+        self.sliders[0].value_descriptions = midiutils.midinotes
+        self.sliders[1].value_descriptions = midiutils.midinotes
         self.sliders[0].x = self.keygroup.low_note
         self.sliders[1].x = self.keygroup.high_note
 
@@ -536,9 +535,9 @@ class KeygroupRangeWidget(AkRangeWidget):
     def test_AkRangeWidget():
         test = tc()
 
-class MiniZoneWidget(AkWidget):
+class MiniZoneWidget(widget.AkWidget):
     def __init__(self, zone):
-        AkWidget.__init__(self, zone)
+        widget.AkWidget.__init__(self, zone)
         
         self.zone = zone
         self.zone.update()
@@ -660,7 +659,7 @@ class AkLabel(gtk.Label):
 class AkComboBox(gtk.ComboBox):
     def __init__(self, so, soattr, model, use_index = True):
         if type(model) is list:
-            model = utils.get_model_from_list(model)
+            model = modelutils.get_model_from_list(model)
 
         gtk.ComboBox.__init__(self, model)
 
@@ -711,7 +710,7 @@ class AkComboBox(gtk.ComboBox):
         self.queue_draw()
 
     def find_iter(self, value):
-        iter = search(self.somodel, self.somodel.iter_children(None), None, (0, value)) 
+        iter = modelutils.search(self.somodel, self.somodel.iter_children(None), None, (0, value)) 
         return iter
 
     def get_text(self):

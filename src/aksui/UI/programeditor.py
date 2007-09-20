@@ -1,6 +1,7 @@
 import gtk
 
-import ak, UI, utils
+import keygroupeditor, base
+from aksui.utils import modelutils
 
 class ProgramEditor:
     def __init__(self, programsEditor):
@@ -11,7 +12,7 @@ class ProgramEditor:
         self.updating = False
         self.curr_keygroup = -1
 
-        xml = gtk.glade.XML("ak.py.glade", "vboxProgramEditorOuter")
+        xml = base.get_glade_xml("vboxProgramEditorOuter")
 
         self.editor = xml.get_widget("vboxProgramEditorOuter")
         self.statusbar = xml.get_widget("statusbar")
@@ -20,7 +21,7 @@ class ProgramEditor:
         self.combo_curr_keygroup = xml.get_widget("combo_curr_keygroup")
         xml.signal_autoconnect(self)
 
-        self.xml = gtk.glade.XML("ak.py.glade", "tableProgramDetails")
+        self.xml = base.get_glade_xml("tableProgramDetails")
         self.programDetails = self.xml.get_widget("tableProgramDetails")
         self.detailsWindow.add(self.programDetails)
 
@@ -28,7 +29,7 @@ class ProgramEditor:
 
         self.xml.signal_autoconnect(self)
         self.s.on_execute = self.on_execute
-        self.keygroupEditor = UI.KeygroupEditor(self.p,0)
+        self.keygroupEditor = keygroupeditor.KeygroupEditor(self.p,0)
         self.viewportKeygroupEditor.add(self.keygroupEditor.editor)
         self.update()
 
@@ -38,9 +39,9 @@ class ProgramEditor:
 
     def update_combo_curr_keygroup(self):
         keygrouplist = [i for i in range(self.s.programtools.get_no_keygroups())]
-        self.keygroupmodel = utils.get_model_from_list(keygrouplist)
+        self.keygroupmodel = modelutils.get_model_from_list(keygrouplist)
         self.combo_curr_keygroup.set_model(self.keygroupmodel)
-        iter = utils.search(self.keygroupmodel, self.keygroupmodel.iter_children(None), None, (0, str(self.curr_keygroup) ))
+        iter = modelutils.search(self.keygroupmodel, self.keygroupmodel.iter_children(None), None, (0, str(self.curr_keygroup) ))
         if iter:
             self.updating = True
             self.combo_curr_keygroup.set_active_iter(iter)

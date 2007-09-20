@@ -1,6 +1,4 @@
 import gtk
-import pygtk
-from utils.midiutils import *
 
 class HitBox:
     def __init__(self,x,y,w,h):

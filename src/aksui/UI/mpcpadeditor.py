@@ -1,10 +1,3 @@
-import pygtk
-import gobject,gtk.glade,gtk
-
-from ak.program import *
-from ak.zone import *
-from ak.keygroup import *
-
 """
 This should give 4 dropdowns per pad w/ a ... browser.
 

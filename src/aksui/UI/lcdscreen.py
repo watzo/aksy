@@ -1,6 +1,6 @@
 import gtk
 
-from utils.modelutils import *
+# from aksui.utils.modelutils import *
 
 LCD_PIXELS_WIDTH = 248
 LCD_PIXELS_HEIGHT = 60

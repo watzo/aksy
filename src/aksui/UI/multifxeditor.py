@@ -1,7 +1,7 @@
-import gtk,gtk.gdk,pygtk,gobject
+import gtk
 
-from ak.multifx import *
-from utils.modelutils import *
+# XXX seems unused except for multifx?
+from aksui.ak.multifx import *
 
 class MultiFXChannelEditor(gtk.VBox):
     def __init__(self,mMultiFXChannelEditor):

@@ -1,7 +1,7 @@
-import pygtk
-pygtk.require('2.0')
-import gtk,gtk.glade,gobject
-import ak,UI
+import gtk
+
+import panelbase, rangewidget
+from aksui.ak import modulationmatrix
 
 """
     sources      = ['NONE','MODWHEEL','BEND UP','BEND DOWN',
@@ -29,7 +29,7 @@ import ak,UI
                     'ZONE 4 LEVEL',   'ZONE 4 PAN',   'ZONE 4 PITCH',   'ZONE 4 START', 'ZONE 4 FILTER']
 """
 
-class ModMatrix(UI.PanelBase):
+class ModMatrix(panelbase.PanelBase):
     def __init__(self, so, cb, sources = ['MODWHEEL', 'BIPOLAR VELOCITY', 'AMP ENV', 'FILTER ENV', 'AUX ENV', 'LFO1', 'LFO2', '*MODWHEEL', '*LFO1', '*LFO2'], destinations = ['AMPLITUDE', 'PAN', 'PITCH', 'CUTOFF', 'RESONANCE', 'ZONE CROSSFADE', 'AMP ENV ATTACK', 'AMP ENV DECAY', 'AMP ENV RELEASE', 'LFO1 RATE', 'LFO1 DEPTH', 'LFO1 DELAY', 'LFO1 PHASE', 'LFO1 OFFSET', 'LFO2 RATE', 'LFO2 DEPTH', 'LFO2 DELAY', 'LFO2 PHASE','LFO2 OFFSET']):
         # doing this by mod source/dest name because it's easier to read, probably would be slightly faster if it used index # 
         assert sources != None
@@ -38,7 +38,7 @@ class ModMatrix(UI.PanelBase):
         self.sources = sources
         self.destinations = destinations
 
-        UI.PanelBase.__init__(self, so, "Modulation Matrix", cb)
+        panelbase.PanelBase.__init__(self, so, "Modulation Matrix", cb)
 
         self.setup(so)
 
@@ -60,7 +60,7 @@ class ModMatrix(UI.PanelBase):
 
         for dest in self.destinations:
             i = self.destinations.index(dest)
-            dest_index = ak.ModulationMatrix.destinations.index(dest)
+            dest_index = modulationmatrix.ModulationMatrix.destinations.index(dest)
 
             dest_label = gtk.Label("<span size='smaller'>%s</span>" % dest)
             dest_label.set_use_markup(True)
@@ -68,9 +68,9 @@ class ModMatrix(UI.PanelBase):
 
             for source in self.sources:
                 j = self.sources.index(source)
-                source_index = ak.ModulationMatrix.sources.index(source)
+                source_index = modulationmatrix.ModulationMatrix.sources.index(source)
                 mod_name = "MOD_%d_%d" % (source_index, dest_index)
-                mod_knob = UI.AkKnobWidget(self.so, mod_name, 0, 100, 1, "") # filter env to res
+                mod_knob = rangewidget.AkKnobWidget(self.so, mod_name, 0, 100, 1, "") # filter env to res
                 t.attach(mod_knob, j + 1, j + 2, i + 1, i + 2, False, False) 
 
         self.pack_start(t, False, False, 1)

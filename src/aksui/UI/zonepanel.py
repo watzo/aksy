@@ -1,14 +1,13 @@
-import pygtk
-pygtk.require('2.0')
 import gtk
-import os
+import os.path
 
-import UI,ak,utils
+import panelbase, rangewidget
+from aksui.utils import midiutils
 
-class ZonePanel(UI.PanelBase):
+class ZonePanel(panelbase.PanelBase):
     def __init__(self,kg,cb):
         self.dnd_list = [ ( 'text/uri-list', 0, 80 ) ] 
-        UI.PanelBase.__init__(self,kg,"Zones",cb)
+        panelbase.PanelBase.__init__(self,kg,"Zones",cb)
         
 
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp, kg, zone_index, cb):
@@ -38,19 +37,19 @@ class ZonePanel(UI.PanelBase):
 
             #zonewidget = AkComboBox(zone, "sample", z48.samplesmodel)
             zonehbox = gtk.HBox()
-            self.sample_combos.append(UI.AkComboBox(zone, "sample", self.s.samplesmodel, False))
+            self.sample_combos.append(rangewidget.AkComboBox(zone, "sample", self.s.samplesmodel, False))
             zonecombos = [
                 self.sample_combos[j],
-# TODO:                UI.AkComboBox(zone, "output", utils.sampler_lists["output"]),
-# TODO:                UI.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
-                UI.AkComboBox(zone, "playback", utils.sampler_lists["playback_b"])
+# TODO:                rangewidget.AkComboBox(zone, "output", utils.sampler_lists["output"]),
+# TODO:                rangewidget.AkComboBox(zone, "keyboard_track", utils.sampler_lists["keyboard_track"]),
+                rangewidget.AkComboBox(zone, "playback", midiutils.sampler_lists["playback_b"])
                 ]
             zoneknobs = [
-                UI.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
-                UI.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
-                UI.AkKnobWidget(zone, "filter", -100, 100, 1, ""),
-                UI.AkKnobWidget(zone, "mod_start", -9999, 9999, 1, ""),
-                UI.AkKnobWidget(zone, "tune", -3600, 3600, 100, ""),
+                rangewidget.AkKnobWidget(zone, "level", -600, 60, 10, "db"),
+                rangewidget.AkKnobWidget(zone, "pan", 0, 100, 1, ""),
+                rangewidget.AkKnobWidget(zone, "filter", -100, 100, 1, ""),
+                rangewidget.AkKnobWidget(zone, "mod_start", -9999, 9999, 1, ""),
+                rangewidget.AkKnobWidget(zone, "tune", -3600, 3600, 100, ""),
                 ]
 
             for zonecombo in zonecombos:

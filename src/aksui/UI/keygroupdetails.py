@@ -1,5 +1,5 @@
-import ak,UI
+import base
 
-class KeygroupDetails(UI.Base):
+class KeygroupDetails(base.Base):
     def __init__(self, keygroup):
-        UI.Base.__init__(self, keygroup, "tableKeygroupDetails")
+        base.Base.__init__(self, keygroup, "tableKeygroupDetails")

@@ -1,15 +1,18 @@
 import gtk.glade, gtk
-import ak, UI, utils
+
+from aksui.ak import programs
+from aksui.utils import modelutils
+import programeditor, base
 
 class ProgramsEditor:
     def __init__(self, s):
         # sampler instance
         self.s = s
-        self.programs = ak.Programs(s)
+        self.programs = programs.Programs(s)
         self.programdict = { }
         self.updating = False
 
-        self.xml = gtk.glade.XML("ak.py.glade", "programsMain")
+        self.xml = base.get_glade_xml("programsMain")
 
         self.programsMain = self.xml.get_widget("programsMain")
         self.programsMainVBox = self.xml.get_widget("programsMainVBox")
@@ -38,12 +41,12 @@ class ProgramsEditor:
         self.currProgram = self.programs.getProgram(programname)
         if self.programEditor:
             self.programsMainVBox.remove(self.programEditor.editor)
-        self.programEditor = UI.ProgramEditor(self)
+        self.programEditor = programeditor.ProgramEditor(self)
         self.programsMainVBox.pack_start(self.programEditor.editor)
 
         self.updating = True
         model = self.comboPrograms.get_model()
-        iter = utils.search(model, model.iter_children(None), None, (0, programname))
+        iter = modelutils.search(model, model.iter_children(None), None, (0, programname))
         if type(iter) is gtk.TreeIter:
             self.comboPrograms.set_active_iter(iter)
         else:
@@ -57,13 +60,13 @@ class ProgramsEditor:
 
     def on_buttonUpdate_clicked(self, w):
         setattr(self.s, 'programs', self.s.programtools.get_names())
-        setattr(self.s, 'programsmodel', utils.get_model_from_list(self.s.programs))
+        setattr(self.s, 'programsmodel', modelutils.get_model_from_list(self.s.programs))
         self.updateProgramList()
         if self.programEditor:
             self.programEditor.update()
         
     def addEditor(self, programName):
-        self.editor = ProgramEditor(self.s, programName)
+        self.editor = programeditor.ProgramEditor(self.s, programName)
         self.programsMainVBox.add(self.editor)
 
     def updateProgramList(self):

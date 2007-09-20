@@ -3,13 +3,11 @@ import pygtk
 import inspect
 import gobject,gtk.glade,gtk,aksy
 import urllib 
-import main
 from aksy.devices.akai import fileparser
 import aksy.fileutils
-
-from postmod.itx import *
-
-import ak, utils
+from aksui.utils import modelutils
+# TODO: is this still needed?
+from aksui.postmod.itx import *
 
 def get_file_path_from_dnd_dropped_uri(uri):
     path = uri.strip('\r\n\x00') # remove \r\n and NULL
@@ -138,7 +136,7 @@ class FileChooser:
 
         for exported_file in exported_files:
             resampled_path = os.path.dirname(exported_file)
-            resampled_name = utils.sox.convert(exported_file)
+            resampled_name = sox.convert(exported_file)
             result.append(resampled_name)
                 
             """
@@ -183,9 +181,9 @@ class FileChooser:
         setattr(s, 'programs', s.programtools.get_names())
         setattr(s, 'multis', s.multitools.get_names())
 
-        setattr(s, 'samplesmodel', utils.get_model_from_list(s.samples, True))
-        setattr(s, 'programsmodel', utils.get_model_from_list(s.programs))
-        setattr(s, 'multismodel', utils.get_model_from_list(s.multis))
+        setattr(s, 'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s, 'programsmodel', modelutils.get_model_from_list(s.programs))
+        setattr(s, 'multismodel', modelutils.get_model_from_list(s.multis))
         
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
         if target_type == 80: # TARGET_TYPE_URI_LIST

@@ -1,5 +1,4 @@
-from aksy.device import Devices
-from utils.modelutils import *
+from aksui.utils import modelutils
 
 class MultiFX:
     fxlist = [ 'NO EFFECT', 'CHORUS>MONO', 'CHORUS>STEREO', 'CHORUS>XOVER', 'CHORUS+DELAY', 'COMPRESSOR/LIMITER', 'DELAY>MONO', 'DELAY>MULTI TAP', 'DELAY>PAN', 'DELAY>PING PONG', 'DELAY>STEREO', 'DELAY>XOVER', 'DIGITAL EQ', 'DISTORTION', 'ENHANCER', 'EXPANDER', 'FLANGER>MONO', 'FLANGER>PAN', 'FLANGER>STEREO', 'FLANGER>XOVER', 'FLANGER+DELAY', 'NOISE GATE', 'PAN>AUTO PAN', 'PAN>TRIGGER PAN', 'PHASER>MONO', 'PHASER>PAN', 'PHASER>STEREO', 'PHASER>XOVER', 'PHASER+DELAY', 'PITCH CORRECTOR', 'PITCH SHIFTER', 'REVERB>AUDITORIUM', 'REVERB>BIG HALL', 'REVERB>BIG ROOM', 'REVERB>BRIGHT HALL', 'REVERB>DRUM BOOTH', 'REVERB>LIVE HOUSE', 'REVERB>MEDIUM HALL', 'REVERB>MEDIUM ROOM', 'REVERB>NON LINEAR', 'REVERB>PLATE 1', 'REVERB>PLATE 2', 'REVERB>REVERSE', 'REVERB>SMALL HALL', 'REVERB>SMALL ROOM', 'REVERB>STUDIO', 'REVERB>THEATER', 'REVERB>VOCAL PLATE', 'REVERB>WAREHOUSE', 'ROTARY SPEAKER', 'TAPE ECHO', 'WAH>AUTO WAH', 'WAH>TOUCH WAH' ]
@@ -190,6 +189,6 @@ class MultiFXParam:
         for attr in attrs:
             print '\t\tParam ',self.index,' :',attr,' = ',getattr(self,attr)
 
-inputmapmodel = get_model_from_list(MultiFXChannel.inputmap)
-outputmapmodel = get_model_from_list(MultiFXChannel.outputmap)
-effectmodel = get_model_from_list(MultiFX.fxlist)
+inputmapmodel = modelutils.get_model_from_list(MultiFXChannel.inputmap)
+outputmapmodel = modelutils.get_model_from_list(MultiFXChannel.outputmap)
+effectmodel = modelutils.get_model_from_list(MultiFX.fxlist)

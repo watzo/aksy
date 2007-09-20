@@ -1,12 +1,11 @@
-import pygtk
-pygtk.require('2.0')
 import gtk
 
-import UI,ak,utils
+import panelbase, rangewidget
+from aksui.utils import midiutils
 
-class FilterPanel(UI.PanelBase):
+class FilterPanel(panelbase.PanelBase):
     def __init__(self,kg,cb):
-        UI.PanelBase.__init__(self,kg,"Filter",cb)
+        panelbase.PanelBase.__init__(self,kg,"Filter",cb)
         
     def setup(self, kg):
         self.clear_children(True)
@@ -18,12 +17,12 @@ class FilterPanel(UI.PanelBase):
         hbox = gtk.HBox()
 
         controls = [
-            UI.AkComboBox(kg, "filter", utils.sampler_lists["filter"]),
-            UI.AkComboBox(kg, "filter_attenuation", utils.sampler_lists["filter_attenuation"]),
+            rangewidget.AkComboBox(kg, "filter", midiutils.sampler_lists["filter"]),
+            rangewidget.AkComboBox(kg, "filter_attenuation", midiutils.sampler_lists["filter_attenuation"]),
             ]
         controls_b = [
-            UI.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), 
-            UI.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""),
+            rangewidget.AkKnobWidget(kg, "filter_cutoff", 0, 100, 1, ""), 
+            rangewidget.AkKnobWidget(kg, "filter_resonance", 0, 100, 1, ""),
             ]
 
         for control in controls:

@@ -1,10 +1,11 @@
-import gtk,pygtk
+import gtk
 
-import ak,UI
+import base, zoneeditor, keygroupdetails, keygroupfilter, keygroupenvelope
+from aksui.ak import keygroup
 
-class KeygroupEditor(UI.Base):
+class KeygroupEditor(base.Base):
     def __init__(self, program, index):
-        UI.Base.__init__(self, None, "notebookKeygroup")
+        base.Base.__init__(self, None, "notebookKeygroup")
 
         self.s = program.s
         self.p = program
@@ -32,10 +33,10 @@ class KeygroupEditor(UI.Base):
 
     def init_zones(self):
         if not self.zonesInitialized:
-            self.zone1 = UI.ZoneEditor(self.keygroup.zones[0])
-            self.zone2 = UI.ZoneEditor(self.keygroup.zones[1])
-            self.zone3 = UI.ZoneEditor(self.keygroup.zones[2])
-            self.zone4 = UI.ZoneEditor(self.keygroup.zones[3])
+            self.zone1 = zoneeditor.ZoneEditor(self.keygroup.zones[0])
+            self.zone2 = zoneeditor.ZoneEditor(self.keygroup.zones[1])
+            self.zone3 = zoneeditor.ZoneEditor(self.keygroup.zones[2])
+            self.zone4 = zoneeditor.ZoneEditor(self.keygroup.zones[3])
             self.w_tableZones.attach(self.zone1.editor,0,1,0,1)
             self.w_tableZones.attach(self.zone2.editor,1,2,0,1)
             self.w_tableZones.attach(self.zone3.editor,2,3,0,1)
@@ -45,20 +46,20 @@ class KeygroupEditor(UI.Base):
 
     def set_keygroup(self, index):
         if index >= 0:
-            self.keygroup = ak.Keygroup(self.p, index)
+            self.keygroup = keygroup.Keygroup(self.p, index)
 
             if self.filter:
                 self.w_expanderKeygroupFilter.remove(self.filter.editor)
             if self.details:
                 self.w_expanderKeygroupDetails.remove(self.details.editor)
 
-            self.details = UI.KeygroupDetails(self.keygroup)
-            self.filter = UI.KeygroupFilter(self.keygroup)
-            self.envelopes = UI.KeygroupEnvelopes(self.keygroup)
+            self.details = keygroupdetails.KeygroupDetails(self.keygroup)
+            self.filter = keygroupfilter.KeygroupFilter(self.keygroup)
+            self.envelopes = keygroupenvelope.KeygroupEnvelopes(self.keygroup, None)
 
             self.w_expanderKeygroupFilter.add(self.filter.editor)
             self.w_expanderKeygroupDetails.add(self.details.editor)
-
+            # XXX this is currently broken; need to pass in index here
             self.envelopes.update_env('ampenv', self.keygroup.amp_envelope)
             self.envelopes.update_env('filtenv', self.keygroup.filter_envelope)
             self.envelopes.update_env('auxenv', self.keygroup.aux_envelope)

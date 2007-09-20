@@ -1,7 +1,3 @@
-from aksy.device import Devices
-from utils.modelutils import *
-
-allsamples = { }
 
 class Samples:
     def __init__(self,s):

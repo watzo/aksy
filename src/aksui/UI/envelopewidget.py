@@ -1,6 +1,7 @@
-import ak, UI
-import gobject, gtk.glade, gtk, aksy
-import pygtk
+from aksui.ak import envelope
+import hitbox
+
+import gtk
 
 class EnvelopeWidget(gtk.DrawingArea):
     def __init__(self, kg, index):
@@ -26,7 +27,7 @@ class EnvelopeWidget(gtk.DrawingArea):
         self.kg = kg
         self.index = index
 
-        self.envelope = ak.Envelope(kg, index)
+        self.envelope = envelope.Envelope(kg, index)
 
         self.queue_draw()
 
@@ -36,7 +37,7 @@ class EnvelopeWidget(gtk.DrawingArea):
             points = self.getPoints()
 
             for x, y in points:
-                hb = UI.HitBox(x-5, y-5, 10, 10)
+                hb = hitbox.HitBox(x-5, y-5, 10, 10)
                 pindex = points.index([x, y])
 
                 if hb.point_in(event.x, event.y) or pindex == self.dragging:

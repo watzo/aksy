@@ -10,16 +10,13 @@ except ImportError:
 import pygtk
 pygtk.require('2.0')
 import gtk
-import aksy
-import shutil
 
 # our stuff
-import ak, UI, utils, postmod
-
-from utils import *
-
-from postmod.itx import *
-
+from aksui import postmod
+from aksui.utils import midiutils, modelutils, sox
+from aksui.ak import multi, recording, program, keygroup
+from aksui.UI import base, filechooser, multieditorz, programseditor, keygroupeditorz, lcdscreen, recorddialog
+from aksui.UI import programdetails 
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
@@ -65,12 +62,12 @@ def exceptionHandler(type, value, tback):
     return 0
 
 
-class DialogCreateNewKeygroups(UI.Base):
+class DialogCreateNewKeygroups(base.Base):
     def __init__(self, parent):
         self.s = parent.s
         self.programname = None
 
-        UI.Base.__init__(self, None, "dialogCreateNewKeygroups")
+        base.Base.__init__(self, None, "dialogCreateNewKeygroups")
 
     def on_cancelbutton_clicked(self, widget):
         self.editor.response(gtk.RESPONSE_CANCEL)
@@ -89,24 +86,24 @@ class DialogCreateNewKeygroups(UI.Base):
 
         self.w_label_create_new.set_label("Create new keygroups on: " + caption_name)
 
-class DialogCreateNewProgramFast(UI.Base):
+class DialogCreateNewProgramFast(base.Base):
     def __init__(self, parent):
         self.s = parent.s
         self.programname = None
 
-        UI.Base.__init__(self, None, "dialogCreateNewProgramFast")
+        base.Base.__init__(self, None, "dialogCreateNewProgramFast")
     
-class SamplesContextMenu(UI.Base):
+class SamplesContextMenu(base.Base):
     """Context menu for the "samples" TreeView
     """
     def __init__(self, main):
         self.s = main.s
         self.main = main
 
-        UI.Base.__init__(self, None, "menuSamples")
+        base.Base.__init__(self, None, "menuSamples")
 
         self.dialogCreateNewProgramFast = DialogCreateNewProgramFast(self)
-        self.dialogCreateNewProgramFast.w_combo_starting_note.set_model(midinotesmodel)
+        self.dialogCreateNewProgramFast.w_combo_starting_note.set_model(midiutils.midinotesmodel)
         self.dialogCreateNewProgramFast.w_combo_starting_note.set_active(0)
 
     def on_delete_sample_activate(self, widget):
@@ -186,14 +183,14 @@ class SamplesContextMenu(UI.Base):
 
         self.dialogCreateNewProgramFast.editor.hide()
 
-class ProgramsContextMenu(UI.Base):
+class ProgramsContextMenu(base.Base):
     """Context menu for the "programs" TreeView
     """
     def __init__(self, main):
         self.s = main.s
         self.main = main
 
-        UI.Base.__init__(self, None, "menuPrograms")
+        base.Base.__init__(self, None, "menuPrograms")
 
         self.dialogCreateNewKeygroups = DialogCreateNewKeygroups(self)
 
@@ -202,7 +199,7 @@ class ProgramsContextMenu(UI.Base):
         
         for programname in programnames:
             print "Duplicating", programname
-            p = ak.Program(self.s,programname)
+            p = program.Program(self.s,programname)
             dupe = p.copy("Copy " + programname)
             print "Success?", dupe.name
         
@@ -221,7 +218,7 @@ class ProgramsContextMenu(UI.Base):
 
             for pn in programname:
                 self.main.log("Adding %d keygroups to %s" % (howmany, pn))
-                self.program = ak.Program(self.s,pn)
+                self.program = program.Program(self.s,pn)
                 self.program.gettools().add_keygroups(howmany)
 
     def on_program_properties_activate(self, widget):
@@ -237,8 +234,8 @@ class ProgramsContextMenu(UI.Base):
             programname = [programname,]
         
         for pn in programname:
-            program = ak.Program(self.s,pn)
-            program.init_recycled()
+            p = program.Program(self.s,pn)
+            p.init_recycled()
             
     def on_dump_matrix(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
@@ -246,8 +243,8 @@ class ProgramsContextMenu(UI.Base):
             programname = [programname,]
 
         for pn in programname:
-            program = ak.Program(self.s,pn)
-            matrix = program.dump_matrix()
+            p = program.Program(self.s,pn)
+            matrix = p.dump_matrix()
             self.main.log(matrix)
 
     def on_keygroup_editor_activate(self, widget):
@@ -260,7 +257,7 @@ class ProgramsContextMenu(UI.Base):
     def on_set_current_program_activate(self, widget):
         print "set current program"
 
-class Main(UI.Base):
+class Main(base.Base):
     """Main Window
     """
     def __init__(self, s):
@@ -269,9 +266,9 @@ class Main(UI.Base):
         self.kgeditwindow = None
         self.multieditwindow = None
         self.program_details_window = None
-        UI.Base.__init__(self, None, "vboxMain")
+        base.Base.__init__(self, None, "vboxMain")
 
-        setattr(self.s,'FileChooser', UI.FileChooser(s))
+        setattr(self.s,'FileChooser', filechooser.FileChooser(s))
         
         self.treeviews = [self.w_treeview_programs, self.w_treeview_multis, self.w_treeview_samples]
         for tv in self.treeviews:
@@ -289,8 +286,8 @@ class Main(UI.Base):
         
         self.init_lists()
 
-        self.programsEditor = UI.ProgramsEditor(self.s)
-        self.record = UI.RecordDialog(ak.Recording(self.s))
+        self.programsEditor = programseditor.ProgramsEditor(self.s)
+        self.record = recorddialog.RecordDialog(recording.Recording(self.s))
 
         self.on_update_models(None)
         
@@ -302,9 +299,9 @@ class Main(UI.Base):
         setattr(s,'programs',s.programtools.get_names())
         setattr(s,'multis',s.multitools.get_names())
 
-        setattr(s,'samplesmodel',utils.get_model_from_list(s.samples, True))
-        setattr(s,'programsmodel',utils.get_model_from_list(s.programs))
-        setattr(s,'multismodel',utils.get_model_from_list(s.multis))
+        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
+        setattr(s,'multismodel', modelutils.get_model_from_list(s.multis))
 
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
         self.s.FileChooser.on_drag_data_received(widget, context, x, y, selection, target_type, timestamp)
@@ -344,18 +341,18 @@ class Main(UI.Base):
             
     def open_multi_editor(self, multiname):
         if multiname:
-            m = ak.Multi(self.s,multiname)
+            m = multi.Multi(self.s,multiname)
             if not self.multieditwindow:
-                self.multieditwindow = UI.MultiEditorWindowZ(self.s, m)
+                self.multieditwindow = multieditorz.MultiEditorWindowZ(self.s, m)
             else:
                 self.multieditwindow.setup(m)
             self.multieditwindow.show_all()
                 
     def open_keygroup_editor(self, programname):
         if programname:
-            p = ak.Program(self.s,programname)
+            p = program.Program(self.s,programname)
             if not self.kgeditwindow:
-                self.kgeditwindow = UI.KeygroupEditorWindowZ(self.s, p)
+                self.kgeditwindow = keygroupeditorz.KeygroupEditorWindowZ(self.s, p)
             else:
                 self.kgeditwindow.setup(p)
             self.kgeditwindow.show_all()
@@ -377,10 +374,10 @@ class Main(UI.Base):
         return programname
 
     def open_program_properties(self, programname):
-        p = ak.Program(self.s, programname)
+        p = program.Program(self.s, programname)
         
         if not self.program_details_window:
-            self.program_details_window = UI.ProgramDetails(p)
+            self.program_details_window = programdetails.ProgramDetails(p)
         else:
             self.program_details_window.set_samplerobject(p)
         
@@ -397,8 +394,8 @@ class Main(UI.Base):
     def on_run_tests_activate(self, button):
         # i didn't realize the keygroup index was accounted for there
         handle = self.s.programtools.get_handle_by_name("Program 1")
-        p = ak.Program(self.s,"Program 1")
-        kg = ak.Keygroup(p,0)
+        p = program.Program(self.s,"Program 1")
+        kg = keygroup.Keygroup(p,0)
         kg.precache()
         print kg.attrscache
         
@@ -439,7 +436,7 @@ class Main(UI.Base):
         return False
 
     def on_lcd_activate(self, button):
-        lcd = UI.LCDScreen(self.s)
+        lcd = lcdscreen.LCDScreen(self.s)
         win = gtk.Window()
         win.add(lcd)
         win.show_all()
@@ -484,7 +481,7 @@ class Main(UI.Base):
     def test_programsEditor():
         z48 = Devices.get_instance("z48", "usb")
         Main.do_lists(z48)
-        programsEditor = UI.ProgramsEditor(z48)
+        programsEditor = programseditor.ProgramsEditor(z48)
         programsEditor.programsMain.show_all()
         programsEditor.programsMain.connect("delete-event", gtk.main_quit)
         gtk.main()

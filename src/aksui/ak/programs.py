@@ -1,4 +1,5 @@
-import ak, utils
+from aksui.utils import modelutils
+import program
 
 class Programs:
     programtypes = {0:"Keygroup", 1:"Drum"}
@@ -22,15 +23,15 @@ class Programs:
             self.programdict[self.handles_names[i]] = self.handles_names[i+1]
             i += 2
 
-        self.programsmodel = utils.get_model_from_list(self.programdict)
-        self.programtypesmodel = utils.get_model_from_list(Programs.programtypes)
+        self.programsmodel = modelutils.get_model_from_list(self.programdict)
+        self.programtypesmodel = modelutils.get_model_from_list(Programs.programtypes)
 
     def getCurr(self):
         if self.curr_handle in self.programdict:
-            return ak.Program(self.s, self.programdict[self.curr_handle])
+            return program.Program(self.s, self.programdict[self.curr_handle])
         else:
             return None
     
     def getProgram(self, name):
-        return ak.Program(self.s, name)
+        return program.Program(self.s, name)
 

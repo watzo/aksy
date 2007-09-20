@@ -1,9 +1,8 @@
-from aksy.device import Devices
-import ak, utils
+import samplerobject
 
-class Zone(ak.SamplerObject):
+class Zone(samplerobject.SamplerObject):
     def __init__(self, kg, index):
-        ak.SamplerObject.__init__(self, kg.s, kg, "zonetools", index)
+        samplerobject.SamplerObject.__init__(self, kg.s, kg, "zonetools", index)
         self.samples = kg.samples
         self.keygroup = kg
         self.specialattrs = ["sample",]

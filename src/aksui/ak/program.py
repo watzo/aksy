@@ -1,9 +1,8 @@
-from aksy.device import Devices
-import ak,utils
+import samplerobject, program, keygroup, modulationmatrix, modulationpin
 
-class Program(ak.SamplerObject):
+class Program(samplerobject.SamplerObject):
     def __init__(self, s, name, handle = None):
-        ak.SamplerObject.__init__(self,s,None,"programtools")
+        samplerobject.SamplerObject.__init__(self,s,None,"programtools")
 
         self.name = name
         if handle:
@@ -32,7 +31,7 @@ class Program(ak.SamplerObject):
         tools = self.gettools()
         tools.set_curr_by_name(self.name)
         tools.copy_program(destination_name)
-        return ak.Program(self.s,destination_name)
+        return program.Program(self.s,destination_name)
         
     def init_recycled(self):
         # ultimately this should be a plugin or something, but for now...
@@ -46,7 +45,7 @@ class Program(ak.SamplerObject):
         keygroups = []
 
         for i in range(self.no_keygroups):
-            keygroups.append(ak.Keygroup(self,i))
+            keygroups.append(keygroup.Keygroup(self,i))
 
         return keygroups
 
@@ -67,7 +66,7 @@ class Program(ak.SamplerObject):
         for c in conns:
             c = conns[c]
             if c.source > 0:
-                result.append("%d. %s => %s = %d" % (c.pin_index, ak.ModulationMatrix.sources[c.source], ak.ModulationMatrix.destinations[c.dest], c.level))
+                result.append("%d. %s => %s = %d" % (c.pin_index, modulationmatrix.ModulationMatrix.sources[c.source], modulationmatrix.ModulationMatrix.destinations[c.dest], c.level))
                 
         return '\n'.join(result)
     
@@ -79,7 +78,7 @@ class Program(ak.SamplerObject):
 
         for i in range(n):
             conn = self.s.programtools.get_modulation_connection(i, kg)
-            conns[i] = ak.ModulationPin(self.s, i, conn[0], conn[1], conn[2], kg)
+            conns[i] = modulationpin.ModulationPin(self.s, i, conn[0], conn[1], conn[2], kg)
             c = conns[i]
             
         return conns

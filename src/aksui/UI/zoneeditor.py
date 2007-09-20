@@ -1,16 +1,8 @@
-import os,os.path,re,logging,sys,struct,math,traceback
-import pygtk
-import inspect
-import gobject,gtk.glade,gtk,aksy
+import base
 
-import UI
-
-from ak.zone import *
-from utils import *
-
-class ZoneEditor(UI.Base):
+class ZoneEditor(base.Base):
     def __init__(self, zone):
-        UI.Base.__init__(self, zone, "zoneTable")
+        base.Base.__init__(self, zone, "zoneTable")
 
         self.combo_sample = self.xml.get_widget("combo_sample")
         self.s.samplesmodel.connect("row-changed", self.on_row_changed)
