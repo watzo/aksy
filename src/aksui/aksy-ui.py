@@ -294,10 +294,18 @@ class Main(base.Base):
         self.log("ak.py %s" % (__version__))
 
     @staticmethod
+    def get_names(module):
+        handles_names = module.get_handles_names()
+        names = []
+        for i in range(0, len(handles_names), 2):
+            names.append(handles_names[i+1])
+        return names
+        
+    @staticmethod
     def do_lists(s):
-        setattr(s,'samples',s.sampletools.get_names())
-        setattr(s,'programs',s.programtools.get_names())
-        setattr(s,'multis',s.multitools.get_names())
+        setattr(s,'samples', Main.get_names(s.sampletools))
+        setattr(s,'programs', Main.get_names(s.programtools))
+        setattr(s,'multis', Main.get_names(s.multitools))
 
         setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
         setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
