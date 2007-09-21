@@ -1,6 +1,6 @@
 import gtk
 
-import panelbase, keygroupeditorwindow
+import panelbase, editors
 class KeygroupEnvelopes(panelbase.PanelBase):
     def __init__(self, keygroup, cb):
         self.env_labels = ["Amp Anvelope", "Filter Envelope", "Aux Envelope"]
@@ -18,7 +18,7 @@ import panelbase, keygroupeditorwindow
         self.show_all()
             
     def update_env(self, envname, env, index):
-        setattr(self, envname, keygroupeditorwindow.EnvelopeHBox(self.keygroup, index))
+        setattr(self, envname, editors.EnvelopeHBox(self.keygroup, index))
         label_hbox = gtk.HBox(False,0)
         lb = gtk.Label("%s" % self.env_labels[index])
         lb.set_justify(gtk.JUSTIFY_LEFT)

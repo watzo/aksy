@@ -19,7 +19,7 @@ from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, 
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.745'
+__version__ = '0.746'
 
 
 # config
@@ -285,7 +285,9 @@ class Main(base.Base):
         
         self.init_lists()
 
+        """
         self.programsEditor = programseditor.ProgramsEditor(self.s)
+        """
         self.record = recorddialog.RecordDialog(recording.Recording(self.s))
 
         self.on_update_models(None)
@@ -360,7 +362,7 @@ class Main(base.Base):
             if not self.kgeditwindow or self.kgeditwindow.p.name != programname:
                 p = program.Program(self.s, programname)
                 if not self.kgeditwindow:
-                    self.kgeditwindow = keygroupeditor.KeygroupEditor(self.s, p)
+                    self.kgeditwindow = keygroupeditor.KeygroupEditorWindow(self.s, p)
                 else:
                     self.kgeditwindow.setup(p)
             self.kgeditwindow.show_all()
