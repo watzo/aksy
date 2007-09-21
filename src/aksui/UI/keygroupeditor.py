@@ -1,83 +1,125 @@
 import gtk
 
-import base, zoneeditor, keygroupdetails, keygroupfilter, keygroupenvelope
+import base, editors, keygrouppanel, zonepanel, modmatrix, filterpanel, lfopanel
+import keygroupenvelope
+
 from aksui.ak import keygroup
 
-class KeygroupEditor(base.Base):
-    def __init__(self, program, index):
-        base.Base.__init__(self, None, "notebookKeygroup")
+class KeygroupEditorWindow(gtk.Window):
+    def __init__(self, s, p):
+        gtk.Window.__init__(self)
+        self.connect("delete_event", self.delete_event)
+        self.set_position(gtk.WIN_POS_CENTER) 
+        self.s = s
+        self.setup(p)
 
-        self.s = program.s
-        self.p = program
-        self.index = index
+    def delete_event(self, widget, event, data=None):
+        self.hide()
+        return True
 
-        self.zonesInitialized = False
+    def clear_children(self):
+        for i in (self.get_children()):
+            self.remove(i)
 
-        self.filter = None
-        self.details = None
+    def setup(self, p):
+        self.clear_children()
+        self.p = p
+        self.set_default_size(1000,600)
+        #TODO: Don't completely rebuild this every time program changes.
+        self.editor = KeygroupEditor(self.s, p)
+        self.add(self.editor.editor)
+        self.update_title()
 
-        self.set_keygroup(index)
+    def update_title(self):
+        self.set_title("aksui: %s" % (self.p.name))
         
-        self.editor.append_page(self.envelopes.editor, gtk.Label("Envelopes"))
-
-    def update_zone(self, zonename, zone):
-        z = getattr(self, zonename)
-        z.set_zone(zone)
-        z.editor.show_all()
-
-    def update_zones(self):
-        self.update_zone("zone1",self.keygroup.zones[0]) 
-        self.update_zone("zone2",self.keygroup.zones[1]) 
-        self.update_zone("zone3",self.keygroup.zones[2]) 
-        self.update_zone("zone4",self.keygroup.zones[3]) 
-
-    def init_zones(self):
-        if not self.zonesInitialized:
-            self.zone1 = zoneeditor.ZoneEditor(self.keygroup.zones[0])
-            self.zone2 = zoneeditor.ZoneEditor(self.keygroup.zones[1])
-            self.zone3 = zoneeditor.ZoneEditor(self.keygroup.zones[2])
-            self.zone4 = zoneeditor.ZoneEditor(self.keygroup.zones[3])
-            self.w_tableZones.attach(self.zone1.editor,0,1,0,1)
-            self.w_tableZones.attach(self.zone2.editor,1,2,0,1)
-            self.w_tableZones.attach(self.zone3.editor,2,3,0,1)
-            self.w_tableZones.attach(self.zone4.editor,3,4,0,1)
-            self.zonesInitialized = True
-       
-
-    def set_keygroup(self, index):
-        if index >= 0:
-            self.keygroup = keygroup.Keygroup(self.p, index)
-
-            if self.filter:
-                self.w_expanderKeygroupFilter.remove(self.filter.editor)
-            if self.details:
-                self.w_expanderKeygroupDetails.remove(self.details.editor)
-
-            self.details = keygroupdetails.KeygroupDetails(self.keygroup)
-            self.filter = keygroupfilter.KeygroupFilter(self.keygroup)
-            self.envelopes = keygroupenvelope.KeygroupEnvelopes(self.keygroup, None)
-
-            self.w_expanderKeygroupFilter.add(self.filter.editor)
-            self.w_expanderKeygroupDetails.add(self.details.editor)
-            # XXX this is currently broken; need to pass in index here
-            self.envelopes.update_env('ampenv', self.keygroup.amp_envelope)
-            self.envelopes.update_env('filtenv', self.keygroup.filter_envelope)
-            self.envelopes.update_env('auxenv', self.keygroup.aux_envelope)
-
-            self.init_zones()
-            self.update_zones()
-
-            self.updating = False
-            self.update()
+class KeygroupEditor(base.Base):
+    def __init__(self, s, p):
+        base.Base.__init__(self, p, "keygroupEditorZ")
+        self.s = p.s
+        self.p = p
+        if self.p.type == 1:
+            self.keygroupEditor = editors.DrumEditorTable(s,p)
         else:
-            self.keygroup = None
-            if hasattr(self,'ampenv'):
-                self.ampenv.envelope = None
-            if hasattr(self, 'filtenv'):
-                self.filtenv.envelope = None
-            if hasattr(self, 'auxenv'):
-                self.auxenv.envelope = None
+            self.keygroupEditor = editors.KeygroupEditorVBox(s,p)
+            
+        self.keygroupEditor.on_toggled_callback = self.on_toggled_callback
+        
+        # get first keygroup
+        self.curr_keygroup = keygroup.get_keygroup_cached(p,0)
+        self.panels = []
+        
+        self.rightVBox = gtk.VBox()
 
-    def on_button_press_event(self, widget, event):
-        if event.state & gtk.gdk.CONTROL_MASK:
-            widget.set_value(0)
+        panel_list = [
+                     ("keygroupPanel", keygrouppanel.KeygroupPanel),
+                     ("zonePanel", zonepanel.ZonePanel),
+                     ("filterPanel", filterpanel.FilterPanel),
+                     ("LFOPanel", lfopanel.LFOPanel),
+                     ("keygroupEnvelopes", keygroupenvelope.KeygroupEnvelopes),
+                     ("modMatrix", modmatrix.ModMatrix),
+                    ] 
+       
+        for (n, ui_type) in panel_list:
+            panel = ui_type(self.curr_keygroup, self.update_status)
+            setattr(self, n, panel)
+            self.panels.append(panel)
+
+        for panel in self.panels:
+            self.rightVBox.pack_start(panel, False, False, 0)
+        
+        self.w_entryProgramName.set_text(p.name)
+        self.w_viewportKeygroups.add(self.keygroupEditor)
+        self.w_viewportSlats.add(self.rightVBox)
+
+        rbg = None
+        curr_mode = self.curr_keygroup.gettools().get_edit_mode()
+        modes = ["ONE","ALL","ADD"]
+        i = 0
+        for mode in modes:
+            tb = gtk.RadioButton(rbg, mode)
+            if not rbg:
+                rbg = tb
+            self.w_hboxNameEdit.add(tb)
+            tb.connect("toggled", self.on_button_press_event, (i))
+            if curr_mode == i:
+                tb.set_active(True)
+            i = i + 1
+
+        children = self.w_statusbar.get_children()[0].get_children()
+        self.statuslabel = children[0]
+        
+    def on_zone_sample_changed(self, widget, zone_combo, zone_label):
+        text = zone_combo.get_text()
+        #print zone_label
+        zone_label.set_text(text)
+
+    def on_button_press_event(self, widget, mode):
+        modes = ["ONE","ALL","ADD"]
+        self.curr_keygroup.gettools().set_edit_mode(mode)
+        
+    def change_keygroup(self, keygroup_index):
+        self.curr_keygroup = keygroup.get_keygroup_cached(self.p,keygroup_index)
+        self.curr_keygroup.set_current()
+        for panel in self.panels:
+            panel.setup(self.curr_keygroup)
+            
+        if self.p.type == 1:
+            for i in range(4):
+                self.zonePanel.sample_combos[i].connect("changed", self.on_zone_sample_changed, self.zonePanel.sample_combos[i], self.keygroupEditor.zone_labels[keygroup_index][i])
+            
+    def update_status(self, soattr, sovalue):
+        self.statuslabel.set_text("Setting: " + soattr + " " + str(sovalue))
+        
+    def on_toggled_callback(self, widget, data):
+        #print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
+        if widget.get_active():
+            self.change_keygroup(data-1) # index is +1
+
+    def on_entryProgramName_changed(self, widget):
+        if(self.p):
+            self.p.set_name(widget.get_text())
+
+            window = self.editor.parent
+            if window and getattr(window, "p", None):
+                window.update_title()

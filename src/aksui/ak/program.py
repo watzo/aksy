@@ -15,8 +15,6 @@ class Program(samplerobject.SamplerObject):
         self.attrs = ["name", "type", "group_id", "genre", "program_no", "no_keygroups", "keygroup_xfade", "keygroup_xfade_type", "level", "polyphony", "portamento_enabled", "portamento_mode", "portamento_time", "glissando_mode", "aftertouch_mode", "aftertouch_value", "reassignment_method", "softpedal_loudness_reduction", "softpedal_attack_stretch", "softpedal_filter_close", "midi_transpose", "tune", "legato", "pitchbend_up", "pitchbend_down", "pitchbend_mode", "no_modulation_connections"]
         self.attrs_minimal = ["name", "type", "no_keygroups", "level", "polyphony"]
         
-        #self.precache()
-
         if self.name:
             self.s.programtools.set_curr_by_name(self.name)
         else:
@@ -70,15 +68,35 @@ class Program(samplerobject.SamplerObject):
                 
         return '\n'.join(result)
     
-    def get_matrix(self, kgindex):
+    def get_matrix(self, keygroup_index):
         n = self.s.programtools.get_no_modulation_connections()
-        conns = { }
 
-        kg = kgindex # all
+        pins_dict = {}
+        pins = []
 
-        for i in range(n):
-            conn = self.s.programtools.get_modulation_connection(i, kg)
-            conns[i] = modulationpin.ModulationPin(self.s, i, conn[0], conn[1], conn[2], kg)
-            c = conns[i]
+
+        cmd = self.s.programtools.get_modulation_connection_cmd
+
+        for j in range(8):
+            # create batch get command
+            cmds = []
+            args = []
+            # ????: can only do 8 at a time?
+            for i in range(8*j,8*(j+1)):
+                #print "getting mod connection:", keygroup_index, "/", i
+                cmds.append(cmd)
+                args.append([i, keygroup_index])
+
+            results = self.s.execute_alt_request(self.handle, cmds, args)
+
+            if results:
+                total_results = len(results) / 3
+
+                for i in range(total_results):
+                    offset = 3*i
+                    (source, dest, level) = results[offset:offset+3] # snag 3 at a time
+                    pin = modulationpin.ModulationPin(self.s, i, source, dest, level, keygroup_index)
+                    pins.append(pin)
+                    pins_dict[(source, dest)] = pin
             
-        return conns
+        return (pins, pins_dict)

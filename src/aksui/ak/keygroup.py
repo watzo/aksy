@@ -1,14 +1,24 @@
 import samplerobject, zone, envelope
 
+keygroup_cache = {}
+
+def get_keygroup_cached(p, index):
+    key = (p.handle, index)
+
+    if not key in keygroup_cache.keys():
+        keygroup_cache[key] = Keygroup(p, index) 
+
+    keygroup = keygroup_cache[key]
+
+    return keygroup
+
 class Keygroup(samplerobject.SamplerObject):
-    def __init__(self, program, index):
+    def __init__(self, program, index, precache_on_init = True):
         samplerobject.SamplerObject.__init__(self, program.s, None, "keygrouptools")
         self.current_mod_source_index = 11
         self.attrs = ["low_note", "high_note", "mute_group", "fx_override", "fx_send_level", "zone_xfade", "zone_xfade_type", "polyphony", "tune", "level", "play_trigger", "play_trigger_velocity", "filter", "filter_cutoff", "filter_resonance", "filter_attenuation"]
         self.attrs_minimal = ["low_note", "high_note"]
-        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff', 'filter_resonance':'res', 'MOD_12_14':'filtenv', 'MOD_12_15':'filtenv',
-            'MOD_6_1':'velo',            'MOD_11_1':'ampenv',            'MOD_13_3':'auxenv',
-            }
+        self.abbr = {'polyphony' : 'poly', 'filter_cutoff':'cutoff', 'filter_resonance':'res', 'MOD_12_14':'filtenv', 'MOD_12_15':'filtenv', 'MOD_6_1':'velo', 'MOD_11_1':'ampenv', 'MOD_13_3':'auxenv',}
         self.p = program
         self.index = index
         self.keygroup_index = index
@@ -28,10 +38,15 @@ class Keygroup(samplerobject.SamplerObject):
         self.aux_envelope = envelope.Envelope(self, 2)
 
         self.zones = [zone.Zone(self, 1), zone.Zone(self, 2), zone.Zone(self, 3), zone.Zone(self, 4)]
-        self.mod_matrix = self.p.get_matrix(self.index + 1)
-        
-        self.precache()
-        
+        self.mod_matrix = []
+        self.mod_matrix_dict = {}
+       
+        if precache_on_init:
+            self.precache()
+
+    def load_matrix(self):
+        (self.mod_matrix, self.mod_matrix_dict) = self.p.get_matrix(self.index + 1)
+
     def get_handle(self):
         # get handle by name or whatever, override in derived classes
         return self.p.handle
@@ -70,11 +85,13 @@ class Keygroup(samplerobject.SamplerObject):
         self.attrscache[attrname] = attrval
         
     def set_pin_value(self, source, value):
-        return self.mod_matrix[source]
+        if len(self.mod_matrix) > 0:
+            return self.mod_matrix[source]
+        else:
+            return None
 
     def get_next_empty_pin(self):
         for pin in self.mod_matrix:
-            pin = self.mod_matrix[pin]
             if pin.dest == 0:
                 return pin
         return None
@@ -85,18 +102,17 @@ class Keygroup(samplerobject.SamplerObject):
             return self.get_pin_by_source_and_dest(int(source), int(dest), create_new)
         
     def get_pin_by_source_and_dest(self, source, dest, create_new = False):
-        for pin in self.mod_matrix:
-            pin = self.mod_matrix[pin]
-            if pin.dest == dest and pin.source == source:
-                return pin
+        pin = None
 
-        if create_new:
+        source_dest_index = (source, dest)
+
+        if source_dest_index in self.mod_matrix_dict:
+            pin = self.mod_matrix[self.mod_matrix_dict[source_dest_index].pin_index]
+        elif create_new:
             # didnt find a pin!
             pin = self.get_next_empty_pin()
             pin.source = source
             pin.dest = dest
-            
-        if pin:
-            return pin
-        else:
-            return None
+            self.mod_matrix_dict[(source, dest)] = pin
+
+        return pin

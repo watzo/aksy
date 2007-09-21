@@ -15,12 +15,11 @@ import gtk
 from aksui import postmod
 from aksui.utils import midiutils, modelutils, sox
 from aksui.ak import multi, recording, program, keygroup
-from aksui.UI import base, filechooser, multieditorz, programseditor, keygroupeditorz, lcdscreen, recorddialog
-from aksui.UI import programdetails 
+from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog
 from aksy.device import Devices
 
 __author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.733'
+__version__ = '0.745'
 
 
 # config
@@ -351,25 +350,25 @@ class Main(base.Base):
         if multiname:
             m = multi.Multi(self.s,multiname)
             if not self.multieditwindow:
-                self.multieditwindow = multieditorz.MultiEditorWindowZ(self.s, m)
+                self.multieditwindow = multieditor.MultiEditorWindow(self.s, m)
             else:
                 self.multieditwindow.setup(m)
             self.multieditwindow.show_all()
                 
     def open_keygroup_editor(self, programname):
         if programname:
-            p = program.Program(self.s,programname)
-            if not self.kgeditwindow:
-                self.kgeditwindow = keygroupeditorz.KeygroupEditorWindowZ(self.s, p)
-            else:
-                self.kgeditwindow.setup(p)
+            if not self.kgeditwindow or self.kgeditwindow.p.name != programname:
+                p = program.Program(self.s, programname)
+                if not self.kgeditwindow:
+                    self.kgeditwindow = keygroupeditor.KeygroupEditor(self.s, p)
+                else:
+                    self.kgeditwindow.setup(p)
             self.kgeditwindow.show_all()
                 
     def on_refresh_clicked(self, widget):
         self.init_lists()
 
     def on_update_models(self, model, iter = None, user_param = None):
-        print "Models updated."
         self.w_treeview_programs.set_model(self.s.programsmodel)
         self.w_treeview_multis.set_model(self.s.multismodel)
         self.w_treeview_samples.set_model(self.s.samplesmodel)
@@ -382,6 +381,8 @@ class Main(base.Base):
         return programname
 
     def open_program_properties(self, programname):
+        #TODO: Fix this. 
+        """
         p = program.Program(self.s, programname)
         
         if not self.program_details_window:
@@ -391,6 +392,8 @@ class Main(base.Base):
         
         self.move_properties_window()
         self.program_details_window.show_all()
+        """
+        pass
     
     def on_recording_activate(self, button):
         self.log("record activate")
@@ -399,14 +402,6 @@ class Main(base.Base):
     def on_program_editor_activate(self, button):
         self.programsEditor.programsMain.show_all()
 
-    def on_run_tests_activate(self, button):
-        # i didn't realize the keygroup index was accounted for there
-        handle = self.s.programtools.get_handle_by_name("Program 1")
-        p = program.Program(self.s,"Program 1")
-        kg = keygroup.Keygroup(p,0)
-        kg.precache()
-        print kg.attrscache
-        
     def on_save_activate(self, button):
         # THIS WILL OVERWRITE FILES w/ SAME NAMES!
         # get folder to save to
@@ -484,16 +479,6 @@ class Main(base.Base):
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
                 self.SamplesContextMenu.editor.popup(None, None, None, event.button, event.time)
                 return True
-
-    @staticmethod
-    def test_programsEditor():
-        z48 = Devices.get_instance("z48", "usb")
-        Main.do_lists(z48)
-        programsEditor = programseditor.ProgramsEditor(z48)
-        programsEditor.programsMain.show_all()
-        programsEditor.programsMain.connect("delete-event", gtk.main_quit)
-        gtk.main()
-
 
 z48 = None
 log = None

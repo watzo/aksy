@@ -48,6 +48,9 @@ class ModMatrix(panelbase.PanelBase):
         self.s = so.s
         self.so = so
 
+        if len(so.mod_matrix) == 0:
+            so.load_matrix()
+
         self.table = gtk.Table(len(self.sources) + 1, len(self.destinations) + 1, False)
         t = self.table
 
