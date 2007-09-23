@@ -443,7 +443,7 @@ int aksyxusb_device_get_panel_state(const akai_usb_device akai_dev,
                     "Panel Control data (length: %i): ", rc);
         }
 
-        if (rc < 0) {
+        if (rc <= 0) {
             return AKSY_TRANSMISSION_ERROR;
         }
 
@@ -493,7 +493,7 @@ int aksyxusb_device_read(const akai_usb_device akai_dev,
                 result_buff->length - *bytes_read, timeout);
         log_hex(curr_index, rc, "Reply (length: %i): ", rc);
 
-        if (rc < 0) {
+        if (rc <= 0) {
             return AKSY_TRANSMISSION_ERROR;
         }
 
