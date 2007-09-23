@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import gtk
 
+import os.path
+
 # our stuff
 from aksui.utils import midiutils, modelutils
 from aksui.ak import envelope, keygroup, part
