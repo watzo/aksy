@@ -24,10 +24,9 @@ static PyObject* USBException;
 static PyObject* AkaiSampler_dealloc(AkaiSampler* self) {
     int rc;
     if (self->sampler) {
-#ifdef linux
         /* hack to have the device available on reconnect */
         rc = aksyxusb_device_reset(self->sampler);
-#endif
+
         rc = aksyxusb_device_close(self->sampler);
         PyMem_Free(self->sampler);
         self->sampler = NULL;
