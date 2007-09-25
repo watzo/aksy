@@ -139,7 +139,7 @@ BYTE
 
 \x12	\x37	set_envelope_level4	Set Envelope Level 4 (FILTER and AUX only)	BYTE	BYTE
 
-\x12	\x42	set_envelope_ref	Set Envelope Reference (FILTER and AUX only)	BYTE	BYTE
+\x12	\x42	set_envelope_reference	Set Envelope Reference (FILTER and AUX only)	BYTE	BYTE
 
 \x12	\x43	set_attack_hold	Set Attack Hold <Data1> = (0=OFF, 1=ON) (AMP only)	BYTE
 
@@ -153,7 +153,12 @@ BYTE
 
 \x12	\x54	set_lfo_phase	Set LFO Phase	BYTE	WORD
 
+\x12	\x55	set_lfo_shift	Set LFO Shift	BYTE	SBYTE
+
+\x12	\x56	set_lfo_midi_sync	Set LFO Midi Sync	BYTE	BOOL
+
+\x12	\x57	set_midi_clock_sync_div	Set LFO Midi Clock Sync Division	BYTE	BYTE
+
 \x12	\x58	set_lfo_retrigger	Set LFO Retrigger	BYTE	WORD
 
 \x12	\x59	set_lfo_sync	Set LFO Sync	BYTE	BYTE
-

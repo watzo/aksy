@@ -84,13 +84,14 @@ class Keygrouptools:
         self.set_envelope_level3_cmd = Command('_', '\x12\x35', 'set_envelope_level3', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_envelope_rate4_cmd = Command('_', '\x12\x36', 'set_envelope_rate4', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_envelope_level4_cmd = Command('_', '\x12\x37', 'set_envelope_level4', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_envelope_ref_cmd = Command('_', '\x12\x42', 'set_envelope_ref', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_envelope_reference_cmd = Command('_', '\x12\x42', 'set_envelope_reference', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_attack_hold_cmd = Command('_', '\x12\x43', 'set_attack_hold', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_lfo_rate_cmd = Command('_', '\x12\x50', 'set_lfo_rate', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_lfo_delay_cmd = Command('_', '\x12\x51', 'set_lfo_delay', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_lfo_depth_cmd = Command('_', '\x12\x52', 'set_lfo_depth', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_lfo_waveform_cmd = Command('_', '\x12\x53', 'set_lfo_waveform', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_lfo_phase_cmd = Command('_', '\x12\x54', 'set_lfo_phase', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.set_lfo_shift_cmd = Command('_', '\x12\x55', 'set_lfo_shift', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SBYTE), None)
         self.set_lfo_retrigger_cmd = Command('_', '\x12\x58', 'set_lfo_retrigger', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
         self.set_lfo_sync_cmd = Command('_', '\x12\x59', 'set_lfo_sync', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
 
@@ -567,10 +568,10 @@ class Keygrouptools:
         """
         return self.sampler.execute(self.set_envelope_level4_cmd, (arg0, arg1, ))
 
-    def set_envelope_ref(self, arg0, arg1):
+    def set_envelope_reference(self, arg0, arg1):
         """Set Envelope Reference (FILTER and AUX only)
         """
-        return self.sampler.execute(self.set_envelope_ref_cmd, (arg0, arg1, ))
+        return self.sampler.execute(self.set_envelope_reference_cmd, (arg0, arg1, ))
 
     def set_attack_hold(self, arg0):
         """Set Attack Hold <Data1> = (0=OFF, 1=ON) (AMP only)
@@ -601,6 +602,11 @@ class Keygrouptools:
         """Set LFO Phase
         """
         return self.sampler.execute(self.set_lfo_phase_cmd, (arg0, arg1, ))
+
+    def set_lfo_shift(self, arg0, arg1):
+        """Set LFO Shift
+        """
+        return self.sampler.execute(self.set_lfo_shift_cmd, (arg0, arg1, ))
 
     def set_lfo_retrigger(self, arg0, arg1):
         """Set LFO Retrigger
