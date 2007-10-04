@@ -11,8 +11,6 @@ from aksy.devices.akai.sysex import Command
 
 import aksy.devices.akai.sysex_types
 
-from aksy.devices.akai import aksy_types
-
 class Multitools:
     def __init__(self, s56k):
         self.sampler = s56k
