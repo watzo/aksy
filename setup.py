@@ -4,7 +4,7 @@
 import ez_setup
 ez_setup.use_setuptools()
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from distutils.core import Extension
 from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
@@ -62,7 +62,8 @@ all_packages.extend(aksui_packages)
 def create_download_url(version):
       return "http://walco.n--tree.net/downloads/aksy-%s" % version
 
-setup(name = "aksy", 
+setup(
+      name = "aksy", 
       version = version,
       author = "Walco van Loon", 
       author_email = "walco at n--tree.net", 
@@ -73,7 +74,15 @@ setup(name = "aksy",
       package_data = {"aksui": ["ak.py.glade"]},
       url = "http://walco.n--tree.net/projects/aksy", 
       download_url = create_download_url(version),
-      scripts = ["examples/aksy-get.py", "examples/aksy-put.py", "src/aksyfuse/aksy-fs.py", "src/aksui/aksy-ui.py"],
+      scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
+      entry_points = {
+        'console_scripts': [
+            'aksy-fs = aksyfuse.aksyfs.main [FUSE-PYTHON]',
+        ],
+        'gui_scripts': [
+            'aksy-ui = aksui.main.main'
+        ]
+      },
       ext_modules = [
           Extension("aksyx",
               sources = [ "src/aksyx/aksyx.c", "src/aksyx/aksyxusb.c",],
@@ -82,5 +91,8 @@ setup(name = "aksy",
       ],
       cmdclass = {
          "build_ext": build_akyx, 
+      },
+      extras_require = {
+        'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
       }
 )

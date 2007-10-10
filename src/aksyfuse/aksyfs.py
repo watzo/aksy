@@ -320,8 +320,7 @@ def raiseUnsupportedOperationException():
 def raiseException(err):
     raise OSError(err, 'Exception occurred')
 
-if __name__ == '__main__':
-    
+def main():
     usage = """
 Aksyfs: mount your sampler as a filesystem
 
@@ -349,3 +348,6 @@ Aksyfs: mount your sampler as a filesystem
     finally:
         sampler.stop_osc_server()
         sampler.close()
+
+if __name__ == '__main__':
+    main()
