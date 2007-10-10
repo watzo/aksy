@@ -71,7 +71,7 @@ def _splitpath(path):
     return path.split('/', 2)[1:]
 
 def _get_cache_path(path):
-    return os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
+    return os.path.expanduser('~/.aksy/cache' + path)
 
 def _cache_path_exists(path):
     return os.path.exists(_get_cache_path(path))
