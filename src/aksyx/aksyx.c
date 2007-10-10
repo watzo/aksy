@@ -242,8 +242,7 @@ static PyMethodDef
                         "Puts a file on the sampler" },
                 { "_execute", (PyCFunction)AkaiSampler_execute, METH_VARARGS,
                         "Executes a Sysex string on the sampler" },
-                {
-                        "get_panel_state",
+                { "get_panel_state",
                         (PyCFunction)AkaiSampler_get_panel_state,
                         METH_VARARGS,
                         "Retrieves current front panel state in a tuple (pixel_data, control_data) where control data contains the current value of qlink controls, etc" },
