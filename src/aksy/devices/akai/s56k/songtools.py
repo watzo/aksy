@@ -14,15 +14,15 @@ import aksy.devices.akai.sysex_types
 class Songtools:
     def __init__(self, s56k):
         self.sampler = s56k
-        self.rename_cmd = Command('^', '\x16\x09', 'rename', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_no_items_cmd = Command('^', '\x16\x10', 'get_no_items', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_curr_handle_cmd = Command('^', '\x16\x13', 'get_curr_handle', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_curr_name_cmd = Command('^', '\x16\x14', 'get_curr_name', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_names_cmd = Command('^', '\x16\x12', 'get_names', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_by_handle_cmd = Command('^', '\x16\x06', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_by_name_cmd = Command('^', '\x16\x05', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.delete_all_cmd = Command('^', '\x16\x07', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.delete_curr_cmd = Command('^', '\x16\x08', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.rename_cmd = Command('^', '\x16\x09', 'songtools', 'rename', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_no_items_cmd = Command('^', '\x16\x10', 'songtools', 'get_no_items', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_curr_handle_cmd = Command('^', '\x16\x13', 'songtools', 'get_curr_handle', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_curr_name_cmd = Command('^', '\x16\x14', 'songtools', 'get_curr_name', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_names_cmd = Command('^', '\x16\x12', 'songtools', 'get_names', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_curr_by_handle_cmd = Command('^', '\x16\x06', 'songtools', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_curr_by_name_cmd = Command('^', '\x16\x05', 'songtools', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.delete_all_cmd = Command('^', '\x16\x07', 'songtools', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.delete_curr_cmd = Command('^', '\x16\x08', 'songtools', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
 
     def rename(self):
         """Rename Song

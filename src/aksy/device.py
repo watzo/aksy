@@ -1,70 +1,27 @@
-import sys, aksy
-from aksy.devices import config
+from aksy.devices.akai.z48.sampler import Z48
+from aksy.devices.akai.s56k.sampler import S56K
+from aksy.devices.akai.mock_z48.sampler import MockZ48, MockConnector
+from aksy.devices.akai.connector import USBConnector
+from aksyosc.connector import OSCConnector
+
+_devices = { 'z48': Z48, 's56k': S56K, 'mpc4k': Z48, 'mock_z48': MockZ48 }
 
 class Devices:
     """
-    >>> Devices.get_instance('akai', 'usb')
-    1
-    >>> Devices.get_instance('mock_z48', None)
+    return an instance for a specified device
     """
 
-    _devices = config.devices 
-    def get_instance(name, type=None, *args, **kwargs):
-        module_name, klass = Devices._devices[(name, type)]
-        mod = __import__(module_name)
-        components = module_name.split('.')
-        for comp in components[1:]:
-            mod = getattr(mod, comp)
-        if not hasattr(mod, klass):
-            raise Exception('Device %s not found' %name)
-        return getattr(mod, klass)(*args, **kwargs)
-    
-    get_instance = staticmethod(get_instance)
-
-class Device:
-    """Defines a generic device.
-
-    """
-
-    def discover(self):
-        """
-        """
-
-    def get_vendor_id(self):
-        raise NotImplementedError
-
-    def get_system_objects(self):
-        """Returns the system objects contained by this device
-        """
-        raise NotImplementedError
-
-    def init(self):
-        """Initializes the device
-        """
-        raise NotImplementedError
-
-    def close(self):
-        """Closes the device
-        """
-        raise NotImplementedError
-
-    def execute(self, command, args, device_id=None, extra_id=None):
-        """Execute a command on the device
-        """
-        raise NotImplementedError
-
-class Command:
-    """Defines a command which can be executed on the device
-    """
-
-class Request:
-    """Maps a command to a command sequence
-    """
-
-class Reply:
-    """Maps the command reply sequence to aksy types
-    """
-
-if __name__ == "__main__":
-    import doctest, sys
-    doctest.testmod(sys.modules[__name__])
+    @staticmethod
+    def get_instance(device_id, connector_type, *args, **kwargs):
+        try:
+            if connector_type == 'usb':
+                connector = USBConnector(getattr(USBConnector, device_id.upper()))
+            elif connector_type == 'osc':
+                connector = OSCConnector('localhost', 6575)
+            elif connector_type == 'mock':
+                connector = MockConnector()
+            else:
+                raise Exception("Unknown connector type ", connector_type)
+            return _devices[device_id](connector, *args, **kwargs)
+        except KeyError, e:
+            raise Exception("Device %s not found" % e[0])

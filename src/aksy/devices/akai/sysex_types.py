@@ -424,32 +424,6 @@ class TypedCompositeType(object):
             return offset, result[0]
         return offset, tuple(result)
 
-class DiskInfo(object):
-    def __init__(self, (handle, disk_type, format, scsi_id, writable, name)):
-        self.handle = handle
-
-        # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
-        self.type = disk_type
-
-        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND, 
-        # 8=CD-AUDIO, 100=EMPTY
-        self.format = format
-
-        self.scsi_id = scsi_id
-        self.writable = bool(writable)
-        self.name = name
-
-    def __eq__(self, other):
-        if other is None: 
-            return False
-        return self.handle == other.handle
-
-    def __ne__(self, other):
-        return not self == other
-
-    def __repr__(self):
-        return "<DiskInfo object name='%s', handle=%i>" % (self.name, self.handle)
-
 class DiskType(CompositeType):
     def __init__(self):
         super(DiskType, self).__init__((
@@ -466,7 +440,7 @@ class DisklistType(object):
         index = 0
         while string[index] != END_SYSEX:
             length, val = DISK.decode(string[index:])
-            result.append(DiskInfo(val))
+            result.append(val)
             index += length
         return index, tuple(result)
 

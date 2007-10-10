@@ -12,41 +12,41 @@ import aksy.devices.akai.sysex
 class Disktools:
      def __init__(self, z48):
           self.z48 = z48
-          self.update_disklist_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x01', 'update_disklist', (), None,
+          self.update_disklist_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x01', 'disktools', 'update_disklist', (), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.select_disk_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x02', 'select_disk', (aksy.devices.akai.sysex_types.WORD,), None,
+          self.select_disk_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x02', 'disktools', 'select_disk', (aksy.devices.akai.sysex_types.WORD,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.test_disk_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x03', 'test_disk', (aksy.devices.akai.sysex_types.WORD,), None)
-          self.get_no_disks_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x04', 'get_no_disks', (), None)
-          self.get_disklist_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x05', 'get_disklist', (),
+          self.test_disk_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x03', 'disktools', 'test_disk', (aksy.devices.akai.sysex_types.WORD,), None)
+          self.get_no_disks_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x04', 'disktools', 'get_no_disks', (), None)
+          self.get_disklist_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x05', 'disktools', 'get_disklist', (),
               (aksy.devices.akai.sysex_types.DISKLIST,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.get_curr_path_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x09', 'get_curr_path', (), None)
-          self.eject_disk_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x0D', 'eject_disk', (aksy.devices.akai.sysex_types.WORD,), None)
-          self.get_no_folders_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x10', 'get_no_folders', (), None)
-          self.get_folder_names_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x12', 'get_folder_names', (),
+          self.get_curr_path_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x09', 'disktools', 'get_curr_path', (), None)
+          self.eject_disk_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x0D', 'disktools', 'eject_disk', (aksy.devices.akai.sysex_types.WORD,), None)
+          self.get_no_folders_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x10', 'disktools', 'get_no_folders', (), None)
+          self.get_folder_names_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x12', 'disktools', 'get_folder_names', (),
               (aksy.devices.akai.sysex_types.STRINGARRAY,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.open_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x13', 'open_folder', (aksy.devices.akai.sysex_types.STRING,), None)
-          self.load_folder_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x15', 'load_folder', (aksy.devices.akai.sysex_types.STRING,),
+          self.open_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x13', 'disktools', 'open_folder', (aksy.devices.akai.sysex_types.STRING,), None)
+          self.load_folder_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x15', 'disktools', 'load_folder', (aksy.devices.akai.sysex_types.STRING,),
               None, userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.create_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x16', 'create_folder', (aksy.devices.akai.sysex_types.STRING,), None)
-          self.del_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x17', 'delete_folder', (aksy.devices.akai.sysex_types.STRING,), None)
-          self.rename_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x18', 'rename_folder', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
-          self.get_no_files_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x20', 'get_no_files', (),
+          self.create_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x16', 'disktools', 'create_folder', (aksy.devices.akai.sysex_types.STRING,), None)
+          self.del_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x17', 'disktools', 'delete_folder', (aksy.devices.akai.sysex_types.STRING,), None)
+          self.rename_folder_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x18', 'disktools', 'rename_folder', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
+          self.get_no_files_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x20', 'disktools', 'get_no_files', (),
               (aksy.devices.akai.sysex_types.WORD,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.get_filenames_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x22', 'get_filenames', (),
+          self.get_filenames_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x22', 'disktools', 'get_filenames', (),
               (aksy.devices.akai.sysex_types.STRINGARRAY,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None, 
+          self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'disktools', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None, 
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.delete_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'delete_file', (aksy.devices.akai.sysex_types.STRING,), None,
+          self.delete_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'disktools', 'delete_file', (aksy.devices.akai.sysex_types.STRING,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.load_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2A', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None,
+          self.load_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2A', 'disktools', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.load_file_and_deps_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2B', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None)
-          self.save_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2C', 'save',
+          self.load_file_and_deps_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2B', 'disktools', 'load_file_and_deps', (aksy.devices.akai.sysex_types.STRING,), None)
+          self.save_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2C', 'disktools', 'save',
               (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.FILETYPE, aksy.devices.akai.sysex_types.BOOL,
                aksy.devices.akai.sysex_types.BOOL), None,
                userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.save_all_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2D', 'save_all', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.BOOL), None,
+          self.save_all_cmd = aksy.devices.akai.sysex.Command('\x5f', '\x20\x2D', 'disktools', 'save_all', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.BOOL), None,
               userref_type=aksy.devices.akai.sysex_types.USERREF)
 
      def update_disklist(self):

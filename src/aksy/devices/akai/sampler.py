@@ -13,13 +13,12 @@ from threading import Lock, Thread
 
 log = logging.getLogger("aksy")
 
-class Sampler(AkaiSampler):
+class Sampler(object):
     lock = Lock()
     """Base class for AkaiSampler.
     """
-    def __init__(self, usb_product_id=0, debug=False):
-        AkaiSampler.__init__(self, usb_product_id)
-        self.debug = debug
+    def __init__(self, connector):
+        self.connector = connector
 
     @transaction(lock)
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
@@ -30,28 +29,15 @@ class Sampler(AkaiSampler):
     def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
         """Gets a file from the sampler, overwriting destfile if it already exists.
         """
-        if destfile is None:
-            destfile = filename
-
-        self._get(filename, destfile, source)
+        # TODO: consider removal
+        self.connector.get(filename, destfile, source)
 
     def put(self, sourcepath, remote_name=None, destination=AkaiSampler.MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """
-        if remote_name is None:
-            remote_name = os.path.basename(sourcepath)
-
-        self._put(sourcepath, remote_name, destination)
-
-
-    def execute_request(self, request):
-        if self.debug:
-            log.debug("Request:  %s\n" % repr(request))
-        result_bytes = self._execute(request.get_bytes())
-        if self.debug:
-            log.debug("Response: %s\n" % (sysex.byte_repr(result_bytes)))
-        return result_bytes
+        # TODO: consider replace connector put by _put
+        self.connector.put(sourcepath, remote_name, destination)
         
     def execute_alt_request(self, handle, commands, args, index = None):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
@@ -70,7 +56,8 @@ class Sampler(AkaiSampler):
             z48.execute_alt_request(65536, [cmd, cmd2], [[1], [2]])
 
         """
-        result_bytes = self.execute_request(sysex.AlternativeRequest(handle, commands, args, index))
+        result_bytes = self.connector.execute_request(sysex.AlternativeRequest(handle, commands, args, index))
+        # TODO: move to usbconnector
         result = sysex.Reply(result_bytes, commands[0], True)
         return result.get_return_value()
 
@@ -78,11 +65,11 @@ class Sampler(AkaiSampler):
     def execute(self, command, args, request_id=0):
         """Executes a command on the sampler
         """
-        request = sysex.Request(command, args, request_id)
-        result_bytes = self.execute_request(request)
-        result = sysex.Reply(result_bytes, command)
-        return result.get_return_value()
+        return self.connector.execute(command, args, request_id)
 
+    def close(self):
+        self.connector.close()
+        
     def start_osc_server(self):
         # for i in 'AK': print ord(i)
         OSCServer('localhost', 6575,  SamplerCallbackManager(self))

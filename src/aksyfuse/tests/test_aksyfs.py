@@ -35,7 +35,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.assertTrue(S_ISDIR(info.st_mode))
         
     def setUp(self):
-        z48 = Devices.get_instance('mock_z48', None, 
+        z48 = Devices.get_instance('mock_z48', 'mock', 
                                    debug=0, 
                                    sampleFile=testutil.get_test_resource('test.wav'))
         self.fs = aksyfs.AksyFS()

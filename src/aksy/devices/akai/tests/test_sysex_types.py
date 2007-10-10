@@ -204,19 +204,6 @@ class TestTestHandleNameArrayType(unittest.TestCase):
         result = self.handle_name_type.decode('\x04\x00\x00\x04\x00\x08\x44\x72\x79\x20\x4b\x69\x74\x20\x30\x32\x00\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
         self.assertEquals((33, ((65536, 'Dry Kit 02'), (65537, 'SynthTest'))), result)
 
-class TestDiskInfo(unittest.TestCase):
-    def test_repr(self):
-        diskInfo = sysex_types.DiskInfo((256, 1, 0, 6, 1, 'Some disk'))
-        self.assertEquals("<DiskInfo object name='Some disk', handle=256>", repr(diskInfo))
-    def test_eq_neq(self):
-        diskInfo1 = sysex_types.DiskInfo((256, 1, 0, 6, 1, 'Some disk'))
-        diskInfo2 = sysex_types.DiskInfo((255, 1, 0, 6, 1, 'Some other disk'))
-        diskInfo3 = sysex_types.DiskInfo((256, 1, 0, 6, 1, 'Some other name'))
-        self.assertTrue(diskInfo1 == diskInfo3)
-        self.assertFalse(diskInfo1 != diskInfo3)
-        self.assertFalse(diskInfo1 == diskInfo2)
-        self.assertTrue(diskInfo1 != diskInfo2)
-
 class TestFourByteType(unittest.TestCase):
     def testEncode(self):
         fourByteType = sysex_types.FourByteType()

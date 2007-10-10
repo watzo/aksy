@@ -30,8 +30,16 @@ class Container(object):
         return None
 
 class Disk(Container):
-    def __init__(self, disk_info):
-        self.info = disk_info
+    def __init__(self, (handle, disk_type, format, scsi_id, writable, name)):
+        self._handle = handle
+        # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
+        self._disk_type = disk_type
+        # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND, 
+        # 8=CD-AUDIO, 100=EMPTY
+        self._format = format
+        self._scsi_id = scsi_id
+        self._writable = writable
+        self._name = name
         self.root = Folder("")
 
     def has_children(self):
@@ -42,16 +50,16 @@ class Disk(Container):
             return False
 
     def get_handle(self):
-        return self.info.handle
+        return self._handle
 
     def is_writable(self):
-        return self.info.writable
+        return self._writable
     
     def set_current(self):
         handlers[Disk].select_disk(self.get_handle())
 
     def get_name(self):
-        return self.info.name
+        return self._name
     
     def get_short_name(self):
         return self.get_name()

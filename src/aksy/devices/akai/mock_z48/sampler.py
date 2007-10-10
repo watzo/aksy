@@ -2,12 +2,40 @@ import logging, shutil
 
 from aksy.devices.akai import sysex_types
 from aksy.devices.akai.z48.sampler import Z48
+from aksyx import AkaiSampler
 from aksy import model, fileutils
 
 log = logging.getLogger('aksy')
 
+class MockConnector(object):
+    def __init__(self):
+        self.sampleFile = ''
+        
+    def get(self, filename, destpath=None, source=AkaiSampler.MEMORY):
+        log.debug("Transferring file %s to host from source %i" % (filename, source))
+        if fileutils.is_sample(filename):
+            log.debug(self.sampleFile)
+            shutil.copy(self.sampleFile, destpath)
+
+    def put(self, path, remote_name=None, destination=AkaiSampler.MEMORY):
+        log.debug("Transferring file %s to sampler at remote_name %s (%i)" 
+                  % (path, remote_name, destination))
+    
+    def execute(self, command, args, request_id=0):
+        log.debug("execute(%s, %s)" % (repr(command), repr(args),))
+        return None
+    
+    def execute_request(self, request):
+        log.debug("execute_request(%s)" % repr(request))
+        return "\xf0\xf7"
+        
+
 class MockZ48(Z48):
-    def __init__(self, debug=1, sampleFile=''):
+    def __init__(self, connector, debug=1, sampleFile=''):
+        # TODO: enable call to super class c'tor
+        # Z48.__init__(self, connector)
+        self.connector = connector
+        self.connector.sampleFile = sampleFile
         self.debug = debug
         self.sampleFile = sampleFile
         self.setup_tools()
@@ -26,22 +54,6 @@ class MockZ48(Z48):
         self._populate_fs()
 
         self._patch_rootdisk_getdir()
-
-    def get(self, filename, destpath=None, source=Z48.MEMORY):
-        if self.debug > 0:
-            log.debug("Transferring file %s to host from source %i" % (filename, source)) 
-        if fileutils.is_sample(filename):
-            shutil.copy(self.sampleFile, destpath)
-
-    def put(self, path, remote_name=None, destination=Z48.MEMORY):
-        if self.debug > 0:
-            log.debug("Transferring file %s to sampler at remote_name %s (%i)" 
-                      % (path, remote_name, destination))
-
-    def execute(self, command, args, request_id=0):
-        # TODO: work with stored sessions
-        log.debug("Executing command: %s " % command.name)
-        return None
 
     def _populate_fs(self):
         mellotron_folder = model.Folder('Mellotron Samples')
@@ -69,8 +81,8 @@ class MockZ48(Z48):
 
     def _patch_disktools_get_disklist(self):
         def get_disklist(): 
-            return [sysex_types.DiskInfo((256, 1, 0, 3, True, "Samples disk")),
-                    sysex_types.DiskInfo((512, 1, 0, 3, False, "Cdrom"))]
+            return [(256, 1, 0, 3, True, "Samples disk"),
+                    (512, 1, 0, 3, False, "Cdrom")]
         
         self.disktools.get_disklist = get_disklist
 

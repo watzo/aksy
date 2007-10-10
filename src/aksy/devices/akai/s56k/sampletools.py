@@ -14,15 +14,15 @@ import aksy.devices.akai.sysex_types
 class Sampletools:
     def __init__(self, s56k):
         self.sampler = s56k
-        self.rename_cmd = Command('^', '\x0e\x09', 'rename', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_no_items_cmd = Command('^', '\x0e\x10', 'get_no_items', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_curr_handle_cmd = Command('^', '\x0e\x13', 'get_curr_handle', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_curr_name_cmd = Command('^', '\x0e\x14', 'get_curr_name', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_names_cmd = Command('^', '\x0e\x12', 'get_names', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_by_handle_cmd = Command('^', '\x0e\x06', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_by_name_cmd = Command('^', '\x0e\x05', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.delete_all_cmd = Command('^', '\x0e\x07', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.delete_curr_cmd = Command('^', '\x0e\x08', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.rename_cmd = Command('^', '\x0e\x09', 'sampletools', 'rename', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_no_items_cmd = Command('^', '\x0e\x10', 'sampletools', 'get_no_items', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_curr_handle_cmd = Command('^', '\x0e\x13', 'sampletools', 'get_curr_handle', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_curr_name_cmd = Command('^', '\x0e\x14', 'sampletools', 'get_curr_name', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_names_cmd = Command('^', '\x0e\x12', 'sampletools', 'get_names', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_curr_by_handle_cmd = Command('^', '\x0e\x06', 'sampletools', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_curr_by_name_cmd = Command('^', '\x0e\x05', 'sampletools', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.delete_all_cmd = Command('^', '\x0e\x07', 'sampletools', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.delete_curr_cmd = Command('^', '\x0e\x08', 'sampletools', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
 
     def rename(self):
         """Rename Sample

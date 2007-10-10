@@ -16,10 +16,11 @@ log = logging.getLogger("aksy")
 class Command:
     """Represents a system exclusive command.
     """
-    def __init__(self, device_id, cmd_id, name, arg_types,
+    def __init__(self, device_id, cmd_id, section, name, arg_types,
             reply_spec, userref_type=sysex_types.USERREF):
         self.device_id = device_id
         self.id = cmd_id
+        self.section = section
         self.name = name
         self.arg_types = []
         self.reply_spec = reply_spec
@@ -46,6 +47,11 @@ class Request:
     command: the command to execute
     """
     def __init__(self, command, args, request_id=0):
+        self.command = command
+        self.args = args
+        self.bytes = self._create_bytes(command, args, request_id)
+        
+    def _create_bytes(self, command, args, request_id):
         bytes = self._create_start_bytes(command, request_id)
         bytes.append(command.id)
         data = command.create_arg_bytes(args)
@@ -53,7 +59,7 @@ class Request:
             bytes.extend(data)
         bytes.append(END_SYSEX)
 
-        self.bytes = ''.join(bytes)
+        return ''.join(bytes)
 
     def _create_start_bytes(self, command, request_id):
         bytes = [START_SYSEX, AKAI_ID]

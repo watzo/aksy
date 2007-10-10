@@ -1,4 +1,5 @@
 from aksyosc.osc import CallbackManager, decodeOSC, OSCMessage
+from aksy.devices.akai.base import SamplerException
 import logging
 
 LOG = logging.getLogger('aksyosc')
@@ -32,6 +33,8 @@ decoded[0], e)
             result = self.sampler.execute_by_cmd_name(section, cmd_name, message[2:])
         except AttributeError, e:
             raise DispatchException(e)
+        except SamplerException, e:
+            return create_error_msg('Execution failed', e)
 
         if result is None:
             return None

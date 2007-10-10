@@ -10,8 +10,8 @@ log = logging.getLogger("aksy")
 class Z48(Sampler):
     """Z48
     """
-    def __init__(self, debug=1, usb_product_id=Sampler.Z48):
-        Sampler.__init__(self, usb_product_id, debug)
+    def __init__(self, connector):
+        Sampler.__init__(self, connector)
         self.setup_tools()
 
         self.sysextools.enable_msg_notification(False)
@@ -43,7 +43,3 @@ class Z48(Sampler):
 
         self.disks = model.RootDisk('disks', self.disktools.get_disklist())
         self.memory = model.Memory('memory')
-
-class MPC4K(Z48):
-    def __init__(self, debug=1):
-        Z48.__init__(self, debug, usb_product_id=Sampler.MPC4K)
