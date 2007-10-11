@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: latin-1 -*-
 import os,os.path
-from optparse import OptionParser
 
 from aksy.device import Devices
+from aksy import config
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai import fileparser
 import aksy.fileutils
@@ -13,9 +13,7 @@ __version__ = '0.01'
 
 def create_option_parser(): 
     usage = "%prog [files|folders]"
-    parser = OptionParser(usage=usage)
-    parser.add_option("-t", nargs=1, dest="samplerType",
-          help="Type of target sampler (z48/mpc4k/s56k)", default="z48")
+    parser = config.create_option_parser(usage)
     parser.add_option("-p", nargs=1, dest="programName",
           help="Upload the specified program and the samples it references")
     parser.add_option("-d", nargs=1, dest="drumProgramName",

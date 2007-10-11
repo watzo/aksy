@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 import os, os.path, fnmatch, sys 
-from optparse import OptionParser
 
 from aksy.device import Devices
+from aksy import config
 
 __author__ = 'Walco van Loon'
 __version__ = '0.01'
@@ -17,10 +17,8 @@ def create_option_parser():
     
     Download the AUTOLOAD folder from disk:
     
-    %prog -l disk Z48*/AUTOLOAD"""
-    parser = OptionParser(usage=usage)
-    parser.add_option("-t", nargs=1, dest="samplerType",
-          help="Type of target sampler (z48/mpc4k/s56k)", default="z48")
+    %prog -l disk sampler*/AUTOLOAD"""
+    parser = config.create_option_parser(usage=usage)
     parser.add_option("-l", nargs=1, default="memory", dest="location",
           help="Download from location (memory or disk)")
     parser.add_option("-d", nargs=1, default=".", dest="destdir",
@@ -29,8 +27,8 @@ def create_option_parser():
           help="Whether to overwrite existing files")
     return parser
 
-def download_from_memory(z48, destdir, patterns, overwrite):
-    collected = [item.get_name() for item in z48.memory.get_children()]
+def download_from_memory(sampler, destdir, patterns, overwrite):
+    collected = [item.get_name() for item in sampler.memory.get_children()]
     matched = []
     for pat in patterns:
         matched.extend(fnmatch.filter(collected, pat))
@@ -41,21 +39,21 @@ def download_from_memory(z48, destdir, patterns, overwrite):
     ensure_destdir(destdir)
     
     for name in matched:
-        download(z48, destdir, name, z48.MEMORY, overwrite)
+        download(sampler, destdir, name, sampler.MEMORY, overwrite)
 
-def download_from_disk(z48, destdir, patterns, overwrite):
+def download_from_disk(sampler, destdir, patterns, overwrite):
     dir_patterns = patterns[0].split('/')
-    download_children(z48, z48.disks, destdir, PatternYielder(dir_patterns), overwrite)
+    download_children(sampler, sampler.disks, destdir, PatternYielder(dir_patterns), overwrite)
 
-def download(z48, destdir, name, location, overwrite):
+def download(sampler, destdir, name, location, overwrite):
     destfile = os.path.join(destdir, name)
     if os.path.exists(destfile) and not overwrite:
         print "Skipping existing file ", destfile
     else:
         print "Downloading %s to %s" % (name, destfile)
-        z48.get(name, destfile)
+        sampler.get(name, destfile)
 
-def download_children(z48, parent, destdir, patternYielder, overwrite):
+def download_children(sampler, parent, destdir, patternYielder, overwrite):
     pat = patternYielder.next()
     filtered = [child for child in parent.get_children() if fnmatch.fnmatch(child.get_name(), pat)]
 
@@ -66,9 +64,9 @@ def download_children(z48, parent, destdir, patternYielder, overwrite):
         
     for child in filtered:
         if child.has_children():
-            download_children(z48, child, fullpath, patternYielder, overwrite)
+            download_children(sampler, child, fullpath, patternYielder, overwrite)
         else:
-            download(z48, fullpath, child.get_name(), z48.DISK, overwrite)
+            download(sampler, fullpath, child.get_name(), sampler.DISK, overwrite)
 
 def process_cmdline():
     parser = create_option_parser()
@@ -79,17 +77,17 @@ def process_cmdline():
     
     options.destdir = os.path.abspath(options.destdir)
 
-    z48 = Devices.get_instance(options.samplerType, "usb")
+    sampler = Devices.get_instance(options.samplerType, "usb")
     try:    
-        execute_cmd(z48, patterns, options)
+        execute_cmd(sampler, patterns, options)
     finally:
-        z48.close()
+        sampler.close()
 
-def execute_cmd(z48, patterns, options):
+def execute_cmd(sampler, patterns, options):
     if options.location == "memory":
-        download_from_memory(z48, options.destdir, patterns, options.overwriteExisting)
+        download_from_memory(sampler, options.destdir, patterns, options.overwriteExisting)
     elif options.location == "disk":
-        download_from_disk(z48, options.destdir, patterns, options.overwriteExisting)
+        download_from_disk(sampler, options.destdir, patterns, options.overwriteExisting)
     else:
         parser.error("Invalid location: %s" % options.location)
 
