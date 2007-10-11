@@ -5,7 +5,7 @@ import fuse
 from time import time
 
 import stat
-import os, sys
+import os
 import os.path
 import errno
 
@@ -14,6 +14,7 @@ from aksy import fileutils, model
 from aksy.concurrent import transaction
 
 from aksy.devices.akai import sampler as samplermod
+from aksy.config import get_config
 
 fuse.fuse_python_api = (0, 2)
 
@@ -165,7 +166,7 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         fuse.Fuse.__init__(self, *args, **kw)
         self.multithreaded = True
         self.fuse_args.setmod('foreground')
-        self.sampler_id = 'mock_z48'
+        self.samplerType = get_config().get('sampler', 'type')
         self.file_class = AksyFile
         stat_home = os.stat(os.path.expanduser('~'))
         StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
@@ -330,24 +331,21 @@ Aksyfs: mount your sampler as a filesystem
                  usage=usage,
                  dash_s_do='setsingle')
 
-    fs.parser.add_option(mountopt="sampler_id", metavar="SAMPLER_ID", default='mock_z48',
-                         help="mount SAMPLER_ID [default: %default]")
+    fs.parser.add_option(mountopt="samplerType", metavar="SAMPLER_TYPE", default=fs.samplerType,
+                         help="mount SAMPLER_TYPE (z48/mpc4k/s56k) [default: %default]")
     fs.parse(values=fs, errex=1)
 
-    if fs.sampler_id == "mock_z48":
+    if fs.samplerType == "mock_z48":
         script_dir = os.path.abspath(os.path.split(__file__)[0])
         src_dir = os.path.dirname(script_dir)
-        sampler = Devices.get_instance('mock_z48', None, 
+        sampler = Devices.get_instance('mock_z48', 'mock', 
                               debug=1, 
                               sampleFile=os.path.join(src_dir, 'aksy/test/test.wav'))
     else:
-        sampler = Devices.get_instance(fs.sampler_id, 'usb')
+        sampler = Devices.get_instance(fs.samplerType, 'usb')
     try:
         sampler.start_osc_server()
         fs.main(sampler)
     finally:
         sampler.stop_osc_server()
         sampler.close()
-
-if __name__ == '__main__':
-    main()
