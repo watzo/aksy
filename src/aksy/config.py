@@ -10,7 +10,7 @@ def create_option_parser(usage):
     return parser
 
 def get_config(ini_file=os.path.expanduser('~/.aksy/aksy.ini')):
-    cfg = ConfigParser.ConfigParser(defaults={ 'port': '6575', 'host': 'localhost' })
+    cfg = ConfigParser.ConfigParser(defaults={ 'port': '6575', 'host': 'localhost', 'basedir': os.path.expanduser('~') })
     cfg.add_section('sampler')
     cfg.set('sampler', 'type', 'z48')
     cfg.add_section('osc')
