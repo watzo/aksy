@@ -5,6 +5,7 @@ from aksy.devices.akai.connector import USBConnector
 from aksyosc.connector import OSCConnector
 
 _devices = { 'z48': Z48, 's56k': S56K, 'mpc4k': Z48, 'mock_z48': MockZ48 }
+_connectors = { 'usb': USBConnector, 'osc': OSCConnector, 'mock': MockConnector }
 
 class Devices:
     """
@@ -12,10 +13,10 @@ class Devices:
     """
 
     @staticmethod
-    def get_instance(device_id, connector_type, *args, **kwargs):
+    def get_instance(device_id, connector_type='usb', *args, **kwargs):
         try:
             if connector_type == 'usb':
-                connector = USBConnector(getattr(USBConnector, device_id.upper()))
+                connector = USBConnector(device_id)
             elif connector_type == 'osc':
                 connector = OSCConnector('localhost', 6575)
             elif connector_type == 'mock':
@@ -25,3 +26,4 @@ class Devices:
             return _devices[device_id](connector, *args, **kwargs)
         except KeyError, e:
             raise Exception("Device %s not found" % e[0])
+

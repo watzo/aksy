@@ -9,8 +9,8 @@ log = logging.getLogger("aksy")
 class USBConnector(AkaiSampler):
     """ USB Connector for Akai Samplers.
     """
-    def __init__(self, usb_product_id=0, debug=False):
-        AkaiSampler.__init__(self, usb_product_id)
+    def __init__(self, device_id, debug=False):
+        AkaiSampler.__init__(self, getattr(USBConnector, device_id.upper()))
         
         #self.sysextools.enable_msg_notification(False)
         #self.sysextools.enable_item_sync(False)
