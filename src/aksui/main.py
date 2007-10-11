@@ -16,7 +16,9 @@ from aksui import postmod
 from aksui.utils import midiutils, modelutils, sox
 from aksui.ak import multi, recording, program, keygroup
 from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog
+
 from aksy.device import Devices
+from aksy import config
 
 __author__ = 'Joseph Misra and Walco van Loon'
 __version__ = '0.746'
@@ -482,16 +484,19 @@ class Main(base.Base):
                 self.SamplesContextMenu.editor.popup(None, None, None, event.button, event.time)
                 return True
 
-z48 = None
 log = None
 
 if USE_CUSTOM_EXCEPTHOOK:
+    import sys
     sys.excepthook = exceptionHandler
 
 def main(): 
-    z48 = Devices.get_instance("z48", "usb")
+    parser = config.create_option_parser(usage="%prog [options]")
+    options = parser.parse_args()[0]
+
+    sampler = Devices.get_instance(options.samplerType, "usb")
     try:
-       m = Main(z48)
+       m = Main(sampler)
        win = gtk.Window()
        win.add(m.editor)
        m.set_window(win)
@@ -499,7 +504,7 @@ def main():
        win.connect("delete-event", gtk.main_quit)
        gtk.main()
     finally:
-       z48.close()
+       sampler.close()
 
 if __name__ == "__main__":
     if ENABLE_PROFILER:
