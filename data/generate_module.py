@@ -145,8 +145,8 @@ while line:
         else:
             userref_type_arg = ', %s' % userref_type
         file_out.writelines(
-            "%s%s_cmd = Command(%s, '%s%s', '%s', %s, %s%s)\n" \
-            % ((indent_block*2), cmd_var_name, repr(device_id), section_id, id, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
+            "%s%s_cmd = Command(%s, '%s%s', '%s', '%s', %s, %s%s)\n" \
+            % ((indent_block*2), cmd_var_name, repr(device_id), section_id, id, section_name, name, _arglist_helper(data), replyspec_arg, userref_type_arg))
     except IndexError, e:
         print "Parse error at line: %s, reason %s " % (line, e.args)
     except ValueError, e:
