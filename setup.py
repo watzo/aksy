@@ -77,7 +77,7 @@ setup(
       scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
       entry_points = {
         'console_scripts': [
-            'aksy-fs = aksyfuse.aksyfs:main [FUSE-PYTHON]',
+            'aksy-fs = aksyfs.fuse:main [FUSE-PYTHON]',
         ],
         'gui_scripts': [
             'aksy-ui = aksui.main:main'
