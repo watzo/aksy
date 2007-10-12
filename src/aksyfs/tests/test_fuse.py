@@ -1,7 +1,7 @@
 from unittest import TestCase, TestLoader
 import logging
 
-from aksyfuse import aksyfs
+from fuse import fuse
 from aksy.device import Devices
 from aksy.test import testutil
 from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
@@ -11,21 +11,21 @@ log = logging.getLogger('aksy')
 
 class TestStatInfo(TestCase):
     def test_set_owner(self):
-        aksyfs.StatInfo.set_owner(1, 1)
-        self.assertEquals(1, aksyfs.StatInfo.uid)
-        self.assertEquals(1, aksyfs.StatInfo.gid)
-        info = aksyfs.StatInfo(0, 1)
+        fuse.StatInfo.set_owner(1, 1)
+        self.assertEquals(1, fuse.StatInfo.uid)
+        self.assertEquals(1, fuse.StatInfo.gid)
+        info = fuse.StatInfo(0, 1)
         self.assertEquals(1, info.st_uid)
         self.assertEquals(1, info.st_gid)
 
 class TestDirStatInfo(TestCase):
     def test_stat_directory(self):
-        info = aksyfs.DirStatInfo()
+        info = fuse.DirStatInfo()
         self.assertTrue(S_ISDIR(info.st_mode))
 
 class TestFileStatInfo(TestCase):
     def test_stat_file(self):
-        info = aksyfs.FileStatInfo('test.akp', None)
+        info = fuse.FileStatInfo('test.akp', None)
         self.assertFalse(S_ISDIR(info.st_mode))
         self.assertEquals(16*1024, info.st_size)
         self.assertTrue(S_ISREG(info.st_mode))
@@ -38,7 +38,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         z48 = Devices.get_instance('mock_z48', 'mock', 
                                    debug=0, 
                                    sampleFile=testutil.get_test_resource('test.wav'))
-        self.fs = aksyfs.AksyFS()
+        self.fs = fuse.AksyFS()
         self.fs.init_sampler(z48)
         self.fs.getattr('/')
         self.fs.getattr('/disks')
@@ -117,11 +117,11 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.fs.getattr('/disks/Cdrom')
         self.fs.getattr('/disks/Cdrom/Mellotron Samples')
         self.fs.getattr('/disks/Cdrom/Mellotron Samples/Choir')
-        afile = aksyfs.AksyFile('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', S_IRUSR)
+        afile = fuse.AksyFile('/disks/Cdrom/Mellotron Samples/Choir/Choir.AKP', S_IRUSR)
         afile.release('ignored')
 
     def test_read(self):
-        afile = aksyfs.AksyFile('/memory/Sample100.wav', os.O_RDONLY|S_IRUSR)
+        afile = fuse.AksyFile('/memory/Sample100.wav', os.O_RDONLY|S_IRUSR)
         try:
             read = afile.read(4, 0)
             self.assertEquals('RIFF', read)
@@ -131,10 +131,10 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     def test_mknod_write(self):
         path = '/memory/Sample100.wav'
         self.fs.mknod(path, 0, 'ignored')
-        afile = aksyfs.AksyFile('/memory/Sample100.wav', os.O_WRONLY|S_IRUSR)
+        afile = fuse.AksyFile('/memory/Sample100.wav', os.O_WRONLY|S_IRUSR)
         afile.write('abc', 0)
         afile.release('ignored')
-        written = os.open(aksyfs._create_cache_path(path), os.O_RDONLY)
+        written = os.open(fuse._create_cache_path(path), os.O_RDONLY)
         try:
             self.assertEquals('abc', os.read(written, 3))
         finally:
@@ -166,4 +166,4 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksyfuse.tests.test_aksyfs')
+    return testloader.loadTestsFromName('aksyfs.tests.test_fuse')
