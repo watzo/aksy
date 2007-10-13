@@ -1,7 +1,3 @@
-#!/usr/bin/python
-
-import fuse
-
 from time import time
 
 import stat
@@ -15,11 +11,6 @@ from aksy.concurrent import transaction
 
 from aksy.devices.akai import sampler as samplermod
 from aksy.config import get_config
-from aksyfs import common
-
-fuse.fuse_python_api = (0, 2)
-
-fuse.feature_assert('stateful_files')
 
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
@@ -85,7 +76,7 @@ def _create_cache_path(path):
         os.makedirs(parent_dir)
     return cache_path
 
-class AksyFile(fuse.FuseFileInfo):
+class AksyFile(object):
     @staticmethod
     def set_sampler(sampler):
         AksyFile.sampler = sampler
@@ -143,28 +134,38 @@ class AksyFile(fuse.FuseFileInfo):
     def get_location(self):
         return self.location
 
-class FSStatInfo(fuse.StatVfs):
-    def __init__(self, mem_total, mem_free):
-        fuse.StatVfs.__init__(self)
-        self.f_bsize = 1024
-        self.f_frsize = 1024
-        self.f_blocks = mem_total
-        self.f_bfree = mem_free
-        self.f_bavail = mem_free
+class FSRoot(model.Container):
+    def __init__(self, sampler):
+        self.sampler = sampler
+        
+    def is_writable(self):
+        return False
+    
+    def get_children(self):
+        return [self.sampler.memory, self.sampler.disks]
 
-class AksyFS(fuse.Fuse): #IGNORE:R0904
-    def __init__(self, *args, **kw):
-        fuse.Fuse.__init__(self, *args, **kw)
-        self.multithreaded = True
-        self.fuse_args.setmod('foreground')
-        self.samplerType = get_config().get('sampler', 'type')
-        self.file_class = AksyFile
+class AksyFS(object): #IGNORE:R0904
+    def __init__(self, sampler):
+        self.init_sampler(sampler)
         stat_home = os.stat(os.path.expanduser('~'))
         StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
 
+    def open_for_read(self, path, mode):
+        location = _splitpath(path)[0]
+        name = os.path.basename(path)
+        path = _create_cache_path(path)
+
+        if location == "memory":
+            location = samplermod.AkaiSampler.MEMORY
+        elif location == "disks":
+            location = samplermod.AkaiSampler.DISK
+        else:
+            raiseException(errno.ENOENT)
+        self.sampler.get(name, path, location)
+	return open(path, mode)
+
     def access(self, path, mode):
         print "**access " + path
-        pass
     
     def fetch_parent_folder(self, path):
         return self.get_parent(path).get_child(os.path.basename(path))
@@ -220,11 +221,16 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
     def readdir(self, path, offset):
         print '*** readdir', path, offset
         folder = self.cache[path]
-        for child in folder.get_children():
+        for child in self.listdir(path):
             yield fuse.Direntry(child.get_name())
 
+    def listdir(self, path):
+        folder = self.cache[path]
+        for child in folder.get_children():
+            yield child.get_name()
+
     @transaction(samplermod.Sampler.lock)
-    def mkdir(self, path, mode):
+    def mkdir(self, path, mode='unused'):
         print '*** mkdir', path, mode
         folder = self.get_parent(path)
         if not folder.is_writable():
@@ -288,7 +294,6 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
 
     def truncate(self, path, size): #IGNORE:W0212
         print "*** truncate ", path, size
-        pass
     
     def statfs(self):
         print "*** statfs (metrics on memory contents only)"
@@ -302,41 +307,8 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
         self.cache = { '/': self.root }
         AksyFile.set_sampler(sampler)
 
-    def main(self, sampler, *args, **kw):
-        self.init_sampler(sampler)
-        return fuse.Fuse.main(self, *args, **kw)
-
 def raiseUnsupportedOperationException():
     raiseException(errno.ENOSYS)
 
 def raiseException(err):
     raise OSError(err, 'Exception occurred')
-
-def main():
-    usage = """
-Aksyfs: mount your sampler as a filesystem
-
-""" + fuse.Fuse.fusage
-
-    fs = AksyFS(version="%prog " + fuse.__version__,
-                 usage=usage,
-                 dash_s_do='setsingle')
-
-    fs.parser.add_option(mountopt="samplerType", metavar="SAMPLER_TYPE", default=fs.samplerType,
-                         help="mount SAMPLER_TYPE (z48/mpc4k/s56k) [default: %default]")
-    fs.parse(values=fs, errex=1)
-
-    if fs.samplerType == "mock_z48":
-        script_dir = os.path.abspath(os.path.split(__file__)[0])
-        src_dir = os.path.dirname(script_dir)
-        sampler = Devices.get_instance('mock_z48', 'mock', 
-                              debug=1, 
-                              sampleFile=os.path.join(src_dir, 'aksy/test/test.wav'))
-    else:
-        sampler = Devices.get_instance(fs.samplerType, 'usb')
-    try:
-        sampler.start_osc_server()
-        fs.main(sampler)
-    finally:
-        sampler.stop_osc_server()
-        sampler.close()
