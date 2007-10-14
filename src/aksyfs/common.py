@@ -85,18 +85,21 @@ class AksyFile(object):
     def set_sampler(sampler):
         AksyFile.sampler = sampler
     
+    @staticmethod
+    def parse_location(location):
+        if location == "memory":
+            return samplermod.AkaiSampler.MEMORY
+        elif location == "disks":
+            return samplermod.AkaiSampler.DISK
+        else:
+            raiseException(errno.ENOENT)
+            
     @transaction(samplermod.Sampler.lock)
     def __init__(self, path, flags, *mode):
         self.direct_io = True
         self.upload = bool(flags & os.O_WRONLY)
         self.name = os.path.basename(path)
-        location = _splitpath(path)[0]
-        if location == "memory":
-            self.location = samplermod.AkaiSampler.MEMORY
-        elif location == "disks":
-            self.location = samplermod.AkaiSampler.DISK
-        else:
-            raiseException(errno.ENOENT)
+        self.location = AksyFile.parse_location(_splitpath(path)[0])
 
         self.path = _create_cache_path(path)
 
@@ -154,6 +157,7 @@ class AksyFS(object): #IGNORE:R0904
         stat_home = os.stat(os.path.expanduser('~'))
         StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
 
+    @transaction(samplermod.Sampler.lock)
     def open_for_read(self, path, mode):
         location = _splitpath(path)[0]
         name = os.path.basename(path)
@@ -170,9 +174,27 @@ class AksyFS(object): #IGNORE:R0904
 
         return open(path, mode)
 
+    @transaction(samplermod.Sampler.lock)
     def open_for_write(self, path, mode):
-        pass
-    
+        dest = AksyFile.parse_location(_splitpath(path)[0])
+        name = os.path.basename(path)
+        path = _create_cache_path(path)
+
+        handle = open(path, mode)
+        
+        class UploadingFileWrapper:
+            def __init__(self, fd, sampler):
+                self.sampler = sampler
+                self.file = fd
+                
+            def __getattr__(self, attr):
+                return getattr(self.file, attr)
+            
+            def close(self):
+                self.file.close()
+                self.sampler.put(path, name, dest)
+
+        return UploadingFileWrapper(handle, self.sampler)
         
     def access(self, path, mode):
         print "**access " + path
@@ -236,7 +258,9 @@ class AksyFS(object): #IGNORE:R0904
 
     @transaction(samplermod.Sampler.lock)
     def listdir(self, path):
-        folder = self.cache[path]
+        folder = self.cache.get(path, None)
+        if folder is None:
+            raiseException(errno.ENOENT)
         for child in folder.get_children():
             yield child.get_name()
 
