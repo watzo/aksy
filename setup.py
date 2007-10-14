@@ -47,7 +47,7 @@ class build_akyx(build_ext):
         build_ext.build_extension(self, ext)
         
 aksy_packages = [
-          "aksy", "aksyosc", "aksy.devices", 
+          "aksy", "aksyfs", "aksyosc", "aksy.devices", 
           "aksy.devices.akai", 
           "aksy.devices.akai.mock_z48", 
           "aksy.devices.akai.z48", 
@@ -64,6 +64,7 @@ def create_download_url(version):
 
 setup(
       name = "aksy", 
+      dependency_links = ["http://pyftpdlib.googlecode.com/files/"],
       version = version,
       author = "Walco van Loon", 
       author_email = "walco at n--tree.net", 
@@ -77,7 +78,8 @@ setup(
       scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
       entry_points = {
         'console_scripts': [
-            'aksy-fs = aksyfs.fuse:main [FUSE-PYTHON]',
+            'aksy-fs = aksyfs.aksyfuse:main [FUSE-PYTHON]',
+            'aksy-ftpd = aksyfs.ftpd:main [PYFTPDLIB]',
         ],
         'gui_scripts': [
             'aksy-ui = aksui.main:main'
@@ -94,5 +96,6 @@ setup(
       },
       extras_require = {
         'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
+        'PYFTPDLIB' : ["pyftpdlib >= 0.2"]
       }
 )
