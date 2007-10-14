@@ -28,7 +28,7 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
         print 'translate ', path
         if not os.path.isabs(path):
             path = os.path.join(self.cwd, path)
-        return os.path.normpath(path)
+        return os.path.normpath(path).replace('\\', '/')
 
     def open(self, filename, mode):
         """Open a file returning its handler."""
