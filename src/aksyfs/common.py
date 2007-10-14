@@ -46,14 +46,8 @@ class DirStatInfo(StatInfo):
 
 class FileStatInfo(StatInfo):
     def __init__(self, path, size, writable=False):
-        cache_path = _get_cache_path(path)
         if size is None:
-            if os.path.exists(cache_path):
-                size = os.lstat(cache_path).st_size
-            elif fileutils.is_sample(path):
-                size = MAX_FILE_SIZE_SAMPLE
-            else:
-                size = MAX_FILE_SIZE_OTHER
+            size = get_file_size(path)
         StatInfo.__init__(self, stat.S_IFREG|stat.S_IWUSR, size, writable)
         self.st_nlink = 0
         
@@ -65,6 +59,16 @@ def _splitpath(path):
 
 def _get_cache_path(path):
     return os.path.expanduser('~/.aksy/cache' + path)
+
+def get_file_size(path):
+    cache_path = _get_cache_path(path)
+    if os.path.exists(cache_path):
+        return os.lstat(cache_path).st_size
+    
+    if fileutils.is_sample(path):
+        return MAX_FILE_SIZE_SAMPLE
+    
+    return MAX_FILE_SIZE_OTHER
 
 def _cache_path_exists(path):
     return os.path.exists(_get_cache_path(path))
@@ -161,9 +165,15 @@ class AksyFS(object): #IGNORE:R0904
             location = samplermod.AkaiSampler.DISK
         else:
             raiseException(errno.ENOENT)
+        print "open: ", path, " mode ", mode
         self.sampler.get(name, path, location)
-	return open(path, mode)
 
+        return open(path, mode)
+
+    def open_for_write(self, path, mode):
+        pass
+    
+        
     def access(self, path, mode):
         print "**access " + path
     
@@ -224,6 +234,7 @@ class AksyFS(object): #IGNORE:R0904
         for child in self.listdir(path):
             yield fuse.Direntry(child.get_name())
 
+    @transaction(samplermod.Sampler.lock)
     def listdir(self, path):
         folder = self.cache[path]
         for child in folder.get_children():

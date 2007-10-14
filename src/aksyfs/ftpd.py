@@ -5,19 +5,18 @@ from aksy.config import create_option_parser
 from aksy.device import Devices
 from aksy import fileutils
 
-import os, time
+import fnmatch
+import os, time, errno
 
 class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
     def __call__(self):
-        return self
+        return AksyFtpFS(self.sampler)
 
     def __init__(self, sampler):
         common.AksyFS.__init__(self, sampler)
         self.root = ''
-        self.cwd = ''
+        self.cwd = '/'
         self.rnfr = None
-
-    # --- Conversion utilities
 
     def translate(self, path):
         """Translate a 'virtual' FTP path into equivalent filesystem path. Take
@@ -25,21 +24,31 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
         path.
         
         """
-	# For AksyFS only virtual paths exist
-	print 'normalize ', path
-        return path
+	    # For AksyFS only virtual paths exist
+        print 'translate ', path
+        if not os.path.isabs(path):
+            path = os.path.join(self.cwd, path)
+        return os.path.normpath(path)
 
     def open(self, filename, mode):
         """Open a file returning its handler."""
-	# depending on mode, download/upload
         print 'open(%s,%s)' % (filename, mode)
-	if self.isdir(filename):
-	    return open('', mode)
-        return self.open_for_read(filename, mode)
+        if self.isdir(filename):
+            return open('', mode)
+        if mode.find('r') != -1:
+            return self.open_for_read(filename, mode)
+        elif mode.find('w') != -1:
+            return self.open_for_write(filename, mode)
+        else:
+            common.raiseException(errno.EINVAL)
 
     def exists(self, abspath):
         """Return True if the path exists."""
-        return os.path.exists(abspath)
+        try:
+            self.getattr(abspath)
+            return True
+        except OSError:
+            return False
         
     def isfile(self, abspath):
         """Return True if path is a file."""
@@ -52,8 +61,14 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
     def chdir(self, abspath):
         """Change the current directory."""
         print "chdir ", abspath
-	# noop
-	pass
+        i = 1
+        while i < len(abspath):
+            i = abspath.find('/', i)
+            if i == -1: i = len(abspath)
+            self.getattr(abspath[:i])
+            i += 1
+            
+        self.cwd = abspath
 
     def remove(self, abspath):
         """Remove the specified file."""
@@ -61,12 +76,12 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
     
     def getsize(self, abspath):
         """Return the size of the specified file in bytes."""
-        return 0L
+        return common.get_file_size(abspath)
 
     def getmtime(self, abspath):
         """Return the last modified time as a number of seconds since the
         epoch."""
-        return os.path.getmtime(abspath)
+        return common.START_TIME
            
     def glob1(self, dirname, pattern):
         """Return a list of files matching a dirname pattern non-recursively.
@@ -74,7 +89,7 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
         """
         names = self.listdir(dirname)
         if pattern[0] != '.':
-            names = filter(lambda x: x[0] != '.',names)
+            names = filter(lambda x: x[0] != '.', names)
         return fnmatch.filter(names, pattern)
 
     # --- utility methods
@@ -92,9 +107,9 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
     def get_list_dir(self, abspath):
         """Return a directory listing in a form suitable for LIST command."""
         # if path is a file we return information about it
-	print 'listdir'
+        print 'listdir'
         if os.path.isfile(abspath):
-	    print "isfile ", abspath
+            print "isfile ", abspath
             basedir, filename = os.path.split(abspath)
             listing = [filename]
         else:
@@ -122,8 +137,8 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
         """
         result = []
         for basename in listing:
-            file = os.path.join(basedir, basename)
-            stat = self.getattr(file)
+            f = os.path.join(basedir, basename)
+            stat = self.getattr(f)
 
             # stat.st_mtime could fail (-1) if file's last modification time is
             # too old, in that case we return local time as last modification time.
@@ -132,15 +147,15 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
             except ValueError:
                 mtime = time.strftime("%b %d %H:%M")
 
-            if fileutils.is_dirpath(file):
+            if fileutils.is_dirpath(f):
                 result.append("drwxrwxrwx   1 owner    group %15s %s %s\r\n" %(
                     '0', # no size
-                    mtime,
+                    mtime, 
                     basename))
             else:
                 result.append("-rw-rw-rw-   1 owner    group %15s %s %s\r\n" %(
-                    stat.st_size,
-                    mtime,
+                    stat.st_size, 
+                    mtime, 
                     basename))
         return ''.join(result)
 
@@ -151,11 +166,10 @@ def main():
     authorizer = ftpserver.DummyAuthorizer()
     authorizer.add_anonymous('/', perm=('r', 'w'))
 
-    address = ('localhost', 21)
-
-    # set a limit for connections
+    address = ('localhost', 2121)
 
     sampler = Devices.get_instance(options.samplerType, "mock")
+    sampler.sampleFile = '/home/walco/dev/workspace/aksy/test/Default.akm'
     try:    
         ftp_handler = ftpserver.FTPHandler
         ftp_handler.authorizer = authorizer
@@ -169,3 +183,5 @@ def main():
     finally:
         sampler.close()
    # start ftp server
+if __name__ == "__main__":
+    main()
