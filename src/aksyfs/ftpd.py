@@ -8,7 +8,7 @@ from aksy import fileutils
 import fnmatch
 import os, time, errno
 
-class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
+class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
     def __call__(self):
         return AksyFtpFS(self.sampler)
 
@@ -24,7 +24,7 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
         path.
         
         """
-	    # For AksyFS only virtual paths exist
+        # For AksyFS only virtual paths exist
         print 'translate ', path
         if not os.path.isabs(path):
             path = os.path.join(self.cwd, path)
@@ -32,9 +32,9 @@ class AksyFtpFS(ftpserver.AbstractedFS, common.AksyFS):
 
     def open(self, filename, mode):
         """Open a file returning its handler."""
-        print 'open(%s,%s)' % (filename, mode)
+        print 'open(%s, %s)' % (filename, mode)
         if self.isdir(filename):
-            return open('', mode)
+            raise IOError(errno.EINVAL, filename)
         if mode.find('r') != -1:
             return self.open_for_read(filename, mode)
         elif mode.find('w') != -1:
