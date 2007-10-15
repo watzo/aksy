@@ -390,11 +390,7 @@ class Song(InMemoryFile):
         InMemoryFile.__init__(self, name, handle)
         self.type = FileRef.SONG
 
-    def get_size(self):
-        raise NotImplementedError()
-
     def get_name(self):
-        # TODO!
         return InMemoryFile.get_name(self) + ".mid"
     
 class Storage(Container):
