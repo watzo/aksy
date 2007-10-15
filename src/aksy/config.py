@@ -2,7 +2,6 @@ import ConfigParser
 import os.path
 from optparse import OptionParser
 
-
 def create_option_parser(usage):
     parser = OptionParser(usage=usage)
     parser.add_option("-t", nargs=1, dest="samplerType",
