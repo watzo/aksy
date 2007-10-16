@@ -59,12 +59,14 @@ all_packages = []
 all_packages.extend(aksy_packages)
 all_packages.extend(aksui_packages)
 
+base_url = "http://walco.n--tree.net"
+
 def create_download_url(version):
-      return "http://walco.n--tree.net/downloads/aksy-%s" % version
+      return "%s/downloads/aksy-%s" % (base_url, version)
 
 setup(
       name = "aksy", 
-      dependency_links = ["http://pyftpdlib.googlecode.com/files/"],
+      dependency_links = [base_url + "/aksy/dependencies/"],
       version = version,
       author = "Walco van Loon", 
       author_email = "walco at n--tree.net", 
@@ -73,7 +75,7 @@ setup(
       package_dir = {"": "src"}, 
       packages = all_packages, 
       package_data = {"aksui": ["ak.py.glade"]},
-      url = "http://walco.n--tree.net/projects/aksy", 
+      url = base_url + "/projects/aksy", 
       download_url = create_download_url(version),
       scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
       entry_points = {
