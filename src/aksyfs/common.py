@@ -152,8 +152,9 @@ class FSRoot(model.Container):
         return [self.sampler.memory, self.sampler.disks]
 
 class AksyFS(object): #IGNORE:R0904
-    def __init__(self, sampler):
-        self.init_sampler(sampler)
+    def __init__(self, sampler=None):
+        if sampler is not None:
+            self.init_sampler(sampler)
         stat_home = os.stat(os.path.expanduser('~'))
         StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
 
@@ -196,9 +197,6 @@ class AksyFS(object): #IGNORE:R0904
 
         return UploadingFileWrapper(handle, self.sampler)
         
-    def access(self, path, mode):
-        print "**access " + path
-    
     def fetch_parent_folder(self, path):
         return self.get_parent(path).get_child(os.path.basename(path))
 
@@ -319,17 +317,14 @@ class AksyFS(object): #IGNORE:R0904
         print '*** unlink', path
         file_obj = self.get_file(path)
         file_obj.delete()
+        try:
+            os.remove(_create_cache_path(path))
+        except OSError:
+            # file not cached
+            pass 
+        
         self.get_parent(path).refresh()
 
-    @transaction(samplermod.Sampler.lock)
-    def mknod(self, path, mode, dev):
-        print '*** mknod ', path, mode, dev
-        self.cache[path] = FileStatInfo(path, None)
-        self.get_parent(path).refresh()
-
-    def truncate(self, path, size): #IGNORE:W0212
-        print "*** truncate ", path, size
-    
     def statfs(self):
         print "*** statfs (metrics on memory contents only)"
         mem_total = self.sampler.systemtools.get_wave_mem_size()

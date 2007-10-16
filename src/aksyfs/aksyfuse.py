@@ -25,66 +25,6 @@ MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
 START_TIME = time()
 
-class StatInfo(object):
-    @staticmethod
-    def set_owner(uid, gid):
-        StatInfo.uid = uid
-        StatInfo.gid = gid
-        
-    def __init__(self, mode, size, writable=False):
-        self.st_dev = 0 # TODO: figure out whether required to provide unique value
-        self.st_ino = 0 # TODO: figure out whether required to provide unique value
-        self.st_mode = mode|stat.S_IRUSR|stat.S_IRGRP
-        if writable:
-            self.st_mode |= stat.S_IWUSR
-
-        self.st_size = size
-        self.st_atime = int(time())
-        self.st_ctime = self.st_atime
-        if is_modified:
-            self.st_mtime = int(time())
-        else:
-            self.st_mtime = self.st_atime
-        self.st_uid = StatInfo.uid
-        self.st_gid = StatInfo.gid
-
-class DirStatInfo(StatInfo):   
-    def __init__(self, writable=False, child_count=1):
-        StatInfo.__init__(self, stat.S_IFDIR|stat.S_IEXEC, 4096L)
-        self.st_nlink = child_count
-
-class FileStatInfo(StatInfo):
-    def __init__(self, path, size, writable=False):
-        cache_path = _get_cache_path(path)
-        if size is None:
-            if os.path.exists(cache_path):
-                size = os.lstat(cache_path).st_size
-            elif fileutils.is_sample(path):
-                size = MAX_FILE_SIZE_SAMPLE
-            else:
-                size = MAX_FILE_SIZE_OTHER
-        StatInfo.__init__(self, stat.S_IFREG|stat.S_IWUSR, size, writable)
-        self.st_nlink = 0
-        
-def is_modified(stat_info):
-    return stat_info.st_mtime > START_TIME
-
-def _splitpath(path):
-    return path.split('/', 2)[1:]
-
-def _get_cache_path(path):
-    return os.path.expanduser('~/.aksy/cache' + path)
-
-def _cache_path_exists(path):
-    return os.path.exists(_get_cache_path(path))
-
-def _create_cache_path(path):
-    cache_path = _get_cache_path(path)
-    parent_dir = os.path.dirname(cache_path)
-    if not os.path.exists(parent_dir):
-        os.makedirs(parent_dir)
-    return cache_path
-
 class AksyFile(fuse.FuseFileInfo):
     @staticmethod
     def set_sampler(sampler):
@@ -95,7 +35,7 @@ class AksyFile(fuse.FuseFileInfo):
         self.direct_io = True
         self.upload = bool(flags & os.O_WRONLY)
         self.name = os.path.basename(path)
-        location = _splitpath(path)[0]
+        location = common._splitpath(path)[0]
         if location == "memory":
             self.location = samplermod.AkaiSampler.MEMORY
         elif location == "disks":
@@ -103,9 +43,9 @@ class AksyFile(fuse.FuseFileInfo):
         else:
             raiseException(errno.ENOENT)
 
-        self.path = _create_cache_path(path)
+        self.path = common._create_cache_path(path)
 
-        if not self.is_upload() or not _cache_path_exists(path):
+        if not self.is_upload() or not common._cache_path_exists(path):
             AksyFile.sampler.get(self.name, self.path, self.location)
         
         self.handle = os.open(self.path, flags, *mode)
@@ -152,70 +92,21 @@ class FSStatInfo(fuse.StatVfs):
         self.f_bfree = mem_free
         self.f_bavail = mem_free
 
-class AksyFS(fuse.Fuse): #IGNORE:R0904
+class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
     def __init__(self, *args, **kw):
+        # todo postpone sampler init
+        common.AksyFS().__init__()
         fuse.Fuse.__init__(self, *args, **kw)
         self.multithreaded = True
         self.fuse_args.setmod('foreground')
         self.samplerType = get_config().get('sampler', 'type')
         self.file_class = AksyFile
         stat_home = os.stat(os.path.expanduser('~'))
-        StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
+        common.StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
 
     def access(self, path, mode):
         print "**access " + path
-        pass
     
-    def fetch_parent_folder(self, path):
-        return self.get_parent(path).get_child(os.path.basename(path))
-
-    @transaction(samplermod.Sampler.lock)
-    def stat_directory(self, path):
-        folder = self.cache.get(path)
-        if folder is None:
-            folder = self.fetch_parent_folder(path)
-            if folder is None:
-                raiseException(errno.ENOENT)
-            self.cache[path] = folder
-        return DirStatInfo(folder.is_writable())
-
-    def get_parent(self, path):
-        parent = os.path.dirname(path)
-        return self.cache[parent]
-        
-    def get_file(self, path):
-        if not samplermod.Sampler.is_filetype_supported(path):
-            raiseException(errno.ENOENT)
-
-        parent_dir = self.get_parent(path)
-        file_name = os.path.basename(path)
-        
-        for child in parent_dir.get_children():
-            if child.get_name() == file_name:
-                return child
-        return None
-
-    @transaction(samplermod.Sampler.lock)
-    def stat_file(self, path):
-        cached = self.cache.get(path, None)
-        if cached is not None:
-            return cached
-        if _cache_path_exists(path):
-            return os.lstat(_create_cache_path(path))
-        
-        file_obj = self.get_file(path)
-        if file_obj is None:
-            raiseException(errno.ENOENT)
-        else:
-            return FileStatInfo(path, file_obj.get_size(), False)
-
-    def getattr(self, path):
-        print '*** getattr', path
-        if fileutils.is_dirpath(path):
-            return self.stat_directory(path)
-        else:
-            return self.stat_file(path)
-
     @transaction(samplermod.Sampler.lock)
     def readdir(self, path, offset):
         print '*** readdir', path, offset
@@ -224,80 +115,22 @@ class AksyFS(fuse.Fuse): #IGNORE:R0904
             yield fuse.Direntry(child.get_name())
 
     @transaction(samplermod.Sampler.lock)
-    def mkdir(self, path, mode):
-        print '*** mkdir', path, mode
-        folder = self.get_parent(path)
-        if not folder.is_writable():
-            raiseException(errno.EROFS)
-        if not hasattr(folder, 'create_folder'):
-            raiseUnsupportedOperationException()
-        
-        child = folder.create_folder(os.path.basename(path))
-        self.cache[path] = child
-
-    @transaction(samplermod.Sampler.lock)
-    def rename(self, old_path, new_path):
-        print '*** rename', old_path, new_path
-        new_dir = os.path.dirname(new_path)
-        if os.path.dirname(old_path) != new_dir:
-            file_obj = self.get_file(old_path)
-            if hasattr(file_obj, 'save'):
-                folder = self.cache[new_dir]
-                folder.set_current()
-                file_obj.save(False, False)
-            elif hasattr(file_obj, 'load'):
-                file_obj.load()
-            else:
-                raiseUnsupportedOperationException() 
-            return
-                
-        new_name = os.path.basename(new_path)
-        if fileutils.is_dirpath(old_path):
-            folder = self.cache[old_path]
-            folder.rename(new_name)
-            self.cache[new_path] = folder
-            del self.cache[old_path]
-        else: 
-            file_obj = self.get_file(old_path)
-            file_obj.rename(new_name)
-
-    @transaction(samplermod.Sampler.lock)
-    def rmdir(self, path):
-        print '*** rmdir', path
-        folder = self.cache[path]
-        if hasattr(folder, 'delete'):
-            folder.delete()
-            del self.cache[path]
-            self.get_parent(path).refresh()
-            return
-
-        raiseException(errno.EPERM)
-
-    @transaction(samplermod.Sampler.lock)
-    def unlink(self, path):
-        print '*** unlink', path
-        file_obj = self.get_file(path)
-        file_obj.delete()
-        self.get_parent(path).refresh()
-
-    @transaction(samplermod.Sampler.lock)
     def mknod(self, path, mode, dev):
         print '*** mknod ', path, mode, dev
-        self.cache[path] = FileStatInfo(path, None)
+        self.cache[path] = common.FileStatInfo(path, None)
         self.get_parent(path).refresh()
 
     def truncate(self, path, size): #IGNORE:W0212
         print "*** truncate ", path, size
-        pass
     
     def statfs(self):
         print "*** statfs (metrics on memory contents only)"
         mem_total = self.sampler.systemtools.get_wave_mem_size()
         mem_free = self.sampler.systemtools.get_free_wave_mem_size()
-        return FSStatInfo(mem_total, mem_free)
+        return common.FSStatInfo(mem_total, mem_free)
 
     def init_sampler(self, sampler):
-        self.root = FSRoot(sampler)
+        self.root = common.FSRoot(sampler)
         self.sampler = sampler
         self.cache = { '/': self.root }
         AksyFile.set_sampler(sampler)
