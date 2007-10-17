@@ -9,13 +9,14 @@ log = logging.getLogger('aksy')
 
 class MockConnector(object):
     def __init__(self):
-        self.sampleFile = ''
+        self.sample_file = ''
         
     def get(self, filename, destpath=None, source=AkaiSampler.MEMORY):
         log.debug("Transferring file %s to host from source %i" % (filename, source))
         if fileutils.is_sample(filename):
-            log.debug(self.sampleFile)
-            shutil.copy(self.sampleFile, destpath)
+            shutil.copy(self.sample_file, destpath)
+        if fileutils.is_program(filename):
+            shutil.copy(self.program_file, destpath)
 
     def put(self, path, remote_name=None, destination=AkaiSampler.MEMORY):
         log.debug("Transferring file %s to sampler at remote_name %s (%i)" 
@@ -25,19 +26,12 @@ class MockConnector(object):
         log.debug("execute(%s, %s)" % (repr(command), repr(args),))
         return None
     
-    def execute_request(self, request):
-        log.debug("execute_request(%s)" % repr(request))
-        return "\xf0\xf7"
-        
-
 class MockZ48(Z48):
-    def __init__(self, connector, debug=1, sampleFile=''):
+    def __init__(self, connector, debug=1): 
         # TODO: enable call to super class c'tor
         # Z48.__init__(self, connector)
         self.connector = connector
-        self.connector.sampleFile = sampleFile
         self.debug = debug
-        self.sampleFile = sampleFile
         self.setup_tools()
 
         self._patch_disktools_get_disklist()
@@ -54,6 +48,12 @@ class MockZ48(Z48):
         self._populate_fs()
 
         self._patch_rootdisk_getdir()
+
+    def set_sample(self, sample):
+	self.connector.sample_file = sample
+
+    def set_program(self, program):
+	self.connector.program_file = program
 
     def _populate_fs(self):
         mellotron_folder = model.Folder('Mellotron Samples')
