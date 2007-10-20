@@ -22,22 +22,22 @@ class SamplerCallbackManager(CallbackManager):
             return create_error_msg("Failed to execute command %s" %
 decoded[0], e)
 
-    """
-        Override base class method.
-    """
     def dispatch(self, message):
+        """
+            Overrides base class method.
+        """
+ 
         address = message[0]
         section, cmd_name = self.parse_cmd_name(address)
+        LOG.debug('dispatch(%s %s)' % (section, cmd_name))
+        
         # skip address, typetag
         try:
             result = self.sampler.execute_by_cmd_name(section, cmd_name, message[2:])
         except AttributeError, e:
             raise DispatchException(e)
-        except SamplerException, e:
+        except Exception, e:
             return create_error_msg('Execution failed', e)
-
-        if result is None:
-            return None
 
         return create_response_msg(result)
 
@@ -60,5 +60,5 @@ def create_error_msg(text, exception):
     msg = OSCMessage()
     msg.setAddress('/sampler/error')
     msg.append(text)
-    msg.append("Cause: " + str(exception))
+    msg.append(str(exception))
     return msg.getBinary()
