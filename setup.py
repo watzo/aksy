@@ -14,6 +14,11 @@ version = "0.3-SNAPSHOT"
 
 # macros= [("_DEBUG", 0), ("AKSY_DEBUG", "1")]
 macros= [("AKSY_DEBUG", 0)]
+def install_requires():
+    deps = ["pyftpdlib >= 0.2"]
+    if not platform.system() == "Windows":
+	deps.append("fuse-python >= 0.2pre3")
+    return deps
 
 def customize_for_platform(ext, compiler_type):
     ext.libraries = ["usb"]
@@ -96,6 +101,7 @@ setup(
       platforms = [ "any" ],
       download_url = create_download_url(version),
       scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
+      install_requires = install_requires(),
       entry_points = {
         'console_scripts': [
             'aksy-fs = aksyfs.aksyfuse:main [FUSE-PYTHON]',
