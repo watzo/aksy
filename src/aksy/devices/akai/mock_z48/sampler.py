@@ -1,6 +1,7 @@
 import logging, shutil
 
-from aksy.devices.akai import sysex_types
+from aksy.devices.akai import sysex_types, base
+from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai.z48.sampler import Z48
 from aksyx import AkaiSampler
 from aksy import model, fileutils
@@ -10,13 +11,17 @@ log = logging.getLogger('aksy')
 class MockConnector(object):
     def __init__(self):
         self.sample_file = ''
+        self.program_file = ''
         
     def get(self, filename, destpath=None, source=AkaiSampler.MEMORY):
         log.debug("Transferring file %s to host from source %i" % (filename, source))
-        if fileutils.is_sample(filename):
-            shutil.copy(self.sample_file, destpath)
-        if fileutils.is_program(filename):
-            shutil.copy(self.program_file, destpath)
+        try:
+            if fileutils.is_sample(filename):
+                shutil.copy(self.sample_file, destpath)
+            elif fileutils.is_program(filename):
+                shutil.copy(self.program_file, destpath)
+        except IOError:
+            raise base.SamplerException("Failed to get ", filename)
 
     def put(self, path, remote_name=None, destination=AkaiSampler.MEMORY):
         log.debug("Transferring file %s to sampler at remote_name %s (%i)" 
@@ -29,7 +34,7 @@ class MockConnector(object):
 class MockZ48(Z48):
     def __init__(self, connector, debug=1): 
         # TODO: enable call to super class c'tor
-        # Z48.__init__(self, connector)
+        Sampler.__init__(self, connector)
         self.connector = connector
         self.debug = debug
         self.setup_tools()

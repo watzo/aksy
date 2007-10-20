@@ -1,4 +1,4 @@
-from aksy.devices.akai import sysex
+from aksy.devices.akai import sysex, transfertools
 from aksyx import AkaiSampler
 
 from aksy import fileutils
@@ -19,6 +19,7 @@ class Sampler(object):
     """
     def __init__(self, connector):
         self.connector = connector
+        self.transfertools = transfertools.Transfertools(self)
 
     @transaction(lock)
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
@@ -26,19 +27,6 @@ class Sampler(object):
         cmd = getattr(tools_obj, command_name + "_cmd")
         return self.execute(cmd, args, request_id)
 
-    def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
-        """Gets a file from the sampler, overwriting destfile if it already exists.
-        """
-        # TODO: consider removal
-        self.connector.get(filename, destfile, source)
-
-    def put(self, sourcepath, remote_name=None, destination=AkaiSampler.MEMORY):
-        """Transfers a file to the sampler, overwriting it if it already exists.
-        Default destination is memory
-        """
-        # TODO: consider replace connector put by _put
-        self.connector.put(sourcepath, remote_name, destination)
-        
     def execute_alt_request(self, handle, commands, args, index = None):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
         All commands must be from the same sub section (get/set/main), the section id will be determined from the first command in the list.
