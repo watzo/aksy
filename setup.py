@@ -61,8 +61,24 @@ all_packages.extend(aksui_packages)
 
 base_url = "http://walco.n--tree.net"
 
+classifiers = """\
+Development Status :: 3 - Alpha
+Intended Audience :: Developers
+Intended Audience :: End Users/Desktop
+License :: OSI Approved :: GNU General Public License (GPL)
+Programming Language :: Python
+Programming Language :: C
+Topic :: Multimedia :: Sound/Audio
+Topic :: Software Development :: Libraries :: Python Modules
+Topic :: System :: Filesystems
+Topic :: System :: Hardware
+Operating System :: Microsoft :: Windows
+Operating System :: MacOS :: MacOS X
+Operating System :: POSIX :: Linux
+"""
+
 def create_download_url(version):
-      return "%s/downloads/aksy-%s" % (base_url, version)
+      return "%s/downloads/aksy-%s.tar.gz" % (base_url, version)
 
 setup(
       name = "aksy", 
@@ -72,10 +88,12 @@ setup(
       author_email = "walco at n--tree.net", 
       description = "Control S5000/S6000, Z4/Z8 and MPC4000 Akai sampler models with System Exclusive over USB",
       license = "GPL",
+      classifiers = filter(None, classifiers.split("\n")),
       package_dir = {"": "src"}, 
       packages = all_packages, 
       package_data = {"aksui": ["ak.py.glade"]},
       url = base_url + "/projects/aksy", 
+      platforms = [ "any" ],
       download_url = create_download_url(version),
       scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
       entry_points = {
