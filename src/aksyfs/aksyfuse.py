@@ -160,11 +160,13 @@ Aksyfs: mount your sampler as a filesystem
     fs.parse(values=fs, errex=1)
 
     if fs.samplerType == "mock_z48":
-        script_dir = os.path.abspath(os.path.split(__file__)[0])
-        src_dir = os.path.dirname(script_dir)
-        sampler = Devices.get_instance('mock_z48', 'mock', 
-                              debug=1, 
-                              sampleFile=os.path.join(src_dir, 'aksy/test/test.wav'))
+        fs.parser.add_option(mountopt="sample_file", metavar="SAMPLE_FILE", 
+                         help="The wave file to be served when any wave file is accessed on the filesystem")
+        fs.parser.add_option(mountopt="program_file", metavar="PROGRAM_FILE", 
+                         help="The program to be served when any program is accessed on the filesystem")
+        sampler = Devices.get_instance('mock_z48', 'mock')
+        sampler.set_sample(fs.sample_file)
+        sampler.set_program(fs.program_file)
     else:
         sampler = Devices.get_instance(fs.samplerType, 'usb')
     try:
