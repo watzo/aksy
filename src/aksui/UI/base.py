@@ -2,10 +2,11 @@ import gtk
 
 import os.path
 
-module_dir = os.path.abspath(os.path.split(__file__)[0])
+from pkg_resources import resource_string
+glade_str = resource_string('aksui', 'ak.py.glade')
 
 def get_glade_xml(root):
-    return gtk.glade.XML(os.path.join(module_dir, '../ak.py.glade'), root)
+    return gtk.glade.xml_new_from_buffer(glade_str, len(glade_str), root)
 
 class Base(object):
     def __init__(self, samplerobject, editor_root):
