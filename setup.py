@@ -106,9 +106,10 @@ setup(
         'console_scripts': [
             'aksy-fs = aksyfs.aksyfuse:main [FUSE-PYTHON]',
             'aksy-ftpd = aksyfs.ftpd:main [PYFTPDLIB]',
+            'aksy-ui = aksui.main:main'
         ],
         'gui_scripts': [
-            'aksy-ui = aksui.main:main'
+	    # TODO re-add aksy-ui when it uses dialogs do display startup errors
         ]
       },
       ext_modules = [
