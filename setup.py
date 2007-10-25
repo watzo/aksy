@@ -10,7 +10,7 @@ from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
 import platform, os.path
 
-version = "0.3-SNAPSHOT" 
+version = "0.3" 
 
 # macros= [("_DEBUG", 0), ("AKSY_DEBUG", "1")]
 macros= [("AKSY_DEBUG", 0)]
