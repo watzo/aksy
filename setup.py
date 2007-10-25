@@ -14,16 +14,25 @@ version = "0.3"
 
 # macros= [("_DEBUG", 0), ("AKSY_DEBUG", "1")]
 macros= [("AKSY_DEBUG", 0)]
+
 def install_requires():
     deps = ["pyftpdlib >= 0.2"]
     if not platform.system() == "Windows":
 	deps.append("fuse-python >= 0.2pre3")
     return deps
 
+def scripts():
+    scripts = ["examples/aksy-get.py", "examples/aksy-put.py"]
+
+    import sys
+    if sys.argv[1] == "bdist_wininst":
+        scripts.append("scripts\\win32-installer-script.py")
+    return scripts
+
 def customize_for_platform(ext, compiler_type):
     ext.libraries = ["usb"]
 
-    # Windows 
+    # Windows
     if platform.system() == "Windows":
         libusb_base_dir = "C:\Program Files\LibUSB-Win32"
 
@@ -82,9 +91,6 @@ Operating System :: MacOS :: MacOS X
 Operating System :: POSIX :: Linux
 """
 
-def create_download_url(version):
-      return "%s/downloads/aksy-%s.tar.gz" % (base_url, version)
-
 setup(
       name = "aksy", 
       dependency_links = [base_url + "/aksy/dependencies/"],
@@ -99,8 +105,8 @@ setup(
       package_data = {"aksui": ["ak.py.glade"]},
       url = base_url + "/projects/aksy", 
       platforms = [ "any" ],
-      download_url = create_download_url(version),
-      scripts = ["examples/aksy-get.py", "examples/aksy-put.py"],
+      download_url = base_url + "/downloads",
+      scripts = scripts(),
       install_requires = install_requires(),
       entry_points = {
         'console_scripts': [
