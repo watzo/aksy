@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import psyco
-psyco.full()
+#import psyco
+#psyco.full()
 
 try:
     import hotshot, hotshot.stats
