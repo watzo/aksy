@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import psyco
-psyco.full()
 import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect
 import pygtk
 pygtk.require('2.0')

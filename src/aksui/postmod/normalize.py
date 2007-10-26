@@ -1,11 +1,7 @@
-import psyco
-psyco.full()
-
 import time, array
 import wavex, filex
 
 BUFSIZE = 65536
-
 
 def getTable16(ratio):
     return [max(-32767, min(32767, i * ratio)) for i in xrange(-32767, 32768)]
@@ -13,7 +9,6 @@ def getTable16(ratio):
 def getTable8(ratio):
     return [max(-127, min(127, i * ratio)) for i in xrange(256)]
     
-
 def getPeaks(f, callback=None):
     # f should be an open sound file
 
@@ -213,12 +208,6 @@ def normalizeFile(infile, outfile, percent=100, callback=None, settings=None):
 
     return result    
     
-
-psyco.bind(normalizeFile)
-psyco.bind(normalize)
-psyco.bind(amplify16)
-
-
 if __name__ == "__main__":
     import time
     f = wavex.open("c:\\it\\export\\cla5.wav", "rb")

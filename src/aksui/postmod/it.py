@@ -1,7 +1,3 @@
-from psyco.classes import *
-import psyco.classes
-#psyco.classes.psyobj = object
-
 import os, sys, array, struct, string, copy, audioop, traceback, operator, time, sets
 
 
@@ -394,7 +390,7 @@ class MPTPlugin:
 
 
 
-class ITHeader(psyco.classes.psyobj):
+class ITHeader(object):
     def __init__(self):
         self.headerID = "IMPM"      # char[4]
         self.songName = ""          # char[26]
@@ -817,7 +813,7 @@ ITSample flags:
 """
 
 
-class ITSample(psyco.classes.psyobj):
+class ITSample(object):
 
     """
     // set looping flags
@@ -1416,7 +1412,7 @@ class ITSample(psyco.classes.psyobj):
 
 
 
-class ITInstrumentEnvelope(psyco.classes.psyobj):
+class ITInstrumentEnvelope(object):
     def __init__(self):
         self.flag = 0                   # unsigned char
         self.numNodePoints = 0          # unsigned char
@@ -1474,7 +1470,7 @@ class ITInstrumentEnvelope(psyco.classes.psyobj):
             
 
 
-class ITInstrument(psyco.classes.psyobj):
+class ITInstrument(object):
     def __init__(self):
         self.headerID = "IMPI"          # char[4]
         self.filename = ""              # char[12]
@@ -1690,7 +1686,7 @@ class ITInstrument(psyco.classes.psyobj):
 
 
 
-class ITInstrumentOld(psyco.classes.psyobj):
+class ITInstrumentOld(object):
     # Old Instrument Format
     
     def __init__(self):
@@ -1886,7 +1882,7 @@ SFXPOSVALS = range(0xB0, 0xB9) + range(0xE0, 0xE9)
 #ITEventData = itc.ITEvent
 
 
-##class ITEventData(psyco.classes.psyobj):
+##class ITEventData(object):
 ##    def __init__(self):
 ##        #self.note = EVENT_NULL_NOTE
 ##        #self.instrument = EVENT_NULL_INSTRUMENT
@@ -1978,7 +1974,7 @@ BLANKNOTEDATA = array.array("B", [EVENT_NULL_NOTE, EVENT_NULL_INSTRUMENT,
 
 
 #ITEventDataFast is OBSOLETE, use itc.ITEvent instead
-class ITEventDataFast(psyco.classes.psyobj):
+class ITEventDataFast(object):
     """ optimized version of ITEventData """
     def __init__(self):
         self.data = array.array("B", [EVENT_NULL_NOTE, EVENT_NULL_INSTRUMENT,
@@ -2063,7 +2059,7 @@ class ITEventDataFast(psyco.classes.psyobj):
 
 
 
-class ITChannelData(psyco.classes.psyobj):
+class ITChannelData(object):
     def __init__(self, rows=0):
         #self.events = [] # list of ITEventData
         self.numrows = rows
@@ -2225,7 +2221,7 @@ class ITChannelDataFast:
             
 
 
-class ITRowData(psyco.classes.psyobj):
+class ITRowData(object):
     def __init__(self):
         self.channels = []
         for i in xrange(0, MAX_PATTERN_CHANNELS):
@@ -2234,7 +2230,7 @@ class ITRowData(psyco.classes.psyobj):
     def __getitem__(self, channel):
         return self.channels[channel]
 
-class ITPattern(psyco.classes.psyobj):
+class ITPattern(object):
     def __init__(self, numrows=DEFAULT_NUM_ROWS):
         self.numrows = numrows
         self.numchannels = 0
@@ -2849,7 +2845,7 @@ class ITPattern(psyco.classes.psyobj):
 
 
 
-class ITPackedPattern(psyco.classes.psyobj):
+class ITPackedPattern(object):
     def __init__(self):
         self.length = 0     # short, length of packed pattern in bytes, not including 8-byte header (ie, length of self.data)
         self.rows = 0       # short, number of rows
@@ -3181,7 +3177,7 @@ class ITPackedPattern(psyco.classes.psyobj):
 #TODO: make sure save methods header, headIndex grow offset lists if necessary
 
 
-class ITModule(psyco.classes.psyobj):
+class ITModule(object):
     def __init__(self, fname="", unpack=1, loadSampleData=1):
         self.header = ITHeader()
         self.patterns = []      # unpacked patterns
@@ -4801,12 +4797,3 @@ if __name__ == "__main__":
             print x
             fxstats(x)
             print "----------------------------------"
-        
-
-import psyco
-psyco.bind(ITPattern.pack)
-psyco.bind(ITModule.load)
-
-#psyco.bind(ITPackedPattern.unpack)
-#psyco.bind(ITModule.save)
-

@@ -1,6 +1,5 @@
 Python 2.4
 wxPython
-psyco
 ctypes
 pyrex
 NumPy

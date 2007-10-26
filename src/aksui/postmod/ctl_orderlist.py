@@ -137,7 +137,6 @@ class OrderListControl(canvas.Canvas, observer.Subject):
         #print "timed", time.time() - a
         self.Refresh()
 
-    #psyco.bind(onSize)
 
 
     def OnSetFocus(self, event):
@@ -268,7 +267,6 @@ class OrderListControl(canvas.Canvas, observer.Subject):
             #self.buffer.DrawText(str(num), x-tw-1, y-th)
             self.buffer.DrawText(str(num), x-tw, y-th)
 
-    #psyco.bind(DrawBuffer)
             
     def SetLabel(self, message):
         data = message.split(",")
@@ -449,6 +447,3 @@ class OrderListControl(canvas.Canvas, observer.Subject):
         idx = self.getIndex()
         if idx < len(self.data):
             self.actionFunc(idx, self.data[idx], 1)
-        
-        
-#psyco.bind(OrderListControl)

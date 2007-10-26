@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import psyco
-psyco.full()
 #import hotshot, hotshot.stats
 import os,os.path,re,logging,sys,struct,math,traceback,getopt,inspect
 import types
