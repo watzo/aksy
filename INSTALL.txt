@@ -17,7 +17,6 @@ Ak.py (by Joseph Misra) needs Psyco and a recent GTK and its python bindings.
 These are all available in modern Linux distributions, for Windows it's a bit
 more manual installation work.
 
-  * Psyco (http://psyco.sourceforge.net/)
   * GTK+ runtime 2.10.11 from http://gimp-win.sourceforge.net/
   * PyGTK (PyCairo/PyGObject/PyGTK) from www.pygtk.org
   * libglade 2.4.0 (available at http://gladewin32.sourceforge.net/)
