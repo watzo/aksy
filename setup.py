@@ -25,7 +25,7 @@ def scripts():
     scripts = []
 
     import sys
-    if sys.argv[1] == "bdist_wininst":
+    if len(sys.argv) > 1 and sys.argv[1] == "bdist_wininst":
         scripts.append("scripts\\win32-installer-script.py")
     return scripts
 
