@@ -15,6 +15,8 @@ log = logging.getLogger("aksy")
 
 class Sampler(object):
     lock = Lock()
+    MEMORY = AkaiSampler.MEMORY
+    DISK = AkaiSampler.DISK
     """Base class for AkaiSampler.
     """
     def __init__(self, connector):
