@@ -170,7 +170,7 @@ class FileChooser:
         already_done = []
         for f in self.files:
             if f and not f in already_done:
-                self.s.put(f)
+                self.s.transfertools.put(f)
                 already_done.append(f)
                 
         self.do_lists() 

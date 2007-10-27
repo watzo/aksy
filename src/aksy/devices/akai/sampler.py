@@ -19,7 +19,7 @@ class Sampler(object):
     """
     def __init__(self, connector):
         self.connector = connector
-        self.transfertools = transfertools.Transfertools(self)
+        self.transfertools = transfertools.Transfertools(connector)
 
     @transaction(lock)
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):

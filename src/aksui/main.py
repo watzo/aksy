@@ -428,7 +428,7 @@ class Main(base.Base):
                             # TODO: Put some sort of confirmation here, if user wants it.
                             self.log(filenamepath + " exists; overwriting it.")
                         self.log("Saving " + filenamepath + "...")
-                        self.s.get(filename, filenamepath)
+                        self.s.transfertools.get(filename, filenamepath)
         else:
             self.log("Invalid path chosen.")
             
