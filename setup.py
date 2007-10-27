@@ -22,7 +22,7 @@ def install_requires():
     return deps
 
 def scripts():
-    scripts = ["examples/aksy-get.py", "examples/aksy-put.py"]
+    scripts = []
 
     import sys
     if sys.argv[1] == "bdist_wininst":
@@ -62,6 +62,7 @@ class build_akyx(build_ext):
         
 aksy_packages = [
           "aksy", "aksyfs", "aksyosc", "aksy.devices", 
+          "aksy.console",
           "aksy.devices.akai", 
           "aksy.devices.akai.mock_z48", 
           "aksy.devices.akai.z48", 
@@ -110,9 +111,11 @@ setup(
       install_requires = install_requires(),
       entry_points = {
         'console_scripts': [
+            'aksy-get = aksy.console.get:main',
+            'aksy-put = aksy.console.put:main',
             'aksy-fs = aksyfs.aksyfuse:main [FUSE-PYTHON]',
             'aksy-ftpd = aksyfs.ftpd:main [PYFTPDLIB]',
-            'aksy-ui = aksui.main:main'
+            'aksy-ui = aksui.main:main',
         ],
         'gui_scripts': [
 	    # TODO re-add aksy-ui when it uses dialogs do display startup errors

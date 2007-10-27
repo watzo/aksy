@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: latin-1 -*-
 import os,os.path
 
@@ -38,7 +37,7 @@ def collect_dir(args):
             if Sampler.is_filetype_supported(found):
                 yield os.path.join(root, found)
                   
-def process_cmdline():
+def main():
     parser = create_option_parser()
     (options, filelist) = parser.parse_args()
 
@@ -108,7 +107,7 @@ def upload_files(z48, to_upload, filterProgram=None):
         to_upload = filtered
     
     for file in to_upload:
-        z48.put(file)
+        z48.transfertools.put(file)
 
 def find_file(files, samplename):
     for f in files:
@@ -117,6 +116,3 @@ def find_file(files, samplename):
         if basename == samplename:
             return f
     raise IOError("File not found in upload file list: " + samplename)
-
-if __name__ == '__main__':
-   process_cmdline()

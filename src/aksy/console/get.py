@@ -51,7 +51,7 @@ def download(sampler, destdir, name, location, overwrite):
         print "Skipping existing file ", destfile
     else:
         print "Downloading %s to %s" % (name, destfile)
-        sampler.get(name, destfile)
+        sampler.transfertools.get(name, destfile)
 
 def download_children(sampler, parent, destdir, patternYielder, overwrite):
     pat = patternYielder.next()
@@ -68,7 +68,7 @@ def download_children(sampler, parent, destdir, patternYielder, overwrite):
         else:
             download(sampler, fullpath, child.get_name(), sampler.DISK, overwrite)
 
-def process_cmdline():
+def main():
     parser = create_option_parser()
     (options, patterns) = parser.parse_args()
 
@@ -108,5 +108,3 @@ class PatternYielder:
         except IndexError:
             return "*"
 
-if __name__ == '__main__':
-   process_cmdline()
