@@ -112,7 +112,7 @@ class AksyFile(object):
     def release(self, flags):
         if self.is_upload():
             try:
-                AksyFile.sampler.put(self.get_path(), None, self.get_location())
+                AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
             except IOError, exc:
                 # TODO: move to a method where we can raise exceptions
                 print "Exception occurred: ", repr(exc)
@@ -171,7 +171,7 @@ class AksyFS(object): #IGNORE:R0904
         else:
             raiseException(errno.ENOENT)
         print "open: ", path, " mode ", mode
-        self.sampler.get(name, path, location)
+        self.sampler.transfertools.get(name, path, location)
 
         return open(path, mode)
 
