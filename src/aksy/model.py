@@ -81,6 +81,8 @@ class Disk(Container):
         return ('upload',)
     
 def get_file_type(name):
+    assert name is not None
+    
     if fileutils.is_multi(name):
         return FileRef.MULTI
     if fileutils.is_program(name):
@@ -212,7 +214,7 @@ class Folder(FileRef, Container):
         file_names = handlers[Disk].get_filenames()
         if file_names:
             files = [ FileRef((os.path.join(self.path, name))) for name in
-                file_names if fileutils.is_valid_name(name)]
+                file_names if fileutils.is_file(name)]
             self.children.extend(files)
         return self.children
 
