@@ -193,7 +193,7 @@ class AksyFS(object): #IGNORE:R0904
             
             def close(self):
                 self.file.close()
-                self.sampler.put(path, name, dest)
+                self.sampler.transfertools.put(path, name, dest)
 
         return UploadingFileWrapper(handle, self.sampler)
         
