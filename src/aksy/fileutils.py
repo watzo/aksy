@@ -2,7 +2,7 @@ import re
 
 RE_MULTI = re.compile("\.akm$", re.IGNORECASE)
 RE_PROGRAM = re.compile("\.(akp|pgm)$", re.IGNORECASE)
-RE_SAMPLE = re.compile("\.wav$", re.IGNORECASE)
+RE_SAMPLE = re.compile("\.(wav|aif)$", re.IGNORECASE)
 RE_SONG = re.compile("\.mid$", re.IGNORECASE)
 RE_WORD = re.compile("[\w.& _()-]+$")
 RE_FILE = re.compile("\.[a-z]{3}", re.IGNORECASE)
