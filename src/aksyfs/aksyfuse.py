@@ -10,7 +10,6 @@ import os.path
 import errno
 
 from aksy.device import Devices
-from aksy import fileutils, model
 from aksy.concurrent import transaction
 
 from aksy.devices.akai import sampler as samplermod
