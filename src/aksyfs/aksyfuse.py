@@ -98,7 +98,6 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         common.AksyFS().__init__()
         fuse.Fuse.__init__(self, *args, **kw)
         self.multithreaded = True
-        self.fuse_args.setmod('foreground')
         self.samplerType = get_config().get('sampler', 'type')
         self.file_class = AksyFile
         stat_home = os.stat(os.path.expanduser('~'))
@@ -156,14 +155,15 @@ Aksyfs: mount your sampler as a filesystem
                  dash_s_do='setsingle')
 
     fs.parser.add_option(mountopt="samplerType", metavar="SAMPLER_TYPE", default=fs.samplerType,
-                         help="mount SAMPLER_TYPE (z48/mpc4k/s56k) [default: %default]")
+                         help="mount SAMPLER_TYPE (z48/mpc4k/s56k|mock_z48) [default: %default]")
+    fs.parser.add_option(mountopt="sample_file", metavar="SAMPLE_FILE", 
+                         help="The wave file to be served when any wave file is accessed on the filesystem (only valid with mock_z48)")
+    fs.parser.add_option(mountopt="program_file", metavar="PROGRAM_FILE", 
+                         help="The program to be served when any program is accessed on the filesystem (only valid with mock_z48")
+
     fs.parse(values=fs, errex=1)
 
     if fs.samplerType == "mock_z48":
-        fs.parser.add_option(mountopt="sample_file", metavar="SAMPLE_FILE", 
-                         help="The wave file to be served when any wave file is accessed on the filesystem")
-        fs.parser.add_option(mountopt="program_file", metavar="PROGRAM_FILE", 
-                         help="The program to be served when any program is accessed on the filesystem")
         sampler = Devices.get_instance('mock_z48', 'mock')
         sampler.set_sample(fs.sample_file)
         sampler.set_program(fs.program_file)
