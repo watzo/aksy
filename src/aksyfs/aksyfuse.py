@@ -45,7 +45,7 @@ class AksyFile(fuse.FuseFileInfo):
         self.path = common._create_cache_path(path)
 
         if not self.is_upload() or not common._cache_path_exists(path):
-            AksyFile.sampler.get(self.name, self.path, self.location)
+            AksyFile.sampler.transfertools.get(self.name, self.path, self.location)
         
         self.handle = os.open(self.path, flags, *mode)
 
@@ -53,7 +53,7 @@ class AksyFile(fuse.FuseFileInfo):
     def release(self, flags):
         if self.is_upload():
             try:
-                AksyFile.sampler.put(self.get_path(), None, self.get_location())
+                AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
             except IOError, exc:
                 # TODO: move to a method where we can raise exceptions
                 print "Exception occurred: ", repr(exc)
