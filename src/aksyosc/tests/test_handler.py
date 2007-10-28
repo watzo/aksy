@@ -35,11 +35,10 @@ class SamplerCallbackManagerTest(TestCase):
         message.setAddress("/sample/play/invalid")
         # should not throw
         resp = self.handler.handle(message.getBinary())
-        self.assertEquals(resp, "/sampler/error\x00\x00,ss\x00Failed to execute "
-        "command /sample/play/invalid\x00\x00Cause: Invalid address: "
-        "'/sample/play/invalid', "
-        "should have two components"
-        "\x00\x00")
+        
+        self.assertEquals(str(resp),
+                          "/sampler/error\x00\x00,ss\x00Failed to execute command /sample/play/invalid\x00\x00"
+                          "Invalid address: '/sample/play/invalid', should have two components\x00") 
         self.assertEquals([], self.sampler.recorded);
 
     def testDispatchUnknownCommand(self):
@@ -49,8 +48,7 @@ class SamplerCallbackManagerTest(TestCase):
         handler = SamplerCallbackManager(sampler)
         # should not throw
         resp = handler.handle(message.getBinary())
-        self.assertEquals(resp, "/sampler/error\x00\x00,ss\x00Failed to execute "
-        "command /sample/play\x00\x00Cause: a\x00\x00\x00\x00") 
+        self.assertEquals(resp, "/sampler/error\x00\x00,ss\x00Failed to execute command /sample/play\x00\x00a\x00\x00\x00")
         self.assertEquals([], self.sampler.recorded);
         
 def test_suite():
