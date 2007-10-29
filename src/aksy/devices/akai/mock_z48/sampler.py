@@ -31,6 +31,10 @@ class MockConnector(object):
         log.debug("execute(%s, %s)" % (repr(command), repr(args),))
         return None
     
+    def close(self):
+        log.debug("close()")
+        
+    
 class MockZ48(Z48):
     def __init__(self, connector, debug=1): 
         # TODO: enable call to super class c'tor
