@@ -142,6 +142,7 @@ class CompoundWordType(SysexType):
         byte1, byte2 = struct.unpack('2B', string)
         return (byte1 << 7) + byte2
 
+
 class SignedWordType(SysexType):
     def __init__(self):
         SysexType.__init__(self, 3, True, '\x03')
@@ -491,6 +492,49 @@ class FourByteType(CompositeByteType):
     def __init__(self):
         super(FourByteType, self).__init__(4, '\x0b')
 
+# TODO: make HandleNameDictType
+class HandleNameArrayType(object):
+    """Mixed data type, wrapping handle(DoubleWord) and name (StringType)
+    """
+    def __init__(self):
+        self.size = None
+    def encode(self, value):
+        raise NotImplementedError
+
+    def decode(self, string):
+        results = []
+        len_to_parse = len(string)
+        len_parsed = 0
+        while len_parsed < len_to_parse:
+            handle = DWORD.decode(
+                    string[len_parsed:len_parsed+5], typed=False)
+            len_parsed += 5
+            len_result, name = STRING.decode(string[len_parsed:])
+            results.append((handle, name))
+            len_parsed += len_result
+        return len_parsed, tuple(results)
+
+class NameSizeArrayType(object):
+    """Mixed data type, wrapping name (StringType) and size (DoubleWord)
+    """
+    def __init__(self):
+        self.size = None
+    def encode(self, value):
+        raise NotImplementedError
+
+    def decode(self, string):
+        results = []
+        len_to_parse = len(string)
+        len_parsed = 0
+        while len_parsed < len_to_parse and string[len_parsed] != END_SYSEX:
+            len_result, name = STRING.decode(string[len_parsed:])
+            len_parsed += len_result
+            size = DWORD.decode(
+                    string[len_parsed-1:len_parsed+4], typed=False)
+            len_parsed += 4
+            results.append((name, size))
+        return len_parsed, tuple(results)
+
 # Base Sysex types
 BYTE        = ByteType()
 SBYTE       = SignedByteType()
@@ -502,6 +546,7 @@ QWORD       = QWordType()
 SQWORD      = SignedQWordType()
 STRING      = StringType()
 STRINGARRAY = StringArrayType()
+
 USERREF     = UserRefType()
 Z48USERREF  = Z48UserRefType()
 
@@ -525,6 +570,8 @@ LEVEL       = SoundLevelType()
 DISK        = DiskType()
 DISKLIST    = DisklistType()
 TYPED_COMPOSITE = TypedCompositeType()
+HANDLENAMEARRAY = HandleNameArrayType()
+NAMESIZEARRAY = NameSizeArrayType()
 
 _types = {
     BYTE.id: BYTE,
@@ -552,27 +599,3 @@ def get_type(typeId):
     if type is None:
         raise UnknownSysexTypeError( "%02x" % struct.unpack('B', typeId))
     return type
-
-# TODO: make HandleNameDictType
-class HandleNameArrayType(object):
-    """Mixed data type, wrapping handle(DoubleWord) and name (StringType)
-    """
-    def __init__(self):
-        self.size = None
-    def encode(self, value):
-        raise NotImplementedError
-
-    def decode(self, string):
-        results = []
-        len_to_parse = len(string)
-        len_parsed = 0
-        while len_parsed < len_to_parse:
-            handle = DWORD.decode(
-                    string[len_parsed:len_parsed+5], typed=False)
-            len_parsed += 5
-            len_result, name = STRING.decode(string[len_parsed:])
-            results.append((handle, name))
-            len_parsed += len_result
-        return len_parsed, tuple(results)
-
-HANDLENAMEARRAY = HandleNameArrayType()

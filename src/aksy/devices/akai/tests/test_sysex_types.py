@@ -95,7 +95,7 @@ class TestQWordType(unittest.TestCase):
     def testDecode(self):
         qw = sysex_types.QWordType()
         self.assertEquals(
-            72057594037927935L,
+            72057594037927935L, 
             qw.decode('\x7f\x7f\x7f\x7f\x7f\x7f\x7f\x7f'))
         self.assertEquals(145957L, qw.decode('\x25\x74\x08\x00\x00\x00\x00\x00'))
 
@@ -103,17 +103,17 @@ class TestSignedQWordType(unittest.TestCase):
     def testEncode(self):
         sdw = sysex_types.SignedQWordType()
         self.assertEquals(
-            '\x01\x7f\x7f\x7f\x7f\x00\x00\x00\x00',
+            '\x01\x7f\x7f\x7f\x7f\x00\x00\x00\x00', 
             sdw.encode(-268435455))
 
     def testDecode(self):
         qw = sysex_types.SignedQWordType()
         self.assertEquals(
-            -72057594037927935L,
+            -72057594037927935L, 
             qw.decode('\x01\x7f\x7f\x7f\x7f\x7f\x7f\x7f\x7f'))
 
         self.assertEquals(
-            -558551906910208L,
+            -558551906910208L, 
             qw.decode('\x01\x00\x00\x00\x00\x00\x00\x7f\x00'))
 
 class TestBoolType(unittest.TestCase):
@@ -144,7 +144,7 @@ class TestStringArrayType(unittest.TestCase):
     def testDecode(self):
         s = sysex_types.StringArrayType()
         self.assertEquals(
-            (18, ('test sdf', 'test ghi')),
+            (18, ('test sdf', 'test ghi')), 
             s.decode('test sdf\x00test ghi\x00'))
 
     def testInvalidValues(self):
@@ -194,58 +194,81 @@ class TestSoundLevelType(unittest.TestCase):
 class TestPanningType(unittest.TestCase):
     pass
 
-class TestTestHandleNameArrayType(unittest.TestCase):
+class TestHandleNameArrayType(unittest.TestCase):
     def setUp(self):
         self.handle_name_type = sysex_types.HandleNameArrayType()
     def testDecode(self):
         result = self.handle_name_type.decode('\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
         self.assertEquals((16, ((65537, 'SynthTest'),)), result)
 
+    def testDecode2(self):
         result = self.handle_name_type.decode('\x04\x00\x00\x04\x00\x08\x44\x72\x79\x20\x4b\x69\x74\x20\x30\x32\x00\x04\x01\x00\x04\x00\x08\x53\x79\x6e\x74\x68\x54\x65\x73\x74\x00')
         self.assertEquals((33, ((65536, 'Dry Kit 02'), (65537, 'SynthTest'))), result)
+
+class TestNameSizeArrayType(unittest.TestCase):
+    def setUp(self):
+        self.type = sysex_types.NAMESIZEARRAY
+        
+    def testDecode(self):
+        to_decode = '\x67\x74\x72\x2e\x57\x41\x56\x00\x54\x6b\x5d\x01\x65\x6d\x70\x74\x79\x2e\x77\x61\x76\x00\x22\x3d\x05\x00'
+        result = self.type.decode(to_decode)
+        self.assertEquals((len(to_decode), (('gtr.WAV', 3634644), ('empty.wav', 89762))), result)
+
+    def testDecode2(self):
+        to_decode = "B-4 PR5SYNTH.WAV\x00r[\r\x00C-1 PR5SYNTH.WAV\x00Rp\x12\x00C-2 PR5SYNTH.WAV\x00R\x04\x10\x00C-3 PR5SYNTH.WAV\x00r\x17\x0e\x00C-4 PR5SYNTH.WAV\x00r,\r\x00CHURCH PAD.AKP\x00$8\x00\x00D#1 PR5SYNTH.WAV\x002F\x10\x00D#2 PR5SYNTH.WAV\x00R\x04\x10\x00D#3 PR5SYNTH.WAV\x00r\x14\x0f\x00D-5 PR5SYNTH.WAV\x00R\x7f\x0c\x00F#1 PR5SYNTH.WAV\x002v\x10\x00F#2 PR5SYNTH.WAV\x002\x14\x10\x00F#3 PR5SYNTH.WAV\x00rn\x0f\x00F-4 PR5SYNTH.WAV\x00R\x7f\r\x00F-5 PR5SYNTH.WAV\x002 \x0c\x00G#0 PR5SYNTH.WAV\x00\x12\n\x11\x00G#1 PR5SYNTH.WAV\x00r\x7f\x10\x00G#2 PR5SYNTH.WAV\x00R6\x0f\x00G#3 PR5SYNTH.WAV\x00rB\x0e\x00G-4 PR5SYNTH.WAV\x00\x12{\r\x00G-5 PR5SYNTH.WAV\x002D\x0c\x00RAIN DROPS.AKP\x00$8\x00\x00TENDER ORGAN.AKP\x00$8\x00\x00\xf7"
+        result = self.type.decode(to_decode)
+        expected = (479, (('B-4 PR5SYNTH.WAV', 224754), ('C-1 PR5SYNTH.WAV', 309330), ('C-2 PR5SYNTH.WAV', 262738), 
+                          ('C-3 PR5SYNTH.WAV', 232434), ('C-4 PR5SYNTH.WAV', 218738), ('CHURCH PAD.AKP', 7204), 
+                          ('D#1 PR5SYNTH.WAV', 271154), ('D#2 PR5SYNTH.WAV', 262738), ('D#3 PR5SYNTH.WAV', 248434), 
+                          ('D-5 PR5SYNTH.WAV', 212946), ('F#1 PR5SYNTH.WAV', 277298), ('F#2 PR5SYNTH.WAV', 264754), 
+                          ('F#3 PR5SYNTH.WAV', 259954), ('F-4 PR5SYNTH.WAV', 229330), ('F-5 PR5SYNTH.WAV', 200754), 
+                          ('G#0 PR5SYNTH.WAV', 279826), ('G#1 PR5SYNTH.WAV', 278514), ('G#2 PR5SYNTH.WAV', 252754), 
+                          ('G#3 PR5SYNTH.WAV', 237938), ('G-4 PR5SYNTH.WAV', 228754), ('G-5 PR5SYNTH.WAV', 205362), 
+                          ('RAIN DROPS.AKP', 7204), ('TENDER ORGAN.AKP', 7204)))
+        self.assertEquals(expected, result)
 
 class TestFourByteType(unittest.TestCase):
     def testEncode(self):
         fourByteType = sysex_types.FourByteType()
-        self.assertEquals("\x01\x01\x01\x01", fourByteType.encode(1,1,1,1))
+        self.assertEquals("\x01\x01\x01\x01", fourByteType.encode(1, 1, 1, 1))
 
     def testDecode(self):
         fourByteType = sysex_types.FourByteType()
-        self.assertEquals((1,1,1,1), fourByteType.decode("\x01\x01\x01\x01"))
+        self.assertEquals((1, 1, 1, 1), fourByteType.decode("\x01\x01\x01\x01"))
 
     def testInvalidValues(self):
         fourByteType = sysex_types.FourByteType()
-        self.assertRaises(ValueError, fourByteType.encode, 1,1,1)
-        self.assertRaises(ValueError, fourByteType.encode, 128,1,1,1)
+        self.assertRaises(ValueError, fourByteType.encode, 1, 1, 1)
+        self.assertRaises(ValueError, fourByteType.encode, 128, 1, 1, 1)
         self.assertRaises(sysex_types.DecodeException, fourByteType.decode, "\x01\x01\x01\x01\x05")
 
 class TestThreeByteType(unittest.TestCase):
     def testEncode(self):
         threeByteType = sysex_types.ThreeByteType()
-        self.assertEquals("\x01\x01\x01", threeByteType.encode(1,1,1))
+        self.assertEquals("\x01\x01\x01", threeByteType.encode(1, 1, 1))
 
     def testDecode(self):
         threeByteType = sysex_types.ThreeByteType()
-        self.assertEquals((127,1,1), threeByteType.decode("\x7f\x01\x01"))
+        self.assertEquals((127, 1, 1), threeByteType.decode("\x7f\x01\x01"))
 
     def testInvalidValues(self):
         threeByteType = sysex_types.ThreeByteType()
-        self.assertRaises(ValueError, threeByteType.encode, 1,1,1,1)
+        self.assertRaises(ValueError, threeByteType.encode, 1, 1, 1, 1)
         self.assertRaises(sysex_types.DecodeException, threeByteType.decode, "\x01\x01\x01\x01\x05")
 
 class TestTwoByteType(unittest.TestCase):
     def testEncode(self):
         twoByteType = sysex_types.TwoByteType()
-        self.assertEquals("\x01\x01", twoByteType.encode(1,1))
+        self.assertEquals("\x01\x01", twoByteType.encode(1, 1))
 
     def testDecode(self):
         twoByteType = sysex_types.TwoByteType()
-        self.assertEquals((127,1), twoByteType.decode("\x7f\x01"))
+        self.assertEquals((127, 1), twoByteType.decode("\x7f\x01"))
 
     def testInvalidValues(self):
         twoByteType = sysex_types.TwoByteType()
-        self.assertRaises(ValueError, twoByteType.encode, 128,1)
-        self.assertRaises(ValueError, twoByteType.encode, 1,1,1)
+        self.assertRaises(ValueError, twoByteType.encode, 128, 1)
+        self.assertRaises(ValueError, twoByteType.encode, 1, 1, 1)
         self.assertRaises(sysex_types.DecodeException, twoByteType.decode, "\x01")
         self.assertRaises(sysex_types.DecodeException, twoByteType.decode, "\x01\x01\x01\x01\x05")
 
@@ -253,46 +276,46 @@ class TestTwoByteType(unittest.TestCase):
 class TestModuleMethods(unittest.TestCase):
     def test_parse_byte_string(self):
         self.assertEquals(
-            (5,'TEST'),
+            (5, 'TEST'), 
             sysex_types.parse_byte_string('\x54\x45\x53\x54' + sysex_types.STRING_TERMINATOR, sysex_types.STRING))
         self.assertEquals(
-            (4,'EST'),
+            (4, 'EST'), 
             sysex_types.parse_byte_string('\x54\x45\x53\x54' + sysex_types.STRING_TERMINATOR, sysex_types.STRING, 1))
 
         self.assertEquals(
-            (10, ('TEST', 'TEST')),
+            (10, ('TEST', 'TEST')), 
             sysex_types.parse_byte_string('\x54\x45\x53\x54\x00\x54\x45\x53\x54\x00', sysex_types.STRINGARRAY))
 
         self.assertEquals(
-            (1, 15),
+            (1, 15), 
             sysex_types.parse_byte_string('\x0f', sysex_types.BYTE))
 
         self.assertEquals(
-            (2, -15),
+            (2, -15), 
             sysex_types.parse_byte_string('\x01\x0f', sysex_types.SBYTE))
 
         self.assertEquals(
-            (2, 384),
+            (2, 384), 
             sysex_types.parse_byte_string('\x00\x03', sysex_types.WORD))
 
         self.assertEquals(
-            (3, -1935),
+            (3, -1935), 
             sysex_types.parse_byte_string('\x01\x0f\x0f', sysex_types.SWORD))
 
         self.assertEquals(
-            (4, 268435455),
+            (4, 268435455), 
             sysex_types.parse_byte_string('\x7f\x7f\x7f\x7f', sysex_types.DWORD))
 
         self.assertEquals(
-            (5, -268435455),
+            (5, -268435455), 
             sysex_types.parse_byte_string('\x01\x7f\x7f\x7f\x7f', sysex_types.SDWORD))
 
         self.assertEquals(
-            (1, False),
+            (1, False), 
             sysex_types.parse_byte_string('\x00', sysex_types.BOOL))
 
         self.assertEquals(
-            (1, True),
+            (1, True), 
             sysex_types.parse_byte_string('\x01', sysex_types.BOOL))
 
 def test_suite():
