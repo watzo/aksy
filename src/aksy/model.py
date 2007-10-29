@@ -102,11 +102,12 @@ class FileRef(object):
     SAMPLE = 3
     SONG = 4
 
-    def __init__(self, path):
+    def __init__(self, path, size=None):
         """Initializes a file object - A multi, program or sample before it
         is loaded into memory
         """
         self.path = path
+        self.size = size
         self.type = get_file_type(self.get_name())
 
     def get_name(self):
@@ -123,7 +124,7 @@ class FileRef(object):
         return self.path
 
     def get_size(self):
-        return None
+        return self.size
 
     def get_modified(self):
         """Returns True if this file has been modified
@@ -211,12 +212,16 @@ class Folder(FileRef, Container):
             self.children = [Folder(os.path.join(self.path, folder_name))
                 for folder_name in folder_names if fileutils.is_valid_name(folder_name)]
 
-        file_names = handlers[Disk].get_filenames()
-        if file_names:
-            files = [ FileRef((os.path.join(self.path, name))) for name in
-                file_names if fileutils.is_file(name)]
-            self.children.extend(files)
+        file_names_sizes = handlers[Disk].get_filenames()
+        if file_names_sizes:
+            self.children.extend(self.get_filename_sizes(file_names_sizes))
         return self.children
+
+    def get_filename_sizes(names_sizes):
+        for i in range(0, len(names_sizes), 2):
+            name, size = names_sizes[i], names_sizes[i+1]
+            if fileutils.is_file(name):
+                yield FileRef((os.path.join(self.path, name), size))
 
     def get_child(self, name):
         for child in self.get_children():
@@ -481,3 +486,4 @@ class Memory(Storage):
         for i in range(0, len(handles_names), 2):
             handle, name = handles_names[i], handles_names[i+1]
             yield clz(name, handle)
+

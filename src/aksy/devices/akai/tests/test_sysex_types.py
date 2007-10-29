@@ -227,6 +227,9 @@ class TestNameSizeArrayType(unittest.TestCase):
                           ('RAIN DROPS.AKP', 7204), ('TENDER ORGAN.AKP', 7204)))
         self.assertEquals(expected, result)
 
+    def testDecodeEmpty(self):
+        self.assertEquals((0, ()), self.type.decode(''))
+
 class TestFourByteType(unittest.TestCase):
     def testEncode(self):
         fourByteType = sysex_types.FourByteType()
