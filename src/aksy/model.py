@@ -217,11 +217,11 @@ class Folder(FileRef, Container):
             self.children.extend(self.get_filename_sizes(file_names_sizes))
         return self.children
 
-    def get_filename_sizes(names_sizes):
+    def get_filename_sizes(self, names_sizes):
         for i in range(0, len(names_sizes), 2):
             name, size = names_sizes[i], names_sizes[i+1]
             if fileutils.is_file(name):
-                yield FileRef((os.path.join(self.path, name), size))
+                yield FileRef(os.path.join(self.path, name), size)
 
     def get_child(self, name):
         for child in self.get_children():
