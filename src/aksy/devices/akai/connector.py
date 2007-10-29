@@ -9,13 +9,11 @@ log = logging.getLogger("aksy")
 class USBConnector(AkaiSampler):
     """ USB Connector for Akai Samplers.
     """
-    def __init__(self, device_id, debug=False):
+    def __init__(self, device_id):
         AkaiSampler.__init__(self, getattr(USBConnector, device_id.upper()))
         
         #self.sysextools.enable_msg_notification(False)
         #self.sysextools.enable_item_sync(False)
-
-        self.debug = debug
 
     def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
         """Gets a file from the sampler, overwriting destfile if it already exists.
@@ -44,10 +42,11 @@ class USBConnector(AkaiSampler):
         """Execute a request on the sampler.
         Returns the byte response.
         """
-        if self.debug:
-            log.debug("Request:  %s\n" % repr(request))
-        return self._execute(request.get_bytes())
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug("Request: %s", repr(request))
+
+        result_bytes = self._execute(request.get_bytes())
         
-        if self.debug:
-            log.debug("Response: %s\n" % (sysex.byte_repr(result_bytes)))
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug("Response: %s", (sysex.byte_repr(result_bytes)))
         return result_bytes
