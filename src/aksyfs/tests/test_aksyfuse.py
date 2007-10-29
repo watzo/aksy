@@ -124,7 +124,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         afile.release('ignored')
 
     def test_read(self):
-        afile = aksyfuse.AksyFile('/memory/Sample100.wav', os.O_RDONLY|S_IRUSR)
+        afile = aksyfuse.AksyFile('/memory/Sample99.wav', os.O_RDONLY|S_IRUSR)
         try:
             read = afile.read(4, 0)
             self.assertEquals('RIFF', read)

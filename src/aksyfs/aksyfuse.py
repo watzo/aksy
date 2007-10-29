@@ -8,6 +8,7 @@ import stat
 import os
 import os.path
 import errno
+import logging
 
 from aksy.device import Devices
 from aksy.concurrent import transaction
@@ -23,6 +24,8 @@ fuse.feature_assert('stateful_files')
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
 START_TIME = time()
+
+LOG = logging.getLogger('aksy.aksyfs.aksyfuse')
 
 class AksyFile(fuse.FuseFileInfo):
     @staticmethod
@@ -43,8 +46,7 @@ class AksyFile(fuse.FuseFileInfo):
             raiseException(errno.ENOENT)
 
         self.path = common._create_cache_path(path)
-
-        if not self.is_upload() or not common._cache_path_exists(path):
+        if not self.is_upload() and not common._cache_path_exists(path):
             AksyFile.sampler.transfertools.get(self.name, self.path, self.location)
         
         self.handle = os.open(self.path, flags, *mode)
@@ -56,7 +58,7 @@ class AksyFile(fuse.FuseFileInfo):
                 AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
             except IOError, exc:
                 # TODO: move to a method where we can raise exceptions
-                print "Exception occurred: ", repr(exc)
+                LOG.exception( "Exception occurred: ", exc)
         os.close(self.handle)
 
     def write(self, buf, offset):
@@ -95,6 +97,7 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
     def __init__(self, *args, **kw):
         # todo postpone sampler init
         common.AksyFS().__init__()
+        
         fuse.Fuse.__init__(self, *args, **kw)
         self.multithreaded = True
         self.samplerType = get_config().get('sampler', 'type')
@@ -103,29 +106,34 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         common.StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
 
     def access(self, path, mode):
-        print "**access " + path
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( "**access (" + path + ") (no-op)")
     
     @transaction(samplermod.Sampler.lock)
     def readdir(self, path, offset):
-        print '*** readdir', path, offset
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( '*** readdir(%s, %s)', path, offset)
         folder = self.cache[path]
         for child in folder.get_children():
             yield fuse.Direntry(child.get_name())
 
     @transaction(samplermod.Sampler.lock)
     def mknod(self, path, mode, dev):
-        print '*** mknod ', path, mode, dev
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( 'mknod(%s, %s, %s)', path, mode, dev)
         self.cache[path] = common.FileStatInfo(path, None)
         self.get_parent(path).refresh()
 
     def truncate(self, path, size): #IGNORE:W0212
-        print "*** truncate ", path, size
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( "truncate (%s, %s) (no-op)", path, size)
     
     def statfs(self):
-        print "*** statfs (metrics on memory contents only)"
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( "statfs (metrics on memory contents only)")
         mem_total = self.sampler.systemtools.get_wave_mem_size()
         mem_free = self.sampler.systemtools.get_free_wave_mem_size()
-        return common.FSStatInfo(mem_total, mem_free)
+        return FSStatInfo(mem_total, mem_free)
 
     def init_sampler(self, sampler):
         self.root = common.FSRoot(sampler)
@@ -136,6 +144,12 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
     def main(self, sampler, *args, **kw):
         self.init_sampler(sampler)
         return fuse.Fuse.main(self, *args, **kw)
+    
+    def destroy(self):
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('fsdestroy')
+        self.sampler.close()
+        
 
 def raiseUnsupportedOperationException():
     raiseException(errno.ENOSYS)
@@ -169,8 +183,8 @@ Aksyfs: mount your sampler as a filesystem
     else:
         sampler = Devices.get_instance(fs.samplerType, 'usb')
     try:
-        sampler.start_osc_server()
+        #sampler.start_osc_server()
         fs.main(sampler)
     finally:
-        sampler.stop_osc_server()
+        #sampler.stop_osc_server()
         sampler.close()

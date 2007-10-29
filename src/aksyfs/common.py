@@ -4,6 +4,7 @@ import stat
 import os
 import os.path
 import errno
+import logging
 
 from aksy.device import Devices
 from aksy import fileutils, model
@@ -15,6 +16,8 @@ from aksy.config import get_config
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB
 MAX_FILE_SIZE_OTHER = 16 * 1024 # 16K
 START_TIME = time()
+
+LOG = logging.getLogger('aksy.aksyfs.common')
 
 class StatInfo(object):
     @staticmethod
@@ -58,7 +61,7 @@ def _splitpath(path):
     return path.split('/', 2)[1:]
 
 def _get_cache_path(path):
-    return os.path.expanduser('~/.aksy/cache' + path)
+    return os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
 
 def get_file_size(path):
     cache_path = _get_cache_path(path)
@@ -115,7 +118,7 @@ class AksyFile(object):
                 AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
             except IOError, exc:
                 # TODO: move to a method where we can raise exceptions
-                print "Exception occurred: ", repr(exc)
+                LOG.exception( "Exception occurred: %s", repr(exc))
         os.close(self.handle)
 
     def write(self, buf, offset):
@@ -170,7 +173,8 @@ class AksyFS(object): #IGNORE:R0904
             location = samplermod.AkaiSampler.DISK
         else:
             raiseException(errno.ENOENT)
-        print "open: ", path, " mode ", mode
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( "open(%s, %s)", path, mode)
         self.sampler.transfertools.get(name, path, location)
 
         return open(path, mode)
@@ -241,18 +245,12 @@ class AksyFS(object): #IGNORE:R0904
             return FileStatInfo(path, file_obj.get_size(), False)
 
     def getattr(self, path):
-        print '*** getattr', path
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug( 'getattr(%s)', path)
         if fileutils.is_dirpath(path):
             return self.stat_directory(path)
         else:
             return self.stat_file(path)
-
-    @transaction(samplermod.Sampler.lock)
-    def readdir(self, path, offset):
-        print '*** readdir', path, offset
-        folder = self.cache[path]
-        for child in self.listdir(path):
-            yield fuse.Direntry(child.get_name())
 
     @transaction(samplermod.Sampler.lock)
     def listdir(self, path):
@@ -264,7 +262,8 @@ class AksyFS(object): #IGNORE:R0904
 
     @transaction(samplermod.Sampler.lock)
     def mkdir(self, path, mode='unused'):
-        print '*** mkdir', path, mode
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('mkdir(%s, %s)', path, mode)
         folder = self.get_parent(path)
         if not folder.is_writable():
             raiseException(errno.EROFS)
@@ -276,7 +275,8 @@ class AksyFS(object): #IGNORE:R0904
 
     @transaction(samplermod.Sampler.lock)
     def rename(self, old_path, new_path):
-        print '*** rename', old_path, new_path
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('rename(%s, %s)', old_path, new_path)
         new_dir = os.path.dirname(new_path)
         if os.path.dirname(old_path) != new_dir:
             file_obj = self.get_file(old_path)
@@ -302,7 +302,8 @@ class AksyFS(object): #IGNORE:R0904
 
     @transaction(samplermod.Sampler.lock)
     def rmdir(self, path):
-        print '*** rmdir', path
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('rmdir(%s)', path)
         folder = self.cache[path]
         if hasattr(folder, 'delete'):
             folder.delete()
@@ -314,7 +315,8 @@ class AksyFS(object): #IGNORE:R0904
 
     @transaction(samplermod.Sampler.lock)
     def unlink(self, path):
-        print '*** unlink', path
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug('unlink(%s)', path)
         file_obj = self.get_file(path)
         file_obj.delete()
         try:
@@ -324,12 +326,6 @@ class AksyFS(object): #IGNORE:R0904
             pass 
         
         self.get_parent(path).refresh()
-
-    def statfs(self):
-        print "*** statfs (metrics on memory contents only)"
-        mem_total = self.sampler.systemtools.get_wave_mem_size()
-        mem_free = self.sampler.systemtools.get_free_wave_mem_size()
-        return FSStatInfo(mem_total, mem_free)
 
     def init_sampler(self, sampler):
         self.root = FSRoot(sampler)
