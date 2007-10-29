@@ -532,7 +532,8 @@ class NameSizeArrayType(object):
             size = DWORD.decode(
                     string[len_parsed-1:len_parsed+4], typed=False)
             len_parsed += 4
-            results.append((name, size))
+            results.append(name)
+            results.append(size)
         return len_parsed, tuple(results)
 
 # Base Sysex types

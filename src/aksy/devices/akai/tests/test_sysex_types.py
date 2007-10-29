@@ -212,19 +212,19 @@ class TestNameSizeArrayType(unittest.TestCase):
     def testDecode(self):
         to_decode = '\x67\x74\x72\x2e\x57\x41\x56\x00\x54\x6b\x5d\x01\x65\x6d\x70\x74\x79\x2e\x77\x61\x76\x00\x22\x3d\x05\x00'
         result = self.type.decode(to_decode)
-        self.assertEquals((len(to_decode), (('gtr.WAV', 3634644), ('empty.wav', 89762))), result)
+        self.assertEquals((len(to_decode), ('gtr.WAV', 3634644, 'empty.wav', 89762,)), result)
 
     def testDecode2(self):
         to_decode = "B-4 PR5SYNTH.WAV\x00r[\r\x00C-1 PR5SYNTH.WAV\x00Rp\x12\x00C-2 PR5SYNTH.WAV\x00R\x04\x10\x00C-3 PR5SYNTH.WAV\x00r\x17\x0e\x00C-4 PR5SYNTH.WAV\x00r,\r\x00CHURCH PAD.AKP\x00$8\x00\x00D#1 PR5SYNTH.WAV\x002F\x10\x00D#2 PR5SYNTH.WAV\x00R\x04\x10\x00D#3 PR5SYNTH.WAV\x00r\x14\x0f\x00D-5 PR5SYNTH.WAV\x00R\x7f\x0c\x00F#1 PR5SYNTH.WAV\x002v\x10\x00F#2 PR5SYNTH.WAV\x002\x14\x10\x00F#3 PR5SYNTH.WAV\x00rn\x0f\x00F-4 PR5SYNTH.WAV\x00R\x7f\r\x00F-5 PR5SYNTH.WAV\x002 \x0c\x00G#0 PR5SYNTH.WAV\x00\x12\n\x11\x00G#1 PR5SYNTH.WAV\x00r\x7f\x10\x00G#2 PR5SYNTH.WAV\x00R6\x0f\x00G#3 PR5SYNTH.WAV\x00rB\x0e\x00G-4 PR5SYNTH.WAV\x00\x12{\r\x00G-5 PR5SYNTH.WAV\x002D\x0c\x00RAIN DROPS.AKP\x00$8\x00\x00TENDER ORGAN.AKP\x00$8\x00\x00\xf7"
         result = self.type.decode(to_decode)
-        expected = (479, (('B-4 PR5SYNTH.WAV', 224754), ('C-1 PR5SYNTH.WAV', 309330), ('C-2 PR5SYNTH.WAV', 262738), 
-                          ('C-3 PR5SYNTH.WAV', 232434), ('C-4 PR5SYNTH.WAV', 218738), ('CHURCH PAD.AKP', 7204), 
-                          ('D#1 PR5SYNTH.WAV', 271154), ('D#2 PR5SYNTH.WAV', 262738), ('D#3 PR5SYNTH.WAV', 248434), 
-                          ('D-5 PR5SYNTH.WAV', 212946), ('F#1 PR5SYNTH.WAV', 277298), ('F#2 PR5SYNTH.WAV', 264754), 
-                          ('F#3 PR5SYNTH.WAV', 259954), ('F-4 PR5SYNTH.WAV', 229330), ('F-5 PR5SYNTH.WAV', 200754), 
-                          ('G#0 PR5SYNTH.WAV', 279826), ('G#1 PR5SYNTH.WAV', 278514), ('G#2 PR5SYNTH.WAV', 252754), 
-                          ('G#3 PR5SYNTH.WAV', 237938), ('G-4 PR5SYNTH.WAV', 228754), ('G-5 PR5SYNTH.WAV', 205362), 
-                          ('RAIN DROPS.AKP', 7204), ('TENDER ORGAN.AKP', 7204)))
+        expected = (479, ('B-4 PR5SYNTH.WAV', 224754, 'C-1 PR5SYNTH.WAV', 309330, 'C-2 PR5SYNTH.WAV', 262738, 
+                          'C-3 PR5SYNTH.WAV', 232434, 'C-4 PR5SYNTH.WAV', 218738, 'CHURCH PAD.AKP', 7204, 
+                          'D#1 PR5SYNTH.WAV', 271154, 'D#2 PR5SYNTH.WAV', 262738, 'D#3 PR5SYNTH.WAV', 248434, 
+                          'D-5 PR5SYNTH.WAV', 212946, 'F#1 PR5SYNTH.WAV', 277298, 'F#2 PR5SYNTH.WAV', 264754, 
+                          'F#3 PR5SYNTH.WAV', 259954, 'F-4 PR5SYNTH.WAV', 229330, 'F-5 PR5SYNTH.WAV', 200754, 
+                          'G#0 PR5SYNTH.WAV', 279826, 'G#1 PR5SYNTH.WAV', 278514, 'G#2 PR5SYNTH.WAV', 252754, 
+                          'G#3 PR5SYNTH.WAV', 237938, 'G-4 PR5SYNTH.WAV', 228754, 'G-5 PR5SYNTH.WAV', 205362, 
+                          'RAIN DROPS.AKP', 7204, 'TENDER ORGAN.AKP', 7204))
         self.assertEquals(expected, result)
 
     def testDecodeEmpty(self):
