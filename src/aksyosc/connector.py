@@ -5,7 +5,7 @@ class OSCConnector:
     """ Execute commands using OSC
     """
     def __init__(self, host, port, timeout=30.0):
-    	socket.setdefaulttimeout(timeout)
+        socket.setdefaulttimeout(timeout)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.connect((host, port,))
 
@@ -19,11 +19,16 @@ class OSCConnector:
         
     def execute(self, command, args, request_id=0):
         b = OSCConnector.create_msg(command, args)
-        return self._sendAndRcv(b)
+        resp = self._sendAndRcv(b)
+        # HACK: mimic the behaviour of TypedComposite
+        if len(resp) == 1 and command.reply_spec is None:
+            return resp[0]
+            
+        return resp
 
     def _sendAndRcv(self, b):
         self.socket.sendall(b)
-
+        # TODO: use "streaming" decoder to allocate buffer 
         data = self.socket.recv(8192)
         resp_msg = decodeOSC(data)
         if resp_msg[0] == '/sampler/error':
