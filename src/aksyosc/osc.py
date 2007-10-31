@@ -58,14 +58,14 @@ class OSCMessage:
         self.address = address
 
     def setMessage(self, message):
-	self.message = message
+        self.message = message
 
     def setTypetags(self, typetags):
-	self.typetags = typetags
+        self.typetags = typetags
 
     def clear(self):
-	self.address  = ""
-	self.clearData()
+        self.address  = ""
+        self.clearData()
 
     def clearData(self):
         self.typetags = ","
@@ -80,6 +80,8 @@ class OSCMessage:
 
         if typehint == 'b':
             binary = OSCBlob(argument)
+        elif isinstance(argument, tuple):
+            binary = OSCArray(argument)
         else:
             binary = OSCArgument(argument)
 
@@ -104,9 +106,11 @@ def readString(data):
     nextData = int(math.ceil((length+1) / 4.0) * 4)
     return (data[0:length], data[nextData:])
 
+def readArrayStart(data):
+    return ([], data)
 
 def readBlob(data):
-    length   = struct.unpack(">i", data[0:4])[0]    
+    length  = struct.unpack(">i", data[0:4])[0]    
     nextData = int(math.ceil((length) / 4.0) * 4) + 4   
     return (data[4:length+4], data[nextData:])
 
@@ -122,9 +126,16 @@ def readInt(data):
         
     return (integer, rest)
 
+def readTrue(data):
+    return (True, data)
 
+def readFalse(data):
+    return (False, data)
 
-def readLong(data):
+def readNil(data):
+    return (None, data)
+
+def readOSCTime(data):
     """Tries to interpret the next 8 bytes of the data
     as a 64-bit signed integer."""
     high, low = struct.unpack(">ll", data[0:8])
@@ -132,7 +143,10 @@ def readLong(data):
     rest = data[8:]
     return (big, rest)
 
-
+def readLong(data):
+    assert len(data) >= 8
+    long = struct.unpack(">q", data[0:8])[0]
+    return (long, data[8:])
 
 def readFloat(data):
     if(len(data)<4):
@@ -162,25 +176,50 @@ def OSCBlob(next):
     return (tag, binary)
 
 
+def OSCArray(args):
+    typetags = ['[']
+    arguments = []
+    for arg in args:
+        if isinstance(arg, tuple):
+            a = OSCArray(arg)
+        else:
+            a = OSCArgument(arg)
+        typetags.append(a[0])
+        arguments.append(a[1])
+
+    typetags.append(']')
+    return ''.join(typetags), ''.join(arguments) 
+
 def OSCArgument(next):
     """Convert some Python types to their
     OSC binary representations, returning a
     (typetag, data) tuple."""
     
-    if type(next) == type(""):        
+    if next is None:
+        binary = ""
+        tag = "N"
+    elif isinstance(next, bool):
+        if next:
+            binary = ""
+            tag = "T"
+        else:
+            binary = ""
+            tag = "F"
+    elif type(next) == type(""):        
         OSCstringLength = math.ceil((len(next)+1) / 4.0) * 4
         binary  = struct.pack(">%ds" % (OSCstringLength), next)
         tag = "s"
-    elif type(next) == type(42.5):
+    elif isinstance(next, float):
         binary  = struct.pack(">f", next)
         tag = "f"
-    elif type(next) == type(13):
+    elif isinstance(next, int):
         binary  = struct.pack(">i", next)
         tag = "i"
+    elif isinstance(next, long):
+        binary  = struct.pack(">q", next)
+        tag = "h"
     else:
-        binary  = ""
-        tag = ""
-
+        raise OSCException(repr(type(next)) + " not supported")
     return (tag, binary)
 
 
@@ -190,7 +229,6 @@ def parseArgs(args):
     possible) as floats or integers."""
     parsed = []
     for arg in args:
-        print arg
         arg = arg.strip()
         interpretation = None
         try:
@@ -204,17 +242,19 @@ def parseArgs(args):
         parsed.append(interpretation)
     return parsed
 
-
+class OSCException(Exception):
+    pass
 
 def decodeOSC(data):
     """Converts a typetagged OSC message to a Python list."""
-    table = {"i":readInt, "f":readFloat, "s":readString, "b":readBlob}
+    table = {"t":readOSCTime, "h":readLong, "i":readInt, "f":readFloat, "s":readString, "b":readBlob, "T":readTrue, "F":readFalse, "N": readNil, "[":readArrayStart}
     decoded = []
+    stack = [decoded]
     address,  rest = readString(data)
     typetags = ""
 
     if address == "#bundle":
-        time, rest = readLong(rest)
+        time, rest = readOSCTime(rest)
         decoded.append(address)
         decoded.append(time)
         while len(rest)>0:
@@ -226,15 +266,22 @@ def decodeOSC(data):
         typetags, rest = readString(rest)
         decoded.append(address)
         decoded.append(typetags)
-        if(typetags[0] == ","):
+        if(typetags[0] == ','):
             for tag in typetags[1:]:
-                value, rest = table[tag](rest)                
-                decoded.append(value)
+                 if tag == ']': 
+                     stack.pop()
+                     continue
+
+                 value, rest = table[tag](rest)
+                 stack[-1].append(value)
+                 if tag == '[': 
+                     stack.append(value)
         else:
-            print "Oops, typetag lacks the magic ,"
+            raise OSCException("Oops, typetag lacks the magic ,")
 
+    if len(stack) != 1:
+        raise OSCException("Unbalanced array tags in ", typetags)
     return decoded
-
 
 class CallbackManager:
     """This utility class maps OSC addresses to callables.
