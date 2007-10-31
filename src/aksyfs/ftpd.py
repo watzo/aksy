@@ -8,6 +8,9 @@ from aksy import fileutils
 import fnmatch
 import os, time, errno
 
+import logging
+LOG = logging.getLogger("aksy.aksyfs.ftpd")
+
 class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
     def __call__(self):
         return AksyFtpFS(self.sampler)
@@ -24,15 +27,17 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
         path.
         
         """
-        # For AksyFS only virtual paths exist
-        print 'translate ', path
+        if logging.isLevelEnabled(logging.DEBUG): 
+            LOG.debug('translate %s', path)
+
         if not os.path.isabs(path):
             path = os.path.join(self.cwd, path)
+        # For AksyFS only virtual paths exist
         return os.path.normpath(path).replace('\\', '/')
 
     def open(self, filename, mode):
         """Open a file returning its handler."""
-        print 'open(%s, %s)' % (filename, mode)
+        LOG.debug('open(%s, %s)', filename, mode)
         if self.isdir(filename):
             raise IOError(errno.EINVAL, filename)
         if mode.find('r') != -1:
@@ -60,7 +65,7 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
 
     def chdir(self, abspath):
         """Change the current directory."""
-        print "chdir ", abspath
+        LOG.debug("chdir ", abspath)
         i = 1
         while i < len(abspath):
             i = abspath.find('/', i)
@@ -107,9 +112,7 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
     def get_list_dir(self, abspath):
         """Return a directory listing in a form suitable for LIST command."""
         # if path is a file we return information about it
-        print 'listdir'
         if os.path.isfile(abspath):
-            print "isfile ", abspath
             basedir, filename = os.path.split(abspath)
             listing = [filename]
         else:
