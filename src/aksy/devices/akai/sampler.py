@@ -23,12 +23,16 @@ class Sampler(object):
         self.connector = connector
         self.transfertools = transfertools.Transfertools(connector)
 
+    def get_cmd_by_name(self, section_name, command_name):
+        tools_obj = getattr(self, section_name)
+        return getattr(tools_obj, command_name + "_cmd")
+
     @transaction(lock)
     def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
-        tools_obj = getattr(self, section_name)
-        cmd = getattr(tools_obj, command_name + "_cmd")
+        cmd = self.get_cmd_by_name(section_name, command_name)
         return self.execute(cmd, args, request_id)
 
+    @transaction(lock)
     def execute_alt_request(self, handle, commands, args, index = None):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
         All commands must be from the same sub section (get/set/main), the section id will be determined from the first command in the list.
@@ -46,11 +50,7 @@ class Sampler(object):
             z48.execute_alt_request(65536, [cmd, cmd2], [[1], [2]])
 
         """
-        result_bytes = self.connector.execute_request(sysex.AlternativeRequest(handle, commands, args, index))
-        # TODO: move to usbconnector
-        result = sysex.Reply(result_bytes, commands[0], True)
-        return result.get_return_value()
-
+        return self.connector.execute_alt_request(handle, commands, args, index)
 
     def execute(self, command, args, request_id=0):
         """Executes a command on the sampler

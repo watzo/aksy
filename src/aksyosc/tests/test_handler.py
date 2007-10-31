@@ -25,6 +25,7 @@ class SamplerCallbackManagerTest(TestCase):
         response = self.handler.handle(message.getBinary())
         self.assertEquals([["sample", "play", ["test.wav"]]], self.sampler.recorded)
         expected = OSCMessage()
+        expected.setAddress("/sample/play")
         expected.append(1)
         expected.append(2)
         expected.append('a string')

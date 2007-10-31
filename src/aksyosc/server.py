@@ -30,15 +30,13 @@ class OSCServer(asyncore.dispatcher):
         return self.response is not None
 
     def handle_write(self):
-        self.sendto(self.response.get_message(), 0, 
-            self.response.get_address())
+        self.sendto(self.response.get_message(), 0, self.response.get_address())
         self.response = None
 
     def handle_read(self):
         data, address = self.recvfrom(8192)
         resp_data = self._callbackMgr.handle(data)
-        if resp_data is not None:
-            self.response = Envelope(address, resp_data)
+        self.response = Envelope(address, resp_data)
     
 if __name__ == "__main__":
     parser = create_option_parser()

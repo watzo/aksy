@@ -38,6 +38,11 @@ class USBConnector(AkaiSampler):
         result = sysex.Reply(result_bytes, request.command)
         return result.get_return_value()
 
+    def execute_alt_request(self, handle, commands, args, index = None):
+        result_bytes = self.execute_request(sysex.AlternativeRequest(handle, commands, args, index))
+        result = sysex.Reply(result_bytes, commands[0], True)
+        return result.get_return_value()
+
     def execute_request(self, request):
         """Execute a request on the sampler.
         Returns the byte response.
