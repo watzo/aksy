@@ -29,6 +29,12 @@
 #   Added a generic callback handler.
 #   - dwh
 
+# 31 Oct. 2007:
+#   * Added support for optional OSC types (True, False, Nil, Arrays).
+#     (For tests, see tests/test_osc.py)
+#   * Throw exceptions for various error cases.
+#   * Remove unused code
+
 import socket
 import struct
 import math
@@ -46,7 +52,6 @@ def hexDump(bytes):
     if(len(bytes) % 8 != 0):
         print string.rjust("", 11), repr(bytes[i-7:i+1])
 
-
 class OSCMessage:
     """Builds typetagged OSC messages."""
     def __init__(self):
@@ -56,20 +61,6 @@ class OSCMessage:
 
     def setAddress(self, address):
         self.address = address
-
-    def setMessage(self, message):
-        self.message = message
-
-    def setTypetags(self, typetags):
-        self.typetags = typetags
-
-    def clear(self):
-        self.address  = ""
-        self.clearData()
-
-    def clearData(self):
-        self.typetags = ","
-        self.message  = ""
 
     def append(self, argument, typehint = None):
         """Appends data to the message,
@@ -86,9 +77,9 @@ class OSCMessage:
             binary = OSCArgument(argument)
 
         self.typetags = self.typetags + binary[0]
-        self.rawAppend(binary[1])
+        self._rawAppend(binary[1])
 
-    def rawAppend(self, data):
+    def _rawAppend(self, data):
         """Appends raw data to the message.  Use append()."""
         self.message = self.message + data
 
@@ -198,13 +189,12 @@ def OSCArgument(next):
     if next is None:
         binary = ""
         tag = "N"
-    elif isinstance(next, bool):
-        if next:
-            binary = ""
-            tag = "T"
-        else:
-            binary = ""
-            tag = "F"
+    elif next is True:
+        binary = ""
+        tag = "T"
+    elif next is False:
+        binary = ""
+        tag = "F"
     elif type(next) == type(""):        
         OSCstringLength = math.ceil((len(next)+1) / 4.0) * 4
         binary  = struct.pack(">%ds" % (OSCstringLength), next)
