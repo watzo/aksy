@@ -49,7 +49,7 @@ def main():
     if len(to_upload) == 0:
         parser.error("Nothing to upload: no supported files found")
     
-    z48 = Devices.get_instance(options.samplerType, "usb")    
+    z48 = Devices.get_instance(options.sampler_type, options.connector)    
     
     if options.programName is not None:
         print 'Uploading files.'

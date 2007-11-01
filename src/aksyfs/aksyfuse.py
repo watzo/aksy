@@ -14,7 +14,7 @@ from aksy.device import Devices
 from aksy.concurrent import transaction
 
 from aksy.devices.akai import sampler as samplermod
-from aksy.config import get_config
+from aksy import config
 from aksyfs import common
 
 fuse.fuse_python_api = (0, 2)
@@ -100,7 +100,9 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         
         fuse.Fuse.__init__(self, *args, **kw)
         self.multithreaded = True
-        self.samplerType = get_config().get('sampler', 'type')
+        cfg = config.get_config()
+        self.sampler_type = cfg.get('sampler', 'type')
+        self.connector = config.get_value(cfg, 'sampler', 'connector')
         self.file_class = AksyFile
         stat_home = os.stat(os.path.expanduser('~'))
         common.StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
@@ -124,7 +126,7 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         self.cache[path] = common.FileStatInfo(path, None)
         self.get_parent(path).refresh()
 
-    def truncate(self, path, size): #IGNORE:W0212
+    def truncate(self, path, size):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( "truncate (%s, %s) (no-op)", path, size)
     
@@ -167,8 +169,10 @@ Aksyfs: mount your sampler as a filesystem
                  usage=usage,
                  dash_s_do='setsingle')
 
-    fs.parser.add_option(mountopt="samplerType", metavar="SAMPLER_TYPE", default=fs.samplerType,
-                         help="mount SAMPLER_TYPE (z48/mpc4k/s56k|mock_z48) [default: %default]")
+    fs.parser.add_option(mountopt="sampler_type", metavar="SAMPLER_TYPE", default=fs.sampler_type,
+                         help="use SAMPLER_TYPE (z48/mpc4k/s56k|mock_z48) [default: %default]")
+    fs.parser.add_option(mountopt="connector", metavar="CONNECTOR", default=fs.connector,
+                         help="use CONNECTOR (usb|osc) [default: %default]")
     fs.parser.add_option(mountopt="sample_file", metavar="SAMPLE_FILE", 
                          help="The wave file to be served when any wave file is accessed on the filesystem (only valid with mock_z48)")
     fs.parser.add_option(mountopt="program_file", metavar="PROGRAM_FILE", 
@@ -176,12 +180,12 @@ Aksyfs: mount your sampler as a filesystem
 
     fs.parse(values=fs, errex=1)
 
-    if fs.samplerType == "mock_z48":
+    if fs.sampler_type == "mock_z48":
         sampler = Devices.get_instance('mock_z48', 'mock')
         sampler.set_sample(fs.sample_file)
         sampler.set_program(fs.program_file)
     else:
-        sampler = Devices.get_instance(fs.samplerType, 'usb')
+        sampler = Devices.get_instance(fs.sampler_type, fs.connector)
     try:
         #sampler.start_osc_server()
         fs.main(sampler)

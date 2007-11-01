@@ -77,7 +77,7 @@ def main():
     
     options.destdir = os.path.abspath(options.destdir)
 
-    sampler = Devices.get_instance(options.samplerType, "usb")
+    sampler = Devices.get_instance(options.sampler_type, options.connector)
     try:    
         execute_cmd(sampler, patterns, options)
     finally:

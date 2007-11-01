@@ -5,13 +5,14 @@ try:
 except ImportError:
     print "Profiler not available"
 
+import traceback, os.path
+
 import pygtk
 pygtk.require('2.0')
 import gtk
 
 # our stuff
-from aksui import postmod
-from aksui.utils import midiutils, modelutils, sox
+from aksui.utils import midiutils, modelutils
 from aksui.ak import multi, recording, program, keygroup
 from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog
 
@@ -202,6 +203,9 @@ class ProgramsContextMenu(base.Base):
             dupe = p.copy("Copy " + programname)
             print "Success?", dupe.name
         
+        Main.do_programlist(self.main.s)
+        self.main.on_update_program_model()
+        
     def on_add_keygroup_activate(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
 
@@ -303,13 +307,18 @@ class Main(base.Base):
         return names
         
     @staticmethod
-    def do_lists(s):
-        setattr(s,'samples', Main.get_names(s.sampletools))
+    def do_programlist(s):
         setattr(s,'programs', Main.get_names(s.programtools))
-        setattr(s,'multis', Main.get_names(s.multitools))
-
-        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
         setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
+        
+    @staticmethod
+    def do_lists(s):
+        Main.do_programlist(s)
+        
+        setattr(s,'samples', Main.get_names(s.sampletools))
+        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        
+        setattr(s,'multis', Main.get_names(s.multitools))
         setattr(s,'multismodel', modelutils.get_model_from_list(s.multis))
 
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
@@ -370,8 +379,12 @@ class Main(base.Base):
     def on_refresh_clicked(self, widget):
         self.init_lists()
 
-    def on_update_models(self, model, iter = None, user_param = None):
+    def on_update_program_model(self):
         self.w_treeview_programs.set_model(self.s.programsmodel)
+        
+    def on_update_models(self, model, iter = None, user_param = None):
+        self.on_update_program_model()
+        
         self.w_treeview_multis.set_model(self.s.multismodel)
         self.w_treeview_samples.set_model(self.s.samplesmodel)
 
@@ -492,7 +505,7 @@ def main():
     parser = config.create_option_parser(usage="%prog [options]")
     options = parser.parse_args()[0]
 
-    sampler = Devices.get_instance(options.samplerType, "usb")
+    sampler = Devices.get_instance(options.sampler_type, options.connector)
     try:
        m = Main(sampler)
        win = gtk.Window()

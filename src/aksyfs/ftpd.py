@@ -173,7 +173,7 @@ def main():
 
     address = ('localhost', 2121)
 
-    sampler = Devices.get_instance(options.samplerType, "mock")
+    sampler = Devices.get_instance(options.type, "mock")
     sampler.sampleFile = '/home/walco/dev/workspace/aksy/test/Default.akm'
     try:    
         ftp_handler = ftpserver.FTPHandler
