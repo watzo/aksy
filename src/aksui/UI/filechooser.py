@@ -1,13 +1,9 @@
-import os,os.path,re,logging,sys,struct,math,traceback,urlparse
-import pygtk
-import inspect
-import gobject,gtk.glade,gtk,aksy
+import os, os.path, urlparse
+import gobject, gtk.glade, gtk, aksy
 import urllib 
-from aksy.devices.akai import fileparser
-import aksy.fileutils
+from aksy.devices.akai import fileparser, sampler
+from aksy import fileutils
 from aksui.utils import modelutils
-# TODO: is this still needed?
-from aksui.postmod.itx import *
 
 def get_file_path_from_dnd_dropped_uri(uri):
     path = uri.strip('\r\n\x00') # remove \r\n and NULL
@@ -27,7 +23,7 @@ def collect_files(args):
     collected = []
     for f in args:
         if os.path.isfile(f):
-            if Sampler.is_filetype_supported(f):
+            if sampler.Sampler.is_filetype_supported(f):
                 collected.append(f)
         elif os.path.isdir(f):
             collected.extend(collect_dir(f))
@@ -38,7 +34,7 @@ def collect_files(args):
 def collect_dir(args):
     for root, dir, files in os.walk(args):
         for found in files:
-            if Sampler.is_filetype_supported(found):
+            if sampler.Sampler.is_filetype_supported(found):
                 yield os.path.join(root, found)
  
 def find_file(files, samplename):
@@ -50,7 +46,7 @@ def find_file(files, samplename):
         
     # look for wav or aiff, using first file to get path
     basename, origext = os.path.split(files[0])
-    exts = ['.wav','.aiff','.aif']
+    exts = ['.wav', '.aiff', '.aif']
     for ext in exts:
         filename = basename + "\\" + samplename + ext
         if os.path.exists(filename):
@@ -59,29 +55,34 @@ def find_file(files, samplename):
             print "Not found:", filename
     #raise IOError("File not found in upload file list: " + samplename)
 
+def unwrap(func):
+    return lambda(data): func(data[2])
+
 class FileChooser:
     def __init__(self, s):
         self.s = s
-        self.last_folder = None
-        self.filechooser = gtk.FileChooserDialog(title="Open Sample", buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK)) 
-        self.setup_filter(["*.AKP","*.AKM","*.WAV","*.AIF","*.AIFF","*.IT"], "All Supported Files")
-        self.setup_filter(["*.AKM"], "Multis")
-        self.setup_filter(["*.AKP",], "Programs")
-        self.setup_filter(["*.WAV","*.AIF","*.AIFF"], "Samples")
-        self.setup_filter(["*.IT"], "Impulse Tracker Modules")
+        self.last_folder = os.path.expanduser('~')
+        self.filechooser = gtk.FileChooserDialog(title="Open Sample", buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK)) 
+        self.setup_filter("All Sampler Supported Files", s.is_filetype_supported)
+        self.setup_filter("Multis", fileutils.is_multi)
+        self.setup_filter("Programs", fileutils.is_program)
+        self.setup_filter("Samples", fileutils.is_sample)
+        self.setup_filter("Impulse Tracker Modules", extensions=["*.it", "*.IT"])
         self.filechooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
 
-    def setup_filter(self, extensions, name = None):
+    def setup_filter(self, name, func=None, extensions=[]):
         """ takes a list of extensions and sets the filefilter
         """
-        self.filter = gtk.FileFilter()
-        for ext in extensions:
-            self.filter.add_pattern(ext)
+        filter = gtk.FileFilter()
+        filter.set_name(name)
+         
+        if func is not None:
+            filter.add_custom(gtk.FILE_FILTER_DISPLAY_NAME, unwrap(func))
+        else:
+            for ext in extensions:
+                filter.add_pattern(ext)
             
-        if name:
-            self.filter.set_name(name)
-            
-        self.filechooser.add_filter(self.filter)
+        self.filechooser.add_filter(filter)
        
     def open(self, multiple = True, upload = False, action = gtk.FILE_CHOOSER_ACTION_OPEN, title = "Upload files..."):
         self.filechooser.set_action(action)
@@ -103,7 +104,7 @@ class FileChooser:
             if multiple:
                 self.files = self.filechooser.get_filenames()
             else:
-                self.files = [self.filechooser.get_filename(),]
+                self.files = [self.filechooser.get_filename(), ]
             
             if upload:
                 self.upload_files()
@@ -125,7 +126,9 @@ class FileChooser:
             return None
 
     def import_from_it(self, fn):
-        it = ITX(fn)
+        from aksui.postmod import itx
+        from aksui.utils import sox
+        it = itx.ITX(fn)
 
         print fn, "loaded! exporting..."
 
@@ -157,7 +160,7 @@ class FileChooser:
         
         for f in self.files:
             if f:
-                if f.lower().endswith(".akp"):
+                if fileutils.is_program(f):
                     filterProgram = f
                     filtered = []
                     program = fileparser.ProgramParser().parse(filterProgram)
