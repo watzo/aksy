@@ -1,5 +1,7 @@
 from aksyosc.osc import OSCMessage, decodeOSC
-import socket
+import socket, logging
+
+LOG = logging.getLogger("aksy.osc.connector")
 
 class OSCConnector:
     """ Execute commands using OSC
@@ -15,6 +17,8 @@ class OSCConnector:
         m.setAddress("/" + command.section + "/" + command.name)
         for arg in args:
             m.append(arg)
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug("Created message: %s, args(%s)", decodeOSC(m.getBinary()), repr(args))
         return m.getBinary()
         
     def execute(self, command, args, request_id=0):
@@ -40,8 +44,8 @@ class OSCConnector:
         bundle = OSCMessage()
         bundle.setAddress("")
         bundle.append('#bundle')
-        for i in range(len(commands)+1):
-            bundle.append(0)
+        bundle.append(0)
+        bundle.append(0)
    
         alt_req = OSCMessage()
         alt_req.setAddress('/altoperations')
@@ -49,8 +53,15 @@ class OSCConnector:
         alt_req.append(index)
         bundle.append(alt_req.getBinary(), 'b')
 
+        args = list(args)
+        
         for cmd in commands:
-            bundle.append(OSCConnector.create_msg(cmd, args), 'b')
+            if len(cmd.arg_types) > 0:
+                arg = args.pop(0)
+            else:
+                arg = []
+                
+            bundle.append(OSCConnector.create_msg(cmd, arg), 'b')
         return bundle.message
     
     def execute_alt_request(self, handle, commands, args, index = None):
