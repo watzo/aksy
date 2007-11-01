@@ -50,12 +50,13 @@ decoded[0], e)
         return comps[1:3]
     
     def dispatch_alt_request(self, messages):
+        LOG.debug("dispatch_alt_request(%s)", repr(messages))
         alt_request = messages.pop(0)
         alt_address = alt_request[0]
 
         try:
             handle = alt_request[2]
-            index = len(alt_request) > 3 and alt_request[3] or None
+            index = alt_request[3]
             if LOG.isEnabledFor(logging.DEBUG):
                 LOG.debug('dispatch_alt_request for handle, index(%s, %s)', handle, index)
             cmds = []
