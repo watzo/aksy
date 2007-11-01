@@ -394,14 +394,14 @@ class FileType(ByteType):
 
 class CompositeType(object):
     def __init__(self, type_list):
-        log.debug("Initializing types %s" % repr(type_list));
+        # log.debug("Initializing types %s" % repr(type_list))
         self.types = type_list
 
     def decode(self, string):
         offset = 0
         result = []
-        for type in self.types:
-            len_parsed, part = parse_byte_string(string, type, offset)
+        for sysex_type in self.types:
+            len_parsed, part = parse_byte_string(string, sysex_type, offset)
             if part is not None:
                 result.append(part)
             offset += len_parsed
@@ -415,7 +415,7 @@ class TypedCompositeType(object):
         offset = 0
         while offset < (len(string) - 1):
             sysex_type = get_type(string[offset])
-            log.debug("Parsing type %s" % type);
+            log.debug("Parsing type %s" % sysex_type)
             offset += 1
             len_parsed, part = parse_byte_string(string, sysex_type, offset)
             if part is not None:
