@@ -94,8 +94,6 @@ class SamplerObject(object):
                 index = self.index
                 
             results = self.s.execute_alt_request(handle, cmds, args, index)
-            if type(results) != tuple:
-                results = (results,)
                 
             for i,result in enumerate(results):
                 # this assumes the results are in the requested order
