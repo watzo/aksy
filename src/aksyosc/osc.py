@@ -71,7 +71,7 @@ class OSCMessage:
 
         if typehint == 'b':
             binary = OSCBlob(argument)
-        elif isinstance(argument, tuple):
+        elif hasattr(argument, "__iter__"):
             binary = OSCArray(argument)
         else:
             binary = OSCArgument(argument)
@@ -80,7 +80,6 @@ class OSCMessage:
         self._rawAppend(binary[1])
 
     def _rawAppend(self, data):
-        """Appends raw data to the message.  Use append()."""
         self.message = self.message + data
 
     def getBinary(self):
@@ -93,7 +92,7 @@ class OSCMessage:
         return self.getBinary()
 
 def readString(data):
-    length   = string.find(data,"\0")
+    length   = string.find(data, "\0")
     nextData = int(math.ceil((length+1) / 4.0) * 4)
     return (data[0:length], data[nextData:])
 
@@ -212,7 +211,6 @@ def OSCArgument(next):
         raise OSCException(repr(type(next)) + " not supported")
     return (tag, binary)
 
-
 def parseArgs(args):
     """Given a list of strings, produces a list
     where those strings have been parsed (where
@@ -240,7 +238,7 @@ def decodeOSC(data):
     table = {"t":readOSCTime, "h":readLong, "i":readInt, "f":readFloat, "s":readString, "b":readBlob, "T":readTrue, "F":readFalse, "N": readNil, "[":readArrayStart}
     decoded = []
     stack = [decoded]
-    address,  rest = readString(data)
+    address, rest = readString(data)
     typetags = ""
 
     if address == "#bundle":
@@ -258,14 +256,14 @@ def decodeOSC(data):
         decoded.append(typetags)
         if(typetags[0] == ','):
             for tag in typetags[1:]:
-                 if tag == ']': 
-                     stack.pop()
-                     continue
+                if tag == ']': 
+                    stack.pop()
+                    continue
 
-                 value, rest = table[tag](rest)
-                 stack[-1].append(value)
-                 if tag == '[': 
-                     stack.append(value)
+                value, rest = table[tag](rest)
+                stack[-1].append(value)
+                if tag == '[': 
+                    stack.append(value)
         else:
             raise OSCException("Oops, typetag lacks the magic ,")
 
@@ -367,12 +365,12 @@ if __name__ == "__main__":
     print "Testing Blob types."
    
     blob = OSCMessage() 
-    blob.append("","b")
-    blob.append("b","b")
-    blob.append("bl","b")
-    blob.append("blo","b")
-    blob.append("blob","b")
-    blob.append("blobs","b")
+    blob.append("", "b")
+    blob.append("b", "b")
+    blob.append("bl", "b")
+    blob.append("blo", "b")
+    blob.append("blob", "b")
+    blob.append("blobs", "b")
     blob.append(42)
 
     hexDump(blob.getBinary())
