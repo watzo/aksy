@@ -26,6 +26,9 @@ class OSCServer(asyncore.dispatcher):
         print '%s started at addr: %s:%i\n' % (
            self.__class__.__name__, address, port)
 
+    def handle_connect(self):
+        pass
+        
     def writable(self):
         return self.response is not None
 
@@ -34,7 +37,7 @@ class OSCServer(asyncore.dispatcher):
         self.response = None
 
     def handle_read(self):
-        data, address = self.recvfrom(8192)
+        data, address = self.recvfrom(16384)
         resp_data = self._callbackMgr.handle(data)
         self.response = Envelope(address, resp_data)
     
