@@ -21,7 +21,7 @@ class OSCConnector:
             LOG.debug("Created message: %s, args(%s)", decodeOSC(m.getBinary()), repr(args))
         return m.getBinary()
         
-    def execute(self, command, args, request_id=0):
+    def execute(self, command, args):
         b = OSCConnector.create_msg(command, args)
         resp = self._sendAndRcv(b)
         # HACK: mimic the behaviour of TypedComposite
