@@ -282,7 +282,7 @@ class Main(base.Base):
         self.program_details_window = None
         base.Base.__init__(self, None, "vboxMain")
 
-        setattr(self.s,'FileChooser', filechooser.FileChooser(s))
+        setattr(self.s, 'FileChooser', filechooser.FileChooser(s))
         
         self.treeviews = [self.w_treeview_programs, self.w_treeview_multis, self.w_treeview_samples]
         for tv in self.treeviews:
@@ -295,6 +295,7 @@ class Main(base.Base):
         self.SamplesContextMenu = SamplesContextMenu(self) 
 
         self.w_quit1.connect('activate', gtk.main_quit)
+        
         vadj = self.w_console_window.get_vadjustment()
         vadj.connect('changed', lambda a, s=self.w_console_window: self.rescroll(a,s))
         
@@ -517,16 +518,25 @@ def main():
     options = parser.parse_args()[0]
 
     sampler = Devices.get_instance(options.sampler_type, options.connector)
+
     try:
-       m = Main(sampler)
-       win = gtk.Window()
-       win.add(m.editor)
-       m.set_window(win)
-       win.show_all()
-       win.connect("delete-event", gtk.main_quit)
-       gtk.main()
+        accel_group = gtk.AccelGroup()
+        m = Main(sampler)
+        m.accel_group = accel_group
+        
+        win = gtk.Window()
+        win.add_accel_group(accel_group)
+        m.w_quit1.add_accelerator("activate", accel_group,
+            ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+
+        win.add(m.editor)
+        m.set_window(win)
+        win.show_all()
+        win.connect("delete-event", gtk.main_quit)
+
+        gtk.main()
     finally:
-       sampler.close()
+        sampler.close()
 
 if __name__ == "__main__":
     if ENABLE_PROFILER:
