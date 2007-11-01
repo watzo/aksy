@@ -37,23 +37,13 @@ def collect_dir(args):
             if sampler.Sampler.is_filetype_supported(found):
                 yield os.path.join(root, found)
  
-def find_file(files, samplename):
-    for f in files:
-        filename = os.path.basename(f).lower()
-        basename, ext = os.path.splitext(filename)
-        if basename == samplename:
-            return f
-        
-    # look for wav or aiff, using first file to get path
-    basename, origext = os.path.split(files[0])
-    exts = ['.wav', '.aiff', '.aif']
-    for ext in exts:
-        filename = basename + "\\" + samplename + ext
-        if os.path.exists(filename):
-            return filename
-        else:
-            print "Not found:", filename
-    #raise IOError("File not found in upload file list: " + samplename)
+def find_file(basedir, candidates, samplename):
+    for f in candidates:
+        name, ext = os.path.splitext(f)
+        if samplename.lower() == name:
+            return os.path.join(basedir, f)
+    
+    raise IOError("Referenced sample '%s' not found in directory '%s'" % (samplename, basedir))
 
 def unwrap(func):
     return lambda(data): func(data[2])
@@ -156,10 +146,11 @@ class FileChooser:
     
     def upload_files(self):
         # hacky
-        to_upload = self.files
-        
         for f in self.files:
             if f:
+                basedir = os.path.dirname(f)
+                candidates = os.listdir(basedir)
+                
                 if fileutils.is_program(f):
                     filterProgram = f
                     filtered = []
@@ -167,7 +158,7 @@ class FileChooser:
                     for kg in program.keygroups:
                         for zone in kg.zones:
                             if zone.samplename:
-                                filtered.append(find_file(self.files, zone.samplename))
+                                filtered.append(find_file(basedir, candidates, zone.samplename))
                     self.files.extend(filtered)
                     
         already_done = []
