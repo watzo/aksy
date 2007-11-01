@@ -28,9 +28,10 @@ class Sampler(object):
         return getattr(tools_obj, command_name + "_cmd")
 
     @transaction(lock)
-    def execute_by_cmd_name(self, section_name, command_name, args, request_id=0):
-        cmd = self.get_cmd_by_name(section_name, command_name)
-        return self.execute(cmd, args, request_id)
+    def execute_by_cmd_name(self, section_name, command_name, args):
+        tools_obj = getattr(self, section_name)
+        func = getattr(tools_obj, command_name)
+        return apply(func, args)
 
     @transaction(lock)
     def execute_alt_request(self, handle, commands, args, index = None):
@@ -52,10 +53,10 @@ class Sampler(object):
         """
         return self.connector.execute_alt_request(handle, commands, args, index)
 
-    def execute(self, command, args, request_id=0):
+    def execute(self, command, args):
         """Executes a command on the sampler
         """
-        return self.connector.execute(command, args, request_id)
+        return self.connector.execute(command, args)
 
     def close(self):
         self.connector.close()
