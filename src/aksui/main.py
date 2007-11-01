@@ -118,6 +118,17 @@ class SamplesContextMenu(base.Base):
         # the lazy way to update ...
         self.main.init_lists()
 
+    def on_download_activate(self, widget):
+        selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
+        destdir = self.s.FileChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
+        if destdir is None:
+            return
+        
+        for sample in selected_samples:
+            full_name = sample + '.wav'
+            self.main.log("Downloading sample '%s' to directory '%s'" % (full_name, destdir))
+            self.main.s.transfertools.get(full_name, os.path.join(destdir, full_name))
+        
     def on_new_program_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
         self.dialogCreateNewProgramFast.w_treeview_selected_samples.set_model(get_model_from_list(selected_samples))
