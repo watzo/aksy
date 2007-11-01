@@ -27,7 +27,7 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
         path.
         
         """
-        if logging.isLevelEnabled(logging.DEBUG): 
+        if LOG.isEnabledFor(logging.DEBUG): 
             LOG.debug('translate %s', path)
 
         if not os.path.isabs(path):
@@ -37,7 +37,8 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
 
     def open(self, filename, mode):
         """Open a file returning its handler."""
-        LOG.debug('open(%s, %s)', filename, mode)
+        if LOG.isEnabledFor(logging.DEBUG): 
+            LOG.debug('open(%s, %s)', filename, mode)
         if self.isdir(filename):
             raise IOError(errno.EINVAL, filename)
         if mode.find('r') != -1:
@@ -65,7 +66,8 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
 
     def chdir(self, abspath):
         """Change the current directory."""
-        LOG.debug("chdir ", abspath)
+        if LOG.isEnabledFor(logging.DEBUG): 
+            LOG.debug("chdir ", abspath)
         i = 1
         while i < len(abspath):
             i = abspath.find('/', i)

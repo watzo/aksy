@@ -15,13 +15,17 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         
     def setUp(self):
         sampler = Devices.get_instance('mock_z48', 'mock', debug=0)
-	sampler.set_sample(testutil.get_test_resource('test.wav'))
-	sampler.set_program(testutil.get_test_resource('221 Angel.akp'))
+        sampler.set_sample(testutil.get_test_resource('test.wav'))
+        sampler.set_program(testutil.get_test_resource('221 Angel.akp'))
         self.fs = ftpd.AksyFtpFS(sampler)
         self.fs.getattr('/')
         self.fs.getattr('/disks')
         self.fs.getattr('/memory')
         
+    def test_translate(self):
+        self.assertEquals('/disks/Z48/!@#$%.wav', 
+                          self.fs.translate('/disks/Z48/!@#$%.wav'))
+
     def test_getattr(self):
         info = self.fs.getattr('/')
         self._assertdir(info)
