@@ -2,7 +2,7 @@ import re
 
 RE_MULTI = re.compile("\.akm$", re.IGNORECASE)
 RE_PROGRAM = re.compile("\.(akp|pgm)$", re.IGNORECASE)
-RE_SAMPLE = re.compile("\.(wav|aif)$", re.IGNORECASE)
+RE_SAMPLE = re.compile("\.(wav|aiff?)$", re.IGNORECASE)
 RE_SONG = re.compile("\.mid$", re.IGNORECASE)
 # the entire printable ascii range
 RE_WORD = re.compile("[ -~]+$", re.IGNORECASE)
