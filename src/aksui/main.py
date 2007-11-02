@@ -119,6 +119,17 @@ class BaseContextMenu(base.Base):
             
         self.main.init_lists()
 
+    def on_edited(self, cell_rend_text, path, new_name):
+        name = get_selected_from_treeview(self.tree_view)[0]
+        if new_name == name:
+            return
+        
+        self.main.log("Rename '%s' to '%s'" % (name, new_name))
+        handle = self.tools_module.get_handle_by_name(name)
+        self.tools_module.rename_by_handle(handle, new_name)
+            
+        self.main.init_lists()
+
 class MultisContextMenu(BaseContextMenu):
     """Context menu for the "multis" TreeView
     """
@@ -283,6 +294,7 @@ class ProgramsContextMenu(BaseContextMenu):
     def on_set_current_program_activate(self, widget):
         print "set current program"
 
+
 class Main(base.Base):
     """Main Window
     """
@@ -296,16 +308,13 @@ class Main(base.Base):
 
         setattr(self.s, 'FileChooser', filechooser.FileChooser(s))
         
-        self.treeviews = [self.w_treeview_programs, self.w_treeview_multis, self.w_treeview_samples]
-        for tv in self.treeviews:
-            tv.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=0))
-            tv.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-            tv.connect("drag_data_received", self.on_drag_data_received)
-            tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
-
-        self.ProgramsContextMenu = ProgramsContextMenu(self) 
+        self.ProgramsContextMenu = ProgramsContextMenu(self)
         self.SamplesContextMenu = SamplesContextMenu(self)
         self.MultisContextMenu = MultisContextMenu(self) 
+
+        self.configure_treeview(self.w_treeview_programs, self.ProgramsContextMenu)
+        self.configure_treeview(self.w_treeview_samples, self.SamplesContextMenu)
+        self.configure_treeview(self.w_treeview_multis, self.MultisContextMenu)
 
         self.w_quit1.connect('activate', gtk.main_quit)
         
@@ -322,6 +331,15 @@ class Main(base.Base):
         self.on_update_models(None)
         
         self.log("ak.py %s" % (__version__))
+
+    def configure_treeview(self, tv, context_menu):
+        text = gtk.CellRendererText()
+        text.set_property("editable", True)
+        text.connect("edited", context_menu.on_edited)
+        tv.append_column(gtk.TreeViewColumn("Name", text, text=0))
+        tv.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        tv.connect("drag_data_received", self.on_drag_data_received)
+        tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
     @staticmethod
     def get_names(module):
