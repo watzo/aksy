@@ -92,31 +92,46 @@ class DialogCreateNewProgramFast(base.Base):
         self.programname = None
 
         base.Base.__init__(self, None, "dialogCreateNewProgramFast")
+
+class BaseContextMenu(base.Base):
+    def __init__(self, name, main, tree_view, tools_module):
+        base.Base.__init__(self, None, name)
+        self.main = main
+        self.tree_view = tree_view
+        self.tools_module = tools_module
     
-class SamplesContextMenu(base.Base):
+    def on_delete_activate(self, widget):
+        selected = get_selected_from_treeview(self.tree_view)
+        for name in selected:
+            handle = self.tools_module.get_handle_by_name(name)
+            self.main.log("Deleting %s with handle %s" % (name, handle))
+            self.tools_module.delete_by_handle(handle)
+            
+        # the lazy way to update ...
+        self.main.init_lists()
+
+class MultisContextMenu(BaseContextMenu):
+    """Context menu for the "multis" TreeView
+    """
+    def __init__(self, main):
+        self.s = main.s
+        self.main = main
+
+        BaseContextMenu.__init__(self, "menuMultis", main, main.w_treeview_multis, self.s.multitools)
+    
+       
+class SamplesContextMenu(BaseContextMenu):
     """Context menu for the "samples" TreeView
     """
     def __init__(self, main):
         self.s = main.s
         self.main = main
 
-        base.Base.__init__(self, None, "menuSamples")
+        BaseContextMenu.__init__(self, "menuSamples", main, main.w_treeview_samples, self.s.sampletools)
 
         self.dialogCreateNewProgramFast = DialogCreateNewProgramFast(self)
         self.dialogCreateNewProgramFast.w_combo_starting_note.set_model(midiutils.midinotesmodel)
         self.dialogCreateNewProgramFast.w_combo_starting_note.set_active(0)
-
-    def on_delete_sample_activate(self, widget):
-        selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
-        print selected_samples
-        # delete em
-        for sample in selected_samples:
-            handle = self.s.sampletools.get_handle_by_name(sample)
-            self.main.log("Deleting %s" % (handle))
-            self.s.sampletools.delete_by_handle(handle)
-            
-        # the lazy way to update ...
-        self.main.init_lists()
 
     def on_download_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
@@ -194,14 +209,14 @@ class SamplesContextMenu(base.Base):
 
         self.dialogCreateNewProgramFast.editor.hide()
 
-class ProgramsContextMenu(base.Base):
+class ProgramsContextMenu(BaseContextMenu):
     """Context menu for the "programs" TreeView
     """
     def __init__(self, main):
         self.s = main.s
         self.main = main
 
-        base.Base.__init__(self, None, "menuPrograms")
+        BaseContextMenu.__init__(self, "menuPrograms", main, main.w_treeview_programs, main.s.programtools)
 
         self.dialogCreateNewKeygroups = DialogCreateNewKeygroups(self)
 
@@ -292,7 +307,8 @@ class Main(base.Base):
             tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
         self.ProgramsContextMenu = ProgramsContextMenu(self) 
-        self.SamplesContextMenu = SamplesContextMenu(self) 
+        self.SamplesContextMenu = SamplesContextMenu(self)
+        self.MultisContextMenu = MultisContextMenu(self) 
 
         self.w_quit1.connect('activate', gtk.main_quit)
         
@@ -494,6 +510,9 @@ class Main(base.Base):
                 """
 
         if widget == self.w_treeview_multis:
+            if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+                self.MultisContextMenu.editor.popup(None, None, None, event.button, event.time)
+
             if event.type == gtk.gdk._2BUTTON_PRESS:
                 curr_multi = get_selected_from_treeview(self.w_treeview_multis)
 

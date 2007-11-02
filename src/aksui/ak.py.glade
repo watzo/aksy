@@ -1475,7 +1475,6 @@ Multi</property>
                           <widget class="GtkEntry" id="entry_name">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
                             <signal name="changed" handler="on_param_changed"/>
                           </widget>
                           <packing>
@@ -2439,7 +2438,6 @@ Glissando</property>
               <widget class="GtkEntry" id="entry_maximum_record_time">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -3085,7 +3083,6 @@ MIDI</property>
               <widget class="GtkEntry" id="entry_name_seed">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
                 <signal name="changed" handler="on_param_changed"/>
               </widget>
               <packing>
@@ -3100,7 +3097,6 @@ MIDI</property>
               <widget class="GtkEntry" id="entry_name">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
                 <signal name="changed" handler="on_param_changed"/>
               </widget>
               <packing>
@@ -3115,7 +3111,6 @@ MIDI</property>
               <widget class="GtkEntry" id="entry_prerec_time">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
                 <signal name="changed" handler="on_param_changed"/>
               </widget>
               <packing>
@@ -3160,7 +3155,6 @@ MIDI</property>
               <widget class="GtkEntry" id="entry_rec_time">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
                 <signal name="changed" handler="on_param_changed"/>
               </widget>
               <packing>
@@ -3394,12 +3388,18 @@ MIDI</property>
                   <widget class="GtkButton" id="button3">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="tooltip" translatable="yes">Refresh the listings</property>
                     <property name="label">gtk-refresh</property>
                     <property name="use_stock">True</property>
                     <signal name="clicked" handler="on_refresh_clicked"/>
+                    <accelerator key="F5" modifiers="" signal="clicked"/>
                   </widget>
                 </child>
               </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
             </child>
           </widget>
           <packing>
@@ -3954,6 +3954,15 @@ MIDI</property>
         <signal name="activate" handler="on_duplicate_program_activate"/>
       </widget>
     </child>
+    <child>
+      <widget class="GtkImageMenuItem" id="delete_program">
+        <property name="visible">True</property>
+        <property name="label">gtk-delete</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="on_delete_activate"/>
+      </widget>
+    </child>
   </widget>
   <widget class="GtkDialog" id="dialogCreateNewKeygroups">
     <property name="title">Create Keygroups</property>
@@ -4105,7 +4114,6 @@ Drum</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="max_length">25</property>
-                <property name="invisible_char">●</property>
                 <property name="text">Program 1000</property>
               </widget>
               <packing>
@@ -4308,16 +4316,10 @@ Drum</property>
     <child>
       <widget class="GtkImageMenuItem" id="delete_sample">
         <property name="visible">True</property>
-        <property name="label">Delete</property>
+        <property name="label">gtk-delete</property>
         <property name="use_underline">True</property>
-        <signal name="activate" handler="on_delete_sample_activate"/>
-        <child internal-child="image">
-          <widget class="GtkImage" id="image35">
-            <property name="visible">True</property>
-            <property name="stock">gtk-delete</property>
-            <property name="icon_size">1</property>
-          </widget>
-        </child>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="on_delete_activate"/>
       </widget>
     </child>
     <child>
@@ -4473,6 +4475,19 @@ Drum</property>
             </child>
           </widget>
         </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkMenu" id="menuMultis">
+    <property name="visible">True</property>
+    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+    <child>
+      <widget class="GtkImageMenuItem" id="delete_multi">
+        <property name="visible">True</property>
+        <property name="label">gtk-delete</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="on_delete_activate"/>
       </widget>
     </child>
   </widget>
