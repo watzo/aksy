@@ -34,6 +34,12 @@ class Multitools:
         self.get_tag_bitmap_cmd = Command('_', '\x18\x0F', 'multitools', 'get_tag_bitmap', (), None)
         self.get_curr_modified_cmd = Command('_', '\x18\x10', 'multitools', 'get_curr_modified', (), None)
         self.get_modified_cmd = Command('_', '\x18\x11', 'multitools', 'get_modified', (), None)
+        self.delete_tagged_cmd = Command('_', '\x18\x18', 'multitools', 'delete_tagged', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.create_new_cmd = Command('_', '\x18\x40', 'multitools', 'create_new', (aksy.devices.akai.sysex_types.WORD, aksy.devices.akai.sysex_types.STRING), None)
+        self.copy_cmd = Command('_', '\x18\x41', 'multitools', 'copy', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.delete_part_cmd = Command('_', '\x18\x42', 'multitools', 'delete_part', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.delete_unused_parts_cmd = Command('_', '\x18\x43', 'multitools', 'delete_unused_parts', (), None)
+        self.arrange_parts_cmd = Command('_', '\x18\x44', 'multitools', 'arrange_parts', (), None)
         self.set_group_id_cmd = Command('_', '\x1A\x01', 'multitools', 'set_group_id', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_multi_select_method_cmd = Command('_', '\x1A\x02', 'multitools', 'set_multi_select_method', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.set_multi_select_channel_cmd = Command('_', '\x1A\x03', 'multitools', 'set_multi_select_channel', (aksy.devices.akai.sysex_types.BYTE,), None)
@@ -252,6 +258,36 @@ class Multitools:
             BOOL
         """
         return self.sampler.execute(self.get_modified_cmd, ())
+
+    def delete_tagged(self, arg0):
+        """Delete tagged items <Data1> = tag bit
+        """
+        return self.sampler.execute(self.delete_tagged_cmd, (arg0, ))
+
+    def create_new(self, arg0, arg1):
+        """Create a new Multi
+        """
+        return self.sampler.execute(self.create_new_cmd, (arg0, arg1, ))
+
+    def copy(self, arg0):
+        """Copy a Multi
+        """
+        return self.sampler.execute(self.copy_cmd, (arg0, ))
+
+    def delete_part(self, arg0):
+        """Delete a specific part
+        """
+        return self.sampler.execute(self.delete_part_cmd, (arg0, ))
+
+    def delete_unused_parts(self):
+        """Delete unused parts
+        """
+        return self.sampler.execute(self.delete_unused_parts_cmd, ())
+
+    def arrange_parts(self):
+        """Arrange parts (sort by MIDI channel)
+        """
+        return self.sampler.execute(self.arrange_parts_cmd, ())
 
     def set_group_id(self, arg0):
         """Set Group ID

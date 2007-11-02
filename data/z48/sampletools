@@ -55,11 +55,11 @@ BYTE
 
 \x1C	\x46	play_region	Play Region <Data1> = velocity, <Data2> = region index	BYTE	BYTE
 
-\x1C	\x48	create_loop	Create New Loop
+\x1C	\x48	create_loop	Create New Loop	(not implemented)
 
-\x1C	\x49	delete_loop	Delete Loop <Data1> = index	BYTE
+\x1C	\x49	delete_loop	Delete Loop <Data1> = index (not implemented)	BYTE
 
-\x1C	\x4A	create_region	Create Region
+\x1C	\x4A	create_region	Create Region (not implemented)
 
 \x1C	\x4B	delete_region	Delete Region <Data1> = index	BYTE
 

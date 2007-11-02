@@ -104,10 +104,19 @@ class BaseContextMenu(base.Base):
         selected = get_selected_from_treeview(self.tree_view)
         for name in selected:
             handle = self.tools_module.get_handle_by_name(name)
-            self.main.log("Deleting %s with handle %s" % (name, handle))
+            self.main.log("Deleting '%s' with handle %s" % (name, handle))
             self.tools_module.delete_by_handle(handle)
+
+        self.main.init_lists()
+
+    def on_duplicate_activate(self, widget):
+        selected = get_selected_from_treeview(self.tree_view)
+        for name in selected:
+            new_name = 'Copy of ' + name
+            self.main.log("Copy '%s' to '%s'" % (name, new_name))
+            self.tools_module.set_curr_by_name(name)
+            self.tools_module.copy(new_name)
             
-        # the lazy way to update ...
         self.main.init_lists()
 
 class MultisContextMenu(BaseContextMenu):
@@ -220,18 +229,6 @@ class ProgramsContextMenu(BaseContextMenu):
 
         self.dialogCreateNewKeygroups = DialogCreateNewKeygroups(self)
 
-    def on_duplicate_program_activate(self, button):
-        programnames = get_selected_from_treeview(self.main.w_treeview_programs)
-        
-        for programname in programnames:
-            print "Duplicating", programname
-            p = program.Program(self.s,programname)
-            dupe = p.copy("Copy " + programname)
-            print "Success?", dupe.name
-        
-        Main.do_programlist(self.main.s)
-        self.main.on_update_program_model()
-        
     def on_add_keygroup_activate(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
 

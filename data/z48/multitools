@@ -39,6 +39,18 @@ WORD
 STRINGARRAY
 \x18	\x11	get_modified	Get modified state of current item
 BOOL
+\x18	\x18	delete_tagged	Delete tagged items <Data1> = tag bit	BYTE
+
+\x18	\x40	create_new	Create a new Multi	WORD	STRING	
+
+\x18	\x41	copy	Copy a Multi	STRING	
+
+\x18	\x42	delete_part	Delete a specific part	BYTE	
+
+\x18	\x43	delete_unused_parts	Delete unused parts
+
+\x18	\x44	arrange_parts	Arrange parts (sort by MIDI channel)
+
 \x1A	\x01	set_group_id	Set Group ID	BYTE
 
 \x1A	\x02	set_multi_select_method	Set Multi Select <Data1> = (0=OFF, 1=BANK, 2=PROG CHANGE)	BYTE

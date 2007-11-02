@@ -325,7 +325,7 @@ class InMemoryFile(FileRef):
         FileRef.__init__(self, (name,))
 
     def get_actions(self):
-        return ('delete', 'download',)
+        return ('delete', 'download', 'copy')
     
     def get_name(self):
         return self.name
@@ -359,6 +359,9 @@ class InMemoryFile(FileRef):
 
     def download(self, dest_path):
         pass
+    
+    def copy(self, new_name):
+        handlers[self.__class__].copy(new_name)
 
     def rename(self, new_name):
         self.set_current()
@@ -385,9 +388,11 @@ class Sample(InMemoryFile):
         self.type = FileRef.SAMPLE
 
     def get_name(self):
-        # TODO!
         return InMemoryFile.get_name(self) + ".wav"
 
+    def copy(self, name):
+        raise NotImplementedError("Copy not implemented for samples")
+    
     def get_size(self):
         self.set_current()
         handlers[Sample].get_sample_length()

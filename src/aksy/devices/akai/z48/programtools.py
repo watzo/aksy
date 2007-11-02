@@ -41,8 +41,8 @@ class Programtools:
         self.delete_blank_keygroups_cmd = Command('_', '\x14\x43', 'programtools', 'delete_blank_keygroups', (), None)
         self.arrange_keygroups_cmd = Command('_', '\x14\x44', 'programtools', 'arrange_keygroups', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.copy_keygroup_cmd = Command('_', '\x14\x45', 'programtools', 'copy_keygroup', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.copy_program_cmd = Command('_', '\x14\x48', 'programtools', 'copy_program', (aksy.devices.akai.sysex_types.STRING,), None)
-        self.merge_programs_cmd = Command('_', '\x14\x48', 'programtools', 'merge_programs', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.DWORD), None)
+        self.copy_cmd = Command('_', '\x14\x48', 'programtools', 'copy', (aksy.devices.akai.sysex_types.STRING,), None)
+        self.merge_programs_cmd = Command('_', '\x14\x49', 'programtools', 'merge_programs', (aksy.devices.akai.sysex_types.DWORD, aksy.devices.akai.sysex_types.DWORD), None)
         self.add_keygroup_sample_cmd = Command('_', '\x14\x4A', 'programtools', 'add_keygroup_sample', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL, aksy.devices.akai.sysex_types.STRING), None)
         self.copy_temperament_to_user_cmd = Command('_', '\x14\x50', 'programtools', 'copy_temperament_to_user', (), None)
         self.get_no_modulation_connections_cmd = Command('_', '\x14\x54', 'programtools', 'get_no_modulation_connections', (), None)
@@ -290,10 +290,10 @@ class Programtools:
         """
         return self.sampler.execute(self.copy_keygroup_cmd, (arg0, ))
 
-    def copy_program(self, arg0):
+    def copy(self, arg0):
         """Copy Program (program name)
         """
-        return self.sampler.execute(self.copy_program_cmd, (arg0, ))
+        return self.sampler.execute(self.copy_cmd, (arg0, ))
 
     def merge_programs(self, arg0, arg1):
         """Merge Programs (program handle1, handle2)

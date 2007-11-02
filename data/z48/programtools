@@ -53,9 +53,9 @@ BYTE
 
 \x14	\x45	copy_keygroup	Copy Keygroup (keygroup  index)	BYTE
 
-\x14	\x48	copy_program	Copy Program (program name)	STRING
+\x14	\x48	copy	Copy Program (program name)	STRING
 
-\x14	\x48	merge_programs	Merge Programs (program handle1, handle2)	DWORD	DWORD
+\x14	\x49	merge_programs	Merge Programs (program handle1, handle2)	DWORD	DWORD
 
 \x14	\x4A	add_keygroup_sample	Add Keygroup Sample (low note, high note, zone, keytrack, sample name)	BYTE	BYTE	BYTE	BOOL	STRING
 
