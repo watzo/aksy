@@ -37,7 +37,7 @@ class Disktools:
               (aksy.devices.akai.sysex_types.NAMESIZEARRAY,), userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.rename_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x28', 'disktools', 'rename_file', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None, 
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
-          self.delete_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'disktools', 'delete_file', (aksy.devices.akai.sysex_types.STRING,), None,
+          self.delete_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x29', 'disktools', 'delete', (aksy.devices.akai.sysex_types.STRING,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
           self.load_file_cmd = aksy.devices.akai.sysex.Command('\x5e', '\x10\x2A', 'disktools', 'load_file', (aksy.devices.akai.sysex_types.STRING,), None,
               userref_type=aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -158,7 +158,7 @@ class Disktools:
      def delete(self, arg0):
           """Delete file or folder (including folder content!)
           """
-          return self.connector.execute(self.delete_file_cmd, (arg0, ))
+          return self.connector.execute(self.delete_cmd, (arg0, ))
 
      def load_file(self, arg0):
           """Load File <Data1> = name of file to load.
