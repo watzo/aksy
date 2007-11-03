@@ -69,6 +69,9 @@ class Disk(Container):
 
     def get_modified(self):
         return False
+    
+    def create_folder(self, name):
+        self.root.create_folder(name)
 
     def get_children(self):
         self.set_current()
