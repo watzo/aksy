@@ -32,7 +32,6 @@ class OSCConnector:
 
     def _sendAndRcv(self, b):
         self.socket.sendall(b)
-        # TODO: use "streaming" decoder to allocate buffer 
         data = self.socket.recv(8192)
         resp_msg = decodeOSC(data)
         if resp_msg[0] == '/sampler/error':

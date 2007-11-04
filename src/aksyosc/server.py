@@ -37,7 +37,7 @@ class OSCServer(asyncore.dispatcher):
         self.response = None
 
     def handle_read(self):
-        data, address = self.recvfrom(16384)
+        data, address = self.recvfrom(8192)
         resp_data = self._callbackMgr.handle(data)
         self.response = Envelope(address, resp_data)
     
