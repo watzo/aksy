@@ -75,9 +75,9 @@ BYTE
 
 \x26	\x22	set_channel_output	Set Channel Output <Data2> = output	BYTE	BYTE
 
-\x26	\x30	set_fx_by_id	Set effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Data3> = effect.	BYTE	BYTE	STRING
+\x26	\x30	set_fx_by_name	Set effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Data3> = effect.	BYTE	BYTE	STRING
 
-\x26	\x31	set_fx_by_name	Set effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Data3> = effect	BYTE	BYTE	WORD
+\x26	\x31	set_fx_by_id	Set effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Data3> = effect	BYTE	BYTE	WORD
 
 \x26	\x40	enable_module	Set State of FX module. (channel, module, enable	BYTE	BYTE	BOOL
 
