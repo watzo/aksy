@@ -1,5 +1,25 @@
 #!/usr/bin/env python
 
+__author__ = 'Joseph Misra and Walco van Loon'
+__version__ = '0.746'
+__license__ = """
+    Copyright (C) 2006-2007  %s
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+""" % __author__
+
 try:
     import hotshot, hotshot.stats
 except ImportError:
@@ -19,8 +39,6 @@ from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, 
 from aksy.device import Devices
 from aksy import config
 
-__author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.746'
 
 
 # config
@@ -492,6 +510,17 @@ class Main(base.Base):
         self.s.FileChooser.open(upload=True)
         self.init_lists()
 
+    def on_about_activate(self, button):
+        dialog = gtk.AboutDialog()
+        dialog.set_name('aksui')
+        dialog.set_version(__version__)
+        dialog.set_authors((__author__,))
+        dialog.set_license(__license__)
+        dialog.set_comments("Take control of your sampler!")
+        dialog.set_website("http://walco.n--tree.net/projects/aksy/")
+        dialog.connect('response', lambda dialog, data: dialog.destroy())
+        dialog.show_all()
+        
     def on_configure_event(self, widget, event):
         self.move_properties_window()
         return False
