@@ -574,6 +574,8 @@ def main():
         win.add(m.editor)
         m.set_window(win)
         win.show_all()
+        # TODO: make edit menu functional
+        m.w_edit_menu.hide()
         win.connect("delete-event", gtk.main_quit)
 
         gtk.main()

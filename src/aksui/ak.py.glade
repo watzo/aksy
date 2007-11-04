@@ -3278,12 +3278,12 @@ ADAT 7/8</property>
               </widget>
             </child>
             <child>
-              <widget class="GtkMenuItem" id="menuitem5">
+              <widget class="GtkMenuItem" id="edit_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Edit</property>
                 <property name="use_underline">True</property>
                 <child>
-                  <widget class="GtkMenu" id="menuitem5_menu">
+                  <widget class="GtkMenu" id="edit_menu_contents">
                     <child>
                       <widget class="GtkImageMenuItem" id="cut1">
                         <property name="visible">True</property>
