@@ -3334,9 +3334,17 @@ MIDI</property>
                     <child>
                       <widget class="GtkMenuItem" id="lcditem">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">LCD (Test)</property>
+                        <property name="label" translatable="yes">_LCD (Test)</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_lcd_activate"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="multfx_editor">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_MultiFX Editor (Test)</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_multifx_activate"/>
                       </widget>
                     </child>
                     <child>

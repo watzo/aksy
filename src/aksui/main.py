@@ -34,7 +34,7 @@ import gtk
 # our stuff
 from aksui.utils import midiutils, modelutils
 from aksui.ak import multi, recording, program, keygroup
-from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog
+from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog, multifxeditor
 
 from aksy.device import Devices
 from aksy import config
@@ -552,10 +552,15 @@ class Main(base.Base):
         return False
 
     def on_lcd_activate(self, button):
-        lcd = lcdscreen.LCDScreen(self.s)
+        self.open_in_window(lcdscreen.LCDScreen(self.s))
+
+    def open_in_window(self, widget):
         win = gtk.Window()
-        win.add(lcd)
+        win.add(widget)
         win.show_all()
+
+    def on_multifx_activate(self, widget):
+        self.open_in_window(multifxeditor.MultiFXEditor(self.s))
        
     def on_treeview_event(self, widget, event):
         """Handles context menus + doubleclicks.

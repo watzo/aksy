@@ -1,7 +1,7 @@
 import gtk
 
-# XXX seems unused except for multifx?
-from aksui.ak.multifx import *
+from aksui.ak import multifx
+from aksui.utils import modelutils
 
 class MultiFXChannelEditor(gtk.VBox):
     def __init__(self,mMultiFXChannelEditor):
@@ -13,10 +13,10 @@ class MultiFXChannelEditor(gtk.VBox):
 
         self.topHBox = gtk.HBox(True)
 
-        self.inputComboBox = magicCombo(inputmapmodel,self.channel.input,self.on_input_changed,2)
+        self.inputComboBox = modelutils.magicCombo(multifx.inputmapmodel,self.channel.input,self.on_input_changed,2)
         self.topHBox.pack_start(self.inputComboBox)
 
-        self.outputComboBox = magicCombo(outputmapmodel,self.channel.output,self.on_output_changed,3)
+        self.outputComboBox = modelutils.magicCombo(multifx.outputmapmodel,self.channel.output,self.on_output_changed,3)
         self.topHBox.pack_start(self.outputComboBox)
 
         self.pack_start(self.topHBox)
@@ -40,7 +40,7 @@ class MultiFXModuleEditor(gtk.VBox):
 
         self.topHBox = gtk.HBox()
 
-        self.effectsComboBox = magicCombo(effectmodel,self.module.effect_index,self.on_changed,4)
+        self.effectsComboBox = modelutils.magicCombo(multifx.effectmodel,self.module.effect_index,self.on_changed,4)
         self.topHBox.pack_start(self.effectsComboBox)
 
         self.enableButton = gtk.ToggleButton('Enable')
@@ -124,7 +124,7 @@ class MultiFXLabel(gtk.Label):
 class MultiFXEditor(gtk.VBox):
     def __init__(self,s):
         gtk.VBox.__init__(self)
-        self.mfx = multifx(s)
+        self.mfx = multifx.MultiFX(s)
 
         self.channelWidgets = { }
       

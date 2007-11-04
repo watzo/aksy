@@ -1,6 +1,6 @@
 import gtk
 
-import base, editors
+from aksui.UI import base, editors
 
 class MultiEditorWindow(gtk.Window):
     def __init__(self, s, m):
