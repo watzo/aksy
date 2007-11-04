@@ -3233,7 +3233,7 @@ ADAT 7/8</property>
                     <child>
                       <widget class="GtkImageMenuItem" id="upload1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Upload...</property>
+                        <property name="label" translatable="yes">_Upload...</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_upload_activate"/>
                         <child internal-child="image">
@@ -3248,7 +3248,7 @@ ADAT 7/8</property>
                     <child>
                       <widget class="GtkImageMenuItem" id="save">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Save All...</property>
+                        <property name="label" translatable="yes">_Save All...</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_save_activate"/>
                         <child internal-child="image">
