@@ -27,7 +27,7 @@ STRING
 BYTE
 \x24	\x36	get_display_template	Get Parameter Template (channel, module, param)	BYTE	BYTE	BYTE
 STRING
-\x24	\x38	get_parameter_display_id	Get Parameter Display ID (channel, module, param)	BYTE	BYTE	BYTE
+\x24	\x38	get_parameter_position_id	Get Parameter Position ID (channel, module, param)	BYTE	BYTE	BYTE
 BYTE
 \x24	\x40	get_number_of_parameter_groups	Get Number of Parameter Groups (channel, module)	BYTE	BYTE
 BYTE
@@ -57,7 +57,7 @@ BOOL
 BYTE
 \x27	\x22	get_channel_output	Get Channel Output <Reply> = output	BYTE
 BYTE
-\x27	\x30	get_by_name	Get effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Reply> = effect	BYTE
+\x27	\x30	get_by_name	Get effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Reply> = effect	BYTE	BYTE
 BYTE	STRING
 \x27	\x31	get_by_index	Get effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Reply> = effect	BYTE	BYTE
 WORD

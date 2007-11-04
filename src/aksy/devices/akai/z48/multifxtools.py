@@ -28,7 +28,7 @@ class Multifxtools:
         self.get_parameter_units_cmd = Command('_', '\x24\x34', 'multifxtools', 'get_parameter_units', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_parameter_type_cmd = Command('_', '\x24\x35', 'multifxtools', 'get_parameter_type', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_display_template_cmd = Command('_', '\x24\x36', 'multifxtools', 'get_display_template', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_display_id_cmd = Command('_', '\x24\x38', 'multifxtools', 'get_parameter_display_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_position_id_cmd = Command('_', '\x24\x38', 'multifxtools', 'get_parameter_position_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_number_of_parameter_groups_cmd = Command('_', '\x24\x40', 'multifxtools', 'get_number_of_parameter_groups', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_group_name_cmd = Command('_', '\x24\x41', 'multifxtools', 'get_group_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_group_index_of_parameter_cmd = Command('_', '\x24\x42', 'multifxtools', 'get_group_index_of_parameter', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
@@ -43,7 +43,7 @@ class Multifxtools:
         self.is_channel_muted_cmd = Command('_', '\x27\x20', 'multifxtools', 'is_channel_muted', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_channel_input_cmd = Command('_', '\x27\x21', 'multifxtools', 'get_channel_input', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_channel_output_cmd = Command('_', '\x27\x22', 'multifxtools', 'get_channel_output', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_by_name_cmd = Command('_', '\x27\x30', 'multifxtools', 'get_by_name', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_by_name_cmd = Command('_', '\x27\x30', 'multifxtools', 'get_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_by_index_cmd = Command('_', '\x27\x31', 'multifxtools', 'get_by_index', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.is_module_enabled_cmd = Command('_', '\x27\x40', 'multifxtools', 'is_module_enabled', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.get_param_value_cmd = Command('_', '\x27\x50', 'multifxtools', 'get_param_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
@@ -170,13 +170,13 @@ class Multifxtools:
         """
         return self.sampler.execute(self.get_display_template_cmd, (arg0, arg1, arg2, ))
 
-    def get_parameter_display_id(self, arg0, arg1, arg2):
-        """Get Parameter Display ID (channel, module, param)
+    def get_parameter_position_id(self, arg0, arg1, arg2):
+        """Get Parameter Position ID (channel, module, param)
 
         Returns:
             BYTE
         """
-        return self.sampler.execute(self.get_parameter_display_id_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.get_parameter_position_id_cmd, (arg0, arg1, arg2, ))
 
     def get_number_of_parameter_groups(self, arg0, arg1):
         """Get Number of Parameter Groups (channel, module)
@@ -266,14 +266,14 @@ class Multifxtools:
         """
         return self.sampler.execute(self.get_channel_output_cmd, (arg0, ))
 
-    def get_by_name(self, arg0):
+    def get_by_name(self, arg0, arg1):
         """Get effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Reply> = effect
 
         Returns:
             BYTE
             STRING
         """
-        return self.sampler.execute(self.get_by_name_cmd, (arg0, ))
+        return self.sampler.execute(self.get_by_name_cmd, (arg0, arg1, ))
 
     def get_by_index(self, arg0, arg1):
         """Get effect in module on given channel (by index)<Data1> = channel; <Data2> = module; <Reply> = effect
