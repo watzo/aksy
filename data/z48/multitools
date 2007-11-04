@@ -1,5 +1,5 @@
 multitools	Methods to manipulate multis
-\x18	\x01	get_item_count	Get number of items in memory
+\x18	\x01	get_no_items	Get number of items in memory
 BYTE
 \x18	\x02\x00	get_handles	Get handles <Data1>: 0=list of handles
 DWORDARRAY

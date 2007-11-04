@@ -14,7 +14,7 @@ import aksy.devices.akai.sysex_types
 class Multitools:
     def __init__(self, z48):
         self.sampler = z48
-        self.get_item_count_cmd = Command('_', '\x18\x01', 'multitools', 'get_item_count', (), None)
+        self.get_no_items_cmd = Command('_', '\x18\x01', 'multitools', 'get_no_items', (), None)
         self.get_handles_cmd = Command('_', '\x18\x02\x00', 'multitools', 'get_handles', (), None)
         self.get_names_cmd = Command('_', '\x18\x02\x01', 'multitools', 'get_names', (), None)
         self.get_handles_names_cmd = Command('_', '\x18\x02\x02', 'multitools', 'get_handles_names', (), None)
@@ -123,13 +123,13 @@ class Multitools:
         self.get_midi_ctl_output_cmd = Command('_', '\x1B\x56', 'multitools', 'get_midi_ctl_output', (aksy.devices.akai.sysex_types.BYTE,), None)
         self.get_midi_channel_output_cmd = Command('_', '\x1B\x57', 'multitools', 'get_midi_channel_output', (aksy.devices.akai.sysex_types.BYTE,), None)
 
-    def get_item_count(self):
+    def get_no_items(self):
         """Get number of items in memory
 
         Returns:
             BYTE
         """
-        return self.sampler.execute(self.get_item_count_cmd, ())
+        return self.sampler.execute(self.get_no_items_cmd, ())
 
     def get_handles(self):
         """Get handles <Data1>: 0=list of handles
