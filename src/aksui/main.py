@@ -118,6 +118,13 @@ class BaseContextMenu(base.Base):
         self.tree_view = tree_view
         self.tools_module = tools_module
     
+    def handle_keyboard_event(self, widget, event):
+        if gtk.gdk.keyval_name(event.keyval) == "Delete":
+            self.on_delete_activate(None)
+        elif gtk.gdk.keyval_name(event.keyval) == "Insert":
+          # TODO: create new program/multi
+          pass
+
     def on_delete_activate(self, widget):
         selected = get_selected_from_treeview(self.tree_view)
         for name in selected:
@@ -348,8 +355,6 @@ class Main(base.Base):
 
         self.on_update_models(None)
         
-        self.log("ak.py %s" % (__version__))
-
     def configure_treeview(self, tv, context_menu):
         text = gtk.CellRendererText()
         text.set_property("editable", True)
@@ -359,6 +364,9 @@ class Main(base.Base):
         tv.connect("drag_data_received", self.on_drag_data_received)
         tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
+        tv.add_events(gtk.gdk.KEY_PRESS)
+        tv.connect("key_press_event", context_menu.handle_keyboard_event)
+      
     @staticmethod
     def get_names(module):
         handles_names = module.get_handles_names()
@@ -594,9 +602,9 @@ if USE_CUSTOM_EXCEPTHOOK:
     import sys
     sys.excepthook = exceptionHandler
 
-def add_keybinding(accel_group, widget, accel_str):
+def add_keybinding(accel_group, widget, accel_str, signal="activate"):
     keyval, mods = gtk.accelerator_parse(accel_str)
-    widget.add_accelerator("activate", accel_group,
+    widget.add_accelerator(signal, accel_group,
                                        keyval, mods, gtk.ACCEL_VISIBLE)
 
     
