@@ -155,7 +155,7 @@ class SamplesContextMenu(BaseContextMenu):
 
     def on_download_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
-        destdir = self.s.FileChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
+        destdir = self.s.FileChooser.open(upload=False, action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, title="Save all files...", multiple=False)
         if destdir is None:
             return
         
@@ -183,21 +183,21 @@ class SamplesContextMenu(BaseContextMenu):
             notes = []
             if method == 0:
                 # chromatic
-                for i in range(starting_note,starting_note+num_samples):
+                for i in range(starting_note, starting_note+num_samples):
                     notes.append([i, i])
                 keytrack = 1
                 playback = 0
             elif method == 1:
                 # drum
                 for i in range(num_samples):
-                    notes.append([mpcpads[i],mpcpads[i]])
+                    notes.append([mpcpads[i], mpcpads[i]])
                 keytrack = 0
                 # one shot
                 playback = 1
             elif method == 2:
                 # span
                 for i in range(num_samples):
-                    notes.append([0,127])
+                    notes.append([0, 127])
                 keytrack = 1
                 playback = 0
 
@@ -251,11 +251,11 @@ class ProgramsContextMenu(BaseContextMenu):
             howmany = int(self.dialogCreateNewKeygroups.w_spin_howmany_keygroups.get_value())
 
             if not (type(programname) is list):
-                programname = [programname,]
+                programname = [programname, ]
 
             for pn in programname:
                 self.main.log("Adding %d keygroups to %s" % (howmany, pn))
-                self.program = program.Program(self.s,pn)
+                self.program = program.Program(self.s, pn)
                 self.program.gettools().add_keygroups(howmany)
 
     def on_program_properties_activate(self, widget):
@@ -268,19 +268,19 @@ class ProgramsContextMenu(BaseContextMenu):
     def on_recycle_init_activate(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
         if not (type(programname) is list):
-            programname = [programname,]
+            programname = [programname, ]
         
         for pn in programname:
-            p = program.Program(self.s,pn)
+            p = program.Program(self.s, pn)
             p.init_recycled()
             
     def on_dump_matrix(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
         if not (type(programname) is list):
-            programname = [programname,]
+            programname = [programname, ]
 
         for pn in programname:
-            p = program.Program(self.s,pn)
+            p = program.Program(self.s, pn)
             matrix = p.dump_matrix()
             self.main.log(matrix)
 
@@ -299,7 +299,7 @@ class Main(base.Base):
     """Main Window
     """
     def __init__(self, s):
-        self.dnd_list = [ ( 'text/uri-list', 0, TARGET_TYPE_URI_LIST ) ] 
+        self.dnd_list = [ ('text/uri-list', 0, TARGET_TYPE_URI_LIST) ] 
         self.s = s
         self.kgeditwindow = None
         self.multieditwindow = None
@@ -319,7 +319,7 @@ class Main(base.Base):
         self.w_quit1.connect('activate', gtk.main_quit)
         
         vadj = self.w_console_window.get_vadjustment()
-        vadj.connect('changed', lambda a, s=self.w_console_window: self.rescroll(a,s))
+        vadj.connect('changed', lambda a, s=self.w_console_window: self.rescroll(a, s))
         
         self.init_lists()
 
@@ -351,18 +351,18 @@ class Main(base.Base):
         
     @staticmethod
     def do_programlist(s):
-        setattr(s,'programs', Main.get_names(s.programtools))
-        setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
+        setattr(s, 'programs', Main.get_names(s.programtools))
+        setattr(s, 'programsmodel', modelutils.get_model_from_list(s.programs))
         
     @staticmethod
     def do_lists(s):
         Main.do_programlist(s)
         
-        setattr(s,'samples', Main.get_names(s.sampletools))
-        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s, 'samples', Main.get_names(s.sampletools))
+        setattr(s, 'samplesmodel', modelutils.get_model_from_list(s.samples, True))
         
-        setattr(s,'multis', Main.get_names(s.multitools))
-        setattr(s,'multismodel', modelutils.get_model_from_list(s.multis))
+        setattr(s, 'multis', Main.get_names(s.multitools))
+        setattr(s, 'multismodel', modelutils.get_model_from_list(s.multis))
 
     def on_drag_data_received(self, widget, context, x, y, selection, target_type, timestamp):
         self.s.FileChooser.on_drag_data_received(widget, context, x, y, selection, target_type, timestamp)
@@ -375,10 +375,10 @@ class Main(base.Base):
         self.window.connect("drag_data_received", self.on_drag_data_received)
         self.window.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
-    def log(self,text):
+    def log(self, text):
         self.w_console.get_buffer().insert_at_cursor(text + "\r\n")
 
-    def rescroll(self,vadj,scroll):
+    def rescroll(self, vadj, scroll):
         vadj.set_value(vadj.upper-vadj.page_size)
         scroll.set_vadjustment(vadj)        
         
@@ -402,7 +402,7 @@ class Main(base.Base):
             
     def open_multi_editor(self, multiname):
         if multiname:
-            m = multi.Multi(self.s,multiname)
+            m = multi.Multi(self.s, multiname)
             if not self.multieditwindow:
                 self.multieditwindow = multieditor.MultiEditorWindow(self.s, m)
             else:
@@ -463,7 +463,7 @@ class Main(base.Base):
     def on_save_activate(self, button):
         # THIS WILL OVERWRITE FILES w/ SAME NAMES!
         # get folder to save to
-        path = self.s.FileChooser.open(upload=False,action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,title="Save all files...",multiple=False)
+        path = self.s.FileChooser.open(upload=False, action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, title="Save all files...", multiple=False)
             
         if path:
             org = {'multitools':'.akm', 'programtools':'.akp', 'sampletools' : '.wav'}
@@ -473,7 +473,7 @@ class Main(base.Base):
                 tool = getattr(self.s, toolname)
                 items = tool.get_names()
                 if type(items) is str:
-                    items = [items,]
+                    items = [items, ]
                 # download it
                 for item in items:
                     if len(item) > 0:
@@ -547,6 +547,16 @@ if USE_CUSTOM_EXCEPTHOOK:
     import sys
     sys.excepthook = exceptionHandler
 
+def add_keybinding(accel_group, widget, accel_str):
+    keyval, mods = gtk.accelerator_parse(accel_str)
+    widget.add_accelerator("activate", accel_group,
+                                       keyval, mods, gtk.ACCEL_VISIBLE)
+
+    
+def setup_keybindings(m, accel_group):
+    add_keybinding(accel_group, m.w_quit1, "<Ctl>Q")
+    add_keybinding(accel_group, m.w_refresh_button, "F5")
+ 
 def main(): 
     parser = config.create_option_parser(usage="%prog [options]")
     options = parser.parse_args()[0]
@@ -554,14 +564,12 @@ def main():
     sampler = Devices.get_instance(options.sampler_type, options.connector)
 
     try:
-        accel_group = gtk.AccelGroup()
         m = Main(sampler)
-        m.accel_group = accel_group
+        accel_group = gtk.AccelGroup()
         
         win = gtk.Window()
         win.add_accel_group(accel_group)
-        m.w_quit1.add_accelerator("activate", accel_group,
-            ord('Q'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        setup_keybindings(m, accel_group)
 
         win.add(m.editor)
         m.set_window(win)

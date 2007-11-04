@@ -3385,14 +3385,13 @@ ADAT 7/8</property>
               <widget class="GtkToolItem" id="toolitem2">
                 <property name="visible">True</property>
                 <child>
-                  <widget class="GtkButton" id="button3">
+                  <widget class="GtkButton" id="refresh_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="tooltip" translatable="yes">Refresh the listings</property>
                     <property name="label">gtk-refresh</property>
                     <property name="use_stock">True</property>
                     <signal name="clicked" handler="on_refresh_clicked"/>
-                    <accelerator key="F5" modifiers="" signal="clicked"/>
                   </widget>
                 </child>
               </widget>
