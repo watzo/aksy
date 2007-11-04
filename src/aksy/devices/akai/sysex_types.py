@@ -7,7 +7,8 @@ END_SYSEX = '\xf7'
 POSTIVE     = '\x00'
 NEGATIVE    = '\x01'
 
-log = logging.getLogger("aksy")
+log = logging.getLogger("aksy.devices.akai.sysex_types")
+log.disabled = True
 
 def byte_repr(bytes):
     return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
@@ -415,7 +416,8 @@ class TypedCompositeType(object):
         offset = 0
         while offset < (len(string) - 1):
             sysex_type = get_type(string[offset])
-            log.debug("Parsing type %s" % sysex_type)
+            if log.isEnabledFor(logging.DEBUG):
+                log.debug("Parsing type %s" % sysex_type)
             offset += 1
             len_parsed, part = parse_byte_string(string, sysex_type, offset)
             if part is not None:
