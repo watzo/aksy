@@ -443,10 +443,14 @@ class Main(base.Base):
     def on_update_program_model(self):
         self.w_treeview_programs.set_model(self.s.programsmodel)
         
+    def on_update_multi_model(self):
+        self.w_treeview_multis.set_model(self.s.multismodel)
+        
     def on_update_models(self, model, iter = None, user_param = None):
         self.on_update_program_model()
         
-        self.w_treeview_multis.set_model(self.s.multismodel)
+        self.on_update_multi_model()
+        
         self.w_treeview_samples.set_model(self.s.samplesmodel)
 
     def get_curr_programname(self):
@@ -478,6 +482,20 @@ class Main(base.Base):
     def on_program_editor_activate(self, button):
         self.programsEditor.programsMain.show_all()
 
+    def create(self, tools, template, no_items):
+        i = tools.get_no_items() + 1
+        name = template % i
+        tools.create_new(no_items, name)
+        self.log("%s created" % name)
+        
+    def on_new_program_activate(self, widget, data=None):
+        self.create(self.s.programtools, "Program %i", 4)
+        self.init_lists()
+                
+    def on_new_multi_activate(self, widget, data=None):
+        self.create(self.s.multitools, "Multi %i", 12)
+        self.init_lists()
+        
     def on_save_activate(self, button):
         # THIS WILL OVERWRITE FILES w/ SAME NAMES!
         # get folder to save to
