@@ -3,7 +3,7 @@
 Offers a high level sampler API
 
 """
-import os.path, sys, logging
+import os.path, logging
 from aksyx import AkaiSampler
 from aksy import fileutils
 
@@ -11,7 +11,7 @@ from aksy import fileutils
 from aksy.devices.akai.base import SamplerException
 
 handlers = {}
-log = logging.getLogger("aksy")
+LOG = logging.getLogger("aksy.model")
 
 def register_handlers(tools):
     """Initialize the handlers, keyed on class
@@ -95,7 +95,7 @@ def get_file_type(name):
     if fileutils.is_song(name):
         return FileRef.SONG
     
-    log.error("No support for file type: ", name)
+    LOG.error("No support for file type: %s", name)
     return FileRef.SAMPLE
     
 class FileRef(object):
@@ -158,15 +158,15 @@ class FileRef(object):
         if self.type == self.SAMPLE:
             return Sample(self.get_name())
         else:
-            sys.stderr.writelines("Not a supported type %i\n" %self.type)
+            LOG.error("Not a supported type %i\n" %self.type)
             return Sample(self.get_name())
 
     def download(self, path):
         """download the file to host
         """
-        log.info("download of file %s to %s" % (self.get_name(), repr(path)))
+        LOG.info("download of file %s to %s" % (self.get_name(), repr(path)))
         # XXX: remove the reference to the sampler
-        handlers[Disk].z48.get(self.get_name(), path)
+        handlers[Disk].z48.transfertools.get(self.get_name(), path)
 
     def get_parent(self):
         return Folder(os.path.dirname(self.path))
@@ -206,10 +206,10 @@ class Folder(FileRef, Container):
         """Gets the children of this folder
         or returns a cached version when already retrieved.
         """
-        self.set_current()
         if len(self.children) > 0:
             return self.children
 
+        self.set_current()
         folder_names = handlers[Disk].get_folder_names()
         if folder_names:
             self.children = [Folder(os.path.join(self.path, folder_name))
@@ -240,14 +240,11 @@ class Folder(FileRef, Container):
         return os.path.basename(self.path)
 
     def set_current(self):
-        log.debug("Current folder before set_current: %s" % 
-                  handlers[Disk].get_curr_path())
         handlers[Disk].open_folder('')
-        segments = self.path.split('/')
-        for segment in segments:
-            handlers[Disk].open_folder(segment)
-        log.debug("Current folder after set_current: %s" % 
-                  handlers[Disk].get_curr_path())
+        path = self.path.replace('/', '\\')
+        handlers[Disk].open_folder(path)
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug("set_current to: %s" % path)
 
     def copy(self, dest_path, recursive=True):
         """Copies a folder, default is including all its children
@@ -263,7 +260,7 @@ class Folder(FileRef, Container):
     def load(self):
         self.get_parent().set_current()
         handlers[Disk].load_folder(self.get_name())
-        log.debug("Loading folder children %s" % repr (self.get_children()))
+        LOG.debug("Loading folder children %s" % repr (self.get_children()))
         return [item for item in self.get_children()]
 
     def create_folder(self, name):
@@ -296,11 +293,11 @@ class Folder(FileRef, Container):
         """
         self.get_parent().set_current()
         path = os.path.join(path, self.get_name())
-        log.info("download to dir: %s" % repr(path))
+        LOG.info("download to dir: %s" % repr(path))
         if not os.path.exists(path):
             os.makedirs(path)
             for item in self.get_children():
-                log.debug("download to dir: %s" % repr(path))
+                LOG.debug("download to dir: %s" % repr(path))
                 item.download(os.path.join(path, item.get_name()))
 
 class InMemoryFile(FileRef):
@@ -314,7 +311,7 @@ class InMemoryFile(FileRef):
             return Sample(name)
         if file_type == FileRef.SONG:
             return Song(name)
-        log.error("Unknown file type: %s" % repr(name))
+        LOG.error("Unknown file type: %s" % repr(name))
         return InMemoryFile(name)
 
     get_instance = staticmethod(get_instance)
@@ -351,7 +348,7 @@ class InMemoryFile(FileRef):
         handlers[self.__class__].set_curr_by_name(self.get_short_name())
 
     def delete(self):
-        log.info("InMemoryFile.delete() %s" % repr(self.get_name()))
+        LOG.info("InMemoryFile.delete() %s" % repr(self.get_name()))
         handlers[self.__class__].get_no_items()
         self.set_current()
         handlers[self.__class__].delete_curr()
