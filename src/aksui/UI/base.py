@@ -1,4 +1,4 @@
-import gtk
+import gtk.glade
 
 import os.path
 
