@@ -62,7 +62,7 @@ def main():
     else:
         upload_files(z48, to_upload)
 
-                def build_drum_program(z48, filelist, program_name):
+def build_drum_program(z48, filelist, program_name):
     # create drum program named program_name
     # iterate through arguments and set each sample name to its key
     bankmap = {"A":0, "B":1, "C":2, "D":3}
