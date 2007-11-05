@@ -17,8 +17,6 @@ class OSCConnector:
         m.setAddress("/" + command.section + "/" + command.name)
         for arg in args:
             m.append(arg)
-        if LOG.isEnabledFor(logging.DEBUG):
-            LOG.debug("Created message: %s, args(%s)", decodeOSC(m.getBinary()), repr(args))
         return m.getBinary()
         
     def execute(self, command, args):
@@ -31,8 +29,14 @@ class OSCConnector:
         return resp
 
     def _sendAndRcv(self, b):
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug("Sending message: %s", repr(b))
         self.socket.sendall(b)
+
         data = self.socket.recv(8192)
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug("Received message: %s", repr(data))
+
         resp_msg = decodeOSC(data)
         if resp_msg[0] == '/sampler/error':
             raise Exception("Remote execution failed, Server cause: " + resp_msg[3])
