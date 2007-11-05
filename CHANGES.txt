@@ -1,6 +1,15 @@
 Aksy changes
 	svn trunk
-		* Aksui (ak.Sys-like UI)
+ 
+    0.3 
+		* First release with Aksui (ak.Sys-like UI)
+        * AksyFS: FTP server implementation as alternative for FUSE on Windows
+        * Full OSC support
+        * Support for multiple Aksy applications
+        * easy_install support
+        * Support for configuration files
+        * Improved and configurable logging
+        * Many bug fixes and new commands added
 
 	0.2
 		* FUSE implementation

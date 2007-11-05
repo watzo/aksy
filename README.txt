@@ -4,7 +4,8 @@ Originally conceived as a competitive cross-platform Ak.Sys, its author got
 realistic after a while - re-conceiving it as a complementary product for
 Ak.Sys, focussing on batch functionality and scripting. Currently, it supports
 ~500 sysex functions and file transfers on the Z-Series/MPC4000 and some
-functionality (disk functions and transfers) of the S56K.
+functionality (disk functions, transfers and a bunch of untested modules) of
+the S56K.
 
 2. Usage
 
@@ -15,10 +16,10 @@ from aksy.device import Devices
 sampler = Devices.get_instance('z48','usb')
 
 # gets a file called "Noise.wav" from the sampler's memory
-sampler.get("Noise.wav")
+sampler.transfertools.get("Noise.wav")
 
 # puts a file called "Pulse.wav" in the sampler's memory
-sampler.put("Pulse.wav")
+sampler.transfertools.put("Pulse.wav")
 
 # returns the number of disks
 sampler.disktools.get_no_disks()
@@ -34,9 +35,11 @@ sampletools
 recordingtools
 systemtools
 multifxtools
+frontpaneltools
 sysextools
+transfertools # wrapper around aksy extensions
 
-See the scripts/ directory for more interesting examples.
+See the examples/ directory for more interesting examples.
 For an overview of the functions in a module, run pydoc:
 
 pydoc src/aksy/devices/akai/z48/systemtools.py
@@ -44,10 +47,6 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 3. Known issues and limitations in this release
 
 3a. General
-
-* Mac OS X hasn't been recently tested yet.
-
-* Multiple instances of Aksy are currently not supported.
 
 * Multiple samplers of the same product type are not supported; currently the
   first found will be instantiated. Different samplers (eg. a combination of Z4,
@@ -63,6 +62,9 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
   invalid names or handles; the current item (if any) is unchanged.
 * there is sysex support for manipulating EQ settings for Multis (Z48), but
   they seem to have no audible effect.
+* in the implementation of sample tools, a lot of documented commands are
+  actually not available. It's not possible to copy in-memory samples, and all
+  loop/region manipulation related commands are not implemented. 
 
 4. Debugging and troubleshooting
 
@@ -100,6 +102,9 @@ src/aksy/
     akai/z48
 
     z48/mpc4000 specific code
+
+src/aksyosc/
+    OSC support
 
 data
 
