@@ -1,8 +1,11 @@
 import os, os.path, urlparse
-import gobject, gtk.glade, gtk, aksy
+import gtk
 import urllib 
+
 from aksy.devices.akai import fileparser, sampler
 from aksy import fileutils
+from aksy import get_config
+
 from aksui.utils import modelutils
 
 def get_file_path_from_dnd_dropped_uri(uri):
@@ -51,7 +54,7 @@ def unwrap(func):
 class FileChooser:
     def __init__(self, s):
         self.s = s
-        self.last_folder = os.path.expanduser('~')
+        self.last_folder = None
         self.filechooser = gtk.FileChooserDialog(title="Open Sample", buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK)) 
         self.setup_filter("All Sampler Supported Files", s.is_filetype_supported)
         self.setup_filter("Multis", fileutils.is_multi)
@@ -83,8 +86,7 @@ class FileChooser:
         if self.last_folder:
             self.filechooser.set_current_folder(self.last_folder)
         else:
-            # pull last folder from INI
-            self.filechooser.set_current_folder("/")
+            self.filechooser.set_current_folder(get_config().get('DEFAULT', 'basedir'))
 
         response = self.filechooser.run()
         self.filechooser.hide()
