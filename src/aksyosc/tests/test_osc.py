@@ -12,6 +12,11 @@ class OSCMessageTest(TestCase):
         m.append("abc")
         self.assertEquals(['', ',s', "abc"], decodeOSC(m.getBinary()))
 
+    def testEncodeDecodeBinaryString(self):
+        m = OSCMessage()
+        m.append("\x00\x01\x02")
+        self.assertEquals(['', ',b', "\x00\x01\02"], decodeOSC(m.getBinary()))
+
     def testEncodeDecodeFloat(self):
         m = OSCMessage()
         m.append(1.0)

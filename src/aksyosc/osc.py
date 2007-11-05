@@ -35,11 +35,10 @@
 #   * Throw exceptions for various error cases.
 #   * Remove unused code
 
-import socket
 import struct
 import math
 import sys
-import string
+import types
 
 
 def hexDump(bytes):
@@ -50,7 +49,10 @@ def hexDump(bytes):
             print repr(bytes[i-7:i+1])
 
     if(len(bytes) % 8 != 0):
-        print string.rjust("", 11), repr(bytes[i-7:i+1])
+        print "".rjust(11), repr(bytes[i-7:i+1])
+
+def string_encodeable(str):
+    return str.find('\x00') == -1
 
 class OSCMessage:
     """Builds typetagged OSC messages."""
@@ -92,7 +94,7 @@ class OSCMessage:
         return self.getBinary()
 
 def readString(data):
-    length   = string.find(data, "\0")
+    length   = data.find("\0")
     nextData = int(math.ceil((length+1) / 4.0) * 4)
     return (data[0:length], data[nextData:])
 
@@ -142,29 +144,21 @@ def readFloat(data):
     if(len(data)<4):
         print "Error: too few bytes for float", data, len(data)
         rest = data
-        float = 0
+        f = 0
     else:
-        float = struct.unpack(">f", data[0:4])[0]
+        f = struct.unpack(">f", data[0:4])[0]
         rest  = data[4:]
 
-    return (float, rest)
-
+    return (f, rest)
 
 def OSCBlob(next):
     """Convert a string into an OSC Blob,
     returning a (typetag, data) tuple."""
 
-    if type(next) == type(""):
-        length = len(next)
-        padded = math.ceil((len(next)) / 4.0) * 4
-        binary = struct.pack(">i%ds" % (padded), length, next)
-        tag    = 'b'
-    else:
-        tag    = ''
-        binary = ''
-    
-    return (tag, binary)
-
+    length = len(next)
+    padded = math.ceil((len(next)) / 4.0) * 4
+    binary = struct.pack(">i%ds" % (padded), length, next)
+    return ('b', binary)
 
 def OSCArray(args):
     typetags = ['[']
@@ -194,10 +188,13 @@ def OSCArgument(next):
     elif next is False:
         binary = ""
         tag = "F"
-    elif type(next) == type(""):        
-        OSCstringLength = math.ceil((len(next)+1) / 4.0) * 4
-        binary  = struct.pack(">%ds" % (OSCstringLength), next)
-        tag = "s"
+    elif isinstance(next, types.StringType):
+        if not string_encodeable(next):
+            tag, binary = OSCBlob(next)
+        else:         
+            l = math.ceil((len(next)+1) / 4.0) * 4
+            binary  = struct.pack(">%ds" % l, next)
+            tag = "s"
     elif isinstance(next, float):
         binary  = struct.pack(">f", next)
         tag = "f"
@@ -221,7 +218,7 @@ def parseArgs(args):
         interpretation = None
         try:
             interpretation = float(arg)
-            if string.find(arg, ".") == -1:
+            if arg.find(".") == -1:
                 interpretation = int(interpretation)
         except:
             # Oh - it was a string.
