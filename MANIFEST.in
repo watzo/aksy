@@ -1,5 +1,11 @@
+exclude *
+global-exclude *test*
+prune src/aksy/*test*
+prune data
+prune scripts
+prune include
+prune src/aksui/postmod/
 include INSTALL.txt
 include CHANGES.txt
 include LICENSE.txt
-recursive-include examples *.py
-recursive-include src/aksyx *.h
+include setup.py

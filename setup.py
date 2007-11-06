@@ -68,7 +68,7 @@ aksy_packages = [
           "aksy.devices.akai.z48", 
           "aksy.devices.akai.s56k"]
 
-aksui_packages = ["aksui", "aksui.UI", "aksui.ak", "aksui.utils", "aksui.postmod"]
+aksui_packages = ["aksui", "aksui.UI", "aksui.ak", "aksui.utils"]
 
 all_packages = []
 all_packages.extend(aksy_packages)
