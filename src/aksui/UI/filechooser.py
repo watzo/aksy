@@ -8,6 +8,12 @@ from aksy import get_config
 
 from aksui.utils import modelutils
 
+try:
+    from aksui.postmod import itx
+except ImportError:
+    print "postmod not available, no .it support"
+    postmod_available = False
+
 def get_file_path_from_dnd_dropped_uri(uri):
     path = uri.strip('\r\n\x00') # remove \r\n and NULL
 
@@ -60,7 +66,8 @@ class FileChooser:
         self.setup_filter("Multis", fileutils.is_multi)
         self.setup_filter("Programs", fileutils.is_program)
         self.setup_filter("Samples", fileutils.is_sample)
-        self.setup_filter("Impulse Tracker Modules", extensions=["*.it", "*.IT"])
+        if postmod_available:
+            self.setup_filter("Impulse Tracker Modules", extensions=["*.it", "*.IT"])
         self.filechooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
 
     def setup_filter(self, name, func=None, extensions=[]):
@@ -118,7 +125,6 @@ class FileChooser:
             return None
 
     def import_from_it(self, fn):
-        from aksui.postmod import itx
         from aksui.utils import sox
         it = itx.ITX(fn)
 
