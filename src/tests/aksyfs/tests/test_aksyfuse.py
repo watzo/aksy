@@ -5,7 +5,7 @@ from aksyfs import aksyfuse
 from aksyfs import common
 
 from aksy.device import Devices
-from aksy.test import testutil
+from tests.aksy.util import testutil
 from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
 import os, tempfile
 
@@ -169,4 +169,4 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksyfs.tests.test_aksyfuse')
+    return testloader.loadTestsFromName('tests.aksyfs.tests.test_aksyfuse')

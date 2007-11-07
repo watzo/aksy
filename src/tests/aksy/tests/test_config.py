@@ -1,5 +1,5 @@
 import unittest
-from aksy.test import testutil
+from tests.aksy.util import testutil
 from aksy import config
 
 INI_FILE = testutil.get_test_resource('aksy.ini')
@@ -21,5 +21,5 @@ class TestConfig(unittest.TestCase):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    suite = testloader.loadTestsFromName('aksy.tests.test_config')
+    suite = testloader.loadTestsFromName('tests.aksy.tests.test_config')
     return suite

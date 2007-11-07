@@ -19,5 +19,5 @@ class OSCConnectorTest(TestCase):
             
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksyosc.tests.test_connector')
+    return testloader.loadTestsFromName('tests.aksyosc.tests.test_connector')
 

@@ -20,12 +20,12 @@ class SamplerCallbackManagerTest(TestCase):
  
     def testDispatch(self):
         message = OSCMessage()
-        message.setAddress("/sample/play")
+        message.setAddress("/transfertools/get")
         message.append("test.wav")
         response = self.handler.handle(message.getBinary())
-        self.assertEquals([["sample", "play", ["test.wav"]]], self.sampler.recorded)
+        self.assertEquals([["transfertools", "get", ["test.wav"]]], self.sampler.recorded)
         expected = OSCMessage()
-        expected.setAddress("/sample/play")
+        expected.setAddress("/transfertools/get")
         expected.append(1)
         expected.append(2)
         expected.append('a string')
@@ -38,7 +38,7 @@ class SamplerCallbackManagerTest(TestCase):
         resp = self.handler.handle(message.getBinary())
         
         self.assertEquals(str(resp),
-                          "/sampler/error\x00\x00,ss\x00Failed to execute command /sample/play/invalid\x00\x00"
+                          "/sampler/error\x00\x00,ss\x00Execution failed\x00\x00\x00\x00"
                           "Invalid address: '/sample/play/invalid', should have two components\x00") 
         self.assertEquals([], self.sampler.recorded);
 
@@ -54,5 +54,5 @@ class SamplerCallbackManagerTest(TestCase):
         
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksyosc.tests.test_handler')
+    return testloader.loadTestsFromName('tests.aksyosc.tests.test_handler')
 

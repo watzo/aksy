@@ -1,10 +1,11 @@
 import struct, sys, unittest, logging, os
 
-from aksy.devices.akai import sysex, sysex_types, sampler
+from aksy.devices.akai import sysex, sysex_types, sampler, connector
 from aksy.devices.akai.z48 import sampler
 
 log = logging.getLogger("aksy")
-z48 = sampler.Z48()
+conn = connector.USBConnector('z48')
+z48 = sampler.Z48(conn)
 
 class TestUserRef(unittest.TestCase):
     def testEncodeDecode(self):
@@ -43,4 +44,4 @@ class TestUserRef(unittest.TestCase):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    return testloader.loadTestsFromName('aksy.devices.akai.z48.ftests.test_sysex_integ')
+    return testloader.loadTestsFromName('tests.aksy.devices.akai.z48.ftests.test_sysex')

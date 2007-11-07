@@ -1,8 +1,11 @@
-import unittest, os, os.path, md5
+import unittest, os, os.path, md5, aksyx
 from aksy.devices.akai import sampler as sampler_mod
-from aksy.test import testutil
+from aksy.devices.akai import connector
 
-sampler = sampler_mod.Sampler()
+from tests.aksy.util import testutil
+
+conn = connector.USBConnector('z48')
+sampler = sampler_mod.Sampler(conn)
     
 class TestSampler(unittest.TestCase):
     def testTransfers(self):
@@ -32,4 +35,4 @@ def md5sum(fhandle):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    return testloader.loadTestsFromName('aksy.devices.akai.ftests.test_transfers')
+    return testloader.loadTestsFromName('tests.aksy.devices.akai.ftests.test_transfers')

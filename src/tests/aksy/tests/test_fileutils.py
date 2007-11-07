@@ -33,5 +33,4 @@ class TestIsValidName(unittest.TestCase):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    suite = testloader.loadTestsFromName('aksy.tests.test_fileutils')
-    return suite
+    return testloader.loadTestsFromName('tests.aksy.tests.test_fileutils')

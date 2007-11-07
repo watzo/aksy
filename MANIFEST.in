@@ -1,6 +1,5 @@
 exclude *
-global-exclude *test*
-prune src/aksy/*test*
+prune src/aksy/tests
 prune data
 prune scripts
 prune include

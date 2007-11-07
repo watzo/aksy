@@ -57,5 +57,5 @@ class OSCMessageTest(TestCase):
          
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksyosc.tests.test_osc')
+    return testloader.loadTestsFromName('tests.aksyosc.tests.test_osc')
 

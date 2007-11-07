@@ -1,5 +1,5 @@
 from aksy.devices.akai import fileparser
-from aksy.test import testutil
+from tests.aksy.util import testutil
 import unittest
 
 class TestProgram(unittest.TestCase):
@@ -14,4 +14,4 @@ class TestProgram(unittest.TestCase):
     
 def test_suite():
     testloader = unittest.TestLoader()
-    return testloader.loadTestsFromName('aksy.devices.akai.tests.test_fileparser')
+    return testloader.loadTestsFromName('tests.aksy.devices.akai.tests.test_fileparser')

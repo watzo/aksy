@@ -133,5 +133,6 @@ setup(
       extras_require = {
         'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
         'PYFTPDLIB' : ["pyftpdlib >= 0.2"]
-      }
+      },
+      test_suite = "tests"
 )

@@ -10,7 +10,7 @@ TESTFOLDER_NAME = "test%s" % time.time()
 AKSY_RUN_SLOW_TESTS =  bool(os.environ.get("AKSY_RUN_SLOW_TESTS", False))
 LOG = logging.getLogger('aksy')
 
-z48 = Devices.get_instance('mock_z48')
+z48 = Devices.get_instance('mock_z48', 'mock')
 
 class TestDisktools(TestCase):
     def setUp(self):
@@ -24,7 +24,7 @@ class TestDisktools(TestCase):
     def selectFirstDisk(self):
         disks = z48.disktools.get_disklist()
         if len(disks) > 0:
-            z48.disktools.select_disk(disks[0].handle)
+            z48.disktools.select_disk(disks[0][0])
         else:
             LOG.error("selectFirstDisk: no disks found")
 
@@ -44,12 +44,12 @@ class TestDisktools(TestCase):
 
     def test_select_disk(self):
         for disk in z48.disktools.get_disklist():
-            z48.disktools.select_disk(disk.handle)
+            z48.disktools.select_disk(disk[0])
 
     def test_test_disk(self):
         disks = z48.disktools.get_disklist()
         for disk in z48.disktools.get_disklist():
-            z48.disktools.test_disk(disk.handle)
+            z48.disktools.test_disk(disk[0])
 
     def test_get_disklist(self):
         disks = z48.disktools.get_disklist()
@@ -62,7 +62,7 @@ class TestDisktools(TestCase):
 
     def test_eject_disk(self):
         for disk in z48.disktools.get_disklist():
-            z48.disktools.eject_disk(disk.handle)
+            z48.disktools.eject_disk(disk[0])
 
     def test_folder_listings(self):
         foldernames = z48.disktools.get_folder_names()
@@ -116,4 +116,4 @@ class TestDisktools(TestCase):
 
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksy.devices.akai.z48.tests.test_disktools')
+    return testloader.loadTestsFromName('tests.aksy.devices.akai.z48.ftests.test_disktools')

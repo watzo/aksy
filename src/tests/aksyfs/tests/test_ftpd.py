@@ -2,7 +2,7 @@ from unittest import TestCase, TestLoader
 import logging
 
 from aksy.device import Devices
-from aksy.test import testutil
+from tests.aksy.util import testutil
 from aksyfs import ftpd, common
 from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
 import os, tempfile
@@ -146,4 +146,4 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
     
 def test_suite():
     testloader = TestLoader()
-    return testloader.loadTestsFromName('aksyfs.tests.test_ftpd')
+    return testloader.loadTestsFromName('tests.aksyfs.tests.test_ftpd')

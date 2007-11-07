@@ -192,4 +192,4 @@ class TestModuleMethods(unittest.TestCase):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    return testloader.loadTestsFromName('aksy.devices.akai.tests.test_sysex')
+    return testloader.loadTestsFromName('tests.aksy.devices.akai.tests.test_sysex')
