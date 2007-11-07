@@ -1,9 +1,8 @@
 exclude *
-prune src/aksy/tests
+prune src/tests
 prune data
 prune scripts
 prune include
-prune src/aksui/postmod/
 include INSTALL.txt
 include CHANGES.txt
 include LICENSE.txt
