@@ -1,4 +1,5 @@
 from aksyosc.osc import OSCMessage, decodeOSC
+
 import socket, logging
 
 LOG = logging.getLogger("aksy.osc.connector")
@@ -33,7 +34,7 @@ class OSCConnector:
             LOG.debug("Sending message: %s", repr(b))
         self.socket.sendall(b)
 
-        data = self.socket.recv(8192)
+        data = self.socket.recv(16384)
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug("Received message: %s", repr(data))
 
