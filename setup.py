@@ -118,7 +118,7 @@ setup(
             'aksy-ui = aksui.main:main',
         ],
         'gui_scripts': [
-	    # TODO re-add aksy-ui when it uses dialogs do display startup errors
+            'aksy-ui = aksui.main:main',
         ]
       },
       ext_modules = [

@@ -26,6 +26,13 @@ dest_dir = os.path.join(prg, "Aksy")
 
 pythonw = os.path.join(sys.prefix, "pythonw.exe")
 
+def create_sc(script, lnk):
+    target = os.path.join(get_scripts_dir(), script)
+    path = os.path.join(dest_dir, lnk)
+
+    create_shortcut(target, "Aksui", path)
+    file_created(path)
+
 if __name__ == '__main__':
     if "-install" == sys.argv[1]:
 
@@ -45,12 +52,8 @@ if __name__ == '__main__':
         #  - register 'path' so that the uninstaller removes it
         
         # get_special_folder_location(csidl_string)
-
-        target = os.path.join(get_scripts_dir(), "aksy-ui.py")
-        path = os.path.join(dest_dir, "aksy-ui.lnk")
-
-        create_shortcut(target, "Aksui", path)
-        file_created(path)
+        create_sc("aksy-ui.exe", "Aksui.lnk")
+        create_sc("aksy-ui-script.py", "Aksui with console.lnk")
 
         print "Aksy shortcuts have been successfully installed in your start menu."
 
