@@ -1,24 +1,23 @@
-from aksy.devices.akai import sysex, transfertools
+from aksy.devices.akai import transfertools
 from aksyx import AkaiSampler
 
 from aksy import fileutils
-from aksy.concurrent import transaction
 
 from aksyosc.server import OSCServer
 from aksyosc.handler import SamplerCallbackManager
 
-import os.path, logging, asyncore
+import logging, asyncore
 
 from threading import Lock, Thread
 
 log = logging.getLogger("aksy")
 
 class Sampler(object):
+    """Base class for AkaiSampler.
+    """
     lock = Lock()
     MEMORY = AkaiSampler.MEMORY
     DISK = AkaiSampler.DISK
-    """Base class for AkaiSampler.
-    """
     def __init__(self, connector):
         self.connector = connector
         self.transfertools = transfertools.Transfertools(connector)
@@ -27,13 +26,11 @@ class Sampler(object):
         tools_obj = getattr(self, section_name)
         return getattr(tools_obj, command_name + "_cmd")
 
-    @transaction(lock)
     def execute_by_cmd_name(self, section_name, command_name, args):
         tools_obj = getattr(self, section_name)
         func = getattr(tools_obj, command_name)
         return apply(func, args)
 
-    @transaction(lock)
     def execute_alt_request(self, handle, commands, args, index = None):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"
         All commands must be from the same sub section (get/set/main), the section id will be determined from the first command in the list.
@@ -52,11 +49,6 @@ class Sampler(object):
 
         """
         return self.connector.execute_alt_request(handle, commands, args, index)
-
-    def execute(self, command, args):
-        """Executes a command on the sampler
-        """
-        return self.connector.execute(command, args)
 
     def close(self):
         self.connector.close()
