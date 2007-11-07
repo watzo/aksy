@@ -68,8 +68,8 @@ class MockZ48(Z48):
         mellotron_folder = model.Folder('Mellotron Samples')
         choir_folder = model.Folder('Choir')
         choir_folder.children.extend(
-            (model.FileRef('Mellotron/Choir/Choir.AKM'),
-            model.FileRef('Mellotron/Choir/Choir.AKP'),
+            (model.FileRef('Mellotron/Choir/Choir.AKM', 7102),
+            model.FileRef('Mellotron/Choir/Choir.AKP', 7707),
             model.FileRef('Mellotron/Choir/Vox1.wav'),))
 
         mellotron_folder.children.extend(
