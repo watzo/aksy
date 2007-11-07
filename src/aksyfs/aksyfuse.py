@@ -130,6 +130,7 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( "truncate (%s, %s) (no-op)", path, size)
     
+    @transaction(samplermod.Sampler.lock)
     def statfs(self):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( "statfs (metrics on memory contents only)")
