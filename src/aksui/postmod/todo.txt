@@ -1,2 +1,0 @@
--replace wxerror.py with wxsupportwiz.py
-- use official dumb2wav ?
