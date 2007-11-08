@@ -14,17 +14,13 @@ class SamplerCallbackManager(CallbackManager):
 
     def handle(self, data, source = None):
         """Given OSC data, tries to call the callback with the
-        right address."""
-        try:
-            decoded = decodeOSC(data)
-            return self.dispatch(decoded)
-        except DispatchException, e:
-            return create_error_msg("Failed to execute command %s" %
-decoded[0], e)
+        right address, and returns the result"""
+        decoded = decodeOSC(data)
+        return self.dispatch(decoded)
 
     def dispatch(self, message):
         """
-            Overrides base class method.
+            Overrides base class method to return the result of the dispatch.
         """
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug('dispatch(%s)', repr(message))
@@ -39,7 +35,7 @@ decoded[0], e)
                 return self.dispatch_command(address, message)
         except AttributeError, e:
             LOG.exception("OSC message %s could not be dispatched", repr(message))
-            raise DispatchException(e)
+            return create_error_msg("Failed to execute command %s" % address, e)
         except Exception, e:
             LOG.exception("Dispatch of %s failed", repr(message))
             return create_error_msg('Execution failed', e)
