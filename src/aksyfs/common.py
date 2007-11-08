@@ -7,10 +7,11 @@ import errno
 import logging
 
 from aksy.device import Devices
-from aksy import fileutils, model
+from aksy import fileutils
 from aksy.concurrent import transaction
 
 from aksy.devices.akai import sampler as samplermod
+from aksy.devices.akai import model
 from aksy.config import get_config
 
 MAX_FILE_SIZE_SAMPLE = 512 * 1024 * 1024 # 512 MB

@@ -1,5 +1,5 @@
 import struct, logging, errno
-from aksy.devices.akai import sysex_types, base
+from aksy.devices.akai import sysex_types, model
 from aksy.devices.akai.sysex_types import START_SYSEX, END_SYSEX
 
 AKAI_ID = '\x47'
@@ -131,7 +131,7 @@ class AlternativeRequest(Request):
             if alt_section is not None:
                 return alt_section, sysex_types.BYTE.encode(i)
         
-        raise base.SamplerException("No alternative operations defined for %s" % 
+        raise model.SamplerException("No alternative operations defined for %s" % 
                                     repr(command_id[:1]))
         
     
@@ -218,7 +218,7 @@ def _create_exception(msg, code):
     if code == 0x0:
         return NotImplementedError(msg)
         
-    return base.SamplerException(msg, code)
+    return model.SamplerException(msg, code)
 
 errors = {
     0x00:"The <Section> <Item> supplied are not supported",

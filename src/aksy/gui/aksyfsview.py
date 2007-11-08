@@ -1,7 +1,7 @@
 import wx
 from wx.lib.mixins import listctrl
 
-from aksy import model
+from aksy.devices.akai import model
 from aksyx import USBException
 from aksy.device import Devices
 import os.path, traceback, sys, copy

@@ -3,7 +3,7 @@ import logging
 import sysextools, disktools, programtools, multitools, songtools, multifxtools
 import sampletools, systemtools, recordingtools, keygrouptools, zonetools, frontpaneltools
 from aksy.devices.akai.sampler import Sampler
-from aksy import model
+from aksy.devices.akai import model
 
 log = logging.getLogger("aksy")
 

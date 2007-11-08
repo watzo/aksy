@@ -1,5 +1,5 @@
 import unittest, logging
-from aksy.devices.akai import sysex, sysex_types, base
+from aksy.devices.akai import sysex, sysex_types, model
 
 log = logging.getLogger("aksy")
 class TestCommand(unittest.TestCase):
@@ -72,7 +72,7 @@ class TestReply(unittest.TestCase):
         dcmd.id = '\x20\x05'
         dcmd.reply_spec = ()
         bytes = '\xf0G_\x00E \x00\x00\x03\xf7'
-        self.assertRaises(base.SamplerException, sysex.Reply, bytes, dcmd)
+        self.assertRaises(model.SamplerException, sysex.Reply, bytes, dcmd)
         # using pad type if we encounter bytes not according to specification
         dcmd.id = '\x20\x10'
         dcmd.reply_spec = None

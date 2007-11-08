@@ -7,8 +7,6 @@ import os.path, logging
 from aksyx import AkaiSampler
 from aksy import fileutils
 
-# TODO: fix module hierarchy
-from aksy.devices.akai.base import SamplerException
 
 handlers = {}
 LOG = logging.getLogger("aksy.model")
@@ -18,6 +16,16 @@ def register_handlers(tools):
     definitions.
     """
     handlers.update(tools)
+
+class SamplerException(Exception):
+    """ Exception raised by the sampler
+    """
+    def __init(self, msg, code):
+        Exception.__init__(self, msg)
+        self.code = code
+
+    def get_code(self):
+        return self.code
 
 class Container(object):
     def get_children(self):
@@ -491,4 +499,5 @@ class Memory(Storage):
         for i in range(0, len(handles_names), 2):
             handle, name = handles_names[i], handles_names[i+1]
             yield clz(name, handle)
+
 

@@ -1,5 +1,4 @@
 from aksyosc.osc import CallbackManager, decodeOSC, OSCMessage
-from aksy.devices.akai.base import SamplerException
 import logging
 
 LOG = logging.getLogger('aksy.osc')

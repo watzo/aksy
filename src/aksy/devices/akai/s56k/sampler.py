@@ -5,7 +5,7 @@ import sys
 import sysextools, disktools, programtools, sampletools, multitools, songtools
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai import sysex
-from aksy import model
+from aksy.devices.akai import model
 
 class S56K(Sampler):
     """S56K

@@ -1,10 +1,10 @@
 import logging, shutil
 
-from aksy.devices.akai import sysex_types, base
+from aksy.devices.akai import sysex_types, model
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai.z48.sampler import Z48
 from aksyx import AkaiSampler
-from aksy import model, fileutils
+from aksy import fileutils
 
 log = logging.getLogger('aksy')
 
@@ -21,7 +21,7 @@ class MockConnector(object):
             elif fileutils.is_program(filename):
                 shutil.copy(self.program_file, destpath)
         except IOError:
-            raise base.SamplerException("Failed to get ", filename)
+            raise model.SamplerException("Failed to get ", filename)
 
     def put(self, path, remote_name=None, destination=AkaiSampler.MEMORY):
         log.debug("Transferring file %s to sampler at remote_name %s (%i)" 
