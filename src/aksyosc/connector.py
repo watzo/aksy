@@ -9,8 +9,8 @@ class OSCConnector:
     """
     def __init__(self, host, port, timeout=30.0):
         socket.setdefaulttimeout(timeout)
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.connect((host, port,))
+        self.host = host
+        self.port = port
 
     @staticmethod
     def create_msg(command, args):
@@ -20,21 +20,26 @@ class OSCConnector:
             m.append(arg)
         return m.getBinary()
         
+    @staticmethod
+    def create_socket():
+        return socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
     def execute(self, command, args):
         b = OSCConnector.create_msg(command, args)
-        resp = self._sendAndRcv(b)
+        s = OSCConnector.create_socket()
+        resp = self._sendAndRcv(s, b)
         # HACK: mimic the behaviour of TypedComposite
         if len(resp) == 1 and command.reply_spec is None:
             return resp[0]
             
         return resp
 
-    def _sendAndRcv(self, b):
+    def _sendAndRcv(self, s, b):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug("Sending message: %s", repr(b))
-        self.socket.sendall(b)
+        s.sendto(b, (self.host, self.port))
 
-        data = self.socket.recv(16384)
+        data = s.recv(16384)
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug("Received message: %s", repr(data))
 
