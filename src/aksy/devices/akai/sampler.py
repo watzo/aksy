@@ -8,14 +8,13 @@ from aksyosc.handler import SamplerCallbackManager
 
 import logging, asyncore
 
-from threading import Lock, Thread
+from threading import Thread
 
 log = logging.getLogger("aksy")
 
 class Sampler(object):
     """Base class for AkaiSampler.
     """
-    lock = Lock()
     MEMORY = AkaiSampler.MEMORY
     DISK = AkaiSampler.DISK
     def __init__(self, connector):

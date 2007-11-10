@@ -7,7 +7,7 @@ LOG = logging.getLogger("aksy.osc.connector")
 class OSCConnector:
     """ Execute commands using OSC
     """
-    def __init__(self, host, port, timeout=30.0):
+    def __init__(self, host, port, timeout=10.0):
         socket.setdefaulttimeout(timeout)
         self.host = host
         self.port = port
@@ -78,4 +78,4 @@ class OSCConnector:
         return self._sendAndRcv(b)
     
     def close(self):
-        self.socket.shutdown(1)
+        pass
