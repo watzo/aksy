@@ -7,3 +7,4 @@ include INSTALL.txt
 include CHANGES.txt
 include LICENSE.txt
 include setup.py
+include ez_setup.py
