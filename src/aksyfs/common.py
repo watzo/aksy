@@ -98,7 +98,7 @@ class AksyFile(object):
         else:
             raiseException(errno.ENOENT)
             
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def __init__(self, path, flags, *mode):
         self.direct_io = True
         self.upload = bool(flags & os.O_WRONLY)
@@ -112,7 +112,7 @@ class AksyFile(object):
         
         self.handle = os.open(self.path, flags, *mode)
 
-    @transaction(samplermod.Sampler.lock)        
+    @transaction()
     def release(self, flags):
         if self.is_upload():
             try:
@@ -162,7 +162,7 @@ class AksyFS(object): #IGNORE:R0904
         stat_home = os.stat(os.path.expanduser('~'))
         StatInfo.set_owner(stat_home[stat.ST_UID], stat_home[stat.ST_GID])
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def open_for_read(self, path, mode):
         location = _splitpath(path)[0]
         name = os.path.basename(path)
@@ -180,7 +180,7 @@ class AksyFS(object): #IGNORE:R0904
 
         return open(path, mode)
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def open_for_write(self, path, mode):
         dest = AksyFile.parse_location(_splitpath(path)[0])
         name = os.path.basename(path)
@@ -205,7 +205,7 @@ class AksyFS(object): #IGNORE:R0904
     def fetch_parent_folder(self, path):
         return self.get_parent(path).get_child(os.path.basename(path))
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def stat_directory(self, path):
         folder = self.cache.get(path)
         if folder is None:
@@ -231,7 +231,7 @@ class AksyFS(object): #IGNORE:R0904
                 return child
         return None
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def stat_file(self, path):
         cached = self.cache.get(path, None)
         if cached is not None:
@@ -253,7 +253,7 @@ class AksyFS(object): #IGNORE:R0904
         else:
             return self.stat_file(path)
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def listdir(self, path):
         folder = self.cache.get(path, None)
         if folder is None:
@@ -261,7 +261,7 @@ class AksyFS(object): #IGNORE:R0904
         for child in folder.get_children():
             yield child.get_name()
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def mkdir(self, path, mode='unused'):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug('mkdir(%s, %s)', path, mode)
@@ -274,7 +274,7 @@ class AksyFS(object): #IGNORE:R0904
         child = folder.create_folder(os.path.basename(path))
         self.cache[path] = child
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def rename(self, old_path, new_path):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug('rename(%s, %s)', old_path, new_path)
@@ -301,7 +301,7 @@ class AksyFS(object): #IGNORE:R0904
             file_obj = self.get_file(old_path)
             file_obj.rename(new_name)
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def rmdir(self, path):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug('rmdir(%s)', path)
@@ -314,7 +314,7 @@ class AksyFS(object): #IGNORE:R0904
 
         raiseException(errno.EPERM)
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def unlink(self, path):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug('unlink(%s)', path)

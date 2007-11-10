@@ -1,4 +1,7 @@
 from aksyosc.osc import CallbackManager, decodeOSC, OSCMessage
+
+from aksy.concurrent import transaction
+
 import logging
 
 LOG = logging.getLogger('aksy.osc')
@@ -17,6 +20,7 @@ class SamplerCallbackManager(CallbackManager):
         decoded = decodeOSC(data)
         return self.dispatch(decoded)
 
+    @transaction()
     def dispatch(self, message):
         """
             Overrides base class method to return the result of the dispatch.

@@ -32,7 +32,7 @@ class AksyFile(fuse.FuseFileInfo):
     def set_sampler(sampler):
         AksyFile.sampler = sampler
     
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def __init__(self, path, flags, *mode):
         self.direct_io = True
         self.upload = bool(flags & os.O_WRONLY)
@@ -51,7 +51,7 @@ class AksyFile(fuse.FuseFileInfo):
         
         self.handle = os.open(self.path, flags, *mode)
 
-    @transaction(samplermod.Sampler.lock)        
+    @transaction()
     def release(self, flags):
         if self.is_upload():
             try:
@@ -111,7 +111,7 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( "**access (" + path + ") (no-op)")
     
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def readdir(self, path, offset):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( '*** readdir(%s, %s)', path, offset)
@@ -119,7 +119,7 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         for child in folder.get_children():
             yield fuse.Direntry(child.get_name())
 
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def mknod(self, path, mode, dev):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( 'mknod(%s, %s, %s)', path, mode, dev)
@@ -130,7 +130,7 @@ class AksyFS(common.AksyFS, fuse.Fuse): #IGNORE:R0904
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( "truncate (%s, %s) (no-op)", path, size)
     
-    @transaction(samplermod.Sampler.lock)
+    @transaction()
     def statfs(self):
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug( "statfs (metrics on memory contents only)")

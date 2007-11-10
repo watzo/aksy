@@ -1,4 +1,7 @@
-def transaction(lock):
+import threading
+
+LOCK = threading.Lock()
+def transaction(lock=LOCK):
     def decorator(func):
         def wrapper(*args, **kwargs):
             lock.acquire()
