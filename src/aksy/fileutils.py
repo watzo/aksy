@@ -6,7 +6,7 @@ RE_SAMPLE = re.compile("\.(wav|aiff?)$", re.IGNORECASE)
 RE_SONG = re.compile("\.mid$", re.IGNORECASE)
 # the entire printable ascii range
 RE_WORD = re.compile("[ -~]+$", re.IGNORECASE)
-RE_FILE = re.compile("\.[a-z]{3}", re.IGNORECASE)
+RE_FILE = re.compile("\.(akp|pgm|wav|aiff?|mid)$", re.IGNORECASE)
 
 
 def is_file_type_supported(supported_file_types, filename):
