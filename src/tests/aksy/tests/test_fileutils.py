@@ -5,7 +5,7 @@ from aksy import fileutils
 VALID_DIRNAMES = ['3084 B.BEAT #6', 'bla.akp-expanded']
 
 VALID_SAMPLES = ['/home/henk/123.wav', 'A-1.WAV',  'a.aiff', 'A +5DB.aif', 'N\!\@#\$%\^\&\*\(\).wav']
-VALID_FILENAMES = [ 'with spaces.akp']
+VALID_FILENAMES = [ 'with spaces.akp', 'UPPERCASE.AKM']
 VALID_FILENAMES.extend(VALID_SAMPLES)
 
 INVALID_FILENAMES = ['\x0c\x15\x0cw\x0e\xe6\x0e\xdf\x121\x16Q\x14N', '', 'abc+-=']
