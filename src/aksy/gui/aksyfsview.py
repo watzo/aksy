@@ -48,10 +48,10 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnExit)
         
         try:
-            self.sampler = Devices.get_instance('z48', 'usb', debug=0)
+            self.sampler = Devices.get_instance('z48', 'osc')
         except USBException, e:
 		    # if e[0] == "No sampler found":
-            self.sampler = Devices.get_instance('mock_z48', debug=1)
+            self.sampler = Devices.get_instance('mock_z48', 'mock')
             # self.reportException(e)
 
         splitter = wx.SplitterWindow(self, size=wx.DefaultSize,style=wx.SP_LIVE_UPDATE)

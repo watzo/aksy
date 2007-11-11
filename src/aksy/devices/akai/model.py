@@ -95,16 +95,17 @@ def get_file_type(name):
     assert name is not None
     
     if fileutils.is_multi(name):
-        return FileRef.MULTI
+        return Multi, FileRef.MULTI
     if fileutils.is_program(name):
-        return FileRef.PROGRAM
+        return Program, FileRef.PROGRAM
     if fileutils.is_sample(name):
-        return FileRef.SAMPLE
+        return Sample, FileRef.SAMPLE
     if fileutils.is_song(name):
-        return FileRef.SONG
+        return Song, FileRef.SONG
     
-    LOG.error("No support for file type: %s", name)
-    return FileRef.SAMPLE
+    msg = "No support for file type: %s", name
+    LOG.exception(msg)
+    raise NotImplementedError(msg)
     
 class FileRef(object):
     FOLDER = 0
@@ -119,7 +120,7 @@ class FileRef(object):
         """
         self.path = path
         self.size = size
-        self.type = get_file_type(self.get_name())
+        self.type = get_file_type(self.get_name())[1]
 
     def get_name(self):
         return os.path.basename(self.path)
@@ -158,16 +159,7 @@ class FileRef(object):
         """
         self.get_parent().set_current()
         handlers[Disk].load_file(self.get_name())
-        # XXX: self.path should reflect memory location
-        if self.type == self.MULTI:
-            return Multi(self.get_name())
-        if self.type == self.PROGRAM:
-            return Program(self.get_name())
-        if self.type == self.SAMPLE:
-            return Sample(self.get_name())
-        else:
-            LOG.error("Not a supported type %i\n" %self.type)
-            return Sample(self.get_name())
+        return InMemoryFile.get_instance(self.get_name())
 
     def download(self, path):
         """download the file to host
@@ -309,20 +301,12 @@ class Folder(FileRef, Container):
                 item.download(os.path.join(path, item.get_name()))
 
 class InMemoryFile(FileRef):
+    @staticmethod
     def get_instance(name):
-        file_type = get_file_type(name)
-        if file_type == FileRef.MULTI:
-            return Multi(name)
-        if file_type == FileRef.PROGRAM:
-            return Program(name)
-        if file_type == FileRef.SAMPLE:
-            return Sample(name)
-        if file_type == FileRef.SONG:
-            return Song(name)
-        LOG.error("Unknown file type: %s" % repr(name))
-        return InMemoryFile(name)
-
-    get_instance = staticmethod(get_instance)
+        clazz = get_file_type(name)[0]
+        base_name = os.path.splitext(name)[0]
+        handle = handlers[clazz].get_handle_by_name(base_name)
+        return clazz(base_name, handle)
 
     def __cmp__(self, item):
         return cmp(self.get_short_name(), item.get_short_name())
