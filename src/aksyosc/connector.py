@@ -75,7 +75,8 @@ class OSCConnector:
     
     def execute_alt_request(self, handle, commands, args, index = None):
         b = OSCConnector.create_alt_req_msg(handle, commands, args, index)
-        return self._sendAndRcv(b)
+        s = OSCConnector.create_socket()
+        return self._sendAndRcv(s, b)
     
     def close(self):
         pass
