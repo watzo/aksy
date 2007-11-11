@@ -163,7 +163,14 @@ class MultisContextMenu(BaseContextMenu):
         self.main = main
 
         BaseContextMenu.__init__(self, "menuMultis", main, main.w_treeview_multis, self.s.multitools)
+
+    def on_multifx_activate(self, widget):
+        multi = get_selected_from_treeview(self.main.w_treeview_multis)[0]
+        self.s.multitools.set_curr_by_name(multi)
+        self.main.open_in_window(multifxeditor.MultiFXEditor(self.s))
     
+    def on_new_multi_activate(self, widget, data=None):
+        self.main.on_new_multi_activate(self, widget)
        
 class SamplesContextMenu(BaseContextMenu):
     """Context menu for the "samples" TreeView
@@ -191,7 +198,7 @@ class SamplesContextMenu(BaseContextMenu):
         
     def on_new_program_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
-        self.dialogCreateNewProgramFast.w_treeview_selected_samples.set_model(get_model_from_list(selected_samples))
+        self.dialogCreateNewProgramFast.w_treeview_selected_samples.set_model(modelutils.get_model_from_list(selected_samples))
 
         response = self.dialogCreateNewProgramFast.editor.run()
 
@@ -472,7 +479,6 @@ class Main(base.Base):
         return programname
 
     def open_program_properties(self, programname):
-        #TODO: Fix this. 
         """
         p = program.Program(self.s, programname)
         
@@ -562,9 +568,6 @@ class Main(base.Base):
         win.add(widget)
         win.show_all()
 
-    def on_multifx_activate(self, widget):
-        self.open_in_window(multifxeditor.MultiFXEditor(self.s))
-       
     def on_treeview_event(self, widget, event):
         """Handles context menus + doubleclicks.
         """
