@@ -316,6 +316,9 @@ class ProgramsContextMenu(BaseContextMenu):
         
         self.main.open_keygroup_editor(programname)
         
+    def on_new_program_activate(self, widget):
+        self.main.on_new_program_activate(widget)
+                   
     def on_set_current_program_activate(self, widget):
         print "set current program"
 
