@@ -73,7 +73,7 @@ class ModMatrix(panelbase.PanelBase):
                 j = self.sources.index(source)
                 source_index = modulationmatrix.ModulationMatrix.sources.index(source)
                 mod_name = "MOD_%d_%d" % (source_index, dest_index)
-                mod_knob = rangewidget.AkKnobWidget(self.so, mod_name, 0, 100, 1, "") # filter env to res
+                mod_knob = rangewidget.AkKnobWidget(self.so, mod_name, -100, 100, 1, units="", mod_destination=dest) # filter env to res
                 t.attach(mod_knob, j + 1, j + 2, i + 1, i + 2, False, False) 
 
         self.pack_start(t, False, False, 1)

@@ -116,7 +116,6 @@ class SliderWidget(hitbox.HitBox):
 class AkKnobWidget(widget.AkWidget):
     def __init__(self, samplerobject = None, samplerobjectattr = None, min = -600, max = 60, interval = 10, units = "db", mod_destination = None):
         widget.AkWidget.__init__(self, samplerobject, samplerobjectattr, interval, units)
-
         self.connect("value-changed", self.on_value_changed)
 
         self.set_size_request(35, 35)
@@ -131,35 +130,27 @@ class AkKnobWidget(widget.AkWidget):
         self.valuestart = None
         self.pinlevelstart = None
         self.draggingstart = None
-
         if mod_destination:
-            self.mod_destination_index = modulation_matrix.destinations.index(mod_destination)
+            self.mod_destination_index = modulationmatrix.ModulationMatrix.destinations.index(mod_destination)
         else:
             self.mod_destination_index = None
 
         self.queue_draw()
 
     def get_current_pin(self, create_new = True):
-        kg = None
-
-        if self.mod_destination_index:
-            if self.so:
-                if type(self.so) is keygroup:
-                    kg = self.so
-                elif type(self.so) is zone:
-                    kg = self.so.keygroup
-            if kg:
-                pin = kg.get_pin_by_source_and_dest(kg.current_mod_source_index, self.mod_destination_index, create_new)
-                return pin
-            else:
-                return None
+        kg = isinstance(self.so, keygroup.Keygroup) and self.so or self.so.keygroup 
+        return kg.get_pin_by_source_and_dest(kg.current_mod_source_index, self.mod_destination_index, create_new)
 
     def on_button_press(self, widget, event):
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.dragging = True
             #print "hello...", self.dragging
-            self.draggingstart = event.y 
-            self.valuestart = self.value
+            self.draggingstart = event.y
+            if self.value is not None: 
+                self.valuestart = self.value
+            else:
+                self.valuestart = 0
+                
             pin = self.get_current_pin()
             if pin:
                 self.pinlevelstart = pin.level
@@ -274,15 +265,15 @@ class AkKnobWidget(widget.AkWidget):
         cr.set_source_rgb(0, 0, 0)
         self.draw_value_line(cr, x, y, radius, self.value, self.min, self.max)
 
-        pin = self.get_current_pin(False)
-        if pin:
-            range = float(self.max) - float(self.min)
-            pinoffset = float(float(pin.level) / 100.0) * float(range)
-            pct = self.get_pct(self.value, self.min, self.max)
-            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
-            cr.set_source_rgb(0, 0, 0)
-            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
-            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
+#        pin = self.get_current_pin(False)
+#        if pin:
+#            range = float(self.max) - float(self.min)
+#            pinoffset = float(float(pin.level) / 100.0) * float(range)
+#            pct = self.get_pct(self.value, self.min, self.max)
+#            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
+#            cr.set_source_rgb(0, 0, 0)
+#            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
+#            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
 
         """
         cr.set_source_rgb(0, 0, 0)
