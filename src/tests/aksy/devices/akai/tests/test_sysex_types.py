@@ -191,8 +191,15 @@ class TestSoundLevelType(unittest.TestCase):
         self.assertRaises(ValueError, self.sl.encode, 61)
         self.assertRaises(ValueError, self.sl.encode, -601)
 
-class TestPanningType(unittest.TestCase):
-    pass
+class TestTuneType(unittest.TestCase):
+    def testEncodeDecode(self):
+        tt = sysex_types.TuneType()
+        self.assertEquals(-3600, tt.decode(tt.encode(-3600)))
+        self.assertEquals(3600, tt.decode(tt.encode(3600)))
+
+    def testInvalidValues(self):
+        tt = sysex_types.TuneType()
+        self.assertRaises(ValueError, tt.encode, 3601)
 
 class TestHandleNameArrayType(unittest.TestCase):
     def setUp(self):

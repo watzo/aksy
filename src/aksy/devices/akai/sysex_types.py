@@ -353,14 +353,14 @@ class TuneType(SignedWordType):
     """
     def __init__(self):
         SignedWordType.__init__(self)
-        self.set_min_val(-36)
-        self.set_max_val(36)
+        self.set_min_val(-3600)
+        self.set_max_val(3600)
 
     def _encode(self, value):
-        return super(TuneType, self)._encode(int(value*100))
+        return super(TuneType, self)._encode(value)
 
     def _decode(self, string):
-        return super(TuneType, self)._decode(string)/100.0
+        return super(TuneType, self)._decode(string)
 
 class SoundLevelType(SignedWordType):
     """Represents soundlevels in dB
