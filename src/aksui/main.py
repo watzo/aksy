@@ -34,7 +34,7 @@ import gtk
 # our stuff
 from aksui.utils import midiutils, modelutils
 from aksui.ak import multi, recording, program, keygroup
-from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog, multifxeditor
+from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, recorddialog, multifxeditor, programdetails
 
 from aksy.device import Devices
 from aksy import config
@@ -422,7 +422,7 @@ class Main(base.Base):
         position = self.window.get_position()
         size = self.window.get_size()
         decoration_width = 10
-        if self.program_details_window:
+        if self.program_details_window is not None:
             self.program_details_window.editor.move(position[0] + size[0] + decoration_width, position[1])
             def init_lists(self):
         try:
@@ -479,7 +479,6 @@ class Main(base.Base):
         return programname
 
     def open_program_properties(self, programname):
-        """
         p = program.Program(self.s, programname)
         
         if not self.program_details_window:
@@ -489,7 +488,6 @@ class Main(base.Base):
         
         self.move_properties_window()
         self.program_details_window.show_all()
-        """
         pass
     
     def on_recording_activate(self, button):
