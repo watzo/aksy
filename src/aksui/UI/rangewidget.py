@@ -138,7 +138,13 @@ class AkKnobWidget(widget.AkWidget):
         self.queue_draw()
 
     def get_current_pin(self, create_new = True):
-        kg = isinstance(self.so, keygroup.Keygroup) and self.so or self.so.keygroup 
+        if isinstance(self.so, keygroup.Keygroup):
+            kg = self.so 
+        elif hasattr(self.so, 'keygroup'):
+            kg = self.so.keygroup
+        else:
+            return None
+         
         return kg.get_pin_by_source_and_dest(kg.current_mod_source_index, self.mod_destination_index, create_new)
 
     def on_button_press(self, widget, event):
@@ -265,15 +271,15 @@ class AkKnobWidget(widget.AkWidget):
         cr.set_source_rgb(0, 0, 0)
         self.draw_value_line(cr, x, y, radius, self.value, self.min, self.max)
 
-#        pin = self.get_current_pin(False)
-#        if pin:
-#            range = float(self.max) - float(self.min)
-#            pinoffset = float(float(pin.level) / 100.0) * float(range)
-#            pct = self.get_pct(self.value, self.min, self.max)
-#            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
-#            cr.set_source_rgb(0, 0, 0)
-#            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
-#            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
+        pin = self.get_current_pin(False)
+        if pin and self.value is not None:
+            range = float(self.max) - float(self.min)
+            pinoffset = float(float(pin.level) / 100.0) * float(range)
+            pct = self.get_pct(self.value, self.min, self.max)
+            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
+            cr.set_source_rgb(0, 0, 0)
+            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
+            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
 
         """
         cr.set_source_rgb(0, 0, 0)
