@@ -258,28 +258,27 @@ class AkKnobWidget(widget.AkWidget):
 
         radius = (min(rect.width / 2, rect.height / 2) - 10)
 
+        fg = (self.style.fg[gtk.STATE_NORMAL])
+        cr.set_source_rgb(fg.red, fg.green, fg.blue)
+
         cr.set_line_width(1)
         cr.arc(x, y, radius, 0, 2 * math.pi)
 
-        cr.set_source_rgb(1, 1, 1)
-        cr.fill_preserve()
-        cr.set_source_rgb(0, 0, 0)
         cr.stroke()
 
         cr.save()
 
-        cr.set_source_rgb(0, 0, 0)
         self.draw_value_line(cr, x, y, radius, self.value, self.min, self.max)
 
-        pin = self.get_current_pin(False)
-        if pin and self.value is not None:
-            range = float(self.max) - float(self.min)
-            pinoffset = float(float(pin.level) / 100.0) * float(range)
-            pct = self.get_pct(self.value, self.min, self.max)
-            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
-            cr.set_source_rgb(0, 0, 0)
-            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
-            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
+#        pin = self.get_current_pin(False)
+#        if pin and self.value is not None:
+#            range = float(self.max) - float(self.min)
+#            pinoffset = float(float(pin.level) / 100.0) * float(range)
+#            pct = self.get_pct(self.value, self.min, self.max)
+#            pinpct = self.get_pct(self.value + pinoffset, self.min, self.max)
+#            cr.set_source_rgb(0, 0, 0)
+#            self.do_mod_arc(cr, x, y, radius, radius, pct, pinpct)
+#            self.draw_value_line(cr, x, y, radius, self.value + pinoffset, self.min, self.max)
 
         """
         cr.set_source_rgb(0, 0, 0)
@@ -290,7 +289,7 @@ class AkKnobWidget(widget.AkWidget):
         """
 
         cr.set_font_size(10.0)
-        cr.set_source_rgb(0.0, 0.0, 0.0)
+        cr.set_source_rgb(fg.red, fg.green, fg.blue)
         if self.dragging:
             text = self.get_format()
         else:
