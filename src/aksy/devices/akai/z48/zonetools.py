@@ -33,7 +33,7 @@ class Zonetools:
         self.set_output_cmd = Command('_', '\x0E\x04', 'zonetools', 'set_output', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_filter_cmd = Command('_', '\x0E\x05', 'zonetools', 'set_filter', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SBYTE), None)
         self.set_tune_cmd = Command('_', '\x0E\x06', 'zonetools', 'set_tune', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SWORD), None)
-        self.set_keyboard_track_cmd = Command('_', '\x0E\x07', 'zonetools', 'set_keyboard_track', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_keyboard_track_cmd = Command('_', '\x0E\x07', 'zonetools', 'set_keyboard_track', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
         self.set_playback_cmd = Command('_', '\x0E\x08', 'zonetools', 'set_playback', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
         self.set_mod_start_cmd = Command('_', '\x0E\x09', 'zonetools', 'set_mod_start', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SWORD), None)
         self.set_low_vel_cmd = Command('_', '\x0E\x0A', 'zonetools', 'set_low_vel', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
@@ -175,10 +175,10 @@ class Zonetools:
         """
         return self.sampler.execute(self.set_tune_cmd, (arg0, arg1, ))
 
-    def set_keyboard_track(self, arg0, arg1, arg2):
+    def set_keyboard_track(self, arg0, arg1):
         """Set Zone Keyboard Track
         """
-        return self.sampler.execute(self.set_keyboard_track_cmd, (arg0, arg1, arg2, ))
+        return self.sampler.execute(self.set_keyboard_track_cmd, (arg0, arg1, ))
 
     def set_playback(self, arg0, arg1):
         """Set Zone Playback <Data2> = mode, where 0=NO LOOPING, 1=ONE SHOT 2=LOOP IN REL, 3=LOOP UNTIL REL, 4=LIRRETRIG, 5=PLAYRETRIG, 6=AS SAMPLE

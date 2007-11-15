@@ -37,7 +37,7 @@ BOOL
 
 \x0E	\x06	set_tune	Set Zone Cents Tune	BYTE	SWORD
 
-\x0E	\x07	set_keyboard_track	Set Zone Keyboard Track	BYTE	BYTE	BYTE
+\x0E	\x07	set_keyboard_track	Set Zone Keyboard Track	BYTE	BOOL
 
 \x0E	\x08	set_playback	Set Zone Playback <Data2> = mode, where 0=NO LOOPING, 1=ONE SHOT 2=LOOP IN REL, 3=LOOP UNTIL REL, 4=LIRRETRIG, 5=PLAYRETRIG, 6=AS SAMPLE	BYTE	BYTE
 
