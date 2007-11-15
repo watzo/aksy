@@ -80,16 +80,21 @@ def exceptionHandler(type, value, tback):
     return 0
 
 
-class DialogCreateNewKeygroups(base.Base):
-    def __init__(self, parent):
-        self.s = parent.s
-        self.programname = None
-
-        base.Base.__init__(self, None, "dialogCreateNewKeygroups")
+class BaseDialog(base.Base):
+    def __init__(self, name):
+        base.Base.__init__(self, None, name)
 
     def on_cancelbutton_clicked(self, widget):
         self.editor.response(gtk.RESPONSE_CANCEL)
         self.editor.hide()
+
+class DialogCreateNewKeygroups(BaseDialog):
+    def __init__(self, parent):
+        self.s = parent.s
+        self.programname = None
+
+        BaseDialog.__init__(self, "dialogCreateNewKeygroups")
+
 
     def on_okbutton_clicked(self, widget):
         self.editor.response(gtk.RESPONSE_OK)
@@ -104,12 +109,12 @@ class DialogCreateNewKeygroups(base.Base):
 
         self.w_label_create_new.set_label("Create new keygroups on: " + caption_name)
 
-class DialogCreateNewProgramFast(base.Base):
+class DialogCreateNewProgramFast(BaseDialog):
     def __init__(self, parent):
         self.s = parent.s
         self.programname = None
 
-        base.Base.__init__(self, None, "dialogCreateNewProgramFast")
+        BaseDialog.__init__(self, "dialogCreateNewProgramFast")
 
 class BaseContextMenu(base.Base):
     def __init__(self, name, main, tree_view, tools_module):
@@ -199,7 +204,7 @@ class SamplesContextMenu(BaseContextMenu):
     def on_new_program_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
         self.dialogCreateNewProgramFast.w_treeview_selected_samples.set_model(modelutils.get_model_from_list(selected_samples))
-
+        self.dialogCreateNewProgramFast.w_entry_program_name.set_text('Program %i' % (self.main.s.programtools.get_no_items() + 1))
         response = self.dialogCreateNewProgramFast.editor.run()
 
         if response == gtk.RESPONSE_OK:
@@ -222,7 +227,7 @@ class SamplesContextMenu(BaseContextMenu):
             elif method == 1:
                 # drum
                 for i in range(num_samples):
-                    notes.append([mpcpads[i], mpcpads[i]])
+                    notes.append([midiutils.mpcpads[i], midiutils.mpcpads[i]])
                 keytrack = 0
                 # one shot
                 playback = 1
