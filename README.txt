@@ -7,6 +7,9 @@ Ak.Sys, focussing on batch functionality and scripting. Currently, it supports
 functionality (disk functions, transfers and a bunch of untested modules) of
 the S56K.
 
+With Aksui included from 0.3 and onwards, the original goal of Aksy comes in
+site again. Stay tuned.
+
 2. Usage
 
 Some simple examples:
@@ -65,6 +68,8 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 * in the implementation of sample tools, a lot of documented commands are
   actually not available. It's not possible to copy in-memory samples, and all
   loop/region manipulation related commands are not implemented. 
+* if more than eight programtools.get_modulation_connection_cmd commands are
+  specified as an alternative operation, the system exclusive request times out.
 
 4. Debugging and troubleshooting
 
@@ -99,6 +104,10 @@ src/aksy/
 
     s56k specific code
 
+    akai/mock_z48
+
+    mock sampler implementation for testing
+
     akai/z48
 
     z48/mpc4000 specific code
@@ -106,12 +115,17 @@ src/aksy/
 src/aksyosc/
     OSC support
 
+src/aksyfs
+    filesystem implementations, currently FUSE and FTP
+
 data
 
-    The *tools.py modules are generated from the data directory, which contains tab
+    All *tools.py modules are generated from the data directory, which contains tab
     delimited system exclusive descriptions from which they are generated.
 
-    The script which takes care of this is generate_module.py
+	The script which takes care of this is generate_module.py; but now the API
+    is stabilizing the code generation approach might be abandoned in the near
+    future.
 
 data/z48
 

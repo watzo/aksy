@@ -1,3 +1,9 @@
+0. PREAMBLE
+
+This document is part of the Aksy source distribution. More information and
+installation instructions for binary distributions can be found at
+http://walco.n--tree.net/projects/aksy/wiki 
+
 1. DEPENDENCIES
 
 Aksy (core lib) has the following dependencies:
@@ -8,12 +14,14 @@ Aksy (core lib) has the following dependencies:
   (win32 port is available at libusb-win32.sourceforge.net)
 
 The extension has been tested with Python 2.4/2.5, libusb 0.1.8, libusb-0.1.10
-and libusb-0.1.12 on Windows and Ubuntu Linux.
+and libusb-0.1.12 on Windows and Ubuntu Linux. Note: on Windows (XP) the
+specific libusb version 0.1.12.1 didn't find the sampler on my system. Later
+(snapshot) versions are ok.
 
 optional dependencies
 ---------------------
 
-Ak.py (by Joseph Misra) needs Psyco and a recent GTK and its python bindings.
+Ak.py (by Joseph Misra) needs a recent GTK and its python bindings.
 These are all available in modern Linux distributions, for Windows it's a bit
 more manual installation work.
 
