@@ -306,11 +306,10 @@ class ProgramsContextMenu(BaseContextMenu):
                 self.program.gettools().add_keygroups(howmany)
 
     def on_program_properties_activate(self, widget):
-        programname = get_selected_from_treeview(self.main.w_treeview_programs)
-        # multiple selection is possible, but for now we'll just take the first one 
-        programname = programname[0]
+        names = get_selected_from_treeview(self.main.w_treeview_programs)
         
-        self.main.open_program_properties(programname)
+	for name in names:
+            self.main.open_program_properties(name)
 
     def on_new_multi_activate(self, widget):
         selected_programs = get_selected_from_treeview(self.main.w_treeview_programs)
@@ -602,24 +601,22 @@ class Main(base.Base):
         if widget == self.w_treeview_programs:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
                 self.ProgramsContextMenu.editor.popup(None, None, None, event.button, event.time)
+                return True
 
-            if event.type == gtk.gdk._2BUTTON_PRESS:
-                curr_program = get_selected_from_treeview(self.w_treeview_programs)
-
-                if type(curr_program) is list and len(curr_program) > 0:
-                    curr_program = curr_program[0]
-
-                self.open_keygroup_editor(curr_program)
+            if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 3:
+                curr_programs = get_selected_from_treeview(self.w_treeview_programs)
+                self.open_keygroup_editor(curr_programs[0])
                 
-                """
-                OLD ONE:
-                self.programsEditor.set_program(curr_program)
-                self.programsEditor.programsMain.show_all()
-                """
+	"""
+	OLD ONE:
+	self.programsEditor.set_program(curr_program)
+	self.programsEditor.programsMain.show_all()
+	"""
 
         if widget == self.w_treeview_multis:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
                 self.MultisContextMenu.editor.popup(None, None, None, event.button, event.time)
+            return True
 
             if event.type == gtk.gdk._2BUTTON_PRESS:
                 curr_multi = get_selected_from_treeview(self.w_treeview_multis)
@@ -648,7 +645,7 @@ def add_keybinding(accel_group, widget, accel_str, signal="activate"):
     
 def setup_keybindings(m, accel_group):
     add_keybinding(accel_group, m.w_quit1, "<Ctl>Q")
-    add_keybinding(accel_group, m.w_refresh_button, "F5")
+    add_keybinding(accel_group, m.w_refresh_button, "F5", signal="clicked")
  
 def main(): 
     parser = config.create_option_parser(usage="%prog [options]")
