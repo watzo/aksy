@@ -166,15 +166,23 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
 
 def main():
     parser = create_option_parser(usage='%prog [options]')
+    parser.add_option("--ftp_host", nargs=1, dest="ftp_host",
+      help="Server host or IP address to bind on. Only change if running in an isolated network!", default='localhost')
+    parser.add_option("--ftp_port", nargs=1, dest="ftp_port",
+      help="Server port to bind on.", default=2121)
+
     options = parser.parse_args()[0]
 
     authorizer = ftpserver.DummyAuthorizer()
     authorizer.add_anonymous('/', perm=('r', 'w'))
 
-    address = ('localhost', 2121)
+    address = (options.ftp_host, options.ftp_port)
+    if options.ftp_host != 'localhost':
+        import warnings
+        warnings.warn('Running aksyftpd on non-local address %s' % options.ftp_host, RuntimeWarning)
+    
+    sampler = Devices.get_instance(options.sampler_type, options.connector)
 
-    sampler = Devices.get_instance(options.type, "mock")
-    sampler.sampleFile = '/home/walco/dev/workspace/aksy/test/Default.akm'
     try:    
         ftp_handler = ftpserver.FTPHandler
         ftp_handler.authorizer = authorizer
@@ -187,6 +195,6 @@ def main():
         ftpd.serve_forever()
     finally:
         sampler.close()
-   # start ftp server
+
 if __name__ == "__main__":
     main()
