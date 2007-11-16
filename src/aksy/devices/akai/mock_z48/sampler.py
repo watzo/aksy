@@ -47,10 +47,11 @@ class MockZ48(Z48):
         
         self._patch_systemtools()
         
-        self.programtools.get_handles_names = lambda : (1, 'program',)
+        self.programtools.get_handles_names = lambda : (1, 'program', 2, 'program 2')
         self.songtools.get_handles_names = lambda : (1, 'song',)
-        self.multitools.get_handles_names = lambda : (1, 'multi',)
-        self.sampletools.get_handles_names = lambda : (1, 'sample',)
+        self.multitools.get_handles_names = lambda : (1, 'multi', 2, 'multi 2')
+        self.sampletools.get_handles_names = lambda : (1, 'sample', 2, 'sample 2')
+        self.recordingtools.get_name = lambda : 'sample'
         
         self.setup_model()
 
