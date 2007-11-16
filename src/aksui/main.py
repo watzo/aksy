@@ -616,7 +616,7 @@ class Main(base.Base):
         if widget == self.w_treeview_multis:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
                 self.MultisContextMenu.editor.popup(None, None, None, event.button, event.time)
-            return True
+                return True
 
             if event.type == gtk.gdk._2BUTTON_PRESS:
                 curr_multi = get_selected_from_treeview(self.w_treeview_multis)
