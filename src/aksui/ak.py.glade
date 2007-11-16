@@ -3385,28 +3385,13 @@ MIDI</property>
         <child>
           <widget class="GtkToolbar" id="toolbar1">
             <property name="visible">True</property>
-            <property name="border_width">1</property>
-            <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
             <child>
-              <widget class="GtkToolItem" id="toolitem2">
-                <property name="visible">True</property>
-                <child>
-                  <widget class="GtkButton" id="refresh_button">
+                  <widget class="GtkToolButton" id="refresh_button">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="tooltip" translatable="yes">Refresh the listings</property>
-                    <property name="label">gtk-refresh</property>
-                    <property name="use_stock">True</property>
-                    <property name="response_id">0</property>
+                    <property name="stock_id">gtk-refresh</property>
                     <signal name="clicked" handler="on_refresh_clicked"/>
                   </widget>
                 </child>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
