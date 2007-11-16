@@ -262,7 +262,7 @@ class MainProgramsWindow(MainWindow):
         if len(s.multis) == 0:
             print "No multis..."
 
-        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples))
         setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))
         setattr(s,'multismodel', modelutils.get_model_from_list(s.multis))
 

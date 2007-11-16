@@ -15,27 +15,23 @@ def search(model, iter, func, data):
         iter = model.iter_next(iter)
     return None
 
-def get_model_from_list (items, add_blank_entry = False):
+def get_model_from_list(items):
     model = gtk.ListStore(str, str)
-
-    if add_blank_entry:
-        model.append([" "," "])
-
-    if type(items) is tuple:
-        items = list(items)
-
+    
     if type(items) is dict:
         for i in items.keys():
             s = items[i]
             model.append([i,s])
-    else:
-        if type(items) is str:
-            items = [items,] 
-        for s in items:
-            if type(s) is list:
-                model.append(s)
-            else:
-                model.append([s, s])
+        return model
+
+    if type(items) is str:
+        items = [items,] 
+    
+    for s in items:
+        if type(s) is list:
+            model.append(s)
+        else:
+            model.append([s, s])
 
     return model
 

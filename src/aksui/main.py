@@ -84,6 +84,10 @@ class BaseDialog(base.Base):
     def __init__(self, name):
         base.Base.__init__(self, None, name)
 
+    def on_okbutton_clicked(self, widget):
+        self.editor.response(gtk.RESPONSE_OK)
+        self.editor.hide()
+
     def on_cancelbutton_clicked(self, widget):
         self.editor.response(gtk.RESPONSE_CANCEL)
         self.editor.hide()
@@ -94,11 +98,6 @@ class DialogCreateNewKeygroups(BaseDialog):
         self.programname = None
 
         BaseDialog.__init__(self, "dialogCreateNewKeygroups")
-
-
-    def on_okbutton_clicked(self, widget):
-        self.editor.response(gtk.RESPONSE_OK)
-        self.editor.hide()
 
     def set_program(self, programname):
         self.programname = programname
@@ -115,6 +114,14 @@ class DialogCreateNewProgramFast(BaseDialog):
         self.programname = None
 
         BaseDialog.__init__(self, "dialogCreateNewProgramFast")
+        self.w_treeview_selected_samples.append_column(gtk.TreeViewColumn('Name', gtk.CellRendererText(), text=0))
+
+class DialogCreateNewMultiFast(BaseDialog):
+    def __init__(self, parent):
+        self.s = parent.s
+
+        BaseDialog.__init__(self, "dialogCreateNewMultiFast")
+        self.w_treeview_selected_programs.append_column(gtk.TreeViewColumn('Name', gtk.CellRendererText(), text=0))
 
 class BaseContextMenu(base.Base):
     def __init__(self, name, main, tree_view, tools_module):
@@ -203,7 +210,8 @@ class SamplesContextMenu(BaseContextMenu):
         
     def on_new_program_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
-        self.dialogCreateNewProgramFast.w_treeview_selected_samples.set_model(modelutils.get_model_from_list(selected_samples))
+        model = modelutils.get_model_from_list(selected_samples)
+        tv = self.dialogCreateNewProgramFast.w_treeview_selected_samples.set_model(model)
         self.dialogCreateNewProgramFast.w_entry_program_name.set_text('Program %i' % (self.main.s.programtools.get_no_items() + 1))
         response = self.dialogCreateNewProgramFast.editor.run()
 
@@ -264,7 +272,8 @@ class SamplesContextMenu(BaseContextMenu):
                 self.s.zonetools.set_sample(1, selected_samples[i])
                 #self.s.programtools.add_keygroup_sample(notes[i][0],notes[i][1],1,keytrack,selected_samples[i])
 
-        self.dialogCreateNewProgramFast.editor.hide()
+            self.main.init_lists()
+            self.dialogCreateNewProgramFast.editor.hide()
 
 class ProgramsContextMenu(BaseContextMenu):
     """Context menu for the "programs" TreeView
@@ -276,6 +285,7 @@ class ProgramsContextMenu(BaseContextMenu):
         BaseContextMenu.__init__(self, "menuPrograms", main, main.w_treeview_programs, main.s.programtools)
 
         self.dialogCreateNewKeygroups = DialogCreateNewKeygroups(self)
+        self.dialogCreateNewMultiFast = DialogCreateNewMultiFast(self)
 
     def on_add_keygroup_activate(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
@@ -301,6 +311,20 @@ class ProgramsContextMenu(BaseContextMenu):
         programname = programname[0]
         
         self.main.open_program_properties(programname)
+
+    def on_new_multi_activate(self, widget):
+        selected_programs = get_selected_from_treeview(self.main.w_treeview_programs)
+        model = modelutils.get_model_from_list(selected_programs)
+        self.dialogCreateNewMultiFast.w_treeview_selected_programs.set_model(model)
+        self.dialogCreateNewMultiFast.w_entry_name.set_text('Multi %i' % (self.main.s.multitools.get_no_items() + 1))
+        response = self.dialogCreateNewMultiFast.editor.run()
+        if response == gtk.RESPONSE_OK:
+            name = self.dialogCreateNewMultiFast.w_entry_name.get_text()
+            self.s.multitools.create_new(len(selected_programs), name)
+            self.s.multitools.set_curr_by_name(name)
+            for i, p in enumerate(selected_programs):
+                self.s.multitools.set_multi_part_name(i, p)
+            self.main.init_lists()
 
     def on_recycle_init_activate(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
@@ -400,7 +424,7 @@ class Main(base.Base):
         Main.do_programlist(s)
         
         setattr(s, 'samples', Main.get_names(s.sampletools))
-        setattr(s, 'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s, 'samplesmodel', modelutils.get_model_from_list(s.samples))
         
         setattr(s, 'multis', Main.get_names(s.multitools))
         setattr(s, 'multismodel', modelutils.get_model_from_list(s.multis))
@@ -641,6 +665,7 @@ def main():
         setup_keybindings(m, accel_group)
 
         win.add(m.editor)
+
         m.set_window(win)
         win.show_all()
         # TODO: make edit menu functional
