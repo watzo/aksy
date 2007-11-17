@@ -30,7 +30,7 @@ ascii_keymap = {'BackSpace':8,'Delete':127, 'Insert':272, 'Home':288, 'End':289,
 class LCDScreen(gtk.DrawingArea):
     def __init__(self,s):
         gtk.DrawingArea.__init__(self)
-        self.size(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.set_size_request(WINDOW_WIDTH, WINDOW_HEIGHT)
 
         self.s = s
 
