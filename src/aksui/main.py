@@ -27,7 +27,7 @@ try:
 except ImportError:
     print "Profiler not available"
 
-import traceback, os.path
+import traceback, thread, os.path
 
 import pygtk
 pygtk.require('2.0')
@@ -40,6 +40,7 @@ from aksui.UI import base, filechooser, multieditor, keygroupeditor, lcdscreen, 
 
 from aksy.device import Devices
 from aksy import config
+from aksy.concurrent import transaction
 
 
 
@@ -139,6 +140,22 @@ class BaseContextMenu(base.Base):
           # TODO: create new program/multi
           pass
 
+    def activate_download(self, selected, ext):
+        destdir = self.s.FileChooser.open(upload=False, action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, title="Select a folder to save all selected files...", multiple=False)
+        if destdir is None:
+            return
+
+        self.main.log("Downloading file(s) %s to directory '%s'" % (selected, destdir))
+        thread.start_new_thread(self._download_and_notify, (destdir, selected, ext))
+    
+    @transaction()
+    def _download_and_notify(self, destdir, selected, ext):
+        for f in selected:
+            full_name = f + ext
+            self.main.s.transfertools.get(full_name, os.path.join(destdir, full_name))
+
+        self.main.log("Download of file(s) %s to '%s' finished" % (selected, destdir))
+
     def on_delete_activate(self, widget):
         selected = get_selected_from_treeview(self.tree_view)
         for name in selected:
@@ -182,6 +199,10 @@ class MultisContextMenu(BaseContextMenu):
         multi = get_selected_from_treeview(self.main.w_treeview_multis)[0]
         self.s.multitools.set_curr_by_name(multi)
         self.main.open_in_window(multifxeditor.MultiFXEditor(self.s))
+
+    def on_download_activate(self, widget):
+        selected = get_selected_from_treeview(self.main.w_treeview_multis)
+        self.activate_download(selected, ".akm")
     
     def on_new_multi_activate(self, widget, data=None):
         self.main.on_new_multi_activate(self, widget)
@@ -201,15 +222,8 @@ class SamplesContextMenu(BaseContextMenu):
 
     def on_download_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
-        destdir = self.s.FileChooser.open(upload=False, action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, title="Save all files...", multiple=False)
-        if destdir is None:
-            return
-        
-        for sample in selected_samples:
-            full_name = sample + '.wav'
-            self.main.log("Downloading sample '%s' to directory '%s'" % (full_name, destdir))
-            self.main.s.transfertools.get(full_name, os.path.join(destdir, full_name))
-        
+        self.activate_download(selected_samples, ".wav")
+
     def on_new_program_activate(self, widget):
         selected_samples = get_selected_from_treeview(self.main.w_treeview_samples)
         model = modelutils.get_model_from_list(selected_samples)
@@ -335,6 +349,10 @@ class ProgramsContextMenu(BaseContextMenu):
         for pn in programname:
             p = program.Program(self.s, pn)
             p.init_recycled()
+
+    def on_download_activate(self, widget):
+        selected = get_selected_from_treeview(self.main.w_treeview_programs)
+        self.activate_download(selected, ".akp")
             
     def on_dump_matrix(self, widget):
         programname = get_selected_from_treeview(self.main.w_treeview_programs)
@@ -645,7 +663,7 @@ if USE_CUSTOM_EXCEPTHOOK:
 
 def add_keybinding(accel_group, widget, accel_str, signal="activate"):
     keyval, mods = gtk.accelerator_parse(accel_str)
-    widget.add_accelerator(signal, accel_group,
+    widget.add_accelerator(signal, accel_group, 
                                        keyval, mods, gtk.ACCEL_VISIBLE)
 
     
