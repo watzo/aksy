@@ -1,12 +1,13 @@
 import os, os.path, urlparse
 import gtk
-import urllib 
+import urllib, thread 
 
 from aksy.devices.akai import fileparser, sampler
 from aksy import fileutils
 from aksy import get_config
 
 from aksui.utils import modelutils
+
 
 try:
     from aksui.postmod import itx
@@ -183,7 +184,7 @@ class FileChooser:
         setattr(s, 'programs', s.programtools.get_names())
         setattr(s, 'multis', s.multitools.get_names())
 
-        setattr(s, 'samplesmodel', modelutils.get_model_from_list(s.samples, True))
+        setattr(s, 'samplesmodel', modelutils.get_model_from_list(s.samples))
         setattr(s, 'programsmodel', modelutils.get_model_from_list(s.programs))
         setattr(s, 'multismodel', modelutils.get_model_from_list(s.multis))
         
@@ -200,7 +201,7 @@ class FileChooser:
                         files.append(path)
             if len(files) > 0:
                 self.files = files
-                self.upload_files()
+                thread.start_new_thread(self.upload_files)
                 
     def expand_it_files(self, files):
         if files:

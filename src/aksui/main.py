@@ -573,10 +573,9 @@ class Main(base.Base):
                 items = tool.get_names()
                 if type(items) is str:
                     items = [items, ]
-                # download it
+
                 for item in items:
                     if len(item) > 0:
-                        print path, item, ext
                         filename = item + ext
                         filenamepath = path + "/" + filename
                         if os.path.exists(filenamepath):
