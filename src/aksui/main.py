@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-__author__ = 'Joseph Misra and Walco van Loon'
-__version__ = '0.746'
+__author__ = """Joseph Misra (main developer)
+Walco van Loon (back-end, deployment, refactorings & UI enhancements)
+"""
+__version__ = '0.3'
 __license__ = """
     Copyright (C) 2006-2007  %s
 
