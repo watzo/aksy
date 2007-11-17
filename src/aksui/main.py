@@ -605,8 +605,11 @@ class Main(base.Base):
                 self.ProgramsContextMenu.editor.popup(None, None, None, event.button, event.time)
                 return True
 
-            if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 3:
+            if event.type == gtk.gdk._2BUTTON_PRESS:
                 curr_programs = get_selected_from_treeview(self.w_treeview_programs)
+                if len(curr_programs) == 0:
+                    return False
+
                 self.open_keygroup_editor(curr_programs[0])
                 
 	"""
@@ -622,9 +625,10 @@ class Main(base.Base):
 
             if event.type == gtk.gdk._2BUTTON_PRESS:
                 curr_multi = get_selected_from_treeview(self.w_treeview_multis)
-
-                if type(curr_multi) is list:
-                    curr_multi = curr_multi[0]
+                if len(curr_multi) == 0:
+                    return False
+                
+                curr_multi = curr_multi[0]
 
                 self.open_multi_editor(curr_multi)
                 
