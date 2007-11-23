@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="7653F347-EEA2-42B0-B582-3DB32FB556BD" Language="1033" Manufacturer="Walco van Loon" Name="Aksy" Version="0.3.0" UpgradeCode="95007C89-E00B-4FAF-8FCB-653EA10319A6">
+    <Package Compressed="yes" Description="Python 2.5 aksy-0.3" InstallerVersion="200" Languages="1033" Manufacturer="Walco van Loon" Platform="intel" />
+    <CustomAction Id="PythonFromMachine" Property="PYTHONDIR" Value="[PYTHON.MACHINE]" Execute="immediate" />
+    <CustomAction Id="PythonFromUser" Property="PYTHONDIR" Value="[PYTHON.USER]" Execute="immediate" />
+    <CustomAction Id="PythonExe" Property="PYTHON" Value="[PYTHONDIR]\python.exe" Execute="immediate" />
+    <CustomAction Id="AssignTargetDir" Property="TARGETDIR" Value="[PYTHON.MACHINE]" Execute="immediate" />
+<InstallUISequence>
+	<Custom Action="AssignTargetDir" Before="CostInitialize">TARGETDIR=""</Custom>
+</InstallUISequence>
+<InstallExecuteSequence>
+  <Custom Action="AssignTargetDir" Before="CostInitialize">TARGETDIR=""</Custom>
+</InstallExecuteSequence>
+
+    <WixVariable Id="WixUIDialogBmp" Value="bitmaps/aksy-dialog.bmp"/>
+    <WixVariable Id="WixUILicenseRtf" Value="license.rtf"/>
+<!--Set the icon for the msi and Add/Remove programs-->
+  <Icon Id='AksyIcon.exe'
+ SourceFile='bitmaps/aksy.ico'/>
+  <Property Id="ARPPRODUCTICON" Value="AksyIcon.exe" />
+  <Property Id="ALLUSERS" Value="1"/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="Lib" Name="Lib">
+        <Directory Id="site_packages" Name="site-packages">
+          <Component Id="aksy" Guid="436F3FBD-2787-49E0-AA7E-E3D09FE18AC5">
+            <File Id="aksy_0.3_SNAPSHOT_r1502_py2.5_win32.egg" Name="aksy-0.3_SNAPSHOT_r1502-py2.5-win32.egg" Source="..\dist\aksy-0.3_SNAPSHOT_r1502-py2.5-win32.egg">
+            </File>
+          </Component>
+          <Component Id="pyftpdlib" Guid="E20524AA-220B-4A7C-851A-79D08B5438E4">
+		  <File Source="dist/pyftpdlib-0.2.0-py2.5.egg" Id="pyftpdlib_0.2.0.egg" Name="pyftpdlib-0.2.0.egg">
+            </File>
+          </Component>
+        </Directory>
+      </Directory>
+ 
+      <Directory Id="ProgramMenuDir" />
+      <Directory Id="Scripts" Name="Scripts">
+        <Component Id="Scripts" Guid="{8F6E241E-8ABD-403F-8587-4253894EDFF5}" KeyPath="yes">
+          <File Id="aksy_fs.exe" Name="aksy-fs.exe" Source="..\dist\unpacked\SourceDir\Scripts\aksy-fs.exe" />
+          <File Id="aksy_fs_script.py" Name="aksy-fs-script.py" Source="..\dist\unpacked\SourceDir\Scripts\aksy-fs-script.py" />
+          <File Id="aksy_ftpd.exe" Name="aksy-ftpd.exe" Source="..\dist\unpacked\SourceDir\Scripts\aksy-ftpd.exe" />
+          <File Id="aksy_ftpd_script.py" Name="aksy-ftpd-script.py" Source="..\dist\unpacked\SourceDir\Scripts\aksy-ftpd-script.py" />
+          <File Id="aksy_get.exe" Name="aksy-get.exe" Source="..\dist\unpacked\SourceDir\Scripts\aksy-get.exe" />
+          <File Id="aksy_get_script.py" Name="aksy-get-script.py" Source="..\dist\unpacked\SourceDir\Scripts\aksy-get-script.py" />
+          <File Id="aksy_put.exe" Name="aksy-put.exe" Source="..\dist\unpacked\SourceDir\Scripts\aksy-put.exe" />
+          <File Id="aksy_put_script.py" Name="aksy-put-script.py" Source="..\dist\unpacked\SourceDir\Scripts\aksy-put-script.py" />
+          <File Id="aksy_ui.exe" Name="aksy-ui.exe" Source="..\dist\unpacked\SourceDir\Scripts\aksy-ui.exe" />
+          <File Id="aksy_ui_script.py" Name="aksy-ui-script.py" Source="..\dist\unpacked\SourceDir\Scripts\aksy-ui-script.py" >
+		  <Shortcut Id="Aksui_shortcut" Directory="ProgramMenuDir" Name="Aksui (with console)" Icon="AksyIcon.exe"/>
+	  </File>
+          <File Id="aksy_ui_script.pyw" Name="aksy-ui-script.pyw" Source="..\dist\unpacked\SourceDir\Scripts\aksy-ui-script.pyw" />
+        </Component>
+      </Directory>
+    </Directory>
+    <Feature Id="default" ConfigurableDirectory="TARGETDIR" Description="Aksy library and Aksui, the Aksy UI" Display="expand" Title="Aksy and Aksui" Level="1" TypicalDefault="install">
+      <ComponentRef Id="aksy" />
+      <ComponentRef Id="Scripts" />
+    </Feature>
+    <Feature Id="pyftpdlib" Description="Aksy FTP Server support files" Title="Pyftpdlib" TypicalDefault="install" Level="1">
+      <ComponentRef Id="pyftpdlib" />
+    </Feature>
+    <Media Id="1" Cabinet="distfiles" EmbedCab="yes" />
+    <Property Id="DistVersion" Value="0.3" />
+    <Property Id="ARPCONTACT" Value="walco at n--tree.net" />
+    <Property Id="ARPURLINFOABOUT" Value="http://walco.n--tree.net/projects/aksy" />
+    <Property Id="WhichUsers" Value="ALL" />
+    <Property Id="PYTHON.USER">
+      <RegistrySearch Id="python.user" Root="HKCU" Key="SOFTWARE\Python\PythonCore\2.5\InstallPath" Type="raw" />
+    </Property>
+    <Property Id="PYTHON.MACHINE">
+      <RegistrySearch Id="python.machine" Root="HKLM" Key="SOFTWARE\Python\PythonCore\2.5\InstallPath" Type="raw" />
+    </Property>
+	 <UIRef Id="WixUI_Mondo" />
+
+  </Product>
+</Wix>
