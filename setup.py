@@ -8,7 +8,7 @@ from setuptools import setup
 from distutils.core import Extension
 from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
-import platform, os.path
+import platform, os.path, sys
 
 version = "0.3" 
 
@@ -20,14 +20,6 @@ def install_requires():
     if not platform.system() == "Windows":
 	deps.append("fuse-python >= 0.2pre3")
     return deps
-
-def scripts():
-    scripts = []
-
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "bdist_wininst":
-        scripts.append("scripts\\win32-installer-script.py")
-    return scripts
 
 def customize_for_platform(ext, compiler_type):
     ext.libraries = ["usb"]
@@ -107,8 +99,8 @@ setup(
       url = base_url + "/projects/aksy", 
       platforms = [ "any" ],
       download_url = base_url + "/downloads",
-      scripts = scripts(),
       install_requires = install_requires(),
+      scripts = [],
       entry_points = {
         'console_scripts': [
             'aksy-get = aksy.console.get:main',
