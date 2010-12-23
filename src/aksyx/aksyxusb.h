@@ -24,8 +24,12 @@
 #define Z48_CMD_MEMORY_GET_MULTI 0x23
 #define Z48_CMD_MEMORY_GET_MIDI 0x24
 
+#define S56K_CMD_MEMORY_PUT_PROGRAM 0x22
 #define S56K_CMD_MEMORY_GET_PROGRAM 0x23
+#define S56K_CMD_MEMORY_PUT_MULTI 0x24
 #define S56K_CMD_MEMORY_GET_MULTI 0x25
+#define S56K_CMD_MEMORY_PUT_SCENE 0x26
+#define S56K_CMD_MEMORY_PUT_MIDI 0x28
 #define S56K_CMD_MEMORY_GET_MIDI 0x29
 
 /* abort an operation, returns a busy reply on success */
@@ -79,6 +83,7 @@
 #define IS_SAMPLE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "wav") == 0)
 #define IS_PROGRAM_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "akp") == 0)
 #define IS_MIDI_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "mid") == 0)
+#define IS_SCENE_FILE(filename) (strlen(filename)  > 4 && strcasecmp(filename + strlen(filename) - 3, "asc") == 0)
 
 #define TIMEVAL_DELTA_MILLIS(t1, t2) ((t2.tv_sec-t1.tv_sec)*1000 + (t2.tv_usec-t1.tv_usec)/1000)
 
@@ -194,6 +199,7 @@ typedef struct akai_usb_device {
     char* (*get_sysex_error_msg)(int code);
 } *akai_usb_device;
 
+
 /*
  * akaiusb public API functions
  *
@@ -272,8 +278,8 @@ char* s56k_get_sysex_error_msg(int code);
  * The current path must be set explicitly if the file is transferred to
  * disk
  */
-int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
-        char *dest_filename, int location, int timeout);
+int aksyxusb_device_put(const akai_usb_device akai_dev, const char *src_filename,
+        const char *dest_filename, const int location, const int timeout);
 
 /* transfers a file from the current path from the sampler.
  * Location can be either LOC_MEMORY or LOC_DISK.

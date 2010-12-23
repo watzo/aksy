@@ -620,7 +620,7 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev, const char* name,
 
         if (retval == AKSY_SUCCESS) {
             /* convert the handle into an integer value */
-            tmp_handle = (((resp_data.bytes[1]&0x7f) << 7)|((resp_data.bytes[0]
+            tmp_handle = (((resp_data.bytes[0]&0x7f) << 7)|((resp_data.bytes[1]
                     &0x7f)));
 
 #if (_BIG_ENDIAN != 1)
@@ -640,7 +640,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
     char* data;
     int blocksize = 4096*4, rc = 0, read_transfer_status = 0;
     unsigned long filesize, bytes_transferred = 0, actually_transferred = 0,
-            tdelta;
+            tdelta, file_written;
 #if defined(_POSIX_SOURCE) || defined(MACOSX)
     struct timeval tv1, tv2;
 #endif
@@ -682,7 +682,8 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
             }
 
             /* write to file */
-            fwrite(data, sizeof(char), rc, dest_file);
+            file_written = fwrite(data, sizeof(char), rc, dest_file);
+            /* TODO test if file_written < rc, then error */
 
             /* sent continue request */
             usb_bulk_write(akai_dev->dev, EP_OUT, "\x00", 1, timeout);
@@ -809,12 +810,12 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
 }
 
 /* uploads a file to the sampler. */
-int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
-        char *dest_filename, int location, int timeout) {
-    char *buf, *command, *reply_buf;
+int aksyxusb_device_put(const akai_usb_device akai_dev, const char *src_filename,
+        const char *dest_filename, const int location, const int timeout) {
+    char *buf, *command, *reply_buf, *tmp;
     unsigned long filesize = 0, transferred = 0, tdelta;
     int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8,
-            bytes_read = 0;
+            bytes_read = 0, command_len = 0;
     int dest_filename_length = strlen(dest_filename) + 1;
     FILE* fp;
 
@@ -866,20 +867,51 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
 #if (AKSY_DEBUG == 1)
     printf("File name to upload %s, Size of file: %li bytes\n", dest_filename, filesize);
 #endif
-
+    command_len = dest_filename_length+5;  //5 is the header size
+    
+    command = (char*) calloc(command_len, sizeof(char));
+    if (akai_dev->sysex_id == S56K_ID)
+       {
+       if (IS_MULTI_FILE(dest_filename))
+          { // TODO:  DISK put untested
+          command[0] = (location) ? S56K_CMD_MEMORY_PUT_MULTI : CMD_DISK_PUT;
+          }
+       if (IS_SAMPLE_FILE(dest_filename))
+          {
+          command[0] = (location) ? CMD_MEMORY_PUT : CMD_DISK_PUT;
+          }
+       if (IS_PROGRAM_FILE(dest_filename))
+          {
+          command[0] = (location) ? S56K_CMD_MEMORY_PUT_PROGRAM : CMD_DISK_PUT;
+          }
+       if (IS_MIDI_FILE(dest_filename))
+          {
+          command[0] = (location) ? S56K_CMD_MEMORY_PUT_MIDI : CMD_DISK_PUT;
+          }
+       if (IS_SCENE_FILE(dest_filename))
+          {
+          command[0] = (location) ? S56K_CMD_MEMORY_PUT_SCENE : CMD_DISK_PUT;
+          }
+       
+       
+       }
+    else  // Z
+       {
+       command[0] = (location) ? CMD_MEMORY_PUT : CMD_DISK_PUT;
+       }
     // TODO: check ppc
-    command = (char*) calloc(dest_filename_length+6, sizeof(char));
-    command[0] = (location) ? CMD_MEMORY_PUT : CMD_DISK_PUT;
     command[1] = (char)(filesize >> 24);
     command[2] = (char)(filesize >> 16);
     command[3] = (char)(filesize >> 8);
     command[4] = (char)filesize;
+
     memcpy(command+5, dest_filename, dest_filename_length * sizeof(char));
 
-    rc = usb_bulk_write(akai_dev->dev, EP_OUT, command, dest_filename_length+6,
+    rc = usb_bulk_write(akai_dev->dev, EP_OUT, command, command_len,
             timeout);
 
     if (rc < 0) {
+        free(command);
         return AKSY_TRANSMISSION_ERROR;
     }
 
@@ -895,6 +927,8 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
     fp = fopen(src_filename, "rb");
 
     if (!fp) {
+        free(command);
+        free(reply_buf);
         return AKSY_FILE_READ_ERROR;;
     }
 
@@ -927,7 +961,12 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
         } else if (rc == 8) {
             blocksize = GET_BLOCK_SIZE(reply_buf);
             if (blocksize > init_blocksize) {
-                buf = realloc(buf, blocksize * sizeof(char));
+               tmp = realloc(buf, blocksize * sizeof(char));
+               if (tmp != NULL) {
+                  buf = tmp;
+               } else {
+                  /* exit ? */
+               }
             }
             transferred = GET_BYTES_TRANSFERRED(reply_buf);
             log_debug("blocksize: %i\n", blocksize);
@@ -940,7 +979,8 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
         } else if (rc == 5) {
             break; // finished TODO: check contents of buffer...
         }
-
+        // seek to the position in the file for the next block of data
+        // could be duplicated depending on what the amount transferred return
         fseek(fp, transferred, 0);
         bytes_read = fread(buf, sizeof(char), blocksize, fp);
 
@@ -967,6 +1007,7 @@ int aksyxusb_device_put(const akai_usb_device akai_dev, char *src_filename,
     fclose(fp);
     free(reply_buf);
     free(buf);
+    free(command);
 
     if (!retval) {
         print_transfer_stats(tdelta, filesize);
