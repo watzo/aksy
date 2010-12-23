@@ -14,12 +14,12 @@ import aksy.devices.akai.sysex_types
 class Multitools:
     def __init__(self, s56k):
         self.sampler = s56k
-        self.rename_cmd = Command('^', '\x0c\x30', 'multitools', 'rename', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_no_items_cmd = Command('^', '\x0c\x40', 'multitools', 'get_no_items', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_curr_handle_cmd = Command('^', '\x0c\x42', 'multitools', 'get_curr_handle', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_curr_name_cmd = Command('^', '\x0c\x43', 'multitools', 'get_curr_name', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_names_cmd = Command('^', '\x0c\x51', 'multitools', 'get_names', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_curr_by_handle_cmd = Command('^', '\x0c\x06', 'multitools', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.WORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.rename_cmd = Command('^', '\x0c\x30', 'multitools', 'rename', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_no_items_cmd = Command('^', '\x0c\x40', 'multitools', 'get_no_items', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_curr_handle_cmd = Command('^', '\x0c\x42', 'multitools', 'get_curr_handle', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_curr_name_cmd = Command('^', '\x0c\x43', 'multitools', 'get_curr_name', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_names_cmd = Command('^', '\x0c\x51', 'multitools', 'get_names', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_curr_by_handle_cmd = Command('^', '\x0c\x06', 'multitools', 'set_curr_by_handle', (aksy.devices.akai.sysex_types.CWORD,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_curr_by_name_cmd = Command('^', '\x0c\x05', 'multitools', 'set_curr_by_name', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_all_cmd = Command('^', '\x0c\x07', 'multitools', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_curr_cmd = Command('^', '\x0c\x08', 'multitools', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -80,4 +80,16 @@ class Multitools:
         """Delete current item from memory
         """
         return self.sampler.execute(self.delete_curr_cmd, ())
+
+    def get_handles_names(self):
+        """Get list of multi handles and names
+
+        Returns:
+            HANDLENAMEARRAY
+        """
+        handle_names = []
+        names = self.get_names()
+        for i in range(len(names)):
+            handle_names.extend([i, names[i]])
+        return handle_names
 

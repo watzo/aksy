@@ -21,18 +21,19 @@ class Programtools:
         self.delete_all_cmd = Command('^', '\x0a\x07', 'programtools', 'delete_all', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_curr_cmd = Command('^', '\x0a\x08', 'programtools', 'delete_curr', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.rename_curr_cmd = Command('^', '\x0a\x09', 'programtools', 'rename_curr', (aksy.devices.akai.sysex_types.STRING,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_program_no_cmd = Command('^', '\x0a\x0A', 'programtools', 'set_program_no', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_program_no_cmd = Command('^', '\x0a\x0A', 'programtools', 'set_program_no', (aksy.devices.akai.sysex_types.BOOL,aksy.devices.akai.sysex_types.BYTE), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.add_keygroups_cmd = Command('^', '\x0a\x0B', 'programtools', 'add_keygroups', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.delete_keygroup_cmd = Command('^', '\x0a\x0C', 'programtools', 'delete_keygroup', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.set_keygroup_xfade_cmd = Command('^', '\x0a\x0D', 'programtools', 'set_keygroup_xfade', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_no_items_cmd = Command('^', '\x0a\x10', 'programtools', 'get_no_items', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_program_no_cmd = Command('^', '\x0a\x11', 'programtools', 'get_program_no', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_index_cmd = Command('^', '\x0a\x12', 'programtools', 'get_index', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_name_cmd = Command('^', '\x0a\x13', 'programtools', 'get_name', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_no_keygroups_cmd = Command('^', '\x0a\x14', 'programtools', 'get_no_keygroups', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_keygroup_xfade_cmd = Command('^', '\x0a\x15', 'programtools', 'get_keygroup_xfade', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_program_numbers_cmd = Command('^', '\x0a\x18', 'programtools', 'get_program_numbers', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
-        self.get_names_cmd = Command('^', '\x0a\x19', 'programtools', 'get_names', (), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.set_keygroup_xfade_cmd = Command('^', '\x0a\x0D', 'programtools', 'set_keygroup_xfade', (aksy.devices.akai.sysex_types.BOOL,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_no_items_cmd = Command('^', '\x0a\x10', 'programtools', 'get_no_items', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_program_no_cmd = Command('^', '\x0a\x11', 'programtools', 'get_program_no', (), (aksy.devices.akai.sysex_types.BOOL,aksy.devices.akai.sysex_types.BYTE), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_index_cmd = Command('^', '\x0a\x12', 'programtools', 'get_index', (), (aksy.devices.akai.sysex_types.CWORD,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_name_cmd = Command('^', '\x0a\x13', 'programtools', 'get_name', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_no_keygroups_cmd = Command('^', '\x0a\x14', 'programtools', 'get_no_keygroups', (), (aksy.devices.akai.sysex_types.BYTE), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_keygroup_xfade_cmd = Command('^', '\x0a\x15', 'programtools', 'get_keygroup_xfade', (), (aksy.devices.akai.sysex_types.BOOL), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_program_numbers_cmd = Command('^', '\x0a\x18', 'programtools', 'get_program_numbers', (), (aksy.devices.akai.sysex_types.BOOL,aksy.devices.akai.sysex_types.BYTE), aksy.devices.akai.sysex_types.S56K_USERREF)
+        self.get_names_cmd = Command('^', '\x0a\x19', 'programtools', 'get_names', (), (aksy.devices.akai.sysex_types.STRINGARRAY,), aksy.devices.akai.sysex_types.S56K_USERREF)
+        
         self.set_loudness_cmd = Command('^', '\x0a\x20', 'programtools', 'set_loudness', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_velocity_sens_cmd = Command('^', '\x0a\x21', 'programtools', 'set_velocity_sens', (aksy.devices.akai.sysex_types.SBYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
         self.set_amp_modulation_source_cmd = Command('^', '\x0a\x22', 'programtools', 'set_amp_modulation_source', (aksy.devices.akai.sysex_types.BYTE,), (), aksy.devices.akai.sysex_types.S56K_USERREF)
@@ -130,10 +131,10 @@ class Programtools:
         """
         return self.sampler.execute(self.rename_curr_cmd, (arg0, ))
 
-    def set_program_no(self, arg0):
+    def set_program_no(self, arg0, arg1=0):  # arg1 is optional if arg=0?
         """Set Program Number. <Data1>=1).
         """
-        return self.sampler.execute(self.set_program_no_cmd, (arg0, ))
+        return self.sampler.execute(self.set_program_no_cmd, (arg0, arg1))
 
     def add_keygroups(self, arg0):
         """Add Keygroups to Program <Data1> = Number of Keygroups to add.
@@ -612,4 +613,16 @@ class Programtools:
             BYTE
         """
         return self.sampler.execute(self.get_filter_modulation_source_cmd, (arg0, ))
+
+    def get_handles_names(self):
+        """Get list of program handles and names
+
+        Returns:
+            HANDLENAMEARRAY
+        """
+        handle_names = []
+        names = self.get_names()
+        for i in range(len(names)):
+            handle_names.extend([i, names[i]])
+        return handle_names
 

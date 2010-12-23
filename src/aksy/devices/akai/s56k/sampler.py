@@ -1,35 +1,39 @@
-import struct
-import os.path
-import sys
+import logging
 
 import sysextools, disktools, programtools, sampletools, multitools, songtools
 from aksy.devices.akai.sampler import Sampler
-from aksy.devices.akai import sysex
+#from aksy.devices.akai import sysex
 from aksy.devices.akai import model
+
+log = logging.getLogger("aksy")
 
 class S56K(Sampler):
     """S56K
     """
-    def __init__(self, debug=1):
-        Sampler.__init__(self, Sampler.S56K, debug)
-        # TODO: remove duplication
+    def __init__(self, connector):
+        Sampler.__init__(self, connector)
+        self.setup_tools()
 
-        self.disktools = disktools.Disktools(self)
-        self.sysextools = sysextools.Sysextools(self)
-        self.programtools = programtools.Programtools(self)
-        self.sampletools = sampletools.Sampletools(self)
-        self.songtools = songtools.Songtools(self)
-        self.multitools = multitools.Multitools(self)
+        self.sysextools.enable_msg_notification(False)
+        self.sysextools.enable_item_sync(False)
+        
+        self.setup_model()
 
+    def setup_tools(self):
+        self.disktools = disktools.Disktools(self.connector)
+        self.programtools = programtools.Programtools(self.connector)
+        self.sampletools = sampletools.Sampletools(self.connector)
+        self.songtools = songtools.Songtools(self.connector)
+        self.multitools = multitools.Multitools(self.connector)
+        self.sysextools = sysextools.Sysextools(self.connector)
+
+    def setup_model(self):
         model.register_handlers({model.Disk: self.disktools,
                         model.FileRef: self.disktools,
                         model.Program: self.programtools,
                         model.Sample: self.sampletools,
                         model.Multi: self.multitools, 
                         model.Song: self.songtools})
-        
-        self.sysextools.enable_msg_notification(False)
-        self.sysextools.enable_item_sync(False)
         
         self.disks = model.RootDisk('disks', self.disktools.get_disklist())
         self.memory = model.Memory('memory')
