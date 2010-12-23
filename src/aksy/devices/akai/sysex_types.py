@@ -434,6 +434,14 @@ class DiskType(CompositeType):
             BYTE, BYTE,
             BYTE, STRING,))
 
+class S56kDiskType(CompositeType):
+    def __init__(self):
+        super(S56kDiskType, self).__init__((
+            CWORD, BYTE,
+            BYTE, BYTE,
+            BYTE, STRING,))
+
+
 class DisklistType(object):
     def __init__(self):
         self.size = None
@@ -446,6 +454,20 @@ class DisklistType(object):
             result.append(val)
             index += length
         return index, tuple(result)
+
+class S56kDisklistType(object):
+    def __init__(self):
+        self.size = None
+
+    def decode(self, string):
+        result = []
+        index = 0
+        while string[index] != END_SYSEX:
+            length, val = S56KDISK.decode(string[index:])
+            result.append(val)
+            index += length
+        return index, tuple(result)
+
 
 def parse_byte_string(data, sysex_type, offset=0):
     """ Parses a byte string
@@ -572,6 +594,8 @@ LEVEL       = SoundLevelType()
 # Composite types
 DISK        = DiskType()
 DISKLIST    = DisklistType()
+S56KDISK        = S56kDiskType()
+S56KDISKLIST    = S56kDisklistType()
 TYPED_COMPOSITE = TypedCompositeType()
 HANDLENAMEARRAY = HandleNameArrayType()
 NAMESIZEARRAY = NameSizeArrayType()
