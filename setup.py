@@ -1,10 +1,8 @@
-#!/usr/bin/python
 """Aksy setup module
 """
-import ez_setup
-ez_setup.use_setuptools()
 
-from setuptools import setup
+from distutils.core import setup
+
 from distutils.core import Extension
 from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
@@ -37,14 +35,15 @@ def customize_for_platform(ext, compiler_type):
         ext.libraries.append("mingw32")
         ext.library_dirs =[os.path.join(libusb_base_dir, "lib", "gcc")]
     
-    # Unix flavours
-    if platform.system() == "Darwin":
-        ext.extra_link_args = ["-framework CoreFoundation IOKit"]
-
+    # Unix flavours 
     if compiler_type == "unix":
-        libusb_base_dir = "/usr/local"
-        ext.library_dirs = [os.path.join(libusb_base_dir, "lib")]
+        libusb_base_dir = "/usr/local/libusb-1.0"
         
+    if platform.system() == "Darwin":
+	libusb_base_dir = "/usr/local/Cellar/libusb-compat/0.1.5_1/"
+        # ext.extra_link_args = ["-framework CoreFoundation IOKit"]
+
+    ext.library_dirs = [os.path.join(libusb_base_dir, "lib")]
     ext.include_dirs = [os.path.join(libusb_base_dir, "include")]
 
 class build_akyx(build_ext):
