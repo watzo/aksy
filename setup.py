@@ -1,8 +1,7 @@
 """Aksy setup module
 """
 
-import setuptools
-from distutils.core import setup
+from setuptools import setup
 from distutils.core import Extension
 from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
