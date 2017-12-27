@@ -30,7 +30,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            apt-get update; sudo apt-get install
+            sudo apt-get update; sudo apt-get install
             virtualenv buildenv
             ./buildenv/bin/pip install -r requirements.txt
 
