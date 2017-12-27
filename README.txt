@@ -1,6 +1,6 @@
 1. Introduction
 
-Originally conceived as a competitive cross-platform Ak.Sys, its author got
+Originally conceived as a competitive cross-platform Ak.Sys, its author, Walco van Loon, got
 realistic after a while - re-conceiving it as a complementary product for
 Ak.Sys, focussing on batch functionality and scripting. Currently, it supports
 ~500 sysex functions and file transfers on the Z-Series/MPC4000 and some
@@ -9,6 +9,11 @@ the S56K.
 
 With Aksui included from 0.3 and onwards, the original goal of Aksy comes in
 site again. Stay tuned.
+
+And of 2017, this library seems to fulfill its promise: it still compiles and installs 
+on modern 64 bit systems, thanks to the stability of libusb and python.
+
+Python 2.7 is now supported. Python 3 support is looked into.
 
 2. Usage
 

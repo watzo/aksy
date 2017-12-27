@@ -1,14 +1,14 @@
 """Aksy setup module
 """
 
+import setuptools
 from distutils.core import setup
-
 from distutils.core import Extension
 from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
 import platform, os.path, sys
 
-version = "0.3" 
+version = "0.4" 
 
 # macros= [("_DEBUG", 0), ("AKSY_DEBUG", "1")]
 macros= [("AKSY_DEBUG", 0)]
@@ -65,7 +65,7 @@ all_packages = []
 all_packages.extend(aksy_packages)
 all_packages.extend(aksui_packages)
 
-base_url = "http://walco.n--tree.net"
+base_url = "https://github.com/watzo/aksy"
 
 classifiers = """\
 Development Status :: 3 - Alpha
@@ -106,7 +106,7 @@ setup(
             'aksy-put = aksy.console.put:main',
             'aksy-fs = aksyfs.aksyfuse:main [FUSE-PYTHON]',
             'aksy-ftpd = aksyfs.ftpd:main [PYFTPDLIB]',
-            'aksy-ui = aksui.main:main',
+            'aksy-ui = aksui.main:main [PYGTK]',
         ],
         'gui_scripts': [
             'aksy-ui = aksui.main:main',
@@ -123,7 +123,8 @@ setup(
       },
       extras_require = {
         'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
-        'PYFTPDLIB' : ["pyftpdlib >= 0.2"]
+        'PYFTPDLIB' : ["pyftpdlib >= 0.2"],
+        'PYGTK' : ["pygtk"]
       },
       test_suite = "tests"
 )
