@@ -3,6 +3,11 @@
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
 version: 2
+
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install libusb-dev
+
 jobs:
   build:
     docker:
