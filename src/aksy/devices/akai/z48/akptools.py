@@ -846,6 +846,6 @@ if __name__ == "__main__":
     for s in range(no_samples):
        samples.append(struct.pack('<h', math.sin(freq * s * 2 * math.pi) * amp))
     samples = ''.join(samples)
-    as = Sample('test', 91, samplerate, loops, samples)
-    as.writefile()
+    sample = Sample('test', 91, samplerate, loops, samples)
+    sample.writefile()
 

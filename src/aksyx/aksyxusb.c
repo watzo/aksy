@@ -7,10 +7,6 @@
 #include <stdarg.h>
 
 /* work around the issue that _POSIX_SOURCE is not defined in python builds on Tiger */  
-#if defined(macosx) || defined(__APPLE__) && defined(__MACH__)
-#define MACOSX
-#endif
-
 #if defined(_POSIX_SOURCE) || defined(MACOSX)
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -40,7 +36,7 @@ static inline int is_sysex_reply_ok(char* sysex_reply, int sysex_reply_length) {
     return sysex_reply[index] == SYSEX_OK;
 }
 
-static void print_transfer_stats(int timedelta, long filesize) {
+static void print_transfer_stats(long timedelta, long filesize) {
     float elapsed, kbps;
     // get elapsed time in seconds.
     elapsed = timedelta/1000.0f;
@@ -522,7 +518,7 @@ int z48_get_handle_by_name(akai_usb_device akai_dev, const char* name,
     char *cmd_id;
     struct byte_array basename, resp_data;
     int retval, tmp_handle = 0;
-    basename.length = strlen(name) - 3; // exclude extension, include terminator
+    basename.length = (int)strlen(name) - 3; // exclude extension, include terminator
     resp_data.length = 5;
 
     if (basename.length <= 0) {
@@ -572,7 +568,7 @@ int s56k_get_handle_by_name(akai_usb_device akai_dev, const char* name,
 
     int retval;
     short tmp_handle;
-    basename.length = strlen(name) - 3;
+    basename.length = (int)strlen(name) - 3;
     /* s56k handles only use 2 bytes */
     handle->length = 2;
     handle->bytes = (char*)realloc(handle->bytes, 2);
@@ -640,7 +636,7 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
     char* data;
     int blocksize = 4096*4, rc = 0, read_transfer_status = 0;
     unsigned long filesize, bytes_transferred = 0, actually_transferred = 0,
-            tdelta, file_written;
+            tdelta = 0, file_written;
 #if defined(_POSIX_SOURCE) || defined(MACOSX)
     struct timeval tv1, tv2;
 #endif
@@ -758,7 +754,8 @@ int aksyxusb_device_exec_get_request(akai_usb_device akai_dev,
 int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
         char *dest_filename, const int location, int* sysex_error,
         const int timeout) {
-    int rc = 0, src_filename_length = strlen(src_filename) + 1;
+    int rc = 0; 
+    int src_filename_length = (int)strlen(src_filename) + 1;
     struct byte_array get_request, handle;
 
     /* create get request */
@@ -813,10 +810,10 @@ int aksyxusb_device_get(const akai_usb_device akai_dev, char *src_filename,
 int aksyxusb_device_put(const akai_usb_device akai_dev, const char *src_filename,
         const char *dest_filename, const int location, const int timeout) {
     char *buf, *command, *reply_buf, *tmp;
-    unsigned long filesize = 0, transferred = 0, tdelta;
+    unsigned long filesize = 0, transferred = 0, tdelta = 0;
     int rc, retval = 0, blocksize = 0, init_blocksize = 4096 * 8,
             bytes_read = 0, command_len = 0;
-    int dest_filename_length = strlen(dest_filename) + 1;
+    int dest_filename_length = (int)strlen(dest_filename) + 1;
     FILE* fp;
 
 #if defined(_POSIX_SOURCE) || defined(MACOSX)
