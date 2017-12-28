@@ -48,6 +48,7 @@ jobs:
           name: run tests
           command: |
             ./buildenv/bin/python scripts/runtests.py
+            ./buildenv/bin/py.test --cov=aksy src/tests/*/tests
 
       - store_artifacts:
           path: test-reports
