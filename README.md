@@ -1,4 +1,6 @@
-1. Introduction
+# Aksy - take control of your AKAI sampler
+
+## Introduction
 
 Originally conceived as a competitive cross-platform Ak.Sys, its author, Walco van Loon, got
 realistic after a while - re-conceiving it as a complementary product for
@@ -15,10 +17,10 @@ on modern 64 bit systems, thanks to the stability of libusb and python.
 
 Python 2.7 is now supported. Python 3 support is looked into.
 
-2. Usage
+## Usage
 
 Some simple examples:
-
+```
 from aksy.device import Devices
 # initializes the sampler
 sampler = Devices.get_instance('z48','usb')
@@ -31,9 +33,11 @@ sampler.transfertools.put("Pulse.wav")
 
 # returns the number of disks
 sampler.disktools.get_no_disks()
+```
 
 Besides disktools, the following modules are available for the Z-series:
 
+```
 multitools
 songtools
 programtools
@@ -46,13 +50,16 @@ multifxtools
 frontpaneltools
 sysextools
 transfertools # wrapper around aksy extensions
+```
 
 See the examples/ directory for more interesting examples.
 For an overview of the functions in a module, run pydoc:
 
+```
 pydoc src/aksy/devices/akai/z48/systemtools.py
+```
 
-3. Known issues and limitations in this release
+## Known issues and limitations in this release
 
 3a. General
 
@@ -76,7 +83,7 @@ pydoc src/aksy/devices/akai/z48/systemtools.py
 * if more than eight programtools.get_modulation_connection_cmd commands are
   specified as an alternative operation, the system exclusive request times out.
 
-4. Debugging and troubleshooting
+## Debugging and troubleshooting
 
 Setting the USB_DEBUG environment variable can help to obtain more info from
 the low level usb communication.
@@ -94,7 +101,7 @@ permissions script (install in /usr/bin/set-permissions).
 FUSE needs the string 'user_allow_other' in /etc/fuse.conf to be able to mount
 as non-root user.
 
-5. Developing
+## Developing
 
 src/aksyx/
 
