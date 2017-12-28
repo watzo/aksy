@@ -1,5 +1,7 @@
 # Aksy - take control of your AKAI sampler
 
+[![CircleCI](https://circleci.com/gh/watzo/aksy/tree/master.svg?style=shield&circle-token=68a082bd4325d4b3b2d450a10a3c084ae8927608)](https://circleci.com/gh/watzo/aksy/tree/master)
+
 ## Introduction
 
 Originally conceived as a competitive cross-platform Ak.Sys, its author, Walco van Loon, got
