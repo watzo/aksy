@@ -13,7 +13,7 @@ version = "0.4"
 macros= [("AKSY_DEBUG", 0)]
 
 def install_requires():
-    deps = ["pyftpdlib >= 0.2"]
+    deps = ["pyftpdlib >= 0.2,<=1.0"]
     if not platform.system() == "Windows":
 	deps.append("fuse-python >= 0.2pre3")
     return deps
@@ -122,7 +122,7 @@ setup(
       },
       extras_require = {
         'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
-        'PYFTPDLIB' : ["pyftpdlib >= 0.2"],
+        'PYFTPDLIB' : ["pyftpdlib >= 0.2,<=1.0"],
         'PYGTK' : ["pygtk"]
       },
       test_suite = "tests"
