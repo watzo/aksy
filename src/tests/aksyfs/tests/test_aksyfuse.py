@@ -134,7 +134,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
     def test_mknod_write(self):
         path = '/memory/Sample100.wav'
         self.fs.mknod(path, 0, 'ignored')
-        afile = aksyfuse.AksyFile('/memory/Sample100.wav', os.O_WRONLY|S_IRUSR)
+        afile = aksyfuse.AksyFile('/memory/Sample100.wav', os.O_WRONLY|S_IRUSR|os.O_CREAT)
         afile.write('abc', 0)
         afile.release('ignored')
         written = os.open(common._create_cache_path(path), os.O_RDONLY)

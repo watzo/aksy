@@ -1,6 +1,13 @@
 language: python
+addons:
+  apt:
+    packages:
+      - libusb-dev
+      - libfuse-dev
+
 python:
   - '2.7'
 
 script:
-  - python scripts/runtests.py 
+  - ./build.sh
+  - ./buildenv/bin/python scripts/runtests.py 
