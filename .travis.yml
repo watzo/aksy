@@ -3,6 +3,7 @@ addons:
   apt:
     packages:
       - libusb-dev
+      - libfuse-dev
 
 python:
   - '2.7'
