@@ -34,6 +34,12 @@ AksyFS:
 
 2. INSTALLATION
 
+Prerequisites on MacOSX:
+* brew install libusb-compat pygtk libfuse-dev libglade
+
+Prerequisites on Ubuntu:
+* apt-get install libusb-compat pygtk libfuse-dev libfuse-dev libusb-dev
+
 To install the aksy python modules and the aksyxusb extension, run the
 following commands in a terminal window: 
 
