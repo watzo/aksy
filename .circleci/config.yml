@@ -31,7 +31,7 @@ jobs:
       - checkout
       - run:
           name: Install prerequisites
-          command: sudo apt-get update && sudo apt-get install libusb-dev libusb
+          command: sudo apt-get update && sudo apt-get install libusb-dev libusb-0.1-4
       - run:
           name: Build and install
           command: python setup.py install
