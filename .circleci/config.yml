@@ -31,7 +31,7 @@ jobs:
       - checkout
       - run:
           name: Install prerequisites
-          command: sudo apt-get update && sudo apt-get install libusb-compat-0.1
+          command: sudo apt-get update && sudo apt-get install libusb-dev libusb
       - run:
           name: Build and install
           command: python setup.py install
