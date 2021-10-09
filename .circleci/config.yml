@@ -30,6 +30,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install prerequisites
+          command: apt-get update && apt-get install libusb-compat-0.1
+      - run:
           name: Build and install
           command: python setup.py install
           # app-dir: ~/project/package-directory/  # If you're requirements.txt isn't in the root directory.
