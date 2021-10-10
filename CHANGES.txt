@@ -1,5 +1,6 @@
 Aksy changes
-	svn trunk
+	0.4
+	    * Fixes to use Python2.7 and build on modern OSes.
  
     0.3 
 		* First release with Aksui (ak.Sys-like UI)
