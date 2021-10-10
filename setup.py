@@ -87,7 +87,7 @@ setup(
       dependency_links = [base_url + "/aksy/dependencies/"],
       version = version,
       author = "Walco van Loon", 
-      author_email = "walco at n--tree.net", 
+      author_email = "walco+aksy@pitchdark.org", 
       description = "Control S5000/S6000, Z4/Z8 and MPC4000 Akai sampler models with System Exclusive over USB",
       license = "GPL",
       classifiers = filter(None, classifiers.split("\n")),
