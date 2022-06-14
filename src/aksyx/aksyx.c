@@ -199,7 +199,7 @@ static PyObject* AkaiSampler_execute(AkaiSampler* self, PyObject* args) {
     const int BUFF_SIZE = 8192;
     int bytes_read = 0, rc;
 
-    if (!PyArg_ParseTuple(args, "s#", &sysex.bytes, &sysex.length)) {
+    if (!PyArg_ParseTuple(args, "y#", &sysex.bytes, &sysex.length)) {
         return NULL;
     }
 
@@ -220,7 +220,7 @@ static PyObject* AkaiSampler_execute(AkaiSampler* self, PyObject* args) {
     if (rc == AKSY_TRANSMISSION_ERROR) {
         ret = PyErr_Format(USBException, "Timeout waiting for sysex reply.");
     } else {
-        ret = Py_BuildValue("s#", buffer.bytes, bytes_read);
+        ret = Py_BuildValue("y#", buffer.bytes, bytes_read);
     }
 
     free(buffer.bytes);
@@ -250,8 +250,7 @@ static PyMethodDef
 };
 
 static PyTypeObject aksyx_AkaiSamplerType = {
-PyObject_HEAD_INIT(NULL)
-0, /*ob_size*/
+PyVarObject_HEAD_INIT(NULL, 0)
 "aksyx.AkaiSampler", /*tp_name*/
 sizeof(AkaiSampler), /*tp_basicsize*/
 0, /*tp_itemsize*/
@@ -294,10 +293,19 @@ NULL, /* tp_new is set on module init to prevent
 
 static PyMethodDef aksyx_methods[] = { { NULL } };
 
+static struct PyModuleDef aksyx =
+{
+    PyModuleDef_HEAD_INIT,
+    "aksyx",
+    "Aksy USB Extension.",
+    -1,   /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
+    aksyx_methods
+};
+
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
-PyMODINIT_FUNC initaksyx(void) {
+PyMODINIT_FUNC PyInit_aksyx(void) {
     PyObject* m;
     PyObject* loc_disk_id;
     PyObject* loc_mem_id;
@@ -307,10 +315,13 @@ PyMODINIT_FUNC initaksyx(void) {
 
     aksyx_AkaiSamplerType.tp_new = PyType_GenericNew;
 
-    if (PyType_Ready(&aksyx_AkaiSamplerType) < 0)
-    return;
+    if (PyType_Ready(&aksyx_AkaiSamplerType) < 0) {
+        return NULL;
+    }
+
     Py_INCREF(&aksyx_AkaiSamplerType);
-    m = Py_InitModule3("aksyx", aksyx_methods, "Aksy USB Extension.");
+
+    m =  PyModule_Create(&aksyx);
 
     loc_disk_id = Py_BuildValue("i", LOC_DISK);
     loc_mem_id = Py_BuildValue("i", LOC_MEMORY);
@@ -346,4 +357,6 @@ PyMODINIT_FUNC initaksyx(void) {
     PyModule_AddObject(m, "USBException", USBException);
 
     PyModule_AddObject(m, "AkaiSampler", (PyObject *)&aksyx_AkaiSamplerType);
+
+    return m;
 }
