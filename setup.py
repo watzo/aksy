@@ -13,9 +13,9 @@ version = "0.4"
 macros= [("AKSY_DEBUG", 0)]
 
 def install_requires():
-    deps = ["pyftpdlib == 0.3"]
+    deps = ["pyftpdlib == 1.5.6"]
     if not platform.system() == "Windows":
-	deps.append("fuse-python >= 0.2pre3")
+        deps.append("fuse-python >= 0.2pre3")
     return deps
 
 def customize_for_platform(ext, compiler_type):
@@ -39,7 +39,7 @@ def customize_for_platform(ext, compiler_type):
         libusb_base_dir = "/usr/local/libusb-1.0"
         
     if platform.system() == "Darwin":
-	libusb_base_dir = "/usr/local/Cellar/libusb-compat/0.1.5_1/"
+        libusb_base_dir = "/usr/local/Cellar/libusb-compat/0.1.5_1/"
         # ext.extra_link_args = ["-framework CoreFoundation IOKit"]
 
     ext.library_dirs = [os.path.join(libusb_base_dir, "lib")]
@@ -90,7 +90,7 @@ setup(
       author_email = "walco+aksy@pitchdark.org", 
       description = "Control S5000/S6000, Z4/Z8 and MPC4000 Akai sampler models with System Exclusive over USB",
       license = "GPL",
-      classifiers = filter(None, classifiers.split("\n")),
+      classifiers = [_f for _f in classifiers.split("\n") if _f],
       package_dir = {"": "src"}, 
       packages = all_packages, 
       package_data = {"aksui": ["ak.py.glade"]},
@@ -122,7 +122,7 @@ setup(
       },
       extras_require = {
         'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
-        'PYFTPDLIB' : ["pyftpdlib == 0.3"],
+        'PYFTPDLIB' : ["pyftpdlib == 1.5.6"],
         'PYGTK' : ["pygtk"]
       },
       test_suite = "tests"

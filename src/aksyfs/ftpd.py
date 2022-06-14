@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from pyftpdlib import ftpserver
+from pyftpdlib import filesystems
 from aksyfs import common
 from aksy.config import create_option_parser
 from aksy.device import Devices
@@ -11,7 +11,7 @@ import os, time, errno
 import logging
 LOG = logging.getLogger("aksy.aksyfs.ftpd")
 
-class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
+class AksyFtpFS(common.AksyFS, filesystems.AbstractedFS):
     def __call__(self):
         return AksyFtpFS(self.sampler)
 
@@ -95,6 +95,7 @@ class AksyFtpFS(common.AksyFS, ftpserver.AbstractedFS):
         Unlike glob.glob1 raises an exception if os.listdir() fails.
         """
         names = self.listdir(dirname)
+        # TODO: check whether correct
         if pattern[0] != '.':
             names = [x for x in names if x[0] != '.']
         return fnmatch.filter(names, pattern)
