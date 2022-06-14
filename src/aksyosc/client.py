@@ -2,17 +2,17 @@
 
 import socket
 from aksyosc.osc import OSCMessage, decodeOSC
-from oscoptions import create_option_parser
+from .oscoptions import create_option_parser
 
 def snd_recv(cmd):
     m = OSCMessage()
     m.setAddress(cmd)
     s.sendall(m.getBinary())
-    print decodeOSC(s.recv(8192))
+    print(decodeOSC(s.recv(8192)))
 
 def show_banner():
-    print "Aksyosc\n * Enter an osc address at the prompt,\
- e.g. '/systemtools/get_sampler_name'\n * Use 'quit' to exit"
+    print("Aksyosc\n * Enter an osc address at the prompt,\
+ e.g. '/systemtools/get_sampler_name'\n * Use 'quit' to exit")
 
 if __name__ == "__main__":
     parser = create_option_parser()
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     show_banner()
     try:
         while 1:
-            cmd = raw_input("aksyosc> ")
+            cmd = input("aksyosc> ")
             if not cmd:
                 continue
             if cmd == 'quit':

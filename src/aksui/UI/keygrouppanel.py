@@ -1,6 +1,6 @@
 import gtk
 
-import panelbase, rangewidget
+from . import panelbase, rangewidget
 
 class KeygroupPanel(panelbase.PanelBase):
     def __init__(self, kg, cb):
@@ -8,7 +8,7 @@ class KeygroupPanel(panelbase.PanelBase):
         
     def setup(self, kg):
         self.clear_children(True)
-        print kg.index
+        print(kg.index)
         
         self.kg = kg
         self.s = kg.s

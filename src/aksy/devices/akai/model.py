@@ -38,7 +38,9 @@ class Container(object):
         return None
 
 class Disk(Container):
-    def __init__(self, (handle, disk_type, format, scsi_id, writable, name)):
+    # TODO use tuple unpacking at call site
+    def __init__(self, xxx_todo_changeme):
+        (handle, disk_type, format, scsi_id, writable, name) = xxx_todo_changeme
         self._handle = handle
         # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
         self._disk_type = disk_type

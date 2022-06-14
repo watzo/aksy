@@ -1,7 +1,7 @@
 import gtk
 
-import base, editors, keygrouppanel, zonepanel, modmatrix, filterpanel, lfopanel
-import keygroupenvelope
+from . import base, editors, keygrouppanel, zonepanel, modmatrix, filterpanel, lfopanel
+from . import keygroupenvelope
 
 from aksui.ak import keygroup
 

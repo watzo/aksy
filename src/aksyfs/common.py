@@ -45,7 +45,7 @@ class StatInfo(object):
 
 class DirStatInfo(StatInfo):   
     def __init__(self, writable=False, child_count=1):
-        StatInfo.__init__(self, stat.S_IFDIR|stat.S_IEXEC, 4096L)
+        StatInfo.__init__(self, stat.S_IFDIR|stat.S_IEXEC, 4096)
         self.st_nlink = child_count
 
 class FileStatInfo(StatInfo):
@@ -117,7 +117,7 @@ class AksyFile(object):
         if self.is_upload():
             try:
                 AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
-            except IOError, exc:
+            except IOError as exc:
                 # TODO: move to a method where we can raise exceptions
                 LOG.exception( "Exception occurred: %s", repr(exc))
         os.close(self.handle)

@@ -9,11 +9,11 @@ import aksy
 
 # our stuff
 
-from ak import *
-from ak.samplerobject import *
-from UI import *
+from .ak import *
+from .ak.samplerobject import *
+from .UI import *
 
-from utils import midiutils, modelutils
+from .utils import midiutils, modelutils
 
 from postmod.itx import *
 
@@ -222,7 +222,7 @@ class MainProgramsWindow(MainWindow):
             if type(so) is ak.zone:
                 so.set("sample", new_text)
         else:
-            print "cant find", path, "in dict"
+            print("cant find", path, "in dict")
         return 
 
     def on_textedit_changed(self, cell, path, new_text, user_data):
@@ -254,13 +254,13 @@ class MainProgramsWindow(MainWindow):
         setattr(s,'multis',multis)
 
         if len(s.samples) == 0:
-            print "No samples..."
+            print("No samples...")
 
         if len(s.programs) == 0:
-            print "No programs..."
+            print("No programs...")
 
         if len(s.multis) == 0:
-            print "No multis..."
+            print("No multis...")
 
         setattr(s,'samplesmodel', modelutils.get_model_from_list(s.samples))
         setattr(s,'programsmodel', modelutils.get_model_from_list(s.programs))

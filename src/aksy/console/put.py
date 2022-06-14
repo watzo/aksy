@@ -52,11 +52,11 @@ def main():
     z48 = Devices.get_instance(options.sampler_type, options.connector)    
     
     if options.programName is not None:
-        print 'Uploading files.'
+        print('Uploading files.')
         upload_files(z48, to_upload, filterProgram=options.programName)
     elif options.drumProgramName:
-        print 'Uploading files.'
-        print 'Building drum program.', options.drumProgramName
+        print('Uploading files.')
+        print('Building drum program.', options.drumProgramName)
         build_drum_program(z48, to_upload, options.drumProgramName)
         upload_files(z48, to_upload, filterProgram=options.drumProgramName)
     else:
@@ -84,7 +84,7 @@ def build_drum_program(z48, filelist, program_name):
     
     for name, midinote in keymap:
         kg = keygroup(p, midinote)
-        print midinote, name
+        print(midinote, name)
         kg.zones[0].set("sample", program_name + " " + name)
         kg.zones[0].set("playback", 1)
         kg.set("polyphony", 1)

@@ -38,7 +38,7 @@ class SamplerObject(object):
                 return str(pin.level)
             else:
                 return ""
-        elif attr in self.abbr.keys():
+        elif attr in list(self.abbr.keys()):
             return self.abbr[attr]
         else:
             return attr

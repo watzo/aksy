@@ -1,5 +1,5 @@
 from aksui.utils import modelutils
-import program
+from . import program
 
 class Programs:
     programtypes = {0:"Keygroup", 1:"Drum"}

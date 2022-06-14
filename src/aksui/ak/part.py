@@ -1,4 +1,4 @@
-import samplerobject
+from . import samplerobject
 
 class Part(samplerobject.SamplerObject):
     def __init__(self, s, m, index):

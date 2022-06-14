@@ -23,7 +23,7 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         self.fs.getattr('/memory')
         
     def test_translate(self):
-        self.assertEquals('/disks/Z48/!@#$%.wav', 
+        self.assertEqual('/disks/Z48/!@#$%.wav', 
                           self.fs.translate('/disks/Z48/!@#$%.wav'))
 
     def test_getattr(self):
@@ -44,8 +44,8 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
 
     def test_listdir_memory(self):
         memory = list(self.fs.listdir('/memory'))
-        self.assertEquals(102, len(memory))
-        self.assertEquals('Boo.wav', memory[0])
+        self.assertEqual(102, len(memory))
+        self.assertEqual('Boo.wav', memory[0])
 
     def test_getattr_memory_non_existing(self):
         self.assertRaises(OSError, self.fs.getattr, '/memory/subdir')
@@ -75,7 +75,7 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         self.assert_dirlist(('Choir','A Sample.AKP','Sample.wav'), children)
 
     def assert_dirlist(self, expected, actual):
-        self.assertEquals(tuple(expected), tuple(actual))
+        self.assertEqual(tuple(expected), tuple(actual))
             
     def test_mkdir_unsupported(self):
         self.assertRaises(OSError, self.fs.mkdir, '/memory/subdir')
@@ -92,7 +92,7 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         self.fs.mkdir(newdir)
         self.assert_dirlist(('test',), 
                           self.fs.listdir('/disks/Samples disk/Songs'))
-        self.assertNotEquals(None, self.fs.getattr(newdir))
+        self.assertNotEqual(None, self.fs.getattr(newdir))
 
     def test_open_disk(self):
         self.fs.getattr('/disks/Cdrom')
@@ -105,7 +105,7 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         f = self.fs.open('/memory/Sample100.wav', 'rb')
         try:
             read = f.read(4)
-            self.assertEquals('RIFF', read)
+            self.assertEqual('RIFF', read)
         finally:
             f.close()
 
@@ -116,7 +116,7 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         f.close()
         written = os.open(common._create_cache_path(path), os.O_RDONLY)
         try:
-            self.assertEquals('abc', os.read(written, 3))
+            self.assertEqual('abc', os.read(written, 3))
         finally:
             os.close(written)
 

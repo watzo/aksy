@@ -1,7 +1,7 @@
 import gtk
 import os.path
 
-import panelbase, rangewidget
+from . import panelbase, rangewidget
 from aksui.utils import midiutils
 
 class ZonePanel(panelbase.PanelBase):

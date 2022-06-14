@@ -19,7 +19,7 @@ class TestSampler(unittest.TestCase):
         sampler.get(filename, actualfilename)
         expected = open(fullpath, 'rb')
         actual = open(actualfilename, 'rb')
-        self.assertEquals(md5sum(expected), md5sum(actual))
+        self.assertEqual(md5sum(expected), md5sum(actual))
         expected.close()
         actual.close()
         os.remove(actualfilename)

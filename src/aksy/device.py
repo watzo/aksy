@@ -24,6 +24,6 @@ class Devices:
             else:
                 raise Exception("Unknown connector type ", connector_type)
             return _devices[device_id](connector, *args, **kwargs)
-        except KeyError, e:
+        except KeyError as e:
             raise Exception("Device %s not found" % e[0])
 

@@ -56,7 +56,7 @@ class AksyFile(fuse.FuseFileInfo):
         if self.is_upload():
             try:
                 AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
-            except IOError, exc:
+            except IOError as exc:
                 # TODO: move to a method where we can raise exceptions
                 LOG.exception( "Exception occurred: ", exc)
         os.close(self.handle)

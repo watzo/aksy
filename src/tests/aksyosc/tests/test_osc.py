@@ -5,52 +5,52 @@ class OSCMessageTest(TestCase):
     def testEncodeDecodeInt(self):
         m = OSCMessage()
         m.append(1)
-        self.assertEquals(['', ',i', 1], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',i', 1], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeString(self):
         m = OSCMessage()
         m.append("abc")
-        self.assertEquals(['', ',s', "abc"], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',s', "abc"], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeBinaryString(self):
         m = OSCMessage()
         m.append("\x00\x01\x02")
-        self.assertEquals(['', ',b', "\x00\x01\02"], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',b', "\x00\x01\02"], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeFloat(self):
         m = OSCMessage()
         m.append(1.0)
-        self.assertEquals(['', ',f', 1.0], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',f', 1.0], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeLong(self):
         m = OSCMessage()
-        m.append(1L)
-        self.assertEquals(['', ',h', 1L], decodeOSC(m.getBinary()))
+        m.append(1)
+        self.assertEqual(['', ',h', 1], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeTrue(self):
         m = OSCMessage()
         m.append(True)
-        self.assertEquals(['', ',T', True], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',T', True], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeFalse(self):
         m = OSCMessage()
         m.append(False)
-        self.assertEquals(['', ',F', False], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',F', False], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeNone(self):
         m = OSCMessage()
         m.append(None)
-        self.assertEquals(['', ',N', None], decodeOSC(m.getBinary()))
+        self.assertEqual(['', ',N', None], decodeOSC(m.getBinary()))
 
     def testEncodeDecodeIterable(self):
         m = OSCMessage()
-        m.append((False, (1L,)))
-        self.assertEquals(['', ',[F[h]]', [False, [1,],]], decodeOSC(m.getBinary()))
+        m.append((False, (1,)))
+        self.assertEqual(['', ',[F[h]]', [False, [1,],]], decodeOSC(m.getBinary()))
 
     def testAppendDecodeIterableEmpty(self):
         m = OSCMessage()
         m.append([])
-        self.assertEquals(['',',[]',[]], decodeOSC(m.getBinary()))
+        self.assertEqual(['',',[]',[]], decodeOSC(m.getBinary()))
 
     def testDecodeOSCArrayUnbalanced(self):
         self.assertRaises(OSCException, decodeOSC, '\x00\x00\x00\x00,[[]')

@@ -1,4 +1,4 @@
-import samplerobject
+from . import samplerobject
 
 class Zone(samplerobject.SamplerObject):
     def __init__(self, kg, index):

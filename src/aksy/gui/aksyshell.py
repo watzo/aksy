@@ -76,7 +76,7 @@ class Interpreter(py.interpreter.Interpreter):
 
     def getAutoCompleteList(self, command='', *args, **kw):
         clist = py.interpreter.Interpreter.getAutoCompleteList(self, command, args, kw)
-        print repr(clist)
+        print(repr(clist))
         return clist
 
 class AksyShell(wx.SplitterWindow):

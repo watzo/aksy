@@ -36,10 +36,10 @@ class SamplerCallbackManager(CallbackManager):
                 return self.dispatch_alt_request(message[2:])
             else:
                 return self.dispatch_command(address, message)
-        except AttributeError, e:
+        except AttributeError as e:
             LOG.exception("OSC message %s could not be dispatched", repr(message))
             return create_error_msg("Failed to execute command %s" % address, e)
-        except Exception, e:
+        except Exception as e:
             LOG.exception("Dispatch of %s failed", repr(message))
             return create_error_msg('Execution failed', e)
 

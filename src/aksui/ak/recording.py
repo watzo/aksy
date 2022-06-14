@@ -1,4 +1,4 @@
-import samplerobject
+from . import samplerobject
 
 from aksy import fileutils
 

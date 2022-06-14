@@ -1,5 +1,5 @@
 from aksui.ak import envelope
-import hitbox
+from . import hitbox
 
 import gtk
 

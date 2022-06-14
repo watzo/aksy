@@ -56,8 +56,8 @@ class Base(object):
                         spin.set_value(val)
                     elif hscale != None:
                         hscale.set_value(val)
-                except Exception, ex:
-                    print 'attr',attr,val,ex
+                except Exception as ex:
+                    print('attr',attr,val,ex)
 
             self.updating = False
 

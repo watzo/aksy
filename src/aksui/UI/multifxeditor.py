@@ -133,5 +133,5 @@ class MultiFXEditor(gtk.VBox):
                 self.channelWidgets[i] = MultiFXChannelEditor(self.mfx.channels[i])
                 self.pack_start(self.channelWidgets[i], expand=False, fill=False)
         else:
-            print "nop"
+            print("nop")
 

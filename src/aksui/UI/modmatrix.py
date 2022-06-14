@@ -1,6 +1,6 @@
 import gtk
 
-import panelbase, rangewidget
+from . import panelbase, rangewidget
 from aksui.ak import modulationmatrix
 
 """

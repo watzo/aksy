@@ -1,4 +1,4 @@
-import samplerobject, program, keygroup, modulationmatrix, modulationpin
+from . import samplerobject, program, keygroup, modulationmatrix, modulationpin
 
 class Program(samplerobject.SamplerObject):
     def __init__(self, s, name, handle = None):
@@ -18,7 +18,7 @@ class Program(samplerobject.SamplerObject):
         if self.name:
             self.s.programtools.set_curr_by_name(self.name)
         else:
-            print "No name..."
+            print("No name...")
             
         self.precache()
         
@@ -65,7 +65,7 @@ class Program(samplerobject.SamplerObject):
         
             for c in conns[0]:
                 if c.source > 0:
-                    print c.source, c.dest, c.level
+                    print(c.source, c.dest, c.level)
                     result.append("%d. %s => %s = %d" % (c.pin_index, modulationmatrix.ModulationMatrix.sources[c.source], modulationmatrix.ModulationMatrix.destinations[c.dest], c.level))
                 
         return '\n'.join(result)

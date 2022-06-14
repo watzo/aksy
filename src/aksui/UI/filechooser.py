@@ -1,6 +1,6 @@
-import os, os.path, urlparse
+import os, os.path, urllib.parse
 import gtk
-import urllib, thread 
+import urllib.request, urllib.parse, urllib.error, _thread 
 
 from aksy.devices.akai import fileparser, sampler
 from aksy import fileutils
@@ -12,7 +12,7 @@ from aksui.utils import modelutils
 try:
     from aksui.postmod import itx
 except ImportError:
-    print "postmod not available, no .it support"
+    print("postmod not available, no .it support")
     postmod_available = False
 
 def get_file_path_from_dnd_dropped_uri(uri):
@@ -26,7 +26,7 @@ def get_file_path_from_dnd_dropped_uri(uri):
     elif path.startswith('file:'): # xffm
         path = path[5:] # 5 is len('file:')
         
-    path = urllib.url2pathname(path) # escape special chars
+    path = urllib.request.url2pathname(path) # escape special chars
     return path
 
 def collect_files(args):
@@ -56,7 +56,7 @@ def find_file(basedir, candidates, samplename):
     raise IOError("Referenced sample '%s' not found in directory '%s'" % (samplename, basedir))
 
 def unwrap(func):
-    return lambda(data): func(data[2])
+    return lambda data: func(data[2])
 
 class FileChooser:
     def __init__(self, s):
@@ -129,7 +129,7 @@ class FileChooser:
         from aksui.utils import sox
         it = itx.ITX(fn)
 
-        print fn, "loaded! exporting..."
+        print(fn, "loaded! exporting...")
 
         exported_files = it.exportSamples("c:\\tmp") # TODO: change to configurable temp dir
 
@@ -196,12 +196,12 @@ class FileChooser:
             for uri in uris:
                 path = get_file_path_from_dnd_dropped_uri(uri)
                 if len(path):
-                    print 'path to open', path
+                    print('path to open', path)
                     if os.path.isfile(path): # is it file?
                         files.append(path)
             if len(files) > 0:
                 self.files = files
-                thread.start_new_thread(self.upload_files)
+                _thread.start_new_thread(self.upload_files)
                 
     def expand_it_files(self, files):
         if files:
@@ -211,7 +211,7 @@ class FileChooser:
                     additional_wavs.extend(self.import_from_it(file))
                 files.remove(file)
             files.extend(additional_wavs)
-            print files
+            print(files)
             return files
         else:
             return None

@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import os.path, sys
 from optparse import OptionParser
 
@@ -16,11 +16,11 @@ def get_value(config, default, prop_name):
     section_override = os.path.basename(sys.argv[0])
     try:
         return config.get(section_override, prop_name)
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+    except (configparser.NoSectionError, configparser.NoOptionError):
         return config.get(default, prop_name)
 
 def get_config(ini_file=os.path.expanduser('~/.aksy/aksy.ini')):
-    cfg = ConfigParser.ConfigParser(defaults={ 'port': '6575', 'host': 'localhost', 'basedir': os.path.expanduser('~') })
+    cfg = configparser.ConfigParser(defaults={ 'port': '6575', 'host': 'localhost', 'basedir': os.path.expanduser('~') })
     cfg.add_section('sampler')
     cfg.set('sampler', 'type', 'z48')
     cfg.set('sampler', 'connector', 'usb')

@@ -19,7 +19,7 @@ def get_model_from_list(items):
     model = gtk.ListStore(str, str)
     
     if type(items) is dict:
-        for i in items.keys():
+        for i in list(items.keys()):
             s = items[i]
             model.append([i,s])
         return model

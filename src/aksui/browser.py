@@ -42,7 +42,7 @@ class Node:
         return self.path
 
     def walk(self):
-        print self.fullpath()
+        print(self.fullpath())
         for node in self.nodes:
             node.walk()
 

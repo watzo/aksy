@@ -1,4 +1,4 @@
-import samplerobject
+from . import samplerobject
 
 class Multi(samplerobject.SamplerObject):
     def __init__(self,s,name,handle=None):
@@ -18,7 +18,7 @@ class Multi(samplerobject.SamplerObject):
             self.s.multitools.set_curr_by_name(self.name)
             self.update()
         else:
-            print "No name..."
+            print("No name...")
             
         self.precache()
             

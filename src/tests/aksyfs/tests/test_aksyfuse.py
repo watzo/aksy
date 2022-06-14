@@ -14,11 +14,11 @@ log = logging.getLogger('aksy')
 class TestStatInfo(TestCase):
     def test_set_owner(self):
         common.StatInfo.set_owner(1, 1)
-        self.assertEquals(1, common.StatInfo.uid)
-        self.assertEquals(1, common.StatInfo.gid)
+        self.assertEqual(1, common.StatInfo.uid)
+        self.assertEqual(1, common.StatInfo.gid)
         info = common.StatInfo(0, 1)
-        self.assertEquals(1, info.st_uid)
-        self.assertEquals(1, info.st_gid)
+        self.assertEqual(1, info.st_uid)
+        self.assertEqual(1, info.st_gid)
 
 class TestDirStatInfo(TestCase):
     def test_stat_directory(self):
@@ -29,7 +29,7 @@ class TestFileStatInfo(TestCase):
     def test_stat_file(self):
         info = common.FileStatInfo('test.akp', None)
         self.assertFalse(S_ISDIR(info.st_mode))
-        self.assertEquals(16*1024, info.st_size)
+        self.assertEqual(16*1024, info.st_size)
         self.assertTrue(S_ISREG(info.st_mode))
         
 class AksyFSTest(TestCase): #IGNORE:R0904
@@ -65,8 +65,8 @@ class AksyFSTest(TestCase): #IGNORE:R0904
 
     def test_readdir_memory(self):
         memory = list(self.fs.readdir('/memory', 0))
-        self.assertEquals(102, len(memory))
-        self.assertEquals('Boo.wav', memory[0].name)
+        self.assertEqual(102, len(memory))
+        self.assertEqual('Boo.wav', memory[0].name)
 
     def test_getattr_memory_non_existing(self):
         self.assertRaises(OSError, self.fs.getattr, '/memory/subdir')
@@ -97,7 +97,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
 
     def assert_dirlist(self, expected, actual):
         actual = [entry.name for entry in actual]
-        self.assertEquals(tuple(expected), tuple(actual))
+        self.assertEqual(tuple(expected), tuple(actual))
             
     def test_mkdir_unsupported(self):
         self.assertRaises(OSError, self.fs.mkdir, '/memory/subdir', 'mode_ignored')
@@ -114,7 +114,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.fs.mkdir(newdir, 'mode_ignored')
         self.assert_dirlist(('test',), 
                           self.fs.readdir('/disks/Samples disk/Songs', 0))
-        self.assertNotEquals(None, self.fs.getattr(newdir))
+        self.assertNotEqual(None, self.fs.getattr(newdir))
 
     def test_open_disk(self):
         self.fs.getattr('/disks/Cdrom')
@@ -127,7 +127,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         afile = aksyfuse.AksyFile('/memory/Sample99.wav', os.O_RDONLY|S_IRUSR)
         try:
             read = afile.read(4, 0)
-            self.assertEquals('RIFF', read)
+            self.assertEqual('RIFF', read)
         finally:
             afile.release('ignored')
 
@@ -139,7 +139,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         afile.release('ignored')
         written = os.open(common._create_cache_path(path), os.O_RDONLY)
         try:
-            self.assertEquals('abc', os.read(written, 3))
+            self.assertEqual('abc', os.read(written, 3))
         finally:
             os.close(written)
 

@@ -1,5 +1,5 @@
 import os, struct
-from StringIO import StringIO
+from io import StringIO
 from aksy.devices.akai.filemodel import Zone, Program, Chunk, Keygroup
 
 def parse_byte(chunk, offset):

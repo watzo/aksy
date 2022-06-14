@@ -1,4 +1,4 @@
-import modelutils
+from . import modelutils
 
 # list of mpc pad -> notes, left -> right = 1 -> 16
 mpcpads = [

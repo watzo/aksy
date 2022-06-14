@@ -1,7 +1,8 @@
 import sys
 import gtk, pango
 from gettext import gettext as _
-from cStringIO import *
+# TODO verify cStringIO replacement
+from io import *
 import traceback
 
 def _info(type, value, tb):

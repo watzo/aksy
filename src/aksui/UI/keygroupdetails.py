@@ -1,4 +1,4 @@
-import base
+from . import base
 
 class KeygroupDetails(base.Base):
     def __init__(self, keygroup):

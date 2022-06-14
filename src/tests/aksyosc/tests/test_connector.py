@@ -10,11 +10,11 @@ class OSCConnectorTest(TestCase):
     def test_creat_alt_req_msg(self):
         msg = connector.OSCConnector.create_alt_req_msg(1, CMDS, (), None)
         expected = '#bundle\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x18/altoperations\x00\x00,iN\x00\x00\x00\x00\x01\x00\x00\x00 /sampletools/get_bit_depth\x00\x00,\x00\x00\x00'
-        self.assertEquals(str(expected), str(msg))
+        self.assertEqual(str(expected), str(msg))
 
     def test_parse_alt_req_msg(self):
         msg = connector.OSCConnector.create_alt_req_msg(1, CMDS, (), None)
-        self.assertEquals(['#bundle', 0L, ['/altoperations', ',iN', 1, None],
+        self.assertEqual(['#bundle', 0, ['/altoperations', ',iN', 1, None],
                           ['/sampletools/get_bit_depth', ',']], decodeOSC(msg))
             
 def test_suite():

@@ -25,9 +25,9 @@ __license__ = """
 try:
     import hotshot, hotshot.stats
 except ImportError:
-    print "Profiler not available"
+    print("Profiler not available")
 
-import traceback, thread, os.path
+import traceback, _thread, os.path
 
 import pygtk
 pygtk.require('2.0')
@@ -69,13 +69,13 @@ def get_selected_from_treeview(treeview):
 # exception handler ripped from austin's code 
 def exceptionHandler(type, value, tback):    
     try:
-        print ""
-        print "-- Initialization Exception --"
+        print("")
+        print("-- Initialization Exception --")
         tbmessage = "Type: " + str(type) + "\nValue: " + str(value) + "\nData:\n"
         tblist = traceback.extract_tb(tback)
         for x in tblist:
             tbmessage = tbmessage + str(x) + "\n"
-        print "Error Code:", tbmessage
+        print("Error Code:", tbmessage)
         
     except:
         traceback.print_exc()
@@ -146,7 +146,7 @@ class BaseContextMenu(base.Base):
             return
 
         self.main.log("Downloading file(s) %s to directory '%s'" % (selected, destdir))
-        thread.start_new_thread(self._download_and_notify, (destdir, selected, ext))
+        _thread.start_new_thread(self._download_and_notify, (destdir, selected, ext))
     
     @transaction()
     def _download_and_notify(self, destdir, selected, ext):
@@ -274,17 +274,17 @@ class SamplesContextMenu(BaseContextMenu):
                 #self.main.log(str("adding", i, notes[i][0], notes[i][1], selected_samples[i]))
                 if type == 0:
                     self.s.keygrouptools.set_curr_keygroup(i)
-                    print "set note range"
+                    print("set note range")
                     self.s.keygrouptools.set_low_note(notes[i][0])
                     self.s.keygrouptools.set_high_note(notes[i][1])
                 else:
                     self.s.keygrouptools.set_curr_keygroup(notes[i][0])
                     
-                print "set zone stuff"
+                print("set zone stuff")
                 self.s.zonetools.set_keyboard_track(1, keytrack)
                 self.s.zonetools.set_playback(1, playback)
 
-                print "set sample"
+                print("set sample")
                 self.s.zonetools.set_sample(1, selected_samples[i])
                 #self.s.programtools.add_keygroup_sample(notes[i][0],notes[i][1],1,keytrack,selected_samples[i])
 
@@ -375,7 +375,7 @@ class ProgramsContextMenu(BaseContextMenu):
         self.main.on_new_program_activate(widget)
                    
     def on_set_current_program_activate(self, widget):
-        print "set current program"
+        print("set current program")
 
 
 class Main(base.Base):
@@ -481,7 +481,7 @@ class Main(base.Base):
 
             self.on_update_models(None)
             self.log("Multis, Programs, and Samples Loaded...")
-        except Exception, ex:
+        except Exception as ex:
             self.log("Exception: %s" % (ex))
             
     def open_multi_editor(self, multiname):
@@ -567,7 +567,7 @@ class Main(base.Base):
         if path:
             org = {'multitools':'.akm', 'programtools':'.akp', 'sampletools' : '.wav'}
             results = []
-            for toolname in org.keys():
+            for toolname in list(org.keys()):
                 ext = org[toolname]
                 tool = getattr(self.s, toolname)
                 items = tool.get_names()
