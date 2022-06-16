@@ -184,7 +184,7 @@ static PyObject* AkaiSampler_get_panel_state(AkaiSampler* self) {
     if (rc == AKSY_TRANSMISSION_ERROR) {
         ret = PyErr_Format(USBException, "Timeout waiting for sysex reply.");
     } else {
-        ret = Py_BuildValue("(s#,s#)", pixel_data, PANEL_PIXEL_DATA_LENGTH,
+        ret = Py_BuildValue("(y#,y#)", pixel_data, PANEL_PIXEL_DATA_LENGTH,
                 control_data, PANEL_CONTROL_DATA_LENGTH);
     }
 
