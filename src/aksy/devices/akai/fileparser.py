@@ -55,7 +55,7 @@ class ProgramParser:
         return keygroups
             
     def parse(self, filename):
-        self.fh = file(filename, 'rb')
+        self.fh = open(filename, 'rb')
         self.chunks = self.parse_chunks(get_file_length(filename))
         prg = Program(self.parse_keygroups())
         return prg
