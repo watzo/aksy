@@ -4,11 +4,11 @@
 # usage: checkout.py <url to zip file>
 #        checkout.py <file path>
 
-import sys, urllib, zipfile, os, os.path
+import sys, urllib.request, urllib.parse, urllib.error, zipfile, os, os.path
 from aksy.device import Devices
 
 def checkout(url, destdir=''):
-    file = urllib.urlretrieve(url)[0]
+    file = urllib.request.urlretrieve(url)[0]
     zip = zipfile.ZipFile(file)
     if zip.testzip() is not None:
         raise Exception('Corrupt zipfile')
@@ -38,10 +38,10 @@ def checkout(url, destdir=''):
 
 def process_file(z48, file):
         name, ext = os.path.splitext(file)
-        print ext
+        print(ext)
         if ext.lower() not in ['.akp', '.akm', '.wav', '.aiff']:
             return
-        print "Uploading file: " + repr(file)
+        print("Uploading file: " + repr(file))
         z48.put(file, os.path.basename(file))
         # set current program
         if ext.lower() == '.akp':
