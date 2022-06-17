@@ -275,6 +275,7 @@ class Folder(FileRef, Container):
     def upload(self, path):
         self.set_current()
         name = os.path.basename(path)
+        # TODO define enum elsewhere
         handlers[Disk].z48.put(path, name, destination=AkaiSampler.DISK)
         item = FileRef(self.path + (name,))
         self.children.append(item)
