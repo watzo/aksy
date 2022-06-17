@@ -145,5 +145,8 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         self.assertRaises(OSError, self.fs.getattr, path)
     
 def test_suite():
+    # TODO re-implement / reconsider FUSE for Windows
+    return None
+
     testloader = TestLoader()
     return testloader.loadTestsFromName('tests.aksyfs.tests.test_ftpd')
