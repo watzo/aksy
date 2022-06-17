@@ -126,10 +126,11 @@ def create_icons(ilist):
               
 class Config(wx.FileConfig):
     LASTDIR = '/LastRun/Lastdir'
-    def get_config():
-         return Config.config
 
-    get_config = staticmethod(get_config)
+    @staticmethod
+    def get_config():
+        return Config.config
+
     def __init__(self):
         wx.FileConfig.__init__(self, "Aksy", style=wx.CONFIG_USE_LOCAL_FILE)
 

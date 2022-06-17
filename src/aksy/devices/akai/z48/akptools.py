@@ -833,6 +833,7 @@ class AuxEnvelope(Base):
             self.velo_to_out_level,
             0)
 
+
 if __name__ == "__main__":
     import doctest, sys
     doctest.testmod(sys.modules[__name__])
@@ -844,8 +845,7 @@ if __name__ == "__main__":
     import math
     samples = []
     for s in range(no_samples):
-       samples.append(struct.pack('<h', math.sin(freq * s * 2 * math.pi) * amp))
-    samples = ''.join(samples)
-    sample = Sample('test', 91, samplerate, loops, samples)
+        samples.append(struct.pack('<h', math.sin(freq * s * 2 * math.pi) * amp))
+    sample = Sample('test', 91, samplerate, loops, b''.join(samples))
     sample.writefile()
 

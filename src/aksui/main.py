@@ -323,8 +323,8 @@ class ProgramsContextMenu(BaseContextMenu):
 
     def on_program_properties_activate(self, widget):
         names = get_selected_from_treeview(self.main.w_treeview_programs)
-        
-	for name in names:
+
+        for name in names:
             self.main.open_program_properties(name)
 
     def on_new_multi_activate(self, widget):
@@ -472,7 +472,8 @@ class Main(base.Base):
         decoration_width = 10
         if self.program_details_window is not None:
             self.program_details_window.editor.move(position[0] + size[0] + decoration_width, position[1])
-            def init_lists(self):
+        
+    def init_lists(self):
         try:
             Main.do_lists(self.s)
             self.s.samplesmodel.connect("row-changed", self.on_update_models)
@@ -628,12 +629,12 @@ class Main(base.Base):
                     return False
 
                 self.open_keygroup_editor(curr_programs[0])
-                
-	"""
-	OLD ONE:
-	self.programsEditor.set_program(curr_program)
-	self.programsEditor.programsMain.show_all()
-	"""
+
+        """
+        OLD ONE:
+        self.programsEditor.set_program(curr_program)
+        self.programsEditor.programsMain.show_all()
+        """
 
         if widget == self.w_treeview_multis:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:

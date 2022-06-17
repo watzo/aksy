@@ -41,13 +41,14 @@ def _info(type, value, tb):
     dialog.details = frame
     dialog.set_position(gtk.WIN_POS_CENTER)
     dialog.set_gravity(gtk.gdk.GRAVITY_CENTER)
-    
+
     while 1:
-	resp = dialog.run()
-	if resp == 1:
-	    dialog.details.show()
-	    dialog.action_area.get_children()[1].set_sensitive(0)
-	else: break
+        resp = dialog.run()
+        if resp == 1:
+            dialog.details.show()
+            dialog.action_area.get_children()[1].set_sensitive(0)
+        else:
+            break
     dialog.destroy()
     
 
