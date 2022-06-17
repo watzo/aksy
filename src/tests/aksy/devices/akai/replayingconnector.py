@@ -10,11 +10,10 @@ LEN_RESP_START = len(RESP_START)
 
 LOG = logging.getLogger("aksy.devices.akai.replaying_connector")
 
+
 def encode(byte_str):
-    s = io.StringIO(len(byte_str))
-    for b in byte_str:
-        s.write(struct.pack("1B", int(b, 16)))
-    return s.getvalue()
+    return sysex.repr_bytes(byte_str)
+
 
 class ReplayingConnector(object):
     """ A connector that replays aksy logs.
