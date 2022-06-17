@@ -7,7 +7,7 @@ from aksyfs import common
 from aksy.device import Devices
 from tests.aksy.util import testutil
 from stat import S_ISDIR, S_ISREG, ST_MODE, ST_SIZE, S_IRUSR
-import os, tempfile
+import os
 
 log = logging.getLogger('aksy')
 
@@ -127,7 +127,7 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         afile = aksyfuse.AksyFile('/memory/Sample99.wav', os.O_RDONLY|S_IRUSR)
         try:
             read = afile.read(4, 0)
-            self.assertEqual('RIFF', read)
+            self.assertEqual(b'RIFF', read)
         finally:
             afile.release('ignored')
 
@@ -135,11 +135,11 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         path = '/memory/Sample100.wav'
         self.fs.mknod(path, 0, 'ignored')
         afile = aksyfuse.AksyFile('/memory/Sample100.wav', os.O_WRONLY|S_IRUSR|os.O_CREAT)
-        afile.write('abc', 0)
+        afile.write(b'abc', 0)
         afile.release('ignored')
         written = os.open(common._create_cache_path(path), os.O_RDONLY)
         try:
-            self.assertEqual('abc', os.read(written, 3))
+            self.assertEqual(b'abc', os.read(written, 3))
         finally:
             os.close(written)
 
