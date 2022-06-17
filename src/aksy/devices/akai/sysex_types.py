@@ -1,11 +1,11 @@
 import struct, logging, types
 
-START_SYSEX = '\xf0'
-STRING_TERMINATOR = '\x00'
-END_SYSEX = '\xf7'
+START_SYSEX = b'\xf0'
+STRING_TERMINATOR = b'\x00'
+END_SYSEX = b'\xf7'
 
-POSTIVE     = '\x00'
-NEGATIVE    = '\x01'
+POSTIVE = b'\x00'
+NEGATIVE = b'\x01'
 
 log = logging.getLogger("aksy.devices.akai.sysex_types")
 log.disabled = True
@@ -22,8 +22,7 @@ class SysexType(object):
         self.min_val = signed and self.max_val*-1 or 0
 
     def validate_encode(self, value):
-        if (value < self.min_val or
-            value > self.max_val):
+        if value < self.min_val or value > self.max_val:
             raise ValueError("Value %s out of range:[%s-%s]" % (repr(value),
                               repr(self.min_val), repr(self.max_val)))
 
@@ -53,10 +52,10 @@ class SysexType(object):
     def decode(self, value, typed=True):
         """Decodes a value from a sysex byte string
         """
-        if value is None or not isinstance(value, types.StringType):
+        if value is None or not isinstance(value, bytes):
             raise DecodeException(
-                "Decoding error at %s.decode: %s is not a string"
-                % (self.__class__.__name__, repr(value)))
+                "Decoding error at %s.decode: %s is not a bytes but %s"
+                % (self.__class__.__name__, repr(value), type(value)))
 
         if self.size is not None:
             if len(value) == self.size + 1:
@@ -73,7 +72,7 @@ class SysexType(object):
 
 class ByteType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 1, False, '\x00')
+        SysexType.__init__(self, 1, False, b'\x00')
 
     def _encode(self, value):
         """
@@ -96,7 +95,7 @@ class ByteType(SysexType):
 
 class SignedByteType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 2, True, '\x01')
+        SysexType.__init__(self, 2, True, b'\x01')
 
     def _encode(self, value):
         """
@@ -113,15 +112,15 @@ class SignedByteType(SysexType):
         sb.decode('\x01\x05')
         -5
         """
-        result = struct.unpack('B', string[1])[0]
+        result = struct.unpack('B', string[1:2])[0]
 
-        if string[0] == NEGATIVE:
+        if string[0:1] == NEGATIVE:
             result *= -1
         return result
 
 class WordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 2, False, '\x02')
+        SysexType.__init__(self, 2, False, b'\x02')
 
     def _encode(self, value):
         return struct.pack('2B', value & 0x7f, value >> 7)
@@ -134,7 +133,7 @@ class CompoundWordType(SysexType):
     """ the little endian brother of WordType
     """
     def __init__(self):
-        SysexType.__init__(self, 2, False, '\x02')
+        SysexType.__init__(self, 2, False, b'\x02')
 
     def _encode(self, value):
         return struct.pack('2B', value >> 7,  value & 0x7f)
@@ -146,7 +145,7 @@ class CompoundWordType(SysexType):
 
 class SignedWordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 3, True, '\x03')
+        SysexType.__init__(self, 3, True, b'\x03')
 
     def _encode(self, value):
         sign = value < 0 and 1 or 0
@@ -160,7 +159,7 @@ class SignedWordType(SysexType):
 
 class DoubleWordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 4, False, '\x04')
+        SysexType.__init__(self, 4, False, b'\x04')
 
     def _encode(self, value):
         return struct.pack('4B', value & 0x7f, (value >> 7) & 0x7f, (value >> 14) & 0x7f, (value >> 21) & 0x7f)
@@ -171,7 +170,7 @@ class DoubleWordType(SysexType):
 
 class SignedDoubleWordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 5, True, '\x05')
+        SysexType.__init__(self, 5, True, b'\x05')
 
     def _encode(self, value):
         sign = value < 0 and 1 or 0
@@ -185,7 +184,7 @@ class SignedDoubleWordType(SysexType):
 
 class QWordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 8, False, '\x06')
+        SysexType.__init__(self, 8, False, b'\x06')
 
     def _encode(self, value):
         return struct.pack('8B',  value & 0x7f, (value >> 7) & 0x7f,
@@ -199,7 +198,7 @@ class QWordType(SysexType):
 
 class SignedQWordType(SysexType):
     def __init__(self):
-        SysexType.__init__(self, 9, True, '\x07')
+        SysexType.__init__(self, 9, True, b'\x07')
 
     def _encode(self, value):
         sign = value < 0 and 1 or 0
@@ -228,7 +227,7 @@ class BoolType(ByteType):
 
 class StringType(object):
     def __init__(self):
-        self.id = '\x08'
+        self.id = b'\x08'
         self.size = None # variable size, parsed length is returned in result
 
     def validate_encode(self, value):
@@ -237,17 +236,17 @@ class StringType(object):
 
     def encode(self, value):
         self.validate_encode(value)
-        return struct.pack(str(len(value)+1) + 's', value)
+        return struct.pack(str(len(value)+1) + 's', value.encode('ascii'))
 
     def decode(self, string):
         index = string.find(STRING_TERMINATOR)
         if index == -1: 
-            raise ValueError
-        if string[0] == self.id:
+            raise ValueError(f'no terminator found in {string} ')
+        if string[0:1] == self.id:
             start = 1
         else:
             start = 0
-        return index + 1, struct.unpack( str(index-start) + 's', string[start:index])[0]
+        return index + 1, string[start:index].decode('ascii')
 
 class StringArrayType(object):
     def __init__(self):
@@ -257,25 +256,26 @@ class StringArrayType(object):
         raise NotImplementedError()
 
     def decode(self, string):
-        if not string or not isinstance(string, types.StringType):
+        if not isinstance(string, bytes):
             raise DecodeException(
-                "%s.decode: %s is not a string"
+                "%s.decode: %s is not a byte sequence"
                 % (self.__class__.__name__, repr(string)))
 
         result = []
         index = 0
         offset = 0
         for char in string:
-            #sys.stderr.writelines( "c:%s i:%s\n" % (char, index) )
-            if (char == END_SYSEX):
-                break;
-            if char == STRING_TERMINATOR:
-                result.append(struct.unpack( str(index) + 's', string[offset:offset+index])[0])
+            # sys.stderr.writelines( "c:%s i:%s\n" % (char, index) )
+            # TODO extract to constants
+            if char == int.from_bytes(END_SYSEX, byteorder='big'):
+                break
+            if char == int.from_bytes(STRING_TERMINATOR, byteorder='big'):
+                result.append(string[offset:offset+index].decode('ascii'))
                 offset += index + 1
                 index = 0
             else:
                 index += 1
-        return (offset + index, tuple(result))
+        return offset + index, tuple(result)
 
 class UserRefType(object):
     """ Can be used to stamp a request with an identifier
@@ -316,12 +316,12 @@ class UserRefType(object):
         return byte >> 4
 
     def decode(self, string):
-        if not string or not isinstance(string, types.StringType):
+        if not isinstance(string, int) and not isinstance(string, bytes):
             raise ValueError(
-                "Decoding error at %s.decode: %s is not a string"
+                "Decoding error at %s.decode: %s is not a bytes %s"
                 % (self.__class__.__name__, repr(string)))
 
-        length = self.decode_length(BYTE.decode(string[0]))
+        length = self.decode_length(BYTE.decode(string[0:1]))
         if length == 0:
             return (1, 0)
         if length == 1:
@@ -410,12 +410,13 @@ class CompositeType(object):
             return offset, result[0]
         return offset, tuple(result)
 
+
 class TypedCompositeType(object):
     def decode(self, string):
         result = []
         offset = 0
         while offset < (len(string) - 1):
-            sysex_type = get_type(string[offset])
+            sysex_type = get_type(string[offset:offset+1])
             if log.isEnabledFor(logging.DEBUG):
                 log.debug("Parsing type %s" % sysex_type)
             offset += 1
@@ -449,7 +450,7 @@ class DisklistType(object):
     def decode(self, string):
         result = []
         index = 0
-        while string[index] != END_SYSEX:
+        while string[index:index+1] != END_SYSEX:
             length, val = DISK.decode(string[index:])
             result.append(val)
             index += length
@@ -462,7 +463,7 @@ class S56kDisklistType(object):
     def decode(self, string):
         result = []
         index = 0
-        while string[index] != END_SYSEX:
+        while string[index:index+1] != END_SYSEX:
             length, val = S56KDISK.decode(string[index:])
             result.append(val)
             index += length
@@ -506,15 +507,15 @@ class CompositeByteType(SysexType):
 
 class TwoByteType(CompositeByteType):
     def __init__(self):
-        super(TwoByteType, self).__init__(2, '\x09')
+        super(TwoByteType, self).__init__(2, b'\x09')
 
 class ThreeByteType(CompositeByteType):
     def __init__(self):
-        super(ThreeByteType, self).__init__(3, '\x0a')
+        super(ThreeByteType, self).__init__(3, b'\x0a')
 
 class FourByteType(CompositeByteType):
     def __init__(self):
-        super(FourByteType, self).__init__(4, '\x0b')
+        super(FourByteType, self).__init__(4, b'\x0b')
 
 # TODO: make HandleNameDictType
 class HandleNameArrayType(object):
@@ -550,7 +551,7 @@ class NameSizeArrayType(object):
         results = []
         len_to_parse = len(string)
         len_parsed = 0
-        while len_parsed < len_to_parse and string[len_parsed] != END_SYSEX:
+        while len_parsed < len_to_parse and string[len_parsed:len_parsed+1] != END_SYSEX:
             len_result, name = STRING.decode(string[len_parsed:])
             len_parsed += len_result
             size = DWORD.decode(
@@ -615,14 +616,17 @@ _types = {
     FOUR_BYTES.id: FOUR_BYTES,
 }
 
+
 class UnknownSysexTypeError(Exception):
     pass
+
 
 class DecodeException(Exception):
     pass
 
+
 def get_type(typeId):
     type = _types.get(typeId, None)
     if type is None:
-        raise UnknownSysexTypeError( "%02x" % struct.unpack('B', typeId))
+        raise UnknownSysexTypeError( "%02s" % typeId)
     return type
