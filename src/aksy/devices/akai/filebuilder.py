@@ -20,10 +20,10 @@ class ProgramWriter:
 class ProgramBuilder:
     def build(self, program):
         return struct.pack('<4sl8sl6b 4sl8b 4sl24b', 
-            'RIFF', 
+            b'RIFF',
             0, 
-            'APRG'
-            'prg ', 
+            b'APRG'
+            b'prg ',
             6, 
             1, # set to zero program was not read...
             program.midi_prog_no, 
@@ -31,7 +31,7 @@ class ProgramBuilder:
             0, 
             0, 
             0, 
-            'out ', 
+            b'out ',
             8, 
             0, 
             program.loudness, 
@@ -41,7 +41,7 @@ class ProgramBuilder:
             program.pan_mod2, 
             program.pan_mod3, 
             program.velo_sens, 
-            'tune', 
+            b'tune',
             24, 
             0, 
             program.semi, 
@@ -116,7 +116,7 @@ class ZoneBuilder:
         return create_chunk('zone', '<2b20s22bh2b', 
             0, 
             len(zone.samplename), 
-            zone.samplename, 
+            zone.samplename.encode('ascii'),
             0, 
             0, 
             0, 
