@@ -3,7 +3,8 @@ from aksy.devices.akai.filemodel import Program
 from aksy.devices.akai.filemodel import Zone
 from aksy.devices.akai.filemodel import Keygroup
 import unittest
-from io import StringIO
+from io import BytesIO
+
 
 class TestZoneBuilder(unittest.TestCase):
     def testBuild(self):
@@ -21,7 +22,7 @@ class TestProgramWriter(unittest.TestCase):
         zones = [Zone()] * 4
         keygroups = [Keygroup(zones)] * 4
         program = Program.create_default(keygroups)
-        out = StringIO()
+        out = BytesIO()
         writer.write(program, out)
     
 def test_suite():
