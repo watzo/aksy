@@ -315,21 +315,6 @@ class Multifxtools:
         """
         return self.sampler.execute(self.get_param_qlinkctrl_cmd, (arg0, arg1, arg2, ))
 
-    def set_channel_mute(self, arg0, arg1):
-        """Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)
-        """
-        return self.sampler.execute(self.set_channel_mute_cmd, (arg0, arg1, ))
-
-    def set_channel_input(self, arg0, arg1):
-        """Set Channel Input <Data2> = input
-        """
-        return self.sampler.execute(self.set_channel_input_cmd, (arg0, arg1, ))
-
-    def set_channel_output(self, arg0, arg1):
-        """Set Channel Output <Data2> = output
-        """
-        return self.sampler.execute(self.set_channel_output_cmd, (arg0, arg1, ))
-
     def set_fx_by_name(self, arg0, arg1, arg2):
         """Set effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Data3> = effect.
         """
