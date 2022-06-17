@@ -16,7 +16,7 @@ class Request:
     
 class TestReplayingConnector(unittest.TestCase):
     def testEncode(self):
-        self.assertEqual('\xf0G_\x00E`\x00\x00\x00\xf7', replayingconnector.encode(eval(RESP)))
+        self.assertEqual(b'\xf0G_\x00E`\x00\x00\x00\xf7', replayingconnector.encode(eval(RESP)))
 
     def testParse(self):
         f = testutil.get_test_resource('aksy_20070624.log')
