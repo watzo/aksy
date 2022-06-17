@@ -52,6 +52,7 @@ class MockZ48(Z48):
         self.multitools.get_handles_names = lambda: (1, 'multi', 2, 'multi 2')
         self.sampletools.get_handles_names = lambda: (1, 'sample', 2, 'sample 2')
         self.recordingtools.get_name = lambda: 'sample'
+        self.systemtools.get_sampler_name = lambda: 'Mock Z48'
 
         self.setup_model()
 
