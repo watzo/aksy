@@ -4,9 +4,8 @@ Offers a high level sampler API
 
 """
 import os.path, logging
-from aksyx import AkaiSampler
 from aksy import fileutils
-
+from aksy.constants import TransferLocation
 
 handlers = {}
 LOG = logging.getLogger("aksy.model")
@@ -276,7 +275,7 @@ class Folder(FileRef, Container):
         self.set_current()
         name = os.path.basename(path)
         # TODO define enum elsewhere
-        handlers[Disk].z48.put(path, name, destination=AkaiSampler.DISK)
+        handlers[Disk].z48.put(path, name, destination=TransferLocation.DISK)
         item = FileRef(self.path + (name,))
         self.children.append(item)
         return item

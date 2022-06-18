@@ -13,8 +13,8 @@ import logging
 from aksy.device import Devices
 from aksy.concurrent import transaction
 
-from aksy.devices.akai import sampler as samplermod
 from aksy import config
+from aksy.constants import TransferLocation
 from aksyfs import common
 
 fuse.fuse_python_api = (0, 2)
@@ -39,9 +39,9 @@ class AksyFile(fuse.FuseFileInfo):
         self.name = os.path.basename(path)
         location = common._splitpath(path)[0]
         if location == "memory":
-            self.location = samplermod.AkaiSampler.MEMORY
+            self.location = TransferLocation.MEMORY
         elif location == "disks":
-            self.location = samplermod.AkaiSampler.DISK
+            self.location = TransferLocation.DISK
         else:
             raiseException(errno.ENOENT)
 

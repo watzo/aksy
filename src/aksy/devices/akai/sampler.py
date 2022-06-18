@@ -1,5 +1,4 @@
 from aksy.devices.akai import transfertools
-from aksyx import AkaiSampler
 
 from aksy import fileutils
 
@@ -15,8 +14,6 @@ log = logging.getLogger("aksy")
 class Sampler(object):
     """Base class for AkaiSampler.
     """
-    MEMORY = AkaiSampler.MEMORY
-    DISK = AkaiSampler.DISK
     def __init__(self, connector):
         self.connector = connector
         self.transfertools = transfertools.Transfertools(connector)
