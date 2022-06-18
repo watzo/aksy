@@ -17,8 +17,12 @@ LOG = logging.getLogger('aksy.devices.akai.transfertools')
 class Transfertools:
     def __init__(self, connector):
         self.connector = connector
-        self.get_cmd = aksy.devices.akai.sysex.Command('', '', 'transfertools', 'get', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
-        self.put_cmd = aksy.devices.akai.sysex.Command('', '', 'transfertools', 'put', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
+        self.get_cmd = aksy.devices.akai.sysex.Command(b'', b'', 'transfertools', 'get', (
+        aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING,
+        aksy.devices.akai.sysex_types.STRING), None)
+        self.put_cmd = aksy.devices.akai.sysex.Command(b'', b'', 'transfertools', 'put', (
+        aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING,
+        aksy.devices.akai.sysex_types.STRING), None)
 
     def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
         """Gets a file from the sampler, overwriting destfile if it already exists.
