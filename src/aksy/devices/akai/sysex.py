@@ -16,8 +16,11 @@ log = logging.getLogger("aksy")
 class Command:
     """Represents a system exclusive command.
     """
-    def __init__(self, device_id, cmd_id, section, name, arg_types,
-            reply_spec, userref_type=sysex_types.USERREF):
+    def __init__(self, device_id: bytes, cmd_id: bytes, section, name, arg_types,
+                 reply_spec, userref_type=sysex_types.USERREF):
+        assert isinstance(device_id, bytes)
+        assert isinstance(cmd_id, bytes)
+
         self.device_id = device_id
         self.id = cmd_id
         self.section = section
