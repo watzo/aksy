@@ -12,4 +12,4 @@ class TestConstants(unittest.TestCase):
 
 def test_suite():
     testloader = unittest.TestLoader()
-    return testloader.loadTestsFromName('tests.aksy.tests.test_aksyx')
+    return testloader.loadTestsFromName('tests.aksy.tests.test_constants')
