@@ -13,8 +13,8 @@ General good idea: base class for these user interfaces to get rid of redundanci
 class RecordDialog(base.Base):
     def __init__(self, record):
         base.Base.__init__(self, record, "windowRecording")
-        self.progressbar = self.xml.get_widget('progressbar_recording')
-        self.name = self.xml.get_widget('entry_name')
+        self.progressbar = self.xml.get_object('progressbar_recording')
+        self.name = self.xml.get_object('entry_name')
         self.record = record
         self.update()
         

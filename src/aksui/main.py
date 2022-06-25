@@ -422,7 +422,8 @@ class Main(base.Base):
         tv.append_column(gtk.TreeViewColumn("Name", text, text=0))
         tv.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         tv.connect("drag_data_received", self.on_drag_data_received)
-        tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
+        # TODO use target item
+        # tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
         tv.add_events(gtk.gdk.KEY_PRESS)
         tv.connect("key_press_event", context_menu.handle_keyboard_event)
@@ -459,14 +460,17 @@ class Main(base.Base):
         self.window.set_title("aksui %s" % (__version__))
         self.window.connect('configure_event', self.on_configure_event)
         self.window.connect("drag_data_received", self.on_drag_data_received)
-        self.window.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
+        # TODO fix target
+        # self.window.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
     def log(self, text):
         self.w_console.get_buffer().insert_at_cursor(text + "\r\n")
 
     def rescroll(self, vadj, scroll):
-        vadj.set_value(vadj.upper-vadj.page_size)
-        scroll.set_vadjustment(vadj)        
+        pass
+        # TODO:  'Adjustment' object has no attribute 'upper'
+        #vadj.set_value(vadj.upper-vadj.page_size)
+        #scroll.set_vadjustment(vadj)
         
     def move_properties_window(self):
         position = self.window.get_position()
@@ -665,8 +669,9 @@ if USE_CUSTOM_EXCEPTHOOK:
 
 def add_keybinding(accel_group, widget, accel_str, signal="activate"):
     keyval, mods = gtk.accelerator_parse(accel_str)
-    widget.add_accelerator(signal, accel_group, 
-                                       keyval, mods, gtk.ACCEL_VISIBLE)
+    # TODO fix method call
+    # widget.add_accelerator(signal, accel_group,
+    #                                   keyval, mods, gtk.ACCEL_VISIBLE)
 
     
 def setup_keybindings(m, accel_group):
@@ -692,7 +697,8 @@ def main():
         m.set_window(win)
         win.show_all()
         # TODO: make edit menu functional
-        m.w_edit_menu.hide()
+        # TODO replace hide call
+        # m.w_edit_menu.hide()
         win.connect("delete-event", gtk.main_quit)
 
         gtk.main()

@@ -7,7 +7,7 @@ from pkg_resources import resource_string
 glade_str = resource_string('aksui', 'ak.py.glade').decode('utf-8')
 
 def get_glade_xml(root):
-    return builder.add_from_string(glade_str)
+    return builder.new_from_string(glade_str, -1)
 
 class Base(object):
     def __init__(self, samplerobject, editor_root):
@@ -22,11 +22,12 @@ class Base(object):
         self.updating = False
         #print editor_root
         self.xml = get_glade_xml(editor_root)
-        self.editor = self.xml.get_widget(editor_root)
+        self.editor = self.xml.get_object(editor_root)
         self.finish_editors()
 
     def finish_editors(self):
-        self.xml.signal_autoconnect(self)
+        pass
+        #self.xml.signal_autoconnect(self)
 
     def update(self):
         if self.samplerobject:
@@ -37,11 +38,11 @@ class Base(object):
             xml = self.xml
 
             for attr in samplerobject.attrs:
-                combo = xml.get_widget("combo_" + attr)
-                entry = xml.get_widget("entry_" + attr)
-                spin = xml.get_widget("spin_" + attr)
-                toggle = xml.get_widget("toggle_" + attr)
-                hscale = xml.get_widget("hscale_" + attr)
+                combo = xml.get_object("combo_" + attr)
+                entry = xml.get_object("entry_" + attr)
+                spin = xml.get_object("spin_" + attr)
+                toggle = xml.get_object("toggle_" + attr)
+                hscale = xml.get_object("hscale_" + attr)
 
                 val = getattr(samplerobject,attr)
 
@@ -82,8 +83,8 @@ class Base(object):
                     self.samplerobject.set(attrname, int(attrval))
 
     def pop_in(self, container_widget_name, child_widget_name):
-        setattr(self,container_widget_name,self.xml.get_widget(container_widget_name))
-        setattr(self,child_widget_name,self.xml.get_widget(child_widget_name))
+        setattr(self,container_widget_name,self.xml.get_object(container_widget_name))
+        setattr(self,child_widget_name,self.xml.get_object(child_widget_name))
         w = getattr(self,container_widget_name)
         ch = getattr(self,child_widget_name)
 
@@ -96,7 +97,7 @@ class Base(object):
             w.add(ch)
 
     def get_widget(self, name):
-        return self.xml.get_widget(name)
+        return self.xml.get_object(name)
     
     def show_all(self):
         self.editor.show_all()
@@ -107,7 +108,7 @@ class Base(object):
 
     def __getattribute__(self, name):
         if name.startswith('w_') and not name in self.widgets:
-            setattr(self, name, self.xml.get_widget(name[2:]))
+            setattr(self, name, self.xml.get_object(name[2:]))
             self.widgets[name] = object.__getattribute__(self, name)
 
         return object.__getattribute__(self, name)
