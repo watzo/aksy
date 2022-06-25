@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 from pyftpdlib import filesystems
+
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import FTPServer
+from pyftpdlib.authorizers import DummyAuthorizer
+
 from aksyfs import common
 from aksy.config import create_option_parser
 from aksy.device import Devices
@@ -10,6 +15,7 @@ import os, time, errno
 
 import logging
 LOG = logging.getLogger("aksy.aksyfs.ftpd")
+
 
 class AksyFtpFS(common.AksyFS, filesystems.AbstractedFS):
     def __call__(self):
@@ -174,7 +180,7 @@ def main():
 
     options = parser.parse_args()[0]
 
-    authorizer = ftpserver.DummyAuthorizer()
+    authorizer = DummyAuthorizer()
     authorizer.add_anonymous('/', perm=('r', 'w'))
 
     address = (options.ftp_host, options.ftp_port)
@@ -185,17 +191,18 @@ def main():
     sampler = Devices.get_instance(options.sampler_type, options.connector)
 
     try:    
-        ftp_handler = ftpserver.FTPHandler
+        ftp_handler = FTPHandler
         ftp_handler.authorizer = authorizer
-        ftp_handler.banner = "aksyftpd (pyftpd version %s) ready." % ftpserver.__ver__
+        ftp_handler.banner = "aksyftpd ready."
         ftp_handler.abstracted_fs = AksyFtpFS(sampler)
 
-        ftpd = ftpserver.FTPServer(address, ftp_handler)
+        ftpd = FTPServer(address, ftp_handler)
         ftpd.max_cons = 256
         ftpd.max_cons_per_ip = ftpd.max_cons 
         ftpd.serve_forever()
     finally:
         sampler.close()
+
 
 if __name__ == "__main__":
     main()
