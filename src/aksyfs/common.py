@@ -20,6 +20,7 @@ START_TIME = time()
 
 LOG = logging.getLogger('aksy.aksyfs.common')
 
+
 class StatInfo(object):
     @staticmethod
     def set_owner(uid, gid):
@@ -48,6 +49,7 @@ class DirStatInfo(StatInfo):
         StatInfo.__init__(self, stat.S_IFDIR|stat.S_IEXEC, 4096)
         self.st_nlink = child_count
 
+
 class FileStatInfo(StatInfo):
     def __init__(self, path, size, writable=False):
         if size is None:
@@ -55,14 +57,18 @@ class FileStatInfo(StatInfo):
         StatInfo.__init__(self, stat.S_IFREG|stat.S_IWUSR, size, writable)
         self.st_nlink = 0
 
+
 def is_modified(stat_info):
     return stat_info.st_mtime > START_TIME
+
 
 def _splitpath(path):
     return path.split('/', 2)[1:]
 
+
 def _get_cache_path(path):
     return os.path.join(os.path.expanduser('~'), '.aksy/cache' + path)
+
 
 def get_file_size(path):
     cache_path = _get_cache_path(path)
@@ -74,8 +80,10 @@ def get_file_size(path):
 
     return MAX_FILE_SIZE_OTHER
 
+
 def _cache_path_exists(path):
     return os.path.exists(_get_cache_path(path))
+
 
 def _create_cache_path(path):
     cache_path = _get_cache_path(path)
@@ -83,6 +91,7 @@ def _create_cache_path(path):
     if not os.path.exists(parent_dir):
         os.makedirs(parent_dir)
     return cache_path
+
 
 class AksyFile(object):
     @staticmethod
@@ -333,7 +342,7 @@ class AksyFS(object):
     def init_sampler(self, sampler):
         self.fs_root = FSRoot(sampler)
         self.sampler = sampler
-        self.cache = { '/': self.fs_root }
+        self.cache = { '.': self.fs_root }
         AksyFile.set_sampler(sampler)
 
 
