@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import tempfile
+
 from pyftpdlib import filesystems
 
 from pyftpdlib.handlers import FTPHandler
@@ -18,7 +20,7 @@ LOG = logging.getLogger("aksy.aksyfs.ftpd")
 
 
 class AksyFtpFS(common.AksyFS, filesystems.AbstractedFS):
-    def __call__(self):
+    def __call__(self, home, handler):
         return AksyFtpFS(self.sampler)
 
     def __init__(self, sampler):
@@ -182,7 +184,8 @@ def main():
     options = parser.parse_args()[0]
 
     authorizer = DummyAuthorizer()
-    authorizer.add_anonymous('/', perm=('r', 'w'))
+    jail_dir = tempfile.mkdtemp()
+    authorizer.add_anonymous(jail_dir, perm=('elradfmwMT'))
 
     address = (options.ftp_host, options.ftp_port)
     if options.ftp_host != 'localhost':
