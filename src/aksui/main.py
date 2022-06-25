@@ -29,8 +29,10 @@ except ImportError:
 
 import traceback, _thread, os.path
 
-import pygtk
-pygtk.require('2.0')
+from gi import pygtkcompat
+pygtkcompat.enable()
+pygtkcompat.enable_gtk(version='3.0')
+
 import gtk
 
 # our stuff

@@ -1,12 +1,13 @@
-import gtk.glade
+from gi.repository import Gtk
+builder = Gtk.Builder()
 
-import os.path
+import gtk
 
 from pkg_resources import resource_string
-glade_str = resource_string('aksui', 'ak.py.glade')
+glade_str = resource_string('aksui', 'ak.py.glade').decode('utf-8')
 
 def get_glade_xml(root):
-    return gtk.glade.xml_new_from_buffer(glade_str, len(glade_str), root)
+    return builder.add_from_string(glade_str)
 
 class Base(object):
     def __init__(self, samplerobject, editor_root):

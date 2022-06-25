@@ -3,7 +3,6 @@
 
 from setuptools import setup
 from distutils.core import Extension
-from distutils.dist import Distribution
 from distutils.command.build_ext import build_ext
 import platform, os.path, sys
 
@@ -123,7 +122,7 @@ setup(
       extras_require = {
         'FUSE-PYTHON':  ["fuse-python >= 0.2pre3"],
         'PYFTPDLIB' : ["pyftpdlib == 1.5.6"],
-        'PYGTK' : ["pygtk"]
+        'PYGTK' : ["PyGObject"]
       },
       test_suite = "tests"
 )
