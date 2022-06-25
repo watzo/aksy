@@ -11,6 +11,7 @@ import os
 
 log = logging.getLogger('aksy')
 
+
 class TestStatInfo(TestCase):
     def test_set_owner(self):
         common.StatInfo.set_owner(1, 1)
@@ -20,10 +21,12 @@ class TestStatInfo(TestCase):
         self.assertEqual(1, info.st_uid)
         self.assertEqual(1, info.st_gid)
 
+
 class TestDirStatInfo(TestCase):
     def test_stat_directory(self):
         info = common.DirStatInfo()
         self.assertTrue(S_ISDIR(info.st_mode))
+
 
 class TestFileStatInfo(TestCase):
     def test_stat_file(self):
@@ -31,7 +34,8 @@ class TestFileStatInfo(TestCase):
         self.assertFalse(S_ISDIR(info.st_mode))
         self.assertEqual(16*1024, info.st_size)
         self.assertTrue(S_ISREG(info.st_mode))
-        
+
+
 class AksyFSTest(TestCase): #IGNORE:R0904
     def _assertdir(self, info):
         self.assertTrue(S_ISDIR(info.st_mode))
@@ -166,7 +170,8 @@ class AksyFSTest(TestCase): #IGNORE:R0904
         self.fs.getattr(path)
         self.fs.unlink(path)
         self.assertRaises(OSError, self.fs.getattr, path)
-    
+
+
 def test_suite():
     testloader = TestLoader()
     return testloader.loadTestsFromName('tests.aksyfs.tests.test_aksyfuse')

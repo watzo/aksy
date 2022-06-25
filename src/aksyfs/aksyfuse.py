@@ -58,7 +58,7 @@ class AksyFile(fuse.FuseFileInfo):
                 AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
             except IOError as exc:
                 # TODO: move to a method where we can raise exceptions
-                LOG.exception( "Exception occurred: ", exc)
+                LOG.exception("Exception occurred: ", exc)
         os.close(self.handle)
 
     def write(self, buf, offset):
@@ -83,6 +83,7 @@ class AksyFile(fuse.FuseFileInfo):
     
     def get_location(self):
         return self.location
+
 
 class FSStatInfo(fuse.StatVfs):
     def __init__(self, mem_total, mem_free):
