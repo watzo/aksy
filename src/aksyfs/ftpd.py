@@ -171,6 +171,7 @@ class AksyFtpFS(common.AksyFS, filesystems.AbstractedFS):
                     basename))
         return ''.join(result)
 
+
 def main():
     parser = create_option_parser(usage='%prog [options]')
     parser.add_option("--ftp_host", nargs=1, dest="ftp_host",

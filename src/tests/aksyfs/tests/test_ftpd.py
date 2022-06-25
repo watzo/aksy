@@ -105,18 +105,18 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         f = self.fs.open('/memory/Sample100.wav', 'rb')
         try:
             read = f.read(4)
-            self.assertEqual('RIFF', read)
+            self.assertEqual(b'RIFF', read)
         finally:
             f.close()
 
     def test_mknod_write(self):
         path = '/memory/Sample100.wav'
         f = self.fs.open('/memory/Sample100.wav', 'wb')
-        f.write('abc')
+        f.write(b'abc')
         f.close()
         written = os.open(common._create_cache_path(path), os.O_RDONLY)
         try:
-            self.assertEqual('abc', os.read(written, 3))
+            self.assertEqual(b'abc', os.read(written, 3))
         finally:
             os.close(written)
 
@@ -143,10 +143,8 @@ class AksyFtpFSTest(TestCase): #IGNORE:R0904
         self.fs.getattr(path)
         self.fs.remove(path)
         self.assertRaises(OSError, self.fs.getattr, path)
-    
-def test_suite():
-    # TODO re-implement / reconsider FUSE for Windows
-    return None
 
+
+def test_suite():
     testloader = TestLoader()
     return testloader.loadTestsFromName('tests.aksyfs.tests.test_ftpd')
