@@ -1106,10 +1106,10 @@
     <child>
       <object class="GtkActionGroup" id="actiongroup3">
         <child>
-          <object class="GtkAction" id="new_program2">
+          <object class="GtkAction" id="new_program3">
             <property name="stock_id">gtk-new</property>
             <property name="label" translatable="yes">New _Program...</property>
-            <property name="name">new_program2</property>
+            <property name="name">new_program3</property>
             <signal name="activate" handler="on_new_program_activate"/>
           </object>
         </child>
@@ -1178,7 +1178,7 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="new_multi">
+          <object class="GtkAction" id="new_multi3">
             <property name="stock_id">gtk-new</property>
             <property name="label">New Multi...</property>
             <property name="name">new_multi</property>
@@ -1207,10 +1207,10 @@
     <child>
       <object class="GtkActionGroup" id="actiongroup4">
         <child>
-          <object class="GtkAction" id="new_program">
+          <object class="GtkAction" id="new_program4">
             <property name="stock_id">gtk-new</property>
             <property name="label">New Program...</property>
-            <property name="name">new_program</property>
+            <property name="name">new_program4</property>
             <signal name="activate" handler="on_new_program_activate"/>
           </object>
         </child>
@@ -2393,7 +2393,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHScale" id="hscale_tune">
+          <object class="GtkHScale" id="hscale_tune2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="adjustment">adjustment15</property>
@@ -2412,7 +2412,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHScale" id="hscale_level">
+          <object class="GtkHScale" id="hscale_level2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="adjustment">adjustment16</property>
@@ -3168,7 +3168,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHScale" id="hscale_polyphony">
+                          <object class="GtkHScale" id="hscale_polyphony2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="adjustment">adjustment26</property>
@@ -3318,7 +3318,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="entry_name">
+                          <object class="GtkEntry" id="entry_name3">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <signal name="changed" handler="on_param_changed"/>
@@ -3343,7 +3343,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHScale" id="hscale_level">
+                          <object class="GtkHScale" id="hscale_level3">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="adjustment">adjustment27</property>
@@ -3374,7 +3374,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHScale" id="hscale_tune">
+                          <object class="GtkHScale" id="hscale_tune3">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="adjustment">adjustment28</property>
@@ -3611,7 +3611,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="entry_name">
+              <object class="GtkEntry" id="entry_name2">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <signal name="changed" handler="on_param_changed"/>
@@ -5283,7 +5283,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStatusbar" id="statusbar">
+          <object class="GtkStatusbar" id="statusbar2">
             <property name="visible">True</property>
             <child>
               <object class="GtkLabel" id="statusSet">
