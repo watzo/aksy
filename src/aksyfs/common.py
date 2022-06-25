@@ -342,7 +342,7 @@ class AksyFS(object):
     def init_sampler(self, sampler):
         self.fs_root = FSRoot(sampler)
         self.sampler = sampler
-        self.cache = { '.': self.fs_root }
+        self.cache = { '.': self.fs_root, '/': self.fs_root }
         AksyFile.set_sampler(sampler)
 
 
