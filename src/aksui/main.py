@@ -467,10 +467,8 @@ class Main(base.Base):
         self.w_console.get_buffer().insert_at_cursor(text + "\r\n")
 
     def rescroll(self, vadj, scroll):
-        pass
-        # TODO:  'Adjustment' object has no attribute 'upper'
-        #vadj.set_value(vadj.upper-vadj.page_size)
-        #scroll.set_vadjustment(vadj)
+        vadj.set_value(vadj.get_upper() - vadj.get_page_size())
+        scroll.set_vadjustment(vadj)
         
     def move_properties_window(self):
         position = self.window.get_position()
