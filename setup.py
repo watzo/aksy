@@ -31,6 +31,7 @@ def customize_for_platform(ext, compiler_type):
 
         ext.libraries += "libusb-1.0"
         ext.extra_compile_args = ["/O2"]
+        ext.include_dirs = [os.path.join(dirent_base_dir, "include")]
         ext.library_dirs = [os.path.join(lib_dir, "lib") for lib_dir in [libusb1_base_dir, dirent_base_dir]]
 
     # Unix flavours 

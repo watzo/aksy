@@ -57,7 +57,6 @@ jobs:
            $Env:CONAN_REVISIONS_ENABLED=1
            
            conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
-           dir build/nativelibs
       - run:
           name: Build and install
           command: python.exe setup.py install
