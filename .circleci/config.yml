@@ -10,7 +10,7 @@ orbs:
   # so you dont have to copy and paste it everywhere.
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@2.0.3
-  win: circleci/windows@4.1.1
+  python-win: circleci/windows@4.1.1
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -50,7 +50,7 @@ jobs:
       - checkout
       - run:
           name: Build and install
-          command: python setup.py install
+          command: python.exe setup.py install
       - run:
           name: Run tests
           command: ./scripts/runtests.py
