@@ -6,10 +6,11 @@ from distutils.core import Extension
 from distutils.command.build_ext import build_ext
 import platform, os.path, sys
 
-version = "0.4" 
+version = "0.5"
 
 # macros= [("_DEBUG", 0), ("AKSY_DEBUG", "1")]
-macros= [("AKSY_DEBUG", 0)]
+macros= [("AKSY_DEBUG", 0), ("LIBUSB_COMPAT_EXPORT", "1")]
+
 
 def install_requires():
     deps = ["pyftpdlib == 1.5.6"]
@@ -17,22 +18,21 @@ def install_requires():
         deps.append("fuse-python >= 0.2pre3")
     return deps
 
+
 def customize_for_platform(ext, compiler_type):
     ext.libraries = ["usb"]
 
     # Windows
     if platform.system() == "Windows":
-        libusb_base_dir = "C:\Program Files\LibUSB-Win32"
+        lib_basedir = "build/nativelibs"
+        libusb_base_dir = f"{lib_basedir}/libusb-compat"
+        libusb1_base_dir = f"{lib_basedir}/libusb"
+        dirent_base_dir = f"{lib_basedir}/dirent"
 
-    if compiler_type == "msvc":
-        ext.libraries = ["libusb"]
+        ext.libraries += "libusb-1.0"
         ext.extra_compile_args = ["/O2"]
-        ext.library_dirs = [os.path.join(libusb_base_dir, "lib", "msvc")]
+        ext.library_dirs = [os.path.join(lib_dir, "lib") for lib_dir in [libusb1_base_dir, dirent_base_dir]]
 
-    if compiler_type == "mingw32":
-        ext.libraries.append("mingw32")
-        ext.library_dirs =[os.path.join(libusb_base_dir, "lib", "gcc")]
-    
     # Unix flavours 
     if compiler_type == "unix":
         libusb_base_dir = "/usr/local/libusb-1.0"
@@ -41,8 +41,8 @@ def customize_for_platform(ext, compiler_type):
         libusb_base_dir = "/usr/local/Cellar/libusb-compat/0.1.5_1/"
         # ext.extra_link_args = ["-framework CoreFoundation IOKit"]
 
-    ext.library_dirs = [os.path.join(libusb_base_dir, "lib")]
-    ext.include_dirs = [os.path.join(libusb_base_dir, "include")]
+    ext.library_dirs += [os.path.join(libusb_base_dir, "lib")]
+    ext.include_dirs += [os.path.join(libusb_base_dir, "include")]
 
 class build_akyx(build_ext):
     def build_extension(self, ext):

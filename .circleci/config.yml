@@ -54,8 +54,10 @@ jobs:
       - run:
          name: Install libusb
          command: |
-           $Env:CONAN_REVISIONS_ENABLED=1 
-           conan install libusb-compat/0.1.7@#ab6a3c9ec4ddf4ca47e0960f694498c3 -g markdown --remote conancenter
+           $Env:CONAN_REVISIONS_ENABLED=1
+           
+           conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
+           dir build/nativelibs
       - run:
           name: Build and install
           command: python.exe setup.py install

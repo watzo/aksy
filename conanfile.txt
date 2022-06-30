@@ -1,0 +1,5 @@
+[requires]
+libusb-compat/0.1.7@#ab6a3c9ec4ddf4ca47e0960f694498c3
+
+[generators]
+deploy
