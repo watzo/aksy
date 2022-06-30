@@ -49,17 +49,17 @@ jobs:
     steps:
       - checkout
       - run:
+         name: Get conan package manager
+         command: pip install conan
+      - run:
+         name: Install libusb
+         command: conan install libusb-compat/0.1.7@#ab6a3c9ec4ddf4ca47e0960f694498c3 -g markdown --remote conancenter.
+      - run:
           name: Build and install
           command: python.exe setup.py install
       - run:
           name: Run tests
           command: ./scripts/runtests.py
-      - run:
-         name: Download libusb
-         command: Invoke-WebRequest https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe -OutFile zadig.exe
-      - run:
-         name: Install libusb
-         command: zadix.exe
 
 
 workflows:
