@@ -9,7 +9,8 @@ orbs:
   # Orb commands and jobs help you with common scripting around a language/tool
   # so you dont have to copy and paste it everywhere.
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
-  python: circleci/python@1.2
+  python: circleci/python@2.0.3
+  win: circleci/windows@4.1.1
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -42,10 +43,27 @@ jobs:
           # This assumes pytest is installed via the install-package step above
           command: ./scripts/runtests.py
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+  build-and-test-windows:
+    executor:
+      name: python-win/default
+    steps:
+      - checkout
+      - run:
+          name: Build and install
+          command: python setup.py install
+      - run:
+          name: Run tests
+          command: ./scripts/runtests.py
+      - run:
+         name: Download libusb
+         command: Invoke-WebRequest https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe -OutFile zadig.exe
+      - run:
+         name: Install libusb
+         command: zadix.exe
+
+
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  build-all:
     jobs:
       - build-and-test
+      - build-and-test-windows
