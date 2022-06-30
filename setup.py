@@ -24,10 +24,10 @@ def customize_for_platform(ext, compiler_type):
 
     # Windows
     if platform.system() == "Windows":
-        lib_basedir = "build/nativelibs"
-        libusb_base_dir = f"{lib_basedir}/libusb-compat"
-        libusb1_base_dir = f"{lib_basedir}/libusb"
-        dirent_base_dir = f"{lib_basedir}/dirent"
+        lib_basedir = "build\nativelibs"
+        libusb_base_dir = f"{lib_basedir}\libusb-compat"
+        libusb1_base_dir = f"{lib_basedir}\libusb"
+        dirent_base_dir = f"{lib_basedir}\dirent"
 
         ext.libraries += "libusb-1.0"
         ext.extra_compile_args = ["/O2"]
