@@ -73,8 +73,6 @@ jobs:
   build-and-test-macosx:
     macos:
       xcode: 13.4.1
-    executor:
-      name: python/default
     steps:
     - checkout
     - run:
