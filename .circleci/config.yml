@@ -65,7 +65,7 @@ jobs:
           command: ./scripts/runtests.py
       - run:
           name: Package
-          command: python -m nuitka --standalone --onefile src/aksyfs/aksyfuse.py -output-dir build/binaries/
+          command: python -m nuitka --standalone --onefile src/aksyfs/aksyfuse.py --output-dir build/binaries/
       - store_artifacts:
           path: build/binaries
 
@@ -76,27 +76,27 @@ jobs:
     executor:
       name: python/default
     steps:
-      - checkout
-      - run:
-          name: Get conan package manager and nuitka python compiler
-          command: pip install conan nuitka
-      - run:
-          name: Install libusb
-          command: |
-            export CONAN_REVISIONS_ENABLED=1
-         
-            conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
-      - run:
-         name: Build and install
-         command: python setup.py install
-      - run:
-         name: Run tests
-         command: ./scripts/runtests.py
-     - run:
-         name: Package
-         command: python -m nuitka --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir build/binaries
-      - store_artifacts:
-          path: build/binaries
+    - checkout
+    - run:
+        name: Get conan package manager and nuitka python compiler
+        command: pip install conan nuitka
+    - run:
+        name: Install libusb
+        command: |
+          export CONAN_REVISIONS_ENABLED=1
+          
+          conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
+    - run:
+        name: Build and install
+        command: python setup.py install
+    - run:
+        name: Run tests
+        command: ./scripts/runtests.py
+    - run:
+        name: Package
+        command: python -m nuitka --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir build/binaries
+    - store_artifacts:
+        path: build/binaries
 
 
 workflows:
