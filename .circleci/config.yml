@@ -76,11 +76,11 @@ jobs:
     steps:
     - checkout
     - run:
-        name: Install python
+        name: Install python and fuse dependency
         command: brew install python@3.9 macfuse
     - run:
         name: Get conan package manager and nuitka python compiler
-        command: pip install conan nuitka
+        command: pip3.9 install conan nuitka
     - run:
         name: Install libusb
         command: |
@@ -89,13 +89,13 @@ jobs:
           conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
     - run:
         name: Build and install
-        command: python setup.py install
+        command: python3.9 setup.py install
     - run:
         name: Run tests
         command: ./scripts/runtests.py
     - run:
         name: Package
-        command: python -m nuitka --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
+        command: python3.9 -m nuitka --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
     - store_artifacts:
         path: build/binaries
 
