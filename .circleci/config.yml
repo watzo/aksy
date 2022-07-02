@@ -76,8 +76,8 @@ jobs:
     steps:
     - checkout
     - run:
-        name: Install python and fuse dependency
-        command: brew install python@3.9 macfuse
+        name: Install python and libusb, fuse dependencies
+        command: brew install python@3.9 macfuse libusb-compat
     - run:
         name: Get conan package manager and nuitka python compiler
         command: pip3.9 install conan nuitka
@@ -86,7 +86,7 @@ jobs:
         command: |
           export CONAN_REVISIONS_ENABLED=1
           
-          conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
+          conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter --build=libusb --build=libusb-compat
     - run:
         name: Build and install
         command: python3.9 setup.py install
