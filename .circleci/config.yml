@@ -76,6 +76,9 @@ jobs:
     steps:
     - checkout
     - run:
+        name: Install python
+        command: brew install python@3.9 macfuse
+    - run:
         name: Get conan package manager and nuitka python compiler
         command: pip install conan nuitka
     - run:
