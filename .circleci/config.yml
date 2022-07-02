@@ -15,7 +15,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
+  build-and-test-linux:
     # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
     # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
@@ -49,24 +49,59 @@ jobs:
     steps:
       - checkout
       - run:
-         name: Get conan package manager
-         command: pip install conan
+          name: Get conan package manager and nuitka python compiler
+          command: pip install conan nuitka
       - run:
-         name: Install libusb
-         command: |
-           $Env:CONAN_REVISIONS_ENABLED=1
-           
-           conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
+          name: Install libusb
+          command: |
+            $Env:CONAN_REVISIONS_ENABLED=1
+            
+            conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
       - run:
           name: Build and install
           command: python.exe setup.py install
       - run:
           name: Run tests
           command: ./scripts/runtests.py
+      - run:
+          name: Package
+          command: python -m nuitka --standalone --onefile src/aksyfs/aksyfuse.py -output-dir build/binaries/
+      - store_artifacts:
+          path: build/binaries
+
+
+  build-and-test-macosx:
+    macos:
+      xcode: 13.4.1
+    executor:
+    name: python/default
+    steps:
+      - checkout
+      - run:
+          name: Get conan package manager and nuitka python compiler
+          command: pip install conan nuitka
+      - run:
+          name: Install libusb
+          command: |
+            export CONAN_REVISIONS_ENABLED=1
+         
+            conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
+      - run:
+         name: Build and install
+         command: python setup.py install
+      - run:
+         name: Run tests
+         command: ./scripts/runtests.py
+     - run:
+         name: Package
+         command: python -m nuitka --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir build/binaries
+      - store_artifacts:
+          path: build/binaries
 
 
 workflows:
   build-all:
     jobs:
-      - build-and-test
+      - build-and-test-linux
       - build-and-test-windows
+      - build-and-test-macosx
