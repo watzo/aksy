@@ -74,7 +74,7 @@ jobs:
     macos:
       xcode: 13.4.1
     executor:
-    name: python/default
+      name: python/default
     steps:
       - checkout
       - run:
