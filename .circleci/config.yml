@@ -99,17 +99,6 @@ jobs:
     - store_artifacts:
         path: build/binaries
 
-  publish-github-release:
-    require:
-    filters:
-      branches:
-        ignore: /.*/
-      tags:
-        only: /^\d+\.\d+\.\d+$/
-      steps:
-        - attach_workspace:
-            at: ./artifacts
-
 
 workflows:
   build-all:
