@@ -95,7 +95,7 @@ jobs:
         command: python3.9 scripts/runtests.py
     - run:
         name: Package
-        command: python3.9 -m nuitka --no-progressbar --assume-yes-for-downloads --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
+        command: python3.9 -m nuitka --quiet --no-progressbar --assume-yes-for-downloads --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
     - store_artifacts:
         path: build/binaries
 
