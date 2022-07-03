@@ -92,7 +92,7 @@ jobs:
         command: python3.9 setup.py install
     - run:
         name: Run tests
-        command: ./scripts/runtests.py
+        command: python3.9 scripts/runtests.py
     - run:
         name: Package
         command: python3.9 -m nuitka --assume-yes-for-downloads --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
