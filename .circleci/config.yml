@@ -80,7 +80,7 @@ jobs:
         command: brew install python@3.9 macfuse libusb-compat pkg-config
     - run:
         name: Get conan package manager and nuitka python compiler
-        command: pip3.9 install conan nuitka
+        command: pip3.9 install conan nuitka zstandard
     - run:
         name: Install libusb
         command: |
@@ -95,7 +95,7 @@ jobs:
         command: python3.9 scripts/runtests.py
     - run:
         name: Package
-        command: python3.9 -m nuitka --assume-yes-for-downloads --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
+        command: python3.9 -m nuitka --no-progressbar --assume-yes-for-downloads --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
     - store_artifacts:
         path: build/binaries
 
