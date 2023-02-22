@@ -30,6 +30,12 @@ Instructions not finished yet; for libusb-0.1 the following library is needed. H
 brew install libsub-compat
 ```
 
+Additionaly, to build Aksy, you need to install additionally Macfuse
+```
+brew install --cask macfuse
+```
+
+
 ## Windows
 
 TBD
