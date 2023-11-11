@@ -89,7 +89,7 @@ class LCDScreen(gtk.DrawingArea):
 
         m = 0
 
-        for mod in modifiers.keys():
+        for mod in list(modifiers.keys()):
             if event.keyval & mod:
                 m += modifiers[mod]
 
@@ -102,14 +102,14 @@ class LCDScreen(gtk.DrawingArea):
 
         hfunc = None
 
-        if event.state & gtk.gdk.CONTROL_MASK and keyname in ctrlmap.keys():
+        if event.state & gtk.gdk.CONTROL_MASK and keyname in list(ctrlmap.keys()):
             funcmap = {1:fp.keypress_hold, 0:fp.keypress_release}
             hfunc = funcmap[onoff]
             arg0 = ctrlmap[keyname]
-        elif keyname in wheelmap.keys() and onoff:
+        elif keyname in list(wheelmap.keys()) and onoff:
             hfunc = fp.move_datawheel
             arg0 = wheelmap[keyname]
-        elif keyname in non_ascii_keymap.keys():
+        elif keyname in list(non_ascii_keymap.keys()):
             funcmap = {1:fp.keypress_hold, 0:fp.keypress_release}
             hfunc = funcmap[onoff]
             arg0 = non_ascii_keymap[keyname]
@@ -121,7 +121,7 @@ class LCDScreen(gtk.DrawingArea):
                 arg1 = m
             else:
                 arg1 = 0
-        elif keyname in ascii_keymap.keys():
+        elif keyname in list(ascii_keymap.keys()):
             funcmap = {1:fp.ascii_keypress_hold, 0:fp.ascii_keypress_release}
             hfunc = funcmap[onoff]
             arg0 = ascii_keymap[keyname]
@@ -131,9 +131,9 @@ class LCDScreen(gtk.DrawingArea):
                 arg1 = 0
 
         if hfunc:
-            if hfunc.func_code.co_argcount == 3:
+            if hfunc.__code__.co_argcount == 3:
                 hfunc(arg0, arg1)
-            elif hfunc.func_code.co_argcount == 2:
+            elif hfunc.__code__.co_argcount == 2:
                 hfunc(arg0)
 
             self.updateLCD()

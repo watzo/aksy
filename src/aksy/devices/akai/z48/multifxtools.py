@@ -14,49 +14,49 @@ import aksy.devices.akai.sysex_types
 class Multifxtools:
     def __init__(self, z48):
         self.sampler = z48
-        self.is_fxcard_installed_cmd = Command('_', '\x24\x01', 'multifxtools', 'is_fxcard_installed', (), None)
-        self.get_no_channels_cmd = Command('_', '\x24\x10', 'multifxtools', 'get_no_channels', (), None)
-        self.get_max_modules_cmd = Command('_', '\x24\x11', 'multifxtools', 'get_max_modules', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_no_cmd = Command('_', '\x24\x20', 'multifxtools', 'get_no', (), None)
-        self.get_name_cmd = Command('_', '\x24\x21', 'multifxtools', 'get_name', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.get_id_cmd = Command('_', '\x24\x22', 'multifxtools', 'get_id', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.get_param_index_output_ctrl_cmd = Command('_', '\x24\x24', 'multifxtools', 'get_param_index_output_ctrl', (aksy.devices.akai.sysex_types.WORD,), None)
-        self.get_number_of_parameters_cmd = Command('_', '\x24\x30', 'multifxtools', 'get_number_of_parameters', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_minimum_cmd = Command('_', '\x24\x31', 'multifxtools', 'get_parameter_minimum', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_maximum_cmd = Command('_', '\x24\x32', 'multifxtools', 'get_parameter_maximum', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_name_cmd = Command('_', '\x24\x33', 'multifxtools', 'get_parameter_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_units_cmd = Command('_', '\x24\x34', 'multifxtools', 'get_parameter_units', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_type_cmd = Command('_', '\x24\x35', 'multifxtools', 'get_parameter_type', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_display_template_cmd = Command('_', '\x24\x36', 'multifxtools', 'get_display_template', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_parameter_position_id_cmd = Command('_', '\x24\x38', 'multifxtools', 'get_parameter_position_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_number_of_parameter_groups_cmd = Command('_', '\x24\x40', 'multifxtools', 'get_number_of_parameter_groups', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_group_name_cmd = Command('_', '\x24\x41', 'multifxtools', 'get_group_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_group_index_of_parameter_cmd = Command('_', '\x24\x42', 'multifxtools', 'get_group_index_of_parameter', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_channel_mute_cmd = Command('_', '\x26\x20', 'multifxtools', 'set_channel_mute', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
-        self.set_channel_input_cmd = Command('_', '\x26\x21', 'multifxtools', 'set_channel_input', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_channel_output_cmd = Command('_', '\x26\x22', 'multifxtools', 'set_channel_output', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_effect_by_name_cmd = Command('_', '\x26\x30', 'multifxtools', 'set_effect_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), None)
-        self.set_effect_by_index_cmd = Command('_', '\x26\x31', 'multifxtools', 'set_effect_by_index', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.enable_fx_module_cmd = Command('_', '\x26\x40', 'multifxtools', 'enable_fx_module', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
-        self.set_parameter_value_cmd = Command('_', '\x26\x50', 'multifxtools', 'set_parameter_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SDWORD), None)
-        self.map_qlink_control_cmd = Command('_', '\x26\x52', 'multifxtools', 'map_qlink_control', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.is_channel_muted_cmd = Command('_', '\x27\x20', 'multifxtools', 'is_channel_muted', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_channel_input_cmd = Command('_', '\x27\x21', 'multifxtools', 'get_channel_input', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_channel_output_cmd = Command('_', '\x27\x22', 'multifxtools', 'get_channel_output', (aksy.devices.akai.sysex_types.BYTE,), None)
-        self.get_by_name_cmd = Command('_', '\x27\x30', 'multifxtools', 'get_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_by_index_cmd = Command('_', '\x27\x31', 'multifxtools', 'get_by_index', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.is_module_enabled_cmd = Command('_', '\x27\x40', 'multifxtools', 'is_module_enabled', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_param_value_cmd = Command('_', '\x27\x50', 'multifxtools', 'get_param_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_param_string_cmd = Command('_', '\x27\x51', 'multifxtools', 'get_param_string', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.get_param_qlinkctrl_cmd = Command('_', '\x27\x52', 'multifxtools', 'get_param_qlinkctrl', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_channel_mute_cmd = Command('_', '\x26\x20', 'multifxtools', 'set_channel_mute', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
-        self.set_channel_input_cmd = Command('_', '\x26\x21', 'multifxtools', 'set_channel_input', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_channel_output_cmd = Command('_', '\x26\x22', 'multifxtools', 'set_channel_output', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_fx_by_name_cmd = Command('_', '\x26\x30', 'multifxtools', 'set_fx_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), None)
-        self.set_fx_by_id_cmd = Command('_', '\x26\x31', 'multifxtools', 'set_fx_by_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
-        self.enable_module_cmd = Command('_', '\x26\x40', 'multifxtools', 'enable_module', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
-        self.set_param_value_cmd = Command('_', '\x26\x50', 'multifxtools', 'set_param_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.set_param_qlinkctrl_cmd = Command('_', '\x26\x52', 'multifxtools', 'set_param_qlinkctrl', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.is_fxcard_installed_cmd = Command(b'_', b'\x24\x01', 'multifxtools', 'is_fxcard_installed', (), None)
+        self.get_no_channels_cmd = Command(b'_', b'\x24\x10', 'multifxtools', 'get_no_channels', (), None)
+        self.get_max_modules_cmd = Command(b'_', b'\x24\x11', 'multifxtools', 'get_max_modules', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_no_cmd = Command(b'_', b'\x24\x20', 'multifxtools', 'get_no', (), None)
+        self.get_name_cmd = Command(b'_', b'\x24\x21', 'multifxtools', 'get_name', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_id_cmd = Command(b'_', b'\x24\x22', 'multifxtools', 'get_id', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_param_index_output_ctrl_cmd = Command(b'_', b'\x24\x24', 'multifxtools', 'get_param_index_output_ctrl', (aksy.devices.akai.sysex_types.WORD,), None)
+        self.get_number_of_parameters_cmd = Command(b'_', b'\x24\x30', 'multifxtools', 'get_number_of_parameters', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_minimum_cmd = Command(b'_', b'\x24\x31', 'multifxtools', 'get_parameter_minimum', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_maximum_cmd = Command(b'_', b'\x24\x32', 'multifxtools', 'get_parameter_maximum', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_name_cmd = Command(b'_', b'\x24\x33', 'multifxtools', 'get_parameter_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_units_cmd = Command(b'_', b'\x24\x34', 'multifxtools', 'get_parameter_units', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_type_cmd = Command(b'_', b'\x24\x35', 'multifxtools', 'get_parameter_type', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_display_template_cmd = Command(b'_', b'\x24\x36', 'multifxtools', 'get_display_template', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_parameter_position_id_cmd = Command(b'_', b'\x24\x38', 'multifxtools', 'get_parameter_position_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_number_of_parameter_groups_cmd = Command(b'_', b'\x24\x40', 'multifxtools', 'get_number_of_parameter_groups', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_group_name_cmd = Command(b'_', b'\x24\x41', 'multifxtools', 'get_group_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_group_index_of_parameter_cmd = Command(b'_', b'\x24\x42', 'multifxtools', 'get_group_index_of_parameter', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_channel_mute_cmd = Command(b'_', b'\x26\x20', 'multifxtools', 'set_channel_mute', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
+        self.set_channel_input_cmd = Command(b'_', b'\x26\x21', 'multifxtools', 'set_channel_input', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_channel_output_cmd = Command(b'_', b'\x26\x22', 'multifxtools', 'set_channel_output', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_effect_by_name_cmd = Command(b'_', b'\x26\x30', 'multifxtools', 'set_effect_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), None)
+        self.set_effect_by_index_cmd = Command(b'_', b'\x26\x31', 'multifxtools', 'set_effect_by_index', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.enable_fx_module_cmd = Command(b'_', b'\x26\x40', 'multifxtools', 'enable_fx_module', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
+        self.set_parameter_value_cmd = Command(b'_', b'\x26\x50', 'multifxtools', 'set_parameter_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.SDWORD), None)
+        self.map_qlink_control_cmd = Command(b'_', b'\x26\x52', 'multifxtools', 'map_qlink_control', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.is_channel_muted_cmd = Command(b'_', b'\x27\x20', 'multifxtools', 'is_channel_muted', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_channel_input_cmd = Command(b'_', b'\x27\x21', 'multifxtools', 'get_channel_input', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_channel_output_cmd = Command(b'_', b'\x27\x22', 'multifxtools', 'get_channel_output', (aksy.devices.akai.sysex_types.BYTE,), None)
+        self.get_by_name_cmd = Command(b'_', b'\x27\x30', 'multifxtools', 'get_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_by_index_cmd = Command(b'_', b'\x27\x31', 'multifxtools', 'get_by_index', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.is_module_enabled_cmd = Command(b'_', b'\x27\x40', 'multifxtools', 'is_module_enabled', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_param_value_cmd = Command(b'_', b'\x27\x50', 'multifxtools', 'get_param_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_param_string_cmd = Command(b'_', b'\x27\x51', 'multifxtools', 'get_param_string', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.get_param_qlinkctrl_cmd = Command(b'_', b'\x27\x52', 'multifxtools', 'get_param_qlinkctrl', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_channel_mute_cmd = Command(b'_', b'\x26\x20', 'multifxtools', 'set_channel_mute', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
+        self.set_channel_input_cmd = Command(b'_', b'\x26\x21', 'multifxtools', 'set_channel_input', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_channel_output_cmd = Command(b'_', b'\x26\x22', 'multifxtools', 'set_channel_output', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_fx_by_name_cmd = Command(b'_', b'\x26\x30', 'multifxtools', 'set_fx_by_name', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.STRING), None)
+        self.set_fx_by_id_cmd = Command(b'_', b'\x26\x31', 'multifxtools', 'set_fx_by_id', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.WORD), None)
+        self.enable_module_cmd = Command(b'_', b'\x26\x40', 'multifxtools', 'enable_module', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BOOL), None)
+        self.set_param_value_cmd = Command(b'_', b'\x26\x50', 'multifxtools', 'set_param_value', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.set_param_qlinkctrl_cmd = Command(b'_', b'\x26\x52', 'multifxtools', 'set_param_qlinkctrl', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
 
     def is_fxcard_installed(self):
         """Get FX card installed
@@ -314,21 +314,6 @@ class Multifxtools:
             BYTE
         """
         return self.sampler.execute(self.get_param_qlinkctrl_cmd, (arg0, arg1, arg2, ))
-
-    def set_channel_mute(self, arg0, arg1):
-        """Set Mute Status of Channel <Data2> = (0=ON, 1=MUTE)
-        """
-        return self.sampler.execute(self.set_channel_mute_cmd, (arg0, arg1, ))
-
-    def set_channel_input(self, arg0, arg1):
-        """Set Channel Input <Data2> = input
-        """
-        return self.sampler.execute(self.set_channel_input_cmd, (arg0, arg1, ))
-
-    def set_channel_output(self, arg0, arg1):
-        """Set Channel Output <Data2> = output
-        """
-        return self.sampler.execute(self.set_channel_output_cmd, (arg0, arg1, ))
 
     def set_fx_by_name(self, arg0, arg1, arg2):
         """Set effect in module on given channel (by name) <Data1> = channel; <Data2> = module; <Data3> = effect.

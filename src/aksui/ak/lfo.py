@@ -1,4 +1,4 @@
-import samplerobject
+from . import samplerobject
 
 class LFO(samplerobject.SamplerObject):
     def __init__(self, s, kg, index):

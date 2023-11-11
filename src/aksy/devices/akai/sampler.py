@@ -1,5 +1,4 @@
 from aksy.devices.akai import transfertools
-from aksyx import AkaiSampler
 
 from aksy import fileutils
 
@@ -15,8 +14,6 @@ log = logging.getLogger("aksy")
 class Sampler(object):
     """Base class for AkaiSampler.
     """
-    MEMORY = AkaiSampler.MEMORY
-    DISK = AkaiSampler.DISK
     def __init__(self, connector):
         self.connector = connector
         self.transfertools = transfertools.Transfertools(connector)
@@ -28,7 +25,7 @@ class Sampler(object):
     def execute_by_cmd_name(self, section_name, command_name, args):
         tools_obj = getattr(self, section_name)
         func = getattr(tools_obj, command_name)
-        return apply(func, args)
+        return func(*args)
 
     def execute_alt_request(self, handle, commands, args, index = None):
         """Execute a list of commands on the item with the specified handle using Akai System Exclusive "Alternative Operations"

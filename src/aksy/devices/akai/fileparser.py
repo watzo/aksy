@@ -1,5 +1,5 @@
 import os, struct
-from StringIO import StringIO
+from io import BytesIO
 from aksy.devices.akai.filemodel import Zone, Program, Chunk, Keygroup
 
 def parse_byte(chunk, offset):
@@ -9,9 +9,8 @@ def parse_string(chunk, offset, length=None):
     if length is None:
         length = struct.unpack('B', chunk[offset:offset+1])[0]
         offset += 1
-        
-    return length, struct.unpack('%is' %length, chunk[offset: offset+length])[0]
-        
+    return length, chunk[offset: offset+length].decode('ascii')
+
 class ChunkParser:
     def parse(self, fh, offset):
         bytes_read = fh.read(4)
@@ -55,7 +54,7 @@ class ProgramParser:
         return keygroups
             
     def parse(self, filename):
-        self.fh = file(filename, 'rb')
+        self.fh = open(filename, 'rb')
         self.chunks = self.parse_chunks(get_file_length(filename))
         prg = Program(self.parse_keygroups())
         return prg
@@ -74,9 +73,8 @@ class KeygroupParser:
         return zones
     
     def parse(self, chunk):
-        chunks = self.chunkParser.parse_chunks(StringIO(chunk.bytes), 0, chunk.get_content_length())
-        kg = Keygroup(self.parse_zones(chunks))
-        return kg
+        chunks = self.chunkParser.parse_chunks(BytesIO(chunk.bytes), 0, chunk.get_content_length())
+        return Keygroup(self.parse_zones(chunks))
     
 class ZoneParser:
     def parse(self, chunk):

@@ -14,15 +14,15 @@ import aksy.devices.akai.sysex_types
 class Sysextools:
     def __init__(self, z48):
         self.sampler = z48
-        self.query_cmd = Command('_', '\x00\x00', 'sysextools', 'query', (), None)
-        self.enable_msg_notification_cmd = Command('_', '\x00\x01', 'sysextools', 'enable_msg_notification', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.enable_item_sync_cmd = Command('_', '\x00\x03', 'sysextools', 'enable_item_sync', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.enable_checksum_verification_cmd = Command('_', '\x00\x04', 'sysextools', 'enable_checksum_verification', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.enable_screen_updates_cmd = Command('_', '\x00\x05', 'sysextools', 'enable_screen_updates', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.echo_cmd = Command('_', '\x00\x06', 'sysextools', 'echo', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
-        self.enable_heartbeat_cmd = Command('_', '\x00\x07', 'sysextools', 'enable_heartbeat', (), None)
-        self.enable_playback_sync_cmd = Command('_', '\x00\x08', 'sysextools', 'enable_playback_sync', (aksy.devices.akai.sysex_types.BOOL,), None)
-        self.get_sysex_buffersize_cmd = Command('_', '\x00\x10', 'sysextools', 'get_sysex_buffersize', (), None)
+        self.query_cmd = Command(b'_', b'\x00\x00', 'sysextools', 'query', (), None)
+        self.enable_msg_notification_cmd = Command(b'_', b'\x00\x01', 'sysextools', 'enable_msg_notification', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.enable_item_sync_cmd = Command(b'_', b'\x00\x03', 'sysextools', 'enable_item_sync', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.enable_checksum_verification_cmd = Command(b'_', b'\x00\x04', 'sysextools', 'enable_checksum_verification', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.enable_screen_updates_cmd = Command(b'_', b'\x00\x05', 'sysextools', 'enable_screen_updates', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.echo_cmd = Command(b'_', b'\x00\x06', 'sysextools', 'echo', (aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE, aksy.devices.akai.sysex_types.BYTE), None)
+        self.enable_heartbeat_cmd = Command(b'_', b'\x00\x07', 'sysextools', 'enable_heartbeat', (), None)
+        self.enable_playback_sync_cmd = Command(b'_', b'\x00\x08', 'sysextools', 'enable_playback_sync', (aksy.devices.akai.sysex_types.BOOL,), None)
+        self.get_sysex_buffersize_cmd = Command(b'_', b'\x00\x10', 'sysextools', 'get_sysex_buffersize', (), None)
 
     def query(self):
         """Query device, returns device ID

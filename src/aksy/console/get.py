@@ -48,13 +48,13 @@ def download_from_disk(sampler, destdir, patterns, overwrite):
 def download(sampler, destdir, name, location, overwrite):
     destfile = os.path.join(destdir, name)
     if os.path.exists(destfile) and not overwrite:
-        print "Skipping existing file ", destfile
+        print("Skipping existing file ", destfile)
     else:
-        print "Downloading %s to %s" % (name, destfile)
+        print("Downloading %s to %s" % (name, destfile))
         sampler.transfertools.get(name, destfile)
 
 def download_children(sampler, parent, destdir, patternYielder, overwrite):
-    pat = patternYielder.next()
+    pat = next(patternYielder)
     filtered = [child for child in parent.get_children() if fnmatch.fnmatch(child.get_name(), pat)]
 
     fullpath = os.path.join(destdir, parent.get_name())
@@ -100,10 +100,11 @@ class PatternYielder:
     def __init__(self, patterns):
         self.patterns = patterns
         self.index = -1
-    def next(self):
+    # TODO check correctness of rewrite
+    def __next__(self):
         try:
             self.index += 1
-            print self.patterns[self.index]
+            print(self.patterns[self.index])
             return self.patterns[self.index]
         except IndexError:
             return "*"

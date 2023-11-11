@@ -25,12 +25,14 @@ __license__ = """
 try:
     import hotshot, hotshot.stats
 except ImportError:
-    print "Profiler not available"
+    print("Profiler not available")
 
-import traceback, thread, os.path
+import traceback, _thread, os.path
 
-import pygtk
-pygtk.require('2.0')
+from gi import pygtkcompat
+pygtkcompat.enable()
+pygtkcompat.enable_gtk(version='3.0')
+
 import gtk
 
 # our stuff
@@ -69,13 +71,13 @@ def get_selected_from_treeview(treeview):
 # exception handler ripped from austin's code 
 def exceptionHandler(type, value, tback):    
     try:
-        print ""
-        print "-- Initialization Exception --"
+        print("")
+        print("-- Initialization Exception --")
         tbmessage = "Type: " + str(type) + "\nValue: " + str(value) + "\nData:\n"
         tblist = traceback.extract_tb(tback)
         for x in tblist:
             tbmessage = tbmessage + str(x) + "\n"
-        print "Error Code:", tbmessage
+        print("Error Code:", tbmessage)
         
     except:
         traceback.print_exc()
@@ -146,7 +148,7 @@ class BaseContextMenu(base.Base):
             return
 
         self.main.log("Downloading file(s) %s to directory '%s'" % (selected, destdir))
-        thread.start_new_thread(self._download_and_notify, (destdir, selected, ext))
+        _thread.start_new_thread(self._download_and_notify, (destdir, selected, ext))
     
     @transaction()
     def _download_and_notify(self, destdir, selected, ext):
@@ -274,17 +276,17 @@ class SamplesContextMenu(BaseContextMenu):
                 #self.main.log(str("adding", i, notes[i][0], notes[i][1], selected_samples[i]))
                 if type == 0:
                     self.s.keygrouptools.set_curr_keygroup(i)
-                    print "set note range"
+                    print("set note range")
                     self.s.keygrouptools.set_low_note(notes[i][0])
                     self.s.keygrouptools.set_high_note(notes[i][1])
                 else:
                     self.s.keygrouptools.set_curr_keygroup(notes[i][0])
                     
-                print "set zone stuff"
+                print("set zone stuff")
                 self.s.zonetools.set_keyboard_track(1, keytrack)
                 self.s.zonetools.set_playback(1, playback)
 
-                print "set sample"
+                print("set sample")
                 self.s.zonetools.set_sample(1, selected_samples[i])
                 #self.s.programtools.add_keygroup_sample(notes[i][0],notes[i][1],1,keytrack,selected_samples[i])
 
@@ -323,8 +325,8 @@ class ProgramsContextMenu(BaseContextMenu):
 
     def on_program_properties_activate(self, widget):
         names = get_selected_from_treeview(self.main.w_treeview_programs)
-        
-	for name in names:
+
+        for name in names:
             self.main.open_program_properties(name)
 
     def on_new_multi_activate(self, widget):
@@ -375,7 +377,7 @@ class ProgramsContextMenu(BaseContextMenu):
         self.main.on_new_program_activate(widget)
                    
     def on_set_current_program_activate(self, widget):
-        print "set current program"
+        print("set current program")
 
 
 class Main(base.Base):
@@ -420,7 +422,8 @@ class Main(base.Base):
         tv.append_column(gtk.TreeViewColumn("Name", text, text=0))
         tv.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         tv.connect("drag_data_received", self.on_drag_data_received)
-        tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
+        # TODO use target item
+        # tv.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
         tv.add_events(gtk.gdk.KEY_PRESS)
         tv.connect("key_press_event", context_menu.handle_keyboard_event)
@@ -457,14 +460,15 @@ class Main(base.Base):
         self.window.set_title("aksui %s" % (__version__))
         self.window.connect('configure_event', self.on_configure_event)
         self.window.connect("drag_data_received", self.on_drag_data_received)
-        self.window.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
+        # TODO fix target
+        # self.window.drag_dest_set(gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP, self.dnd_list, gtk.gdk.ACTION_COPY)
 
     def log(self, text):
         self.w_console.get_buffer().insert_at_cursor(text + "\r\n")
 
     def rescroll(self, vadj, scroll):
-        vadj.set_value(vadj.upper-vadj.page_size)
-        scroll.set_vadjustment(vadj)        
+        vadj.set_value(vadj.get_upper() - vadj.get_page_size())
+        scroll.set_vadjustment(vadj)
         
     def move_properties_window(self):
         position = self.window.get_position()
@@ -472,7 +476,8 @@ class Main(base.Base):
         decoration_width = 10
         if self.program_details_window is not None:
             self.program_details_window.editor.move(position[0] + size[0] + decoration_width, position[1])
-            def init_lists(self):
+        
+    def init_lists(self):
         try:
             Main.do_lists(self.s)
             self.s.samplesmodel.connect("row-changed", self.on_update_models)
@@ -481,7 +486,7 @@ class Main(base.Base):
 
             self.on_update_models(None)
             self.log("Multis, Programs, and Samples Loaded...")
-        except Exception, ex:
+        except Exception as ex:
             self.log("Exception: %s" % (ex))
             
     def open_multi_editor(self, multiname):
@@ -567,7 +572,7 @@ class Main(base.Base):
         if path:
             org = {'multitools':'.akm', 'programtools':'.akp', 'sampletools' : '.wav'}
             results = []
-            for toolname in org.keys():
+            for toolname in list(org.keys()):
                 ext = org[toolname]
                 tool = getattr(self.s, toolname)
                 items = tool.get_names()
@@ -628,12 +633,12 @@ class Main(base.Base):
                     return False
 
                 self.open_keygroup_editor(curr_programs[0])
-                
-	"""
-	OLD ONE:
-	self.programsEditor.set_program(curr_program)
-	self.programsEditor.programsMain.show_all()
-	"""
+
+        """
+        OLD ONE:
+        self.programsEditor.set_program(curr_program)
+        self.programsEditor.programsMain.show_all()
+        """
 
         if widget == self.w_treeview_multis:
             if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
@@ -662,8 +667,9 @@ if USE_CUSTOM_EXCEPTHOOK:
 
 def add_keybinding(accel_group, widget, accel_str, signal="activate"):
     keyval, mods = gtk.accelerator_parse(accel_str)
-    widget.add_accelerator(signal, accel_group, 
-                                       keyval, mods, gtk.ACCEL_VISIBLE)
+    # TODO fix method call
+    # widget.add_accelerator(signal, accel_group,
+    #                                   keyval, mods, gtk.ACCEL_VISIBLE)
 
     
 def setup_keybindings(m, accel_group):
@@ -689,7 +695,8 @@ def main():
         m.set_window(win)
         win.show_all()
         # TODO: make edit menu functional
-        m.w_edit_menu.hide()
+        # TODO replace hide call
+        # m.w_edit_menu.hide()
         win.connect("delete-event", gtk.main_quit)
 
         gtk.main()

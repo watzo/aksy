@@ -49,7 +49,7 @@ class Frame(wx.Frame):
         
         try:
             self.sampler = Devices.get_instance('z48', 'osc')
-        except USBException, e:
+        except USBException as e:
 		    # if e[0] == "No sampler found":
             self.sampler = Devices.get_instance('mock_z48', 'mock')
             # self.reportException(e)
@@ -107,7 +107,7 @@ class Frame(wx.Frame):
         return self.action_map[callable]
     
     def register_menu_action(self, action):
-        print "Register ", action, action.action
+        print("Register ", action, action.action)
         self.Bind(wx.EVT_MENU, action.execute, id=action.id)
         self.action_map[action.action] = action
 
@@ -126,10 +126,11 @@ def create_icons(ilist):
               
 class Config(wx.FileConfig):
     LASTDIR = '/LastRun/Lastdir'
-    def get_config():
-         return Config.config
 
-    get_config = staticmethod(get_config)
+    @staticmethod
+    def get_config():
+        return Config.config
+
     def __init__(self):
         wx.FileConfig.__init__(self, "Aksy", style=wx.CONFIG_USE_LOCAL_FILE)
 
@@ -158,7 +159,7 @@ class MenuAction(object):
         self.epilog = epilog
 
     def execute_refresh(self, item, *args):
-        print "REFRESH"
+        print("REFRESH")
         item.get_parent().refresh()
 
     def execute(self, evt):
@@ -171,13 +172,13 @@ class MenuAction(object):
     def execute_action(self, item):
         if not hasattr(item, self.action):
             return
-        print "Action %s, item: %s name: %s" % (self.action, repr(item), item.get_name())
-        print self.prolog
+        print("Action %s, item: %s name: %s" % (self.action, repr(item), item.get_name()))
+        print(self.prolog)
         if self.prolog is None:
             args = ()
         else:
             args = self.prolog(self, item)
-        print "Executing with args %s " % repr(args)
+        print("Executing with args %s " % repr(args))
         if args is None:
             return
         elif len(args) == 0:
@@ -279,21 +280,21 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
         item = self.GetPyData(id)
         if isinstance(item, model.FileRef):
             self.draggedItem = item
-            print "BeginDrag ", self.draggedItem.get_name()
+            print("BeginDrag ", self.draggedItem.get_name())
             evt.Allow()
 
     def OnItemEndDrag(self, evt):
         dest = evt.GetItem()
         item = self.GetPyData(dest)
-        print "EndDrag %s, Mod: %s" % (repr(item), repr(evt.GetKeyCode()))
+        print("EndDrag %s, Mod: %s" % (repr(item), repr(evt.GetKeyCode())))
         if isinstance(item, model.Folder):
-            print "Copy"
+            print("Copy")
             self.AppendAksyItem(dest, self.draggedItem)
         elif isinstance(item, model.Memory):
-            print "Load"
+            print("Load")
             self.draggedItem.load()
         else:    
-            print "Unsupported drop target"
+            print("Unsupported drop target")
             evt.Veto()
             return
         
@@ -304,7 +305,7 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
         if parent is None:
             parent = self.root
 
-        print "AppendAksyItem: name: %s, children: %s" % (item.get_name(), hasattr(item, 'get_children') and repr(item.get_children()) or 'None')
+        print("AppendAksyItem: name: %s, children: %s" % (item.get_name(), hasattr(item, 'get_children') and repr(item.get_children()) or 'None'))
         child = self.AppendItem(parent, item.get_short_name())
         if item.has_children():
             self.SetItemHasChildren(child)
@@ -333,7 +334,7 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
         ids = self.GetSelections()
         if len(ids) > 0:
             item = self.GetPyData(ids[-1])
-        print "TREE SEL CHANGED", ids
+        print("TREE SEL CHANGED", ids)
         evt.Skip()
         
     def OnKeyDown(self, evt):
@@ -364,12 +365,12 @@ class AksyFSTree(wx.TreeCtrl, ContextMenuHandler):
         #tree_parent = self.GetItemParent(evt.GetItem())
         #parent = self.GetPyData(tree_parent)
         #self.SetItemHasChildren(tree_parent, parent.has_children())
-        print repr(evt)
+        print(repr(evt))
         
     def OnItemExpanding(self, evt):
         id = evt.GetItem()
         item = self.GetPyData(id)
-        print "OnItemExpanding %s %s, %s" % (id, item.get_name(), repr(item.get_children()))
+        print("OnItemExpanding %s %s, %s" % (id, item.get_name(), repr(item.get_children())))
         for child in item.get_children():
             if not hasattr(child, 'id'):
                 self.AppendAksyItem(id, child)
@@ -466,7 +467,7 @@ class DirListCtrl(wx.ListCtrl, ContextMenuHandler):
             else:
                 actions.intersection(item.get_actions())
         menu = ActionMenu(self, wx.SIMPLE_BORDER)
-        print "ACTIONS ", actions
+        print("ACTIONS ", actions)
         mactions = [self.get_frame().get_menu_action(action.callable) for action in actions]
         menu.set_actions(mactions)
         self.PopupMenu(menu)
@@ -553,10 +554,10 @@ class TreePanel(wx.Panel):
                 # assume a path is pasted
                 data = wx.TextDataObject()
                 if wx.TheClipboard.GetData(data):
-                    print "Clipboard data ", repr(data.GetText())
+                    print("Clipboard data ", repr(data.GetText()))
                     data = wx.FileDataObject()
                 elif wx.TheClipboard.GetData(data):
-                     print "Clipboard data ", repr(data.GetFilenames())
+                     print("Clipboard data ", repr(data.GetFilenames()))
                 wx.TheClipboard.Close()
 
 class ActionMenu(wx.Menu):
@@ -590,7 +591,7 @@ class CtrlFileDropTarget(wx.FileDropTarget):
         
     def OnDropFiles(self, x, y, filenames):
         id, flag1 = self.ctrl.HitTest((x,y))
-        print repr(id)
+        print(repr(id))
         item = self.get_drop_dest(id)
         
         if item is None or not hasattr(item, "append_child"):
@@ -607,7 +608,7 @@ class DirListDropTarget(CtrlFileDropTarget):
         return self.ctrl.get_current()
     
     def OnDropFiles(self, x, y, filenames):
-        print "FN: ", repr(filenames)
+        print("FN: ", repr(filenames))
         CtrlFileDropTarget.OnDropFiles(self, x, y, filenames)
         self.ctrl.refresh()
     

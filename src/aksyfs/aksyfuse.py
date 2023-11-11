@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# #!/usr/bin/python
 
 import fuse
 
@@ -13,8 +13,8 @@ import logging
 from aksy.device import Devices
 from aksy.concurrent import transaction
 
-from aksy.devices.akai import sampler as samplermod
 from aksy import config
+from aksy.constants import TransferLocation
 from aksyfs import common
 
 fuse.fuse_python_api = (0, 2)
@@ -39,9 +39,9 @@ class AksyFile(fuse.FuseFileInfo):
         self.name = os.path.basename(path)
         location = common._splitpath(path)[0]
         if location == "memory":
-            self.location = samplermod.AkaiSampler.MEMORY
+            self.location = TransferLocation.MEMORY
         elif location == "disks":
-            self.location = samplermod.AkaiSampler.DISK
+            self.location = TransferLocation.DISK
         else:
             raiseException(errno.ENOENT)
 
@@ -56,9 +56,9 @@ class AksyFile(fuse.FuseFileInfo):
         if self.is_upload():
             try:
                 AksyFile.sampler.transfertools.put(self.get_path(), None, self.get_location())
-            except IOError, exc:
+            except IOError as exc:
                 # TODO: move to a method where we can raise exceptions
-                LOG.exception( "Exception occurred: ", exc)
+                LOG.exception("Exception occurred: ", exc)
         os.close(self.handle)
 
     def write(self, buf, offset):
@@ -83,6 +83,7 @@ class AksyFile(fuse.FuseFileInfo):
     
     def get_location(self):
         return self.location
+
 
 class FSStatInfo(fuse.StatVfs):
     def __init__(self, mem_total, mem_free):

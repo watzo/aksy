@@ -1,4 +1,4 @@
-import samplerobject
+from . import samplerobject
 
 class Envelope(samplerobject.SamplerObject):
     def __init__(self, keygroup, index, xoffset=10, yoffset=10):

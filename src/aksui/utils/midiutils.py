@@ -1,12 +1,12 @@
-import modelutils
+from . import modelutils
 
 # list of mpc pad -> notes, left -> right = 1 -> 16
-mpcpads = [
+mpcpads = [str(note) for note in [
             37,36,42,82,40,38,46,44,48,47,45,43,49,55,51,53, # a
             54,69,81,80,65,66,76,77,56,62,63,64,73,74,71,39, # b
             52,57,58,59,60,61,67,68,70,72,75,78,79,35,41,50, # c
             83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98  # d
-            ]
+            ]]
 
 mpc_banks_gm = [
             49,55,51,53, 
@@ -60,7 +60,7 @@ for oct in octaves:
             n = note + ' ' + str(oct)
         else:
             n = note + str(oct)
-        midinotes[i] = n
+        midinotes[str(i)] = str(n)
         i = i + 1        
 
 mpcpadsmodel = modelutils.get_model_from_list(mpcpads)

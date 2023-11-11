@@ -4,9 +4,8 @@ Offers a high level sampler API
 
 """
 import os.path, logging
-from aksyx import AkaiSampler
 from aksy import fileutils
-
+from aksy.constants import TransferLocation
 
 handlers = {}
 LOG = logging.getLogger("aksy.model")
@@ -38,9 +37,11 @@ class Container(object):
         return None
 
 class Disk(Container):
-    def __init__(self, (handle, disk_type, format, scsi_id, writable, name)):
+    # TODO use tuple unpacking at call site
+    def __init__(self, xxx_todo_changeme):
+        (handle, disk_type, format, scsi_id, writable, name) = xxx_todo_changeme
         self._handle = handle
-        # type: 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
+        # type - 0=floppy; 1=hard disk; 2=CD ROM; 3=removable disk.
         self._disk_type = disk_type
         # format, where: 0=other; 1=MSDOS; 2=FAT32; 3=ISO9660; 4=S1000; 5=S3000; 6=EMU; 7=ROLAND, 
         # 8=CD-AUDIO, 100=EMPTY
@@ -273,7 +274,8 @@ class Folder(FileRef, Container):
     def upload(self, path):
         self.set_current()
         name = os.path.basename(path)
-        handlers[Disk].z48.put(path, name, destination=AkaiSampler.DISK)
+        # TODO define enum elsewhere
+        handlers[Disk].z48.put(path, name, destination=TransferLocation.DISK)
         item = FileRef(self.path + (name,))
         self.children.append(item)
         return item

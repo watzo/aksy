@@ -54,11 +54,11 @@ class TestDisktools(TestCase):
     def test_get_disklist(self):
         disks = z48.disktools.get_disklist()
         LOG.info('test_get_disklist: ' + repr(disks))
-        self.assertEquals(z48.disktools.get_no_disks(), len(disks))
+        self.assertEqual(z48.disktools.get_no_disks(), len(disks))
 
     def test_get_curr_path(self):
         self.selectFirstDisk()
-        self.assertEquals('\\', z48.disktools.get_curr_path())
+        self.assertEqual('\\', z48.disktools.get_curr_path())
 
     def test_eject_disk(self):
         for disk in z48.disktools.get_disklist():
@@ -67,7 +67,7 @@ class TestDisktools(TestCase):
     def test_folder_listings(self):
         foldernames = z48.disktools.get_folder_names()
         LOG.debug('test_get_folder_names: ' + repr(foldernames))
-        self.assertEquals(z48.disktools.get_no_folders(), len(foldernames))
+        self.assertEqual(z48.disktools.get_no_folders(), len(foldernames))
 
     def test_load_folder(self):
         self.selectTestFolder()
@@ -88,7 +88,7 @@ class TestDisktools(TestCase):
         self.selectFirstFolder()
         files = z48.disktools.get_filenames()
         LOG.info("test_get_filenames: %s" % repr(files))
-        self.assertEquals(z48.disktools.get_no_files(), len(files))
+        self.assertEqual(z48.disktools.get_no_files(), len(files))
 
     def test_rename_delete_file(self):
         self.selectTestFolder()

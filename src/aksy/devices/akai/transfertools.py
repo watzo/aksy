@@ -1,26 +1,30 @@
-
 """ Transfertools
 
 Methods to send and receive files from the sampler.
 """
 
-__author__ =  'Walco van Loon'
-__version__=  "$Rev: 1354 $"
+__author__ = 'Walco van Loon'
+__version__ = "$Rev: 1354 $"
 
 import os.path, logging
 
 import aksy.devices.akai.sysex
-from aksyx import AkaiSampler
+from aksy.constants import TransferLocation
 
 LOG = logging.getLogger('aksy.devices.akai.transfertools')
+
 
 class Transfertools:
     def __init__(self, connector):
         self.connector = connector
-        self.get_cmd = aksy.devices.akai.sysex.Command('', '', 'transfertools', 'get', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
-        self.put_cmd = aksy.devices.akai.sysex.Command('', '', 'transfertools', 'put', (aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING), None)
+        self.get_cmd = aksy.devices.akai.sysex.Command(b'', b'', 'transfertools', 'get', (
+        aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING,
+        aksy.devices.akai.sysex_types.STRING), None)
+        self.put_cmd = aksy.devices.akai.sysex.Command(b'', b'', 'transfertools', 'put', (
+        aksy.devices.akai.sysex_types.STRING, aksy.devices.akai.sysex_types.STRING,
+        aksy.devices.akai.sysex_types.STRING), None)
 
-    def get(self, filename, destfile=None, source=AkaiSampler.MEMORY):
+    def get(self, filename, destfile=None, source=TransferLocation.MEMORY):
         """Gets a file from the sampler, overwriting destfile if it already exists.
         """
         if LOG.isEnabledFor(logging.DEBUG):
@@ -34,7 +38,7 @@ class Transfertools:
         else:
             return self.connector.execute(self.get_cmd, (filename, destfile, source))
 
-    def put(self, sourcepath, remote_name=None, destination=AkaiSampler.MEMORY):
+    def put(self, sourcepath, remote_name=None, destination=TransferLocation.MEMORY):
         """Transfers a file to the sampler, overwriting it if it already exists.
         Default destination is memory
         """

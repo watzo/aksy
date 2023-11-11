@@ -1,7 +1,7 @@
 import logging
 
-import sysextools, disktools, programtools, multitools, songtools, multifxtools
-import sampletools, systemtools, recordingtools, keygrouptools, zonetools, frontpaneltools
+from . import sysextools, disktools, programtools, multitools, songtools, multifxtools
+from . import sampletools, systemtools, recordingtools, keygrouptools, zonetools, frontpaneltools
 from aksy.devices.akai.sampler import Sampler
 from aksy.devices.akai import model
 
@@ -16,7 +16,7 @@ class Z48(Sampler):
 
         self.sysextools.enable_msg_notification(False)
         self.sysextools.enable_item_sync(False)
-        
+
         self.setup_model()
 
     def setup_tools(self):
@@ -35,11 +35,11 @@ class Z48(Sampler):
 
     def setup_model(self):
         model.register_handlers({model.Disk: self.disktools,
-                        model.FileRef: self.disktools,
-                        model.Program: self.programtools,
-                        model.Sample: self.sampletools,
-                        model.Multi: self.multitools,
-                        model.Song: self.songtools})
+                                 model.FileRef: self.disktools,
+                                 model.Program: self.programtools,
+                                 model.Sample: self.sampletools,
+                                 model.Multi: self.multitools,
+                                 model.Song: self.songtools})
 
         self.disks = model.RootDisk('disks', self.disktools.get_disklist())
         self.memory = model.Memory('memory')

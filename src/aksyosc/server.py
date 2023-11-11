@@ -23,8 +23,8 @@ class OSCServer(asyncore.dispatcher):
         self.set_reuse_addr()
         self.bind((address, port))
         self.response = None 
-        print '%s started at addr: %s:%i\n' % (
-           self.__class__.__name__, address, port)
+        print('%s started at addr: %s:%i\n' % (
+           self.__class__.__name__, address, port))
 
     def handle_connect(self):
         pass

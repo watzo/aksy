@@ -1,11 +1,11 @@
-import samplerobject, zone, envelope
+from . import samplerobject, zone, envelope
 
 keygroup_cache = {}
 
 def get_keygroup_cached(p, index):
     key = (p.handle, index)
 
-    if not key in keygroup_cache.keys():
+    if not key in list(keygroup_cache.keys()):
         keygroup_cache[key] = Keygroup(p, index) 
 
     keygroup = keygroup_cache[key]
@@ -77,7 +77,7 @@ class Keygroup(samplerobject.SamplerObject):
                     attrval = int(attrval)
                 func(attrval)
         else:
-            print "no method set_" + attrname
+            print("no method set_" + attrname)
 
         if self.set_callback:
             self.set_callback(attrname, attrval)

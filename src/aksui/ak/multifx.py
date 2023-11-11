@@ -58,7 +58,7 @@ class MultiFXChannel:
     def dump(self):
         attrs = ['index','muted','input','output']
         for attr in attrs:
-            print 'Param ',self.index,' :',attr,' = ',getattr(self,attr)
+            print('Param ',self.index,' :',attr,' = ',getattr(self,attr))
 
         for mi in self.modules:
             module = self.modules[mi]
@@ -123,7 +123,7 @@ class MultiFXModule:
     def dump(self):
         attrs = ['effect_name','enabled','number_of_parameters']
         for attr in attrs:
-            print '\tParam ',self.index,' :',attr,' = ',getattr(self,attr)
+            print('\tParam ',self.index,' :',attr,' = ',getattr(self,attr))
         for pi in self.parameters:
             param = self.parameters[pi]
             param.dump()
@@ -187,7 +187,7 @@ class MultiFXParam:
     def dump(self):
         attrs = ['maximum','minimum','name','type','position_id']
         for attr in attrs:
-            print '\t\tParam ',self.index,' :',attr,' = ',getattr(self,attr)
+            print('\t\tParam ',self.index,' :',attr,' = ',getattr(self,attr))
 
 inputmapmodel = modelutils.get_model_from_list(MultiFXChannel.inputmap)
 outputmapmodel = modelutils.get_model_from_list(MultiFXChannel.outputmap)

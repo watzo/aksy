@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from io import StringIO
 import struct, os.path, os
 
 """
@@ -108,7 +108,7 @@ class Base:
             #self.setdefaults()
         else:
             self.setdefaults()
-            for kw, value in kwargs.iteritems():
+            for kw, value in kwargs.items():
                 if not hasattr(self, kw):
                     raise Exception("Unknown property: %s" % kw)
                 setattr(self, kw, value)
@@ -303,7 +303,7 @@ class Program(Base):
 
     def setvalues(self):
         label = self.read_string(index=0x0, length=4)
-        print repr(self._chunk)
+        print(repr(self._chunk))
         assert label == "APRG"
         assert self.read_string(0x5, 4) == "prg "
         self.midi_prog_no = self.read_byte(0x15) 
@@ -435,7 +435,7 @@ class Program(Base):
         string_repr = StringIO()
         string_repr.write('<Akai Program')
         string_repr.write(''.join(['property: %s, val %s\n' % (item, val) 
-                                for item,val in self.__dict__.iteritems()]))
+                                for item,val in self.__dict__.items()]))
         string_repr.write('>')
         return string_repr.getvalue()
 
@@ -833,6 +833,7 @@ class AuxEnvelope(Base):
             self.velo_to_out_level,
             0)
 
+
 if __name__ == "__main__":
     import doctest, sys
     doctest.testmod(sys.modules[__name__])
@@ -844,8 +845,7 @@ if __name__ == "__main__":
     import math
     samples = []
     for s in range(no_samples):
-       samples.append(struct.pack('<h', math.sin(freq * s * 2 * math.pi) * amp))
-    samples = ''.join(samples)
-    sample = Sample('test', 91, samplerate, loops, samples)
+        samples.append(struct.pack('<h', math.sin(freq * s * 2 * math.pi) * amp))
+    sample = Sample('test', 91, samplerate, loops, b''.join(samples))
     sample.writefile()
 

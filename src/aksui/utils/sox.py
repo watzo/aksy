@@ -7,7 +7,7 @@ def convert(filename):
 		src = filename
 		dest = path + "\\" + name + "_rs" + ext
 		cmd = "sox \"" + src + "\" -r 44100 \"" + dest + "\" resample -ql" 
-		print cmd
+		print(cmd)
 		os.system(cmd)
 		return dest
 	else:

@@ -8,9 +8,9 @@ class TestProgram(unittest.TestCase):
         
         parser = fileparser.ProgramParser()
         program = parser.parse(pfile)
-        self.assertEquals(9, len(program.keygroups))
-        self.assertEquals('angel 01', program.keygroups[0].zones[0].samplename)
-        self.assertEquals('', program.keygroups[0].zones[2].samplename)
+        self.assertEqual(9, len(program.keygroups))
+        self.assertEqual('angel 01', program.keygroups[0].zones[0].samplename)
+        self.assertEqual('', program.keygroups[0].zones[2].samplename)
     
 def test_suite():
     testloader = unittest.TestLoader()

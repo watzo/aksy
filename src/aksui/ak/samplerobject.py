@@ -1,6 +1,4 @@
 #import os,os.path,re,logging,sys,struct,math,traceback
-import gtk,pygtk,gobject
-import aksy
 
 import aksui.utils
 
@@ -38,7 +36,7 @@ class SamplerObject(object):
                 return str(pin.level)
             else:
                 return ""
-        elif attr in self.abbr.keys():
+        elif attr in list(self.abbr.keys()):
             return self.abbr[attr]
         else:
             return attr

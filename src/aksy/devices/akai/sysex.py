@@ -2,22 +2,25 @@ import struct, logging, errno
 from aksy.devices.akai import sysex_types, model
 from aksy.devices.akai.sysex_types import START_SYSEX, END_SYSEX
 
-AKAI_ID = '\x47'
-Z48_ID = '\x5f'
-S56K_ID = '\x5e'
+AKAI_ID = b'\x47'
+Z48_ID = b'\x5f'
+S56K_ID = b'\x5e'
 
-REPLY_ID_OK = '\x4f'
-REPLY_ID_DONE = '\x44'
-REPLY_ID_REPLY = '\x52'
-REPLY_ID_ERROR = '\x45'
+REPLY_ID_OK = b'\x4f'
+REPLY_ID_DONE = b'\x44'
+REPLY_ID_REPLY = b'\x52'
+REPLY_ID_ERROR = b'\x45'
 
 log = logging.getLogger("aksy")
 
 class Command:
     """Represents a system exclusive command.
     """
-    def __init__(self, device_id, cmd_id, section, name, arg_types,
-            reply_spec, userref_type=sysex_types.USERREF):
+    def __init__(self, device_id: bytes, cmd_id: bytes, section, name, arg_types,
+                 reply_spec, userref_type=sysex_types.USERREF):
+        assert isinstance(device_id, bytes)
+        assert isinstance(cmd_id, bytes)
+
         self.device_id = device_id
         self.id = cmd_id
         self.section = section
@@ -34,13 +37,15 @@ class Command:
         """Returns the sysex byte sequence for the command arg data -
         """
         bytes = []
-        for sysex_type, arg in zip(self.arg_types, args):
-            bytes.append(sysex_type.encode(arg))
+
+        for i, sysex_type in enumerate(self.arg_types):
+            bytes.append(sysex_type.encode(args[i]))
 
         if len(bytes) == 0:
             return None
         else:
-            return bytes
+            return b''.join(bytes)
+
 
 class Request:
     """ Encapsulates a sysex request
@@ -56,37 +61,36 @@ class Request:
         bytes.append(command.id)
         data = command.create_arg_bytes(args)
         if data is not None:
-            bytes.extend(data)
+            bytes.append(data)
         bytes.append(END_SYSEX)
 
-        return ''.join(bytes)
+        return b''.join(bytes)
 
     def _create_start_bytes(self, command, request_id):
-        bytes = [START_SYSEX, AKAI_ID]
-        bytes.append(command.device_id)
-        bytes.append(command.userref_type.encode(request_id))
-        return bytes
-        
+        return [START_SYSEX, AKAI_ID, command.device_id, command.userref_type.encode(request_id)]
+
     def get_bytes(self):
         return self.bytes
     
     def __repr__(self):
         return repr([ "%02x" %byte for byte in struct.unpack(str(len(self.bytes)) + 'B', 
                                                              self.bytes)])
-class AlternativeRequest(Request):
-    SECTION_SAMPLE = '\x60'
-    SECTION_KEYGROUP = '\x61'
-    SECTION_PROGRAM = '\x62'
-    SECTION_MULTI = '\x63'
-    SECTION_MULTIFX = '\x64'
-    SECTION_SONG = '\x65'
 
-    BASE_SECTION_SAMPLE = '\x1c'
-    BASE_SECTION_KEYGROUP = '\x0c'
-    BASE_SECTION_PROGRAM = '\x14'
-    BASE_SECTION_MULTI = '\x18'
-    BASE_SECTION_MULTIFX = '\x25'
-    BASE_SECTION_SONG = '\x28'
+
+class AlternativeRequest(Request):
+    SECTION_SAMPLE = b'\x60'
+    SECTION_KEYGROUP = b'\x61'
+    SECTION_PROGRAM = b'\x62'
+    SECTION_MULTI = b'\x63'
+    SECTION_MULTIFX = b'\x64'
+    SECTION_SONG = b'\x65'
+
+    BASE_SECTION_SAMPLE = b'\x1c'
+    BASE_SECTION_KEYGROUP = b'\x0c'
+    BASE_SECTION_PROGRAM = b'\x14'
+    BASE_SECTION_MULTI = b'\x18'
+    BASE_SECTION_MULTIFX = b'\x25'
+    BASE_SECTION_SONG = b'\x28'
 
     BASE_ALT_SECTION_MAP = {
         BASE_SECTION_SAMPLE : SECTION_SAMPLE,
@@ -110,18 +114,21 @@ class AlternativeRequest(Request):
             
         for i, command in enumerate(commands):
             if len(command.arg_types) > 0:
-                data = ''.join(command.create_arg_bytes(args[i]))
+                data = command.create_arg_bytes(args[i])
                 bytes.append(sysex_types.BYTE.encode(len(data) + 1))
             else:
-                data = []
+                data = b''
                 bytes.append(sysex_types.BYTE.encode(1))
 
-            bytes.append(command.id[1])
-            bytes.extend(data)
-        
-                 
+            bytes.append(command.id[1:2])
+            bytes.append(data)
+
         bytes.append(END_SYSEX)
-        self.bytes = ''.join(bytes)
+
+        try:
+            self.bytes = b''.join(bytes)
+        except TypeError as e:
+            raise Exception(f'byte conv issue {bytes}') from e
         
     def find_section_ids(self, command_id, no_sections):
         section_id = sysex_types.BYTE.decode(command_id[:1], False)
@@ -132,7 +139,7 @@ class AlternativeRequest(Request):
                 return alt_section, sysex_types.BYTE.encode(i)
         
         raise model.SamplerException("No alternative operations defined for %s" % 
-                                    repr(command_id[:1]))
+                                     repr(command_id[:1]))
         
     
 class Reply:
@@ -141,7 +148,7 @@ class Reply:
     def __init__(self, bytes, command, alt_request=False):
         self.bytes = bytes
         self.command = command
-        self.request_id  = 0
+        self.request_id = 0
         self.alt_request = alt_request
         self.return_value = self._parse()
 
@@ -155,8 +162,8 @@ class Reply:
         """ Parses the command sequence
         """
 
-        if self.bytes[0] != START_SYSEX or self.bytes[-1] != END_SYSEX:
-            raise ParseException("Invalid system exclusive string received")
+        if self.bytes[0:1] != START_SYSEX or self.bytes[-1:] != END_SYSEX:
+            raise ParseException("Invalid system exclusive string received", self.bytes[-1:])
         # keep alive message
         if len(self.bytes) == 2:
             return None
@@ -165,7 +172,7 @@ class Reply:
         i += len(self.command.device_id)
         len_userref, self.request_id = self.command.userref_type.decode(self.bytes[i:])
         i += len_userref
-        reply_id = self.bytes[i]
+        reply_id = self.bytes[i:i+1]
         i +=  1 # skip past the reply code
         command = self.bytes[i:i+2]
         i += len(self.command.id) # skip past the command id (section, item, optional subcmd)
@@ -201,8 +208,10 @@ class ParseException(Exception):
 def byte_repr(bytes):
     return repr([ "%02x" %byte for byte in struct.unpack(str(len(bytes)) + 'B', bytes)])
 
+
 def repr_bytes(bytes):
-    return  ''.join([struct.pack('1B', int(byte, 16)) for byte in bytes])
+    return b''.join([struct.pack('1B', int(byte, 16)) for byte in bytes])
+
 
 def _to_string(ordvalues):
     """Method to quickly convert to a string

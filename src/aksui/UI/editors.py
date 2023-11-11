@@ -7,7 +7,7 @@ import os.path
 from aksui.utils import midiutils, modelutils
 from aksui.ak import envelope, keygroup, part
 
-import rangewidget
+from . import rangewidget
 
 __author__ = 'Joseph Misra'
 __version__ = '0.71'
@@ -115,7 +115,7 @@ class DrumEditorTable(gtk.Table):
                     tb = gtk.RadioButton(rbg)
                     tb.connect("toggled", self.on_button_press_event, kg.index + 1) 
 
-                    if i in midiutils.gm1drumsmap.keys():
+                    if i in list(midiutils.gm1drumsmap.keys()):
                         subdesc = midiutils.gm1drumsmap[i]
                         # general midi markup label
                         subdesclabel = gtk.Label("<span size='smaller'>%s %s</span>" % (desc, subdesc))

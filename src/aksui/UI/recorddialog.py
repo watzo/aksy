@@ -1,6 +1,6 @@
 import gobject
 
-import base
+from . import base
 
 """
 Recording interface(s)!
@@ -13,8 +13,8 @@ General good idea: base class for these user interfaces to get rid of redundanci
 class RecordDialog(base.Base):
     def __init__(self, record):
         base.Base.__init__(self, record, "windowRecording")
-        self.progressbar = self.xml.get_widget('progressbar_recording')
-        self.name = self.xml.get_widget('entry_name')
+        self.progressbar = self.xml.get_object('progressbar_recording')
+        self.name = self.xml.get_object('entry_name')
         self.record = record
         self.update()
         
@@ -26,8 +26,8 @@ class RecordDialog(base.Base):
         if status == 6:
             self.continue_check_progress = False
             self.record.gettools().keep()
-            print "Kept sample!"
-            print self.record.gettools().get_name()
+            print("Kept sample!")
+            print(self.record.gettools().get_name())
 
         status = self.record.gettools().get_status()
 
@@ -39,13 +39,13 @@ class RecordDialog(base.Base):
 
     def on_button_clicked(self, widget):
         if widget.name == "button_arm":
-            print "before armed", self.record.gettools().get_status()
+            print("before armed", self.record.gettools().get_status())
             self.record.gettools().arm()
-            print "after armed", self.record.gettools().get_status()
+            print("after armed", self.record.gettools().get_status())
             if self.record.gettools().get_status() == 2:
                 self.record.gettools().record()
             else:
-                print self.record.gettools().get_status()
+                print(self.record.gettools().get_status())
             # 1 == ready
             # 2 == armed
             self.continue_check_progress = True
@@ -62,8 +62,8 @@ class RecordDialog(base.Base):
             self.progressbar.set_fraction(0.0)
         elif widget.name == "button_play_preview":
             self.record.gettools().start_playing()
-            print self.record.gettools().get_status()
+            print(self.record.gettools().get_status())
         elif widget.name == "button_stop_preview":
-            print "stopping"
+            print("stopping")
             self.record.gettools().stop_playing()
-            print self.record.gettools().get_status()
+            print(self.record.gettools().get_status())

@@ -1,7 +1,7 @@
 import gtk
 
-import panelbase, editors
-class KeygroupEnvelopes(panelbase.PanelBase):
+from . import panelbase, editors
+class KeygroupEnvelopes(panelbase.PanelBase):
     def __init__(self, keygroup, cb):
         self.env_labels = ["Amp Anvelope", "Filter Envelope", "Aux Envelope"]
         panelbase.PanelBase.__init__(self, keygroup, "Envelopes", cb)

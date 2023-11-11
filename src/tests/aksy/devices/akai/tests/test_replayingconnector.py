@@ -16,17 +16,17 @@ class Request:
     
 class TestReplayingConnector(unittest.TestCase):
     def testEncode(self):
-        self.assertEquals('\xf0G_\x00E`\x00\x00\x00\xf7', replayingconnector.encode(eval(RESP)))
+        self.assertEqual(b'\xf0G_\x00E`\x00\x00\x00\xf7', replayingconnector.encode(eval(RESP)))
 
     def testParse(self):
         f = testutil.get_test_resource('aksy_20070624.log')
         conn = replayingconnector.ReplayingConnector('z48', f)
-        self.assertEquals(create_bytes("['f0', '47', '5f', '00', '44', '00', '01', 'f7']"), 
+        self.assertEqual(create_bytes("['f0', '47', '5f', '00', '44', '00', '01', 'f7']"), 
                           conn.requests[create_bytes(" ['f0', '47', '5f', '00', '00', '01', '00', 'f7']")])
-        self.assertEquals(create_bytes(RESP), 
+        self.assertEqual(create_bytes(RESP), 
                           conn.requests[create_bytes(REQ)])
         
-        self.assertEquals(34, len(conn.requests))
+        self.assertEqual(34, len(conn.requests))
     
     def testExecuteRequest(self):
         f = testutil.get_test_resource('aksy_20070624.log')

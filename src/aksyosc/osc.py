@@ -46,10 +46,10 @@ def hexDump(bytes):
     for i in range(len(bytes)):
         sys.stdout.write("%2x " % (ord(bytes[i])))
         if (i+1) % 8 == 0:
-            print repr(bytes[i-7:i+1])
+            print(repr(bytes[i-7:i+1]))
 
     if(len(bytes) % 8 != 0):
-        print "".rjust(11), repr(bytes[i-7:i+1])
+        print("".rjust(11), repr(bytes[i-7:i+1]))
 
 def string_encodeable(str):
     return str.find('\x00') == -1
@@ -109,7 +109,7 @@ def readBlob(data):
 
 def readInt(data):
     if(len(data)<4):
-        print "Error: too few bytes for int", data, len(data)
+        print("Error: too few bytes for int", data, len(data))
         rest = data
         integer = 0
     else:
@@ -131,18 +131,18 @@ def readOSCTime(data):
     """Tries to interpret the next 8 bytes of the data
     as a 64-bit signed integer."""
     high, low = struct.unpack(">ll", data[0:8])
-    big = (long(high) << 32) + low
+    big = (int(high) << 32) + low
     rest = data[8:]
     return (big, rest)
 
 def readLong(data):
     assert len(data) >= 8
     long = struct.unpack(">q", data[0:8])[0]
-    return (long, data[8:])
+    return (int, data[8:])
 
 def readFloat(data):
     if(len(data)<4):
-        print "Error: too few bytes for float", data, len(data)
+        print("Error: too few bytes for float", data, len(data))
         rest = data
         f = 0
     else:
@@ -188,7 +188,8 @@ def OSCArgument(next):
     elif next is False:
         binary = ""
         tag = "F"
-    elif isinstance(next, types.StringType):
+    # TODO this should be simplified
+    elif isinstance(next, bytes):
         if not string_encodeable(next):
             tag, binary = OSCBlob(next)
         else:         
@@ -201,7 +202,7 @@ def OSCArgument(next):
     elif isinstance(next, int):
         binary  = struct.pack(">i", next)
         tag = "i"
-    elif isinstance(next, long):
+    elif isinstance(next, int):
         binary  = struct.pack(">q", next)
         tag = "h"
     else:
@@ -290,11 +291,11 @@ class CallbackManager:
         try:
             address = message[0]
             self.callbacks[address](message)
-        except KeyError, e:
+        except KeyError as e:
             # address not found
-            print "Address ", address, " not found."
-        except None, e:
-            print "Exception in", address, "callback :", e
+            print("Address ", address, " not found.")
+        except None as e:
+            print("Exception in", address, "callback :", e)
         
         return
 
@@ -316,7 +317,7 @@ class CallbackManager:
 
 if __name__ == "__main__":
     hexDump("Welcome to the OSC testing program.")
-    print
+    print()
     message = OSCMessage()
     message.setAddress("/foo/play")
     message.append(44)
@@ -325,7 +326,7 @@ if __name__ == "__main__":
     message.append("the white cliffs of dover")
     hexDump(message.getBinary())
 
-    print "Making and unmaking a message.."
+    print("Making and unmaking a message..")
 
     strings = OSCMessage()
     strings.append("Mary had a little lamb")
@@ -340,26 +341,26 @@ if __name__ == "__main__":
 
     hexDump(raw)
     
-    print "Retrieving arguments..."
+    print("Retrieving arguments...")
     data = raw
     for i in range(6):
         text, data = readString(data)
-        print text
+        print(text)
 
     number, data = readFloat(data)
-    print number
+    print(number)
 
     number, data = readFloat(data)
-    print number
+    print(number)
 
     number, data = readInt(data)
-    print number
+    print(number)
 
     hexDump(raw)
-    print decodeOSC(raw)
-    print decodeOSC(message.getBinary())
+    print(decodeOSC(raw))
+    print(decodeOSC(message.getBinary()))
 
-    print "Testing Blob types."
+    print("Testing Blob types.")
    
     blob = OSCMessage() 
     blob.append("", "b")
@@ -372,7 +373,7 @@ if __name__ == "__main__":
 
     hexDump(blob.getBinary())
 
-    print decodeOSC(blob.getBinary())
+    print(decodeOSC(blob.getBinary()))
 
     def printingCallback(stuff):
         sys.stdout.write("Got: ")
@@ -380,7 +381,7 @@ if __name__ == "__main__":
             sys.stdout.write(str(i) + " ")
         sys.stdout.write("\n")
 
-    print "Testing the callback manager."
+    print("Testing the callback manager.")
     
     c = CallbackManager()
     c.add(printingCallback, "/print")
@@ -407,5 +408,5 @@ if __name__ == "__main__":
 
     bundlebinary = bundle.message
 
-    print "sending a bundle to the callback manager"
+    print("sending a bundle to the callback manager")
     c.handle(bundlebinary)

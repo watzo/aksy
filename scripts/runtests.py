@@ -67,11 +67,9 @@ import re
 import os
 import sys
 import time
-import types
 import getopt
 import unittest
 import traceback
-from sets import Set
 
 __metaclass__ = type
 
@@ -169,7 +167,7 @@ def get_test_files(cfg):
                         results.append(path)
             return
         if '__init__.py' not in files:
-            print >> sys.stderr, "%s is not a package" % dir
+            print("%s is not a package" % dir, file=sys.stderr)
             return
         for file in files:
             if file.startswith('test') and file.endswith('.py'):
@@ -226,7 +224,7 @@ def get_all_test_cases(module):
         if not name.startswith('Test'):
             continue
         item = getattr(module, name)
-        if (isinstance(item, (type, types.ClassType)) and
+        if (isinstance(item, type) and
             issubclass(item, unittest.TestCase)):
             results.append(item)
     return results
@@ -236,7 +234,7 @@ def get_test_classes_from_testsuite(suite):
     """Returns a set of test case classes used in a test suite."""
     if not isinstance(suite, unittest.TestSuite):
         raise TypeError('not a TestSuite', suite)
-    results = Set()
+    results = set()
     for test in suite._tests:
         if isinstance(test, unittest.TestCase):
             results.add(test.__class__)
@@ -259,16 +257,16 @@ def get_test_cases(test_files, cfg, tracer=None):
         if test_suite is None:
             continue
         if cfg.warn_omitted:
-            all_classes = Set(get_all_test_cases(module))
+            all_classes = set(get_all_test_cases(module))
             classes_in_suite = get_test_classes_from_testsuite(test_suite)
             difference = all_classes - classes_in_suite
             for test_class in difference:
                 # surround the warning with blank lines, otherwise it tends
                 # to get lost in the noise
-                print >> sys.stderr
-                print >> sys.stderr, ("%s: WARNING: %s not in test suite"
-                                      % (file, test_class.__name__))
-                print >> sys.stderr
+                print(file=sys.stderr)
+                print(("%s: WARNING: %s not in test suite"
+                                      % (file, test_class.__name__)), file=sys.stderr)
+                print(file=sys.stderr)
         if (cfg.level is not None and
             getattr(test_suite, 'level', 0) > cfg.level):
             continue
@@ -280,7 +278,7 @@ def get_test_cases(test_files, cfg, tracer=None):
 def get_test_hooks(test_files, cfg, tracer=None):
     """Returns a list of test hooks from a given list of test modules."""
     results = []
-    dirs = Set(map(os.path.dirname, test_files))
+    dirs = set(list(map(os.path.dirname, test_files)))
     for dir in list(dirs):
         if os.path.basename(dir) == 'ftests':
             dirs.add(os.path.join(os.path.dirname(dir), 'tests'))
@@ -425,7 +423,7 @@ class CustomTestRunner(unittest.TextTestRunner):
             self.stream.writeln()
         if not result.wasSuccessful():
             self.stream.write("FAILED (")
-            failed, errored = map(len, (result.failures, result.errors))
+            failed, errored = list(map(len, (result.failures, result.errors)))
             if failed:
                 self.stream.write("failures=%d" % failed)
             if errored:
@@ -447,8 +445,8 @@ def main(argv):
 
     # Environment
     if sys.version_info < (2, 3):
-        print >> sys.stderr, '%s: need Python 2.3 or later' % argv[0]
-        print >> sys.stderr, 'your python is %s' % sys.version
+        print('%s: need Python 2.3 or later' % argv[0], file=sys.stderr)
+        print('your python is %s' % sys.version, file=sys.stderr)
         return 1
 
     # Defaults
@@ -476,7 +474,7 @@ def main(argv):
                                     'level=', 'all-levels', 'coverage'])
     for k, v in opts:
         if k == '-h':
-            print __doc__
+            print(__doc__)
             return 0
         elif k == '-v':
             cfg.verbosity += 1
@@ -509,22 +507,22 @@ def main(argv):
             try:
                 cfg.level = int(v)
             except ValueError:
-                print >> sys.stderr, '%s: invalid level: %s' % (argv[0], v)
-                print >> sys.stderr, 'run %s -h for help'
+                print('%s: invalid level: %s' % (argv[0], v), file=sys.stderr)
+                print('run %s -h for help', file=sys.stderr)
                 return 1
         elif k == '--all-levels':
             cfg.level = None
         else:
-            print >> sys.stderr, '%s: invalid option: %s' % (argv[0], k)
-            print >> sys.stderr, 'run %s -h for help'
+            print('%s: invalid option: %s' % (argv[0], k), file=sys.stderr)
+            print('run %s -h for help', file=sys.stderr)
             return 1
     if args:
         cfg.pathname_regex = args[0]
     if len(args) > 1:
         cfg.test_regex = args[1]
     if len(args) > 2:
-        print >> sys.stderr, '%s: too many arguments: %s' % (argv[0], args[2])
-        print >> sys.stderr, 'run %s -h for help'
+        print('%s: too many arguments: %s' % (argv[0], args[2]), file=sys.stderr)
+        print('run %s -h for help', file=sys.stderr)
         return 1
     if not cfg.unit_tests and not cfg.functional_tests:
         cfg.unit_tests = True
@@ -564,11 +562,11 @@ def main(argv):
     success = True
     if cfg.list_files:
         baselen = len(cfg.basedir) + 1
-        print "\n".join([fn[baselen:] for fn in test_files])
+        print("\n".join([fn[baselen:] for fn in test_files]))
     if cfg.list_tests:
-        print "\n".join([test.id() for test in test_cases])
+        print("\n".join([test.id() for test in test_cases]))
     if cfg.list_hooks:
-        print "\n".join([str(hook) for hook in test_hooks])
+        print("\n".join([str(hook) for hook in test_hooks]))
     if cfg.run_tests:
         runner = CustomTestRunner(cfg, test_hooks)
         suite = unittest.TestSuite()

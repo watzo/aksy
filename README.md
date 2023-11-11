@@ -12,12 +12,19 @@ functionality (disk functions, transfers and a bunch of untested modules) of
 the S56K.
 
 With Aksui included from 0.3 and onwards, the original goal of Aksy comes in
-site again. Stay tuned.
+sight again.
 
-And of 2017, this library seems to fulfill its promise: it still compiles and installs 
+And of 2022, this library starts to fulfill its promise: it still compiles and installs 
 on modern 64 bit systems, thanks to the stability of libusb and python.
 
-Python 2.7 is now supported. Python 3 support is looked into.
+## Python 3 support
+### Ported modules
+* aksy core library works
+* aksy-fs, mounting the sampler's memory and filesystem on a MacOS/Linux host system, works
+
+### Modules still to do
+* aksy-ftpd, the FTP server which allows one to map the sampler's filesystem and memory as a Drive on Windows
+* Aksui needs to be [ported from pygtk to pygobject](https://pygobject.readthedocs.io/en/latest/guide/porting.html) 
 
 ## Usage
 

@@ -2,5 +2,6 @@ dist/*
 build/*
 buildenv/*
 *.pyc
-venv/
+venv*/
 .idea/
+.DS_Store

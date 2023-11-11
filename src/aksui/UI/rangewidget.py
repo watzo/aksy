@@ -1,11 +1,11 @@
 # Custom widgets via Cairo: Knob, Level, Range, Keygroup etc.
 
-import math, urllib
-from urlparse import urlparse
+import math, urllib.request, urllib.parse, urllib.error
+from urllib.parse import urlparse
 
 import gobject, gtk
 
-import hitbox, widget
+from . import hitbox, widget
 
 from aksui.utils import modelutils, midiutils
 from aksui.ak import *
@@ -571,7 +571,7 @@ class MiniZoneWidget(widget.AkWidget):
         if target_type == 0:
             # try uploading that shit
             parsed = urlparse(selection.data.rstrip('\r\n'))
-            path = urllib.unquote(parsed[2])
+            path = urllib.parse.unquote(parsed[2])
             self.s.filechooser.upload(path)
             samplename = selection.data
             zone.set_sample(samplename)
@@ -696,7 +696,7 @@ class AkComboBox(gtk.ComboBox):
                         if iter:
                             self.set_active_iter(iter)
                         elif len(self.value) > 0:
-                            print "missing iter for", self.value, "model probably not initialized?"
+                            print("missing iter for", self.value, "model probably not initialized?")
                     elif self.use_index:
                         self.set_active(int(self.value))
                     else:

@@ -9,19 +9,20 @@ orbs:
   # Orb commands and jobs help you with common scripting around a language/tool
   # so you dont have to copy and paste it everywhere.
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
-  python: circleci/python@1.2
+  python: circleci/python@2.0.3
+  python-win: circleci/windows@4.1.1
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
+  build-and-test-linux:
     # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
     # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
     # The executor is the environment in which the steps below will be executed - below will use a python 3.8 container
     # Change the version below to your required version of python
     docker:
-      - image: cimg/python:2.7.18
+      - image: cimg/python:3.9
     # Checkout the code as the first step. This is a dedicated CircleCI step.
     # The python orb's install-packages step will install the dependencies from a Pipfile via Pipenv by default.
     # Here we're making sure we use just use the system-wide pip. By default it uses the project root's requirements.txt.
@@ -42,10 +43,66 @@ jobs:
           # This assumes pytest is installed via the install-package step above
           command: ./scripts/runtests.py
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+  build-and-test-windows:
+    executor:
+      name: python-win/default
+    steps:
+      - checkout
+      - run:
+          name: Get conan package manager and nuitka python compiler
+          command: pip install conan nuitka
+      - run:
+          name: Install libusb
+          command: |
+            $Env:CONAN_REVISIONS_ENABLED=1
+            
+            conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter
+      - run:
+          name: Build and install
+          command: python.exe setup.py install
+      - run:
+          name: Run tests
+          command: ./scripts/runtests.py
+      - run:
+          name: Package
+          command: python -m nuitka --assume-yes-for-downloads --standalone --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries/
+      - store_artifacts:
+          path: build/binaries
+
+
+  build-and-test-macosx:
+    macos:
+      xcode: 13.4.1
+    steps:
+    - checkout
+    - run:
+        name: Install python and libusb, fuse dependencies
+        command: brew install python@3.9 macfuse libusb-compat pkg-config
+    - run:
+        name: Get conan package manager and nuitka python compiler
+        command: pip3.9 install conan nuitka zstandard ordered-set
+    - run:
+        name: Install libusb
+        command: |
+          export CONAN_REVISIONS_ENABLED=1
+          
+          echo conan install . -g deploy --install-folder build/nativelibs/ --remote conancenter --build=libusb --build=libusb-compat
+    - run:
+        name: Build and install
+        command: python3.9 setup.py install
+    - run:
+        name: Run tests
+        command: python3.9 scripts/runtests.py
+    - run:
+        name: Package
+        command: python3.9 -m nuitka --no-progressbar --assume-yes-for-downloads --standalone --macos-create-app-bundle --onefile src/aksyfs/aksyfuse.py --output-dir=build/binaries
+    - store_artifacts:
+        path: build/binaries
+
+
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  build-all:
     jobs:
-      - build-and-test
+      - build-and-test-linux
+      - build-and-test-windows
+      - build-and-test-macosx

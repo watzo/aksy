@@ -1,6 +1,6 @@
 import logging
 
-import sysextools, disktools, programtools, sampletools, multitools, songtools
+from . import sysextools, disktools, programtools, sampletools, multitools, songtools
 from aksy.devices.akai.sampler import Sampler
 #from aksy.devices.akai import sysex
 from aksy.devices.akai import model
